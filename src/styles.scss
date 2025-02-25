@@ -1,0 +1,168 @@
+/* Importing Bootstrap SCSS file. */
+// @import '~bootstrap/scss/bootstrap';
+
+/* You can add global styles to this file, and also import other style files */
+@import '~dropzone/dist/min/dropzone.min.css';
+
+.modal-holder {
+  animation-name: example;
+  animation-duration: 0.3s;
+}
+
+@keyframes example {
+  0% {
+    transform: scale(0.5)
+  }
+
+  100% {
+    transform: scale(1)
+  }
+}
+
+.carousel-item {
+  transition: opacity 0.7s ease !important;
+  position: absolute !important;
+  display: block !important;
+  opacity: 0;
+}
+
+.carousel-item.active {
+  position: relative !important;
+  opacity: 1;
+}
+
+ngx-dropzone {
+  border: 2px dashed var(--bs-border-color) !important;
+}
+
+
+
+
+//
+// Dropzone
+//
+
+.dropzone {
+  min-height: 230px !important;
+  border: 2px dashed #eff2f7 !important;
+  background: #fff !important;
+  border-radius: 6px !important;
+  text-align: center;
+
+  .dz-message {
+    width: 100%;
+    margin: 1em 0;
+  }
+}
+
+[data-dz-thumbnail] {
+  width: 100%;
+  height: 100%;
+}
+
+.dropzone .dz-preview .dz-image {
+  border-radius: 20px;
+  overflow: hidden;
+  width: 120px;
+  height: 120px;
+  position: relative;
+  display: block;
+  z-index: 10;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone .dz-preview .dz-image img {
+  display: block;
+  height: 90px;
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone .dz-preview .dz-remove {
+  margin-top: 10px;
+}
+
+dropzone>.dropzone.dz-wrapper .dz-message {
+  background-color: transparent !important;
+  border: none !important;
+  overflow: inherit !important;
+  width: inherit !important;
+  min-width: inherit !important;
+  min-height: 180px !important;
+  max-width: inherit !important;
+  max-height: inherit !important;
+  margin: 0px !important;
+}
+
+.dz-text {
+  font-size: 1.21875rem
+}
+
+dropzone>.dropzone.dz-wrapper {
+  min-height: 76px !important;
+  border: none !important;
+}
+
+
+#component-colorpicker {
+
+  color-picker {
+    .open {
+      right: 0px !important;
+      left: auto !important;
+      z-index: 9999 !important;
+    }
+  }
+}
+
+.color-picker {
+  .arrow.arrow-bottom {
+    right: 20px !important;
+    left: auto !important;
+  }
+}
+
+.switch.switch-small>.switch-pane>span {
+  font-size: 12px !important;
+}
+
+.modal-dialog {
+  top: auto !important;
+  bottom: auto !important;
+}
+
+.slick-dots {
+  margin-top: 20px;
+  bottom: -40px !important;
+
+
+  li.slick-active button:before {
+    color: #556ee6 !important;
+    font-size: x-small !important;
+  }
+}
+
+.slick-dots li button:before {
+  color: #556ee6;
+  font-size: x-small !important;
+}
+
+.slick-slide img {
+  width: 100%;
+}
+
+.dropup {
+  .dropdown-menu {
+    inset: auto auto auto 0px !important;
+    transform: translateY(-160px) !important;
+  }
+}
+
+.ngx-slider .ngx-slider-tick.ngx-slider-selected {
+  background-color: #556ee6 !important;
+}

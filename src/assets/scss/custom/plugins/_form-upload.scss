@@ -1,0 +1,51 @@
+//
+// Form-Upload
+//
+
+/* Dropzone */
+
+.dropzone .dz-preview .dz-image {
+  border-radius: 20px;
+  overflow: hidden;
+  width: 120px;
+  height: 120px;
+  position: relative;
+  display: block;
+  z-index: 10;
+  background: var(--#{$prefix}light);
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone .dz-preview .dz-image img {
+  display: block;
+  height: 90px;
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone .dz-preview .dz-remove {
+  margin-top: 10px;
+  font-size: var(--#{$prefix}font-xs);
+}
+
+dropzone>.dropzone.dz-wrapper .dz-message {
+  background-color: transparent !important;
+  border: none !important;
+  overflow: inherit !important;
+  width: inherit !important;
+  min-width: inherit !important;
+  min-height: 180px !important;
+  max-width: inherit !important;
+  max-height: inherit !important;
+  margin: 0px !important;
+}
+
+dropzone>.dropzone.dz-wrapper {
+  min-height: 76px !important;
+  border: none !important;
+}

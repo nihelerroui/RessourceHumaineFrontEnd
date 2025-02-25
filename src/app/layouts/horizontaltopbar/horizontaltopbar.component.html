@@ -1,0 +1,79 @@
+<div class="topnav">
+  <div class="container-fluid">
+    <nav class="navbar navbar-light navbar-expand-lg topnav-menu active">
+      <div class="collapse navbar-collapse active" id="topnav-menu-content">
+        <ul class="navbar-nav">
+          @for (item of menuItems; track $index) {
+          <ng-container>
+            <li class="nav-item dropdown">
+              @if(item.subItems){
+              <a class="nav-link dropdown-toggle arrow-none" (click)="onMenuClick(item.parentId,item)" href="javascript: void(0);" id="topnav-components" role="button">
+                <i class="bx {{item.icon}} me-1"></i>
+                {{item.label| translate }}
+                <div class="arrow-down"></div>
+              </a>
+              }@else{
+              <a class="nav-link dropdown-toggle arrow-none" href="javascript: void(0);" id="topnav-components" [routerLink]="item.link" role="button">
+                @if(hasItems(item)){
+                <i class="bx {{item.icon}} me-2"></i>{{ item.label | translate }} <div class="arrow-down"></div>
+                }
+              </a>
+              }
+              @if(hasItems(item)){
+              <div class="dropdown-menu" [ngClass]="{'dropdown-mega-menu-xl px-2':  item.subItems.length > 11 , 'show':item.isCollapsed}" aria-labelledby="topnav-dashboard">
+                <ng-template ngFor let-i="index" let-subitem [ngForOf]="item.subItems">
+                  @if(item.subItems.length < 11 && !hasItems(subitem)){ <a class="col dropdown-item side-nav-link-ref" [routerLink]="subitem.link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    {{subitem.label | translate }}
+                    </a>}
+                    @else if(item.subItems.length == 11 && !hasItems(subitem)){
+                    <div>
+                      <a class="dropdown-item dropdown-toggle" href="javascript: void(0);" [routerLink]="subitem.link" routerLinkActive="active" (click)="onMenuClick(subitem.parentId,subitem)">{{ subitem.label | translate }}
+                        <div class="arrow-down"></div>
+                      </a>
+                    </div>
+                    }@else if (item.subItems.length > 11) {
+                    <div>
+                      @if(i % 3 == 0){
+                      <div class="row">
+                        <div class="col-lg-4"><a class="dropdown-item side-nav-link-ref" routerLinkActive="active" [routerLink]="subitem.link">{{item.subItems[i].label | translate}}</a></div>
+                        <div class="col-lg-4"><a class="dropdown-item side-nav-link-ref" routerLinkActive="active" [routerLink]="item.subItems[i + 1]?.link">{{item.subItems[i + 1]?.label | translate}}</a></div>
+                        <div class="col-lg-4"><a class="dropdown-item side-nav-link-ref" routerLinkActive="active" [routerLink]="item.subItems[i + 2]?.link">{{item.subItems[i + 2]?.label | translate}}</a></div>
+                      </div>
+                      }
+                    </div>
+                    }
+
+                    @if(hasItems(subitem)){
+                    <div class="dropdown">
+                      <a class="dropdown-item dropdown-toggle" href="javascript: void(0);" (click)="onMenuClick(subitem.parentId,subitem)">{{ subitem.label | translate }}
+                        <div class="arrow-down"></div>
+                      </a>
+                      <div class="dropdown-menu" [ngClass]="{'show':subitem.isCollapsed}">
+                        <ng-template ngFor let-i="index" let-subSubitem [ngForOf]="subitem.subItems">
+                          @if(hasItems(subSubitem)){
+                          <div class="dropdown">
+                            <a class="dropdown-item dropdown-toggle" href="javascript: void(0);" (click)="onMenuClick(subSubitem.parentId,subSubitem)">{{ subSubitem.label | translate }}
+                              <div class="arrow-down"></div>
+                            </a>
+                            <div class="dropdown-menu" [ngClass]="{'show':subSubitem.isCollapsed}">
+                              <ng-template ngFor let-subSubSubitem [ngForOf]="subSubitem.subItems">
+                                <a class="dropdown-item side-nav-link-ref" href="javascript: void(0);" [routerLink]="subSubSubitem.link" routerLinkActive="active">{{ subSubSubitem.label | translate }}</a>
+                              </ng-template>
+                            </div>
+                          </div>
+                          }@else{
+                          <a class="dropdown-item side-nav-link-ref" href="javascript: void(0);" [routerLink]="subSubitem.link" routerLinkActive="active">{{ subSubitem.label | translate }}</a>
+                          }
+                        </ng-template>
+                      </div>
+                    </div>}
+                </ng-template>
+              </div>
+              }
+            </li>
+          </ng-container>}
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
