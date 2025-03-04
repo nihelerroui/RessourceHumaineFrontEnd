@@ -1,0 +1,269 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <!-- Header -->
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Depenses List</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-primary" (click)="openCreateModal(contentCreate)">
+                Add New Depense
+              </a>
+              <a href="javascript:void(0);" class="btn btn-light">
+                <i class="mdi mdi-refresh"></i>
+              </a>
+              <div class="dropdown d-inline-block" dropdown>
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  id="dropdownMenuButton1"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  dropdownToggle
+                >
+                  <i class="mdi mdi-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1" *dropdownMenu>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);">Action</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);">Another action</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);">Something else here</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Filters -->
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-xxl-4 col-lg-6">
+              <input
+                type="search"
+                class="form-control"
+                id="searchInput"
+                placeholder="Search for ..."
+                [(ngModel)]="term"
+                (ngModelChange)="searchDepense()"
+              />
+            </div>
+            <div class="col-xxl-2 col-lg-6">
+              <select class="form-select" id="idStatus" aria-label="Default select example" (click)="selectStatus()">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="New">New</option>
+                <option value="Close">Close</option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <select class="form-select" id="idType" aria-label="Default select example" (click)="selectType()">
+                <option value="">Select Type</option>
+                <option value="Operational">Operational</option>
+                <option value="Administrative">Administrative</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <div id="datepicker1">
+                <input
+                  type="text"
+                  placeholder="Datepicker"
+                  class="form-control"
+                  bsDatepicker
+                  [(ngModel)]="selectedDate"
+                  [bsConfig]="bsConfig"
+                  name="datepicker"
+                />
+              </div>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Content -->
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loading$ | async" class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <!-- Error state -->
+          <div *ngIf="error$ | async as error" class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+          <!-- Data table -->
+          <div class="table-responsive" *ngIf="lists?.length">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="depense-list">
+              <thead>
+                <tr>
+                  <th>Mois</th>
+                  <th>Type</th>
+                  <th>Montant</th>
+                  <th>Designation</th>
+                  <th>Societe</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of lists; let i = index">
+                  <td>{{ data.mois }}</td>
+                  <td>{{ data.type }}</td>
+                  <td>{{ data.montant | currency:'EUR' }}</td>
+                  <td>{{ data.designation }}</td>
+                  <td>{{ data.societe?.nom || 'N/A' }}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-primary" (click)="viewDetails(data.depenseId, ViewContent)">
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info" (click)="editDataGet(data.depenseId, contentEdit)">
+                          <i class="mdi mdi-pencil-outline"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger" (click)="delete($event, data.depenseId)">
+                          <i class="mdi mdi-delete-outline"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- No data message -->
+          <div *ngIf="!lists?.length && !(loading$ | async)" class="text-center p-5">
+            No depenses found
+          </div>
+          <!-- Pagination -->
+          <div *ngIf="depenses?.length > 0" class="row justify-content-between align-items-center">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">
+                Showing <b>{{ lists?.length }}</b> of <b>{{ depenses?.length }}</b> entries
+              </p>
+            </div>
+            <div class="col-auto">
+              <div class="text-md-right float-md-end pagination-rounded">
+                <ul class="pagination pagination-rounded justify-content-end mb-2">
+                  <pagination [totalItems]="depenses?.length" [itemsPerPage]="8" (pageChanged)="pageChanged($event)">
+                  </pagination>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Optionally, include modals for create, edit, view details here -->
+    </div>
+  </div>
+</div>
+<ng-template #contentCreate role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Add Depense</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="saveDepense()" [formGroup]="createForm">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">Mois</label>
+        <select formControlName="mois" class="form-control" required>
+          <option *ngFor="let month of months" [value]="month">{{ month }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Type</label>
+        <input type="text" formControlName="type" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Montant</label>
+        <input type="number" formControlName="montant" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Designation</label>
+        <input type="text" formControlName="designation" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Motif</label>
+        <input type="text" formControlName="motif" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Facture</label>
+        <select formControlName="facture" class="form-control" required>
+          <option *ngFor="let facture of factures" [value]="facture.factureId">{{ facture.reference }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Societe</label>
+        <select formControlName="societe" class="form-control" required>
+          <option *ngFor="let societe of societes" [value]="societe.societeId">{{ societe.nom }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
+      <button type="submit" class="btn btn-success">Add Depense</button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- Edit Depense Modal -->
+<ng-template #contentEdit role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Edit Depense</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  <form (ngSubmit)="updateDepense()" [formGroup]="editForm">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">Mois</label>
+        <select formControlName="mois" class="form-control" required>
+          <option *ngFor="let month of months" [value]="month">{{ month }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Type</label>
+        <input type="text" formControlName="type" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Montant</label>
+        <input type="number" formControlName="montant" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Designation</label>
+        <input type="text" formControlName="designation" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Motif</label>
+        <input type="text" formControlName="motif" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Facture</label>
+        <select formControlName="facture" class="form-control" required>
+          <option *ngFor="let facture of factures" [value]="facture.factureId">{{ facture.reference }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Societe</label>
+        <select formControlName="societe" class="form-control" required>
+          <option *ngFor="let societe of societes" [value]="societe.societeId">{{ societe.nom }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
+      <button type="submit" class="btn btn-success">Update Depense</button>
+    </div>
+  </form>
+</ng-template>

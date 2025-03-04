@@ -37,12 +37,8 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-if (environment.defaultauth === 'firebase') {
-  initFirebaseBackend(environment.firebaseConfig);
-} else {
-  // tslint:disable-next-line: no-unused-expression
-  FakeBackendInterceptor;
-}
+import { prestationReducer } from './store/Prestation/prestation.reducer';
+import { PrestationEffects } from './store/Prestation/prestation.effects';
 
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -57,7 +53,6 @@ export function createTranslateLoader(http: HttpClient): any {
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     TranslateModule.forRoot({
       loader: {
@@ -76,13 +71,17 @@ export function createTranslateLoader(http: HttpClient): any {
     ScrollToModule.forRoot(),
     SlickCarouselModule,
     ToastrModule.forRoot(),
-    StoreModule.forRoot(rootReducer),
+    StoreModule.forRoot({
+      ...rootReducer,
+      prestation: prestationReducer
+    }),
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
       logOnly: environment.production, // Restrict extension to log-only mode
     }),
     EffectsModule.forRoot([
       AuthenticationEffects,
+      PrestationEffects
     ]),
   ],
   bootstrap: [AppComponent],

@@ -3,9 +3,16 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
     {
         id: 1,
-        label: 'MENUITEMS.MENU.TEXT',
-        isTitle: true
-    },
+        label: 'Prestations',
+        icon: 'bx-file',
+        link: '/prestations'
+      },
+      {
+        id: 69,
+        label: 'Depenses',
+        icon: 'bx-file',
+        link: '/depenses'
+      },
     {
         id: 2,
         label: 'MENUITEMS.DASHBOARDS.TEXT',
