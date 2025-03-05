@@ -1,9 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { DepenseService } from '../../../core/services/depense.service';
-import { Depense } from '../../../shared/models/depense.model';
+import { Store } from '@ngrx/store';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormGroup } from '@angular/forms';
+import Swal from 'sweetalert2';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+import { fetchDepenseData, deleteDepense } from '../../../store/Depense/depense.actions';
+import { selectData, selectError, selectLoading } from '../../../store/Depense/depense.selectors';
+import { DepenseService } from '../../../core/services/depense.service';
 
 @Component({
   selector: 'app-depense-list',
@@ -11,150 +17,256 @@ import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
   styleUrls: ['./depense-list.component.scss'],
 })
 export class DepenseListComponent implements OnInit {
-  lists: Depense[] = [];
-  depenses: Depense[] = [];
-  loading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  error$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  bsConfig: Partial<BsDatepickerConfig>;
+  // Pagination and variables
+  page: any = 1;
+  term: any;
+  searchTerm: any;
+  searchResults: any;
+  modalRef?: BsModalRef;
+  depenseForm!: UntypedFormGroup;
+  submitted: boolean = false;
+  isEditMode: boolean = false;
   createForm: FormGroup;
   editForm: FormGroup;
+  lists?: any[] = [];
+  depenses?: any[] = [];
+  selectedDate?: Date;
+  loading$ = this.store.select(selectLoading);
+  error$ = this.store.select(selectError);
+  bsConfig: Partial<BsDatepickerConfig>;
+  breadCrumbItems: Array<{}>;
   depenseDetailsForm: FormGroup;
-  selectedDate: Date;
-  term: string = '';
-  months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  factures = [];
-  societes = [];
+  societes: any[] = []; // Store societies
 
-  constructor(private depenseService: DepenseService, private fb: FormBuilder) {
+  constructor(
+    public store: Store,
+    private modalService: BsModalService,
+    private formBuilder: UntypedFormBuilder,
+    private depenseService: DepenseService,
+    private http: HttpClient
+  ) {
+    this.breadCrumbItems = [{ label: 'Depenses' }, { label: 'Depenses List', active: true }];
     this.bsConfig = {
-        showWeekNumbers: false,
-        dateInputFormat: 'DD/MM/YYYY',
-      };
+      showWeekNumbers: false,
+      dateInputFormat: 'DD/MM/YYYY',
+    };
   }
 
   ngOnInit(): void {
-    // Initialize the forms
-    this.createForm = this.fb.group({
-      mois: [''],
-      type: [''],
-      montant: [''],
-      designation: [''],
-      motif: [''],
-      facture: [''],
-      societe: [''],
+    // Initialize forms
+    this.depenseForm = this.formBuilder.group({
+      mois: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      montant: ['', [Validators.required]],
+      designation: ['', [Validators.required]],
+      motif: ['', [Validators.required]],
+    });
+    this.loading$.subscribe((loading) => console.log('Loading state:', loading));
+  this.error$.subscribe((error) => { if (error) console.error('Store error:', error); });
+    this.fetchDepenses();
+
+    this.createForm = this.formBuilder.group({
+      mois: ['', Validators.required],
+      type: ['', Validators.required],
+      montant: ['', Validators.required],
+      designation: ['', Validators.required],
+      motif: ['', Validators.required],
+      societeId: ['', Validators.required], // Added societe selection
+    });
+    
+    this.editForm = this.formBuilder.group({
+      depenseId: ['', Validators.required],
+      mois: ['', Validators.required],
+      type: ['', Validators.required],
+      montant: ['', Validators.required],
+      designation: ['', Validators.required],
+      motif: ['', Validators.required],
+      societeId: ['', Validators.required], // Added societe selection
     });
 
-    this.editForm = this.fb.group({
-      mois: [''],
-      type: [''],
-      montant: [''],
-      designation: [''],
-      motif: [''],
-      facture: [''],
-      societe: [''],
+    this.depenseDetailsForm = this.formBuilder.group({
+      mois: ['', Validators.required],
+      type: ['', Validators.required],
+      montant: ['', Validators.required],
+      designation: ['', Validators.required],
+      motif: ['', Validators.required],
     });
-
-    this.depenseDetailsForm = this.fb.group({
-      mois: [''],
-      type: [''],
-      montant: [''],
-      designation: [''],
-      societe: [''],
-    });
-
-    // Fetch initial data
-    this.getDepenses();
-    this.getFactures();
-    this.getSocietes();
-  }
-
-  getDepenses(): void {
-    this.loading$.next(true); // Start loading
-    this.depenseService.getDepenses().subscribe(
-      (data) => {
-        this.depenses = data;
-        this.lists = data;
-        console.log("Depenses loaded:", this.depenses); // Debugging line to ensure data is being fetched
-        this.loading$.next(false); // Stop loading
+    this.http.get('http://localhost:8089/spring/societes').subscribe({
+      next: (data: any) => {
+        this.societes = data;
       },
-      (error) => {
-        this.loading$.next(false); // Stop loading
-        this.error$.next('An error occurred while fetching the depenses.');
-        console.error("Error fetching depenses:", error); // Log the error
-      }
-    );
-  }
-
-  getFactures(): void {
-    this.depenseService.getFactures().subscribe((data) => {
-      this.factures = data;
-      console.log("Factures loaded:", this.factures); // Debugging line
+      error: (error) => console.error('Error fetching societes:', error),
     });
-  }
+    // Dispatch action to fetch depense data
+    this.store.dispatch(fetchDepenseData());
 
-  getSocietes(): void {
-    this.depenseService.getSocietes().subscribe((data) => {
-      this.societes = data;
-      console.log("Societes loaded:", this.societes); // Debugging line
+    // Subscribe to store data
+    this.store.select(selectData).subscribe({
+      next: (data) => {
+        console.log('Store data received:', data);
+        this.depenses = data;
+        this.lists = data?.slice(0, 8);
+      },
+      error: (error) => console.error('Store subscription error:', error),
     });
+
+    this.loading$.subscribe((loading) => console.log('Loading state:', loading));
+    this.error$.subscribe((error) => { if (error) console.error('Store error:', error); });
   }
 
+  // Open create modal
   openCreateModal(content: any): void {
-    // Open the modal for creating a new depense
+    this.createForm.reset();
+    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
   }
-
-  saveDepense(): void {
-    this.depenseService.createDepense(this.createForm.value).subscribe((newDepense) => {
-      this.depenses.push(newDepense);
-      this.createForm.reset();
-      console.log("New depense added:", newDepense); // Debugging line
+  fetchDepenses(): void {
+    this.http.get<any[]>('http://localhost:8089/spring/depenses').subscribe({
+      next: (data) => {
+        console.log('Fetched depenses:', data);
+        this.depenses = data;
+        this.lists = data?.slice(0, 8);
+      },
+      error: (error) => {
+        console.error('Error fetching depenses:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error fetching depenses',
+          text: error.message,
+        });
+      },
     });
   }
 
-  editDataGet(depenseId: number, content: any): void {
-    // Fetch the depense data to edit and open the modal
-  }
-
-  updateDepense(): void {
-    this.depenseService.updateDepense(this.editForm.value).subscribe((updatedDepense) => {
-      const index = this.depenses.findIndex((d) => d.depenseId === updatedDepense.depenseId);
-      this.depenses[index] = updatedDepense;
-      this.editForm.reset();
-      console.log("Depense updated:", updatedDepense); // Debugging line
-    });
-  }
-
-  delete(event: any, depenseId: number): void {
-    this.depenseService.deleteDepense(depenseId).subscribe(() => {
-      this.depenses = this.depenses.filter((d) => d.depenseId !== depenseId);
-      console.log("Depense deleted:", depenseId); // Debugging line
-    });
-  }
-
-  viewDetails(depenseId: number, content: any): void {
-    // Fetch depense details and open the modal
-  }
-
-  searchDepense(): void {
-    // Filter the list of depenses based on the search term
-    if (this.term) {
-      this.lists = this.depenses.filter((depense) =>
-        depense.designation.toLowerCase().includes(this.term.toLowerCase())
-      );
-    } else {
-      this.lists = this.depenses;
+  // Save new depense
+  saveDepense() {
+    if (this.createForm.valid) {
+      const depenseDTO = {
+        ...this.createForm.value,
+        societe: { societeId: this.createForm.value.societeId },
+      };
+  
+      this.depenseService.createDepense(depenseDTO).subscribe({
+        next: () => {
+          Swal.fire('Success', 'Depense created!', 'success');
+          this.modalRef?.hide();
+          this.fetchDepenses(); // Refresh list
+        },
+        error: (error) => Swal.fire('Error', error.message, 'error'),
+      });
     }
   }
 
-  selectStatus(): void {
-    // Filter by status if needed
+  // Open edit modal
+  editDataGet(id: any, content: any): void {
+    const depense = this.depenses.find((d) => d.depenseId === id);
+    if (depense) {
+      this.editForm.patchValue({
+        depenseId: depense.depenseId,
+        mois: depense.mois,
+        type: depense.type,
+        montant: depense.montant,
+        designation: depense.designation,
+        motif: depense.motif,
+      });
+      this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+    }
   }
 
-  selectType(): void {
-    // Filter by type if needed
+  // Update depense
+  updateDepense() {
+    if (this.editForm.valid) {
+      const updatedDepense = {
+        ...this.editForm.value,
+        societe: { societeId: this.editForm.value.societeId },
+      };
+  
+      this.depenseService.updateDepense(updatedDepense).subscribe({
+        next: () => {
+          Swal.fire('Success', 'Depense updated!', 'success');
+          this.modalRef?.hide();
+          this.fetchDepenses(); // Refresh list
+        },
+        error: (error) => Swal.fire('Error', error.message, 'error'),
+      });
+    }
+  }
+  
+
+  // View depense details
+  viewDetails(id: any, content: any) {
+    console.log('Viewing depense details:', id);
+    this.http.get(`http://localhost:8089/spring/depenses/${id}`).subscribe({
+      next: (response: any) => {
+        console.log('Depense Details:', response);
+        this.depenseDetailsForm.patchValue({
+          mois: response.mois,
+          type: response.type,
+          montant: response.montant,
+          designation: response.designation,
+          motif: response.motif,
+        });
+        this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+      },
+      error: (error) => {
+        console.error('Error fetching depense details:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error fetching depense details',
+          text: error.message,
+        });
+      },
+    });
   }
 
-  pageChanged(event: any): void {
-    // Handle page change event for pagination
+  // Delete depense
+  delete(event: any, id: number) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn btn-success',
+        cancelButton: 'btn btn-danger ms-2',
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+        showCancelButton: true,
+      })
+      .then((result) => {
+        if (result.value) {
+          this.store.dispatch(deleteDepense({ id }));
+          swalWithBootstrapButtons.fire('Deleted!', 'Your depense has been deleted.', 'success');
+          event.target.closest('tr')?.remove();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          swalWithBootstrapButtons.fire('Cancelled', 'Your depense is safe :)', 'error');
+        }
+      });
+  }
+
+  // Search depense
+  searchDepense() {
+    if (this.term && this.depenses) {
+      this.lists = this.depenses.filter((data: any) => {
+        return (
+          data.mois.toLowerCase().includes(this.term.toLowerCase()) ||
+          data.type.toLowerCase().includes(this.term.toLowerCase()) ||
+          data.designation.toLowerCase().includes(this.term.toLowerCase())
+        );
+      });
+    } else {
+      this.lists = this.depenses?.slice(0, 8);
+    }
+  }
+
+  // Pagination
+  pageChanged(event: any) {
+    const startItem = (event.page - 1) * event.itemsPerPage;
+    const endItem = event.page * event.itemsPerPage;
+    this.lists = this.depenses?.slice(startItem, endItem);
   }
 }
