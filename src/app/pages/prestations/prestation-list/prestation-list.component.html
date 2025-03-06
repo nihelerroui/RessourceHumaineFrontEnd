@@ -1,4 +1,3 @@
-<!-- src/app/pages/prestations/prestation-list/prestation-list.component.html -->
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
@@ -13,7 +12,7 @@
                 (click)="openCreateModal(contentCreate)"
                 >Add New Prestation</a
               >
-              <a href="javascript:void(0);" class="btn btn-light"
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshPrestations()"
                 ><i class="mdi mdi-refresh"></i
               ></a>
               <div class="dropdown d-inline-block" dropdown>
@@ -53,8 +52,9 @@
           </div>
         </div>
         <div class="card-body border-bottom">
-          <div class="row g-3">
-            <div class="col-xxl-4 col-lg-6">
+          <div class="row g-3 align-items-center">
+            <!-- Search Input -->
+            <div class="col">
               <input
                 type="search"
                 class="form-control"
@@ -64,48 +64,24 @@
                 (ngModelChange)="searchPrestation()"
               />
             </div>
-            <div class="col-xxl-2 col-lg-6">
-              <select
-                class="form-select"
-                id="idStatus"
-                aria-label="Default select example"
-                (click)="selectStatus()"
+        
+            <!-- Date Picker -->
+            <div class="col">
+              <input
+                type="date"
+                class="form-control"
+                id="datePicker"
+                [(ngModel)]="selectedDate"
+              />
+            </div>
+        
+            <!-- Filter Button -->
+            <div class="col-auto">
+              <button
+                type="button"
+                class="btn btn-soft-secondary w-100"
+                (click)="filterByDate()"
               >
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="New">New</option>
-                <option value="Close">Close</option>
-              </select>
-            </div>
-            <div class="col-xxl-2 col-lg-4">
-              <select
-                class="form-select"
-                id="idType"
-                aria-label="Default select example"
-                (click)="selectType()"
-              >
-                <option value="">Select Type</option>
-                <option value="Full Time">Full Time</option>
-                <option value="Part Time">Part Time</option>
-                <option value="Internship">Internship</option>
-                <option value="Freelance">Freelance</option>
-              </select>
-            </div>
-            <div class="col-xxl-2 col-lg-4">
-              <div id="datepicker1">
-                <input
-                  type="text"
-                  placeholder="Datepicker"
-                  class="form-control"
-                  bsDatepicker
-                  [(ngModel)]="selectedDate"
-                  [bsConfig]="bsConfig"
-                  name="datepicker"
-                />
-              </div>
-            </div>
-            <div class="col-xxl-2 col-lg-4">
-              <button type="button" class="btn btn-soft-secondary w-100">
                 <i class="mdi mdi-filter-outline align-middle"></i> Filter
               </button>
             </div>
@@ -114,6 +90,86 @@
 
         <div class="card-body">
           <!-- Loading state -->
+          
+          <!-- Data table -->
+          <div class="table-responsive" *ngIf="lists?.length">
+            <table
+              class="table align-middle dt-responsive nowrap w-100 table-check"
+              id="prestation-list"
+            >
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Client</th>
+                <th>Prix Unitaire</th>
+                <th>x</th>
+                <th>Quantité</th>
+                <th>=</th>
+                <th>Montant HT</th>
+                <th>Crée le</th> <!-- Added "Created At" column -->
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(data of lists;track $index){
+              <tr>
+                <td>{{ data.description }}</td>
+                <td>
+                  <span class="badge bg-primary fs-6 p-2">
+                    {{ data.client?.nom || 'N/A' }}
+                  </span>
+                </td>
+                <td>{{ data.prixUnitaire | currency : "EUR" }}</td>
+                <td class="text-center"></td>
+                <td>{{ data.quantite }}</td>
+                <td class="text-center"></td>
+                <td>{{ data.montantHt | currency : "EUR" }}</td>
+                <td>{{ data.createdAt | date: 'dd/MM/yyyy' || 'N/A' }}</td> <!-- Display createdAt -->
+                <td>
+                  <ul class="list-unstyled hstack gap-1 mb-0">
+                    <li
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title="View"
+                    >
+                      <a
+                        href="javascript:void(0);"
+                        class="btn btn-sm btn-soft-primary"
+                        (click)="viewDetails(data.prestationId, ViewContent)"
+                        ><i class="mdi mdi-eye-outline"></i
+                      ></a>
+                    </li>
+                    <li
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title="Edit"
+                    >
+                      <a
+                        href="javascript:void(0);"
+                        class="btn btn-sm btn-soft-info"
+                        (click)="editDataGet(data.prestationId, contentEdit)"
+                        ><i class="mdi mdi-pencil-outline"></i
+                      ></a>
+                    </li>
+                    <li
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title="Delete"
+                    >
+                      <a
+                        href="javascript:void(0);"
+                        class="btn btn-sm btn-soft-danger"
+                        (click)="delete($event, data.prestationId)"
+                        ><i class="mdi mdi-delete-outline"></i
+                      ></a>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              }
+            </tbody>
+            </table>
+          </div>
           <div *ngIf="loading$ | async" class="text-center p-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
@@ -127,82 +183,6 @@
             role="alert"
           >
             {{ error }}
-          </div>
-
-          <!-- Data table -->
-          <div class="table-responsive" *ngIf="lists?.length">
-            <table
-              class="table align-middle dt-responsive nowrap w-100 table-check"
-              id="prestation-list"
-            >
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Client</th>
-                  <th>Prix Unitaire</th>
-                  <th>Quantité</th>
-                  <th>Montant HT</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(data of lists;track $index){
-                <tr>
-                  <td>{{ data.description }}</td>
-                  <td> 
-                    <span class="badge bg-primary fs-6 p-2">
-                      {{ data.client?.nom || 'N/A' }}
-                    </span>
-                  </td>
-                  
-                  <td>{{ data.prixUnitaire | currency : "EUR" }}</td>
-                  <td>{{ data.quantite }}</td>
-                  <td>{{ data.montantHt | currency : "EUR" }}</td>
-
-                  <td>
-                    <ul class="list-unstyled hstack gap-1 mb-0">
-                      <li
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="View"
-                      >
-                        <a
-                          href="javascript:void(0);"
-                          class="btn btn-sm btn-soft-primary"
-                          (click)="viewDetails(data.prestationId, ViewContent)"
-                          ><i class="mdi mdi-eye-outline"></i
-                        ></a>
-                      </li>
-                      <li
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Edit"
-                      >
-                        <a
-                          href="javascript:void(0);"
-                          class="btn btn-sm btn-soft-info"
-                          (click)="editDataGet(data.prestationId, contentEdit)"
-                          ><i class="mdi mdi-pencil-outline"></i
-                        ></a>
-                      </li>
-                      <li
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top" 
-                        title="Delete"
-                      >
-                        <a
-                          href="javascript:void(0);"
-                          class="btn btn-sm btn-soft-danger"
-                          (click)="delete($event, data.prestationId)"
-                          ><i class="mdi mdi-delete-outline"></i
-                        ></a>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
           </div>
 
           <!-- No data message -->
@@ -242,7 +222,8 @@
       </div>
     </div>
   </div>
-</div><!-- View Details Modal -->
+</div>
+<!-- View Details Modal -->
 <ng-template #ViewContent let-modal>
   <div class="modal-dialog modal-md">
     <div class="modal-content">
@@ -321,6 +302,7 @@
     </div>
   </div>
 </ng-template>
+
 <!-- Create Prestation Modal -->
 <ng-template #contentCreate role="document" let-modal>
   <div class="modal-header">
@@ -386,7 +368,6 @@
   </div>
   <form (ngSubmit)="updatePrestation()" [formGroup]="editForm">
     <div class="modal-body">
-      
       <div class="mb-3">
         <label class="form-label">Description</label>
         <input type="text" formControlName="description" class="form-control" required>
