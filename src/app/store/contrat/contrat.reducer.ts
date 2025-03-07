@@ -46,5 +46,11 @@ export const contratReducer = createReducer(
   on(ContratActions.deleteContract, (state, { id }) => ({
     ...state,
     contrats: state.contrats.filter((contrat) => contrat.contratId !== id),
+  })),
+  // Recherche avancée
+  on(ContratActions.searchContractsSuccess, (state, { contrats }) => ({
+    ...state,
+    contrats,
+    loading: false,
   }))
 );

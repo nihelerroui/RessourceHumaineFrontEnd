@@ -55,4 +55,29 @@ export class ContratEffects {
       )
     )
   );
+    /* Supprimer un contrat
+    deleteContract$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(ContratActions.deleteContract),
+        mergeMap(({ id }) =>
+          this.contratService.deleteContract(id).pipe(
+            map(() => ContratActions.deleteContractSuccess({ id })),
+            catchError((error) => of(ContratActions.deleteContractFailure({ error })))
+          )
+        )
+      )
+    );*/
+  
+    // Recherche avancée
+    searchContracts$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(ContratActions.searchContracts),
+        mergeMap((action) =>
+          this.contratService.searchContrats(action.filters).pipe(
+            map((contrats) => ContratActions.searchContractsSuccess({ contrats })),
+            catchError((error) => of(ContratActions.searchContractsFailure({ error: error.message })))
+          )
+        )
+      )
+    );
 }

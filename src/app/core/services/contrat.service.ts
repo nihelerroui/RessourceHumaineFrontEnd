@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { ContratSousTraitant } from "src/app/store/contrat/contrat.models";
@@ -51,4 +51,17 @@ export class ContratService {
       formData
     );
   }
+  
+searchContrats(filters: any): Observable<ContratSousTraitant[]> {
+  let params = new HttpParams();
+
+  if (filters.statutContrat) params = params.set('statutContrat', filters.statutContrat);
+  if (filters.dateDebut) params = params.set('dateDebut', filters.dateDebut);
+  if (filters.dateFin) params = params.set('dateFin', filters.dateFin);
+  if (filters.minTjm !== null) params = params.set('minTjm', filters.minTjm.toString());
+  if (filters.maxTjm !== null) params = params.set('maxTjm', filters.maxTjm.toString());
+
+  return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}/search`, { params });
+}
+
 }

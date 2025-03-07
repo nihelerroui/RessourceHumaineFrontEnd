@@ -9,9 +9,10 @@ export interface ContratSousTraitant {
 }
 
   export enum StatutContrat {
-    EN_COURS = 'EN_COURS',
-    TERMINE = 'TERMINE',
-    ANNULÉ = 'ANNULÉ'
+    EN_ATTENTE = "EN_ATTENTE",
+    CONFIRME_ADMIN = "CONFIRME_ADMIN",
+    CONFIRMATION_COMPLETE = "CONFIRMATION_COMPLETE",
+    REJETE = "REJETE"
   }
   
  

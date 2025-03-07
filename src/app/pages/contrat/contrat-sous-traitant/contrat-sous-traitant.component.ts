@@ -19,7 +19,6 @@ import { ContratService } from "../../../core/services/contrat.service";
   styleUrls: ["./contrat-sous-traitant.component.css"],
 })
 export class ContratSousTraitantComponent implements OnInit {
-  searchTerm: string = "";
   modalRef?: BsModalRef;
   page: number = 1;
   selectedFile: File | null = null;
@@ -31,6 +30,16 @@ export class ContratSousTraitantComponent implements OnInit {
   filteredContrats: any[] = [];
   contrats$: Observable<ContratSousTraitant[]>;
   selectedContratId: number | null = null;
+  // Critères de recherche
+  searchTerm: string = "";
+  selectedStatut: string = "";
+  dateDebut: string = "";
+  dateFin: string = "";
+  minTjm: number | null = null;
+  maxTjm: number | null = null;
+
+  // Liste des statuts disponibles
+  statutContrats: string[] = [];
 
   constructor(
     private modalService: BsModalService,
@@ -47,8 +56,9 @@ export class ContratSousTraitantComponent implements OnInit {
     ];
     this.initForm();
     this.loadContrats();
+    this.statutContrats = Object.values(StatutContrat);
   }
-  //Charger la liste des contrats depuis le service
+  //Charger la liste des contrats
   loadContrats() {
     this.store.dispatch(ContratActions.loadContracts());
   }
@@ -194,16 +204,17 @@ export class ContratSousTraitantComponent implements OnInit {
       }
     );
   }
-  //Rechercher un contrat
+  // Recherche avancée des contrats
   searchContrat() {
-    if (this.searchTerm) {
-      this.filteredContrats = this.contrats.filter((contrat: any) =>
-        contrat.designation
-          .toLowerCase()
-          .includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredContrats = this.contrats;
-    }
+    const filters = {
+      statutContrat: this.selectedStatut || null,
+      dateDebut: this.dateDebut || null,
+      dateFin: this.dateFin || null,
+      minTjm: this.minTjm !== null ? this.minTjm : null,
+      maxTjm: this.maxTjm !== null ? this.maxTjm : null
+    };
+  
+    this.store.dispatch(ContratActions.searchContracts({ filters }));
   }
+  
 }
