@@ -55,18 +55,18 @@ export class ContratEffects {
       )
     )
   );
-    /* Supprimer un contrat
+    //Supprimer un contrat
     deleteContract$ = createEffect(() =>
       this.actions$.pipe(
         ofType(ContratActions.deleteContract),
         mergeMap(({ id }) =>
-          this.contratService.deleteContract(id).pipe(
+          this.contratService.deleteContrat(id).pipe(
             map(() => ContratActions.deleteContractSuccess({ id })),
             catchError((error) => of(ContratActions.deleteContractFailure({ error })))
           )
         )
       )
-    );*/
+    );
   
     // Recherche avancée
     searchContracts$ = createEffect(() =>

@@ -11,11 +11,11 @@ export class ContratService {
   private apiUrl = "http://localhost:8089/spring/contratsSousTraitant";
 
   constructor(private http: HttpClient) {}
-
+  //charger la liste des contrats
   getContracts(): Observable<ContratSousTraitant[]> {
     return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}`);
   }
-
+  //ajouter un contrat
   addContract(
     contrat: ContratSousTraitant,
     fichier: File
@@ -27,14 +27,6 @@ export class ContratService {
       `${this.apiUrl}/ajouter`,
       formData
     );
-  }
-  deleteContrat(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-  downloadContrat(id: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/download/${id}`, {
-      responseType: "blob",
-    });
   }
   // Modifier un contrat
   updateContrat(
@@ -51,17 +43,31 @@ export class ContratService {
       formData
     );
   }
-  
-searchContrats(filters: any): Observable<ContratSousTraitant[]> {
-  let params = new HttpParams();
+  //supprimer un contrat
+  deleteContrat(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  //télécharger un contrat
+  downloadContrat(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/download/${id}`, {
+      responseType: "blob",
+    });
+  }
+  //rechercher un contrat
+  searchContrats(filters: any): Observable<ContratSousTraitant[]> {
+    let params = new HttpParams();
 
-  if (filters.statutContrat) params = params.set('statutContrat', filters.statutContrat);
-  if (filters.dateDebut) params = params.set('dateDebut', filters.dateDebut);
-  if (filters.dateFin) params = params.set('dateFin', filters.dateFin);
-  if (filters.minTjm !== null) params = params.set('minTjm', filters.minTjm.toString());
-  if (filters.maxTjm !== null) params = params.set('maxTjm', filters.maxTjm.toString());
+    if (filters.statutContrat)
+      params = params.set("statutContrat", filters.statutContrat);
+    if (filters.dateDebut) params = params.set("dateDebut", filters.dateDebut);
+    if (filters.dateFin) params = params.set("dateFin", filters.dateFin);
+    if (filters.minTjm !== null)
+      params = params.set("minTjm", filters.minTjm.toString());
+    if (filters.maxTjm !== null)
+      params = params.set("maxTjm", filters.maxTjm.toString());
 
-  return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}/search`, { params });
-}
-
+    return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}/search`, {
+      params,
+    });
+  }
 }

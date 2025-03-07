@@ -44,6 +44,14 @@ export const deleteContract = createAction(
   "[Contrat] Supprimer Contrat",
   props<{ id: number }>()
 );
+export const deleteContractSuccess = createAction(
+  "[Contrat] Supprimer Contrat Success",
+  props<{ id: number}>()
+);
+export const deleteContractFailure = createAction(
+  "[Contrat] Supprimer Contrat Failure",
+  props<{ error: string}>()
+);
 //Modifier un contrat
 export const updateContract = createAction(
   "[Contrat] Update Contract",

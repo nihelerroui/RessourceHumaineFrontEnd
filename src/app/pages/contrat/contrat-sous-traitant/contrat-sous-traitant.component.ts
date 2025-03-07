@@ -30,6 +30,8 @@ export class ContratSousTraitantComponent implements OnInit {
   filteredContrats: any[] = [];
   contrats$: Observable<ContratSousTraitant[]>;
   selectedContratId: number | null = null;
+  fileError: boolean = false;
+  fileSelected: boolean = false;
   // Critères de recherche
   searchTerm: string = "";
   selectedStatut: string = "";
@@ -65,12 +67,23 @@ export class ContratSousTraitantComponent implements OnInit {
   //initialiser le formulaire
   initForm() {
     this.contratForm = this.formBuilder.group({
-      tjm: ["", Validators.required],
-      dateDebut: ["", Validators.required],
-      dateFin: ["", Validators.required],
-      conditionsFac: [""],
-      statutContrat: ["EN_ATTENTE"],
+      tjm: ['', [Validators.required, Validators.min(1)]], 
+      dateDebut: ['', Validators.required], 
+      dateFin: ['', Validators.required],
+      conditionsFac: ['', [Validators.required, Validators.minLength(10)]],
+      statutContrat: ['', Validators.required]
+    }, {
+      validator: this.validateDates
     });
+  }
+  
+  //Vérifie que la date de fin est après la date de début
+  validateDates(group: FormGroup) {
+    const dateDebut = group.get('dateDebut')?.value;
+    const dateFin = group.get('dateFin')?.value;
+    return dateDebut && dateFin && dateFin < dateDebut
+      ? { invalidDateRange: true }
+      : null;
   }
   getStatutLabel(statut: string): string {
     const statutLabels: { [key: string]: string } = {
@@ -105,11 +118,20 @@ export class ContratSousTraitantComponent implements OnInit {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file;
-      this.fileName = file.name;
-    } else {
-      this.selectedFile = null;
-      this.fileName = "Aucun fichier sélectionné";
+      const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileExtension && allowedExtensions.includes(fileExtension)) {
+        this.selectedFile = file;
+        this.fileName = file.name;
+        this.fileError = false;
+        this.fileSelected = true; // Fichier sélectionné correctement
+      } else {
+        this.selectedFile = null;
+        this.fileName = "Aucun fichier sélectionné";
+        this.fileError = true;
+        this.fileSelected = false; // Fichier invalide
+      }
     }
   }
   //Ajouter ou modifier un contrat
