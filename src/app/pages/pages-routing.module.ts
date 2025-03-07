@@ -1,8 +1,9 @@
-// src/app/pages/pages-routing.module.ts
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { DefaultComponent } from './dashboards/default/default.component';
+import { FactureListComponent } from './facture/facture-list/facture-list.component'; // Import the component
+import { NoLayoutComponent } from '../layouts/no-layout/no-layout.component'; // Import the no-layout component
 
 const routes: Routes = [
   {
@@ -11,10 +12,8 @@ const routes: Routes = [
   },
   { path: 'dashboard', component: DefaultComponent },
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
-  // Add the prestations route here
   { path: 'prestations', loadChildren: () => import('./prestations/prestations.module').then(m => m.PrestationsModule) },
-  { path: 'depenses', loadChildren: () => import('./depenses/depenses.module').then(m => m.DepensesModule) }
-
+  { path: 'depenses', loadChildren: () => import('./depenses/depenses.module').then(m => m.DepensesModule) },
 ];
 
 @NgModule({

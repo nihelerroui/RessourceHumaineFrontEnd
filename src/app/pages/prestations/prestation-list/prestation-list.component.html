@@ -102,11 +102,11 @@
                 <th>Description</th>
                 <th>Client</th>
                 <th>Prix Unitaire</th>
-                <th>x</th>
+              
                 <th>Quantité</th>
-                <th>=</th>
+               
                 <th>Montant HT</th>
-                <th>Crée le</th> <!-- Added "Created At" column -->
+                <th>Crée le</th> 
                 <th>Actions</th>
               </tr>
             </thead>
@@ -120,9 +120,9 @@
                   </span>
                 </td>
                 <td>{{ data.prixUnitaire | currency : "EUR" }}</td>
-                <td class="text-center"></td>
+                
                 <td>{{ data.quantite }}</td>
-                <td class="text-center"></td>
+               
                 <td>{{ data.montantHt | currency : "EUR" }}</td>
                 <td>{{ data.createdAt | date: 'dd/MM/yyyy' || 'N/A' }}</td> <!-- Display createdAt -->
                 <td>

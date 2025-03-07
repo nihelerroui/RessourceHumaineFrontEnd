@@ -39,6 +39,9 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { prestationReducer } from './store/Prestation/prestation.reducer';
 import { PrestationEffects } from './store/Prestation/prestation.effects';
+import { factureReducer } from './store/Facture/facture.reducer';
+import { FactureEffects } from './store/Facture/facture.effects';
+
 
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -48,6 +51,7 @@ export function createTranslateLoader(http: HttpClient): any {
   declarations: [
     AppComponent,
     CyptolandingComponent,
+   
   ],
   imports: [
     BrowserModule,
@@ -73,7 +77,8 @@ export function createTranslateLoader(http: HttpClient): any {
     ToastrModule.forRoot(),
     StoreModule.forRoot({
       ...rootReducer,
-      prestation: prestationReducer
+      prestation: prestationReducer,
+      facture: factureReducer
     }),
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
@@ -81,7 +86,8 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     EffectsModule.forRoot([
       AuthenticationEffects,
-      PrestationEffects
+      PrestationEffects,
+      FactureEffects
     ]),
   ],
   bootstrap: [AppComponent],

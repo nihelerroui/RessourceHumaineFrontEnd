@@ -1,0 +1,143 @@
+<div class="container-fluid p-3 p-md-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-3 p-md-4">
+                    <!-- Invoice Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="flex-grow-1 text-center">
+                            <h2 class="fw-bold mb-0">Facture #{{ (facture$ | async)?.refFacture }}</h2>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted fs-6">Date d'émission : {{ (facture$ | async)?.dateEmmission | date: 'dd/MM/yyyy' }}</span>
+                        </div>
+                    </div>
+                    <hr class="my-3 my-md-4">
+
+                    <!-- Contract Details Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-3">
+                            <h5 class="fw-bold fs-6 mb-3">Détails du Contrat</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="fs-7">
+                                        <span class="fw-bold">Début :</span> 
+                                        {{ (facture$ | async)?.contratSousTraitant?.dateDebut | date: 'dd/MM/yyyy' }}
+                                    </div>
+                                    <div class="fs-7">
+                                        <span class="fw-bold">Fin :</span> 
+                                        {{ (facture$ | async)?.contratSousTraitant?.dateFin | date: 'dd/MM/yyyy' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="fs-5 fw-bold">
+                                        TJM : {{ (facture$ | async)?.contratSousTraitant?.tjm | currency: 'EUR' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billed To Card (With Labels) -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-3">
+                            <h5 class="fw-bold fs-6 mb-3">Facturé à</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="fs-7 text-muted">Nom du consultant</div>
+                                    <div class="fs-6 fw-bold">{{ (facture$ | async)?.consultant?.fullName }}</div>
+                                    <div class="fs-7 text-muted mt-2">Téléphone</div>
+                                    <div class="fs-6">{{ (facture$ | async)?.consultant?.telephone }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Badges -->
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="badge bg-primary fs-6" data-bs-toggle="tooltip" title="Type de Paiement">
+                            {{ (facture$ | async)?.typePaiement }}
+                        </span>
+                        <span class="badge bg-warning fs-6" data-bs-toggle="tooltip" title="Statut de Paiement">
+                            {{ (facture$ | async)?.statutPaiement }}
+                        </span>
+                        <span class="badge bg-info fs-6" data-bs-toggle="tooltip" title="Statut de la Facture">
+                            {{ (facture$ | async)?.statutFacture }}
+                        </span>
+                        <span class="badge bg-secondary fs-6" data-bs-toggle="tooltip" title="Type de Facture">
+                            {{ (facture$ | async)?.typeFacture }}
+                        </span>
+                    </div>
+
+                    <!-- Invoice Summary -->
+                    <div class="py-3">
+                        <h3 class="fs-5 fw-bold">Résumé de la Facture</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 70px;" class="fs-6 text-center">N°</th>
+                                    <th class="fs-6">Désignation</th>
+                                    <th class="text-end fs-6">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fs-6 text-center">01</td>
+                                    <td class="fs-6">{{ (facture$ | async)?.designation }}</td>
+                                    <td class="text-end fs-6">{{ (facture$ | async)?.montantTtc | currency: 'EUR' }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="text-end fs-6">Sous-Total</td>
+                                    <td class="text-end fs-6">{{ (facture$ | async)?.montantTtc | currency: 'EUR' }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="border-0 text-end fs-6">
+                                        <strong>Frais</strong>
+                                    </td>
+                                    <td class="border-0 text-end fs-6">€0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="border-0 text-end fs-6">
+                                        <strong>Total</strong>
+                                    </td>
+                                    <td class="border-0 text-end fs-6">
+                                        <h4 class="m-0">{{ (facture$ | async)?.montantTtc | currency: 'EUR' }}</h4>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Print and Send Buttons -->
+                    <div class="d-print-none mt-4">
+                        <div class="float-end">
+                            <a href="javascript:window.print()" class="btn btn-success me-2 fs-6">
+                                <i class="fa fa-print"></i> Imprimer
+                            </a>
+                            <a href="javascript: void(0);" class="btn btn-primary fs-6">Envoyer</a>
+                        </div>
+                    </div>
+
+                    <!-- Comment Section (Moved Below Buttons) -->
+                    <div class="mt-5">
+                        <h3 class="fs-5 fw-bold">Commentaires</h3>
+                        <div class="border p-3 mb-3 bg-light">
+                            <strong>Jean Dupont</strong>
+                            <p class="mb-1">Très bon travail sur cette facture, tout semble correct.</p>
+                            <small class="text-muted">Posté le 05/03/2025</small>
+                        </div>
+                        <div class="border p-3 mb-3 bg-light">
+                            <strong>Marie Curie</strong>
+                            <p class="mb-1">Merci pour l'envoi rapide, je vais vérifier et vous donner un retour.</p>
+                            <small class="text-muted">Posté le 06/03/2025</small>
+                        </div>
+                        <textarea class="form-control fs-6" rows="4" placeholder="Ajouter un commentaire..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
