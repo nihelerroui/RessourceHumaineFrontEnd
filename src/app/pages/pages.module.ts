@@ -23,6 +23,7 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
+import { ContratModule } from './contrat/contrat.module';
 
 @NgModule({
   declarations: [],
@@ -45,7 +46,8 @@ import { HttpClientModule } from '@angular/common/http';
     AlertModule.forRoot(),
     SimplebarAngularModule,
     LightboxModule,
-    PickerModule
+    PickerModule,
+    ContratModule
   ],
 })
 export class PagesModule { }

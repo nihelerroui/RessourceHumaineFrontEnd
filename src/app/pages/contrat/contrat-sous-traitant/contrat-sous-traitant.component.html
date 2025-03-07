@@ -1,0 +1,245 @@
+<div class="container-fluid">
+    <app-page-title title="Liste des Contrats" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  
+    <div class="row">
+      <div class="col-12">
+        <div ngClass="card">
+          <div class="card-body border-bottom">
+            <div class="d-flex align-items-center">
+              <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
+              <div class="flex-shrink-0 d-flex gap-1">
+                <a href="javascript:void(0);" class="btn btn-primary" (click)="openModal(content)">Add New Contrat</a>
+                <a href="javascript:void(0);" class="btn btn-light"><i class="mdi mdi-refresh"></i></a>
+                <div class="dropdown d-inline-block" dropdown>
+                  <button type="menu" class="btn btn-success" id="*dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" dropdownToggle><i class="mdi mdi-dots-vertical"></i></button>
+                  <ul class="dropdown-menu dropdown-menu dropdown-menu-end show" aria-labelledby="*dropdownMenuButton1" *dropdownMenu>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body border-bottom">
+            <div class="row g-3">
+              <div class="col-xxl-4 col-lg-6">
+                <input type="search" class="form-control" id="searchInput" placeholder="Search for ..." [(ngModel)]="searchTerm" (ngModelChange)="searchContrat()">
+              </div>
+              <div class="col-xxl-2 col-lg-6">
+                <select class="form-select" id="idStatus" aria-label="Default select example" >
+                  <option value="">Select Status</option>
+                  <option value="Active">Active</option>
+                  <option value="New">New</option>
+                  <option value="Close">Close</option>
+                </select>
+              </div>
+              <div class="col-xxl-2 col-lg-4">
+                <select class="form-select" id="idType" aria-label="Default select example" >
+                  <option value="">Select Type</option>
+                  <option value="Full Time">Full Time</option>
+                  <option value="Part Time">Part Time</option>
+                  <option value="Internship">Internship</option>
+                  <option value="Freelance">Freelance</option>
+                </select>
+              </div>
+              <div class="col-xxl-2 col-lg-4">
+                <div id="datepicker1">
+                  <input type="text" placeholder="Datepicker" class="form-control " bsDatepicker [bsConfig]="{ showWeekNumbers: false }">
+  
+                </div><!-- input-group -->
+              </div>
+              <div class="col-xxl-2 col-lg-4">
+                <button type="button" class="btn btn-soft-secondary w-100"><i class="mdi mdi-filter-outline align-middle"></i> Filter</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+  
+            <div class="table-responsive">
+              <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    
+                    <th scope="col">Tarif Journalier Moyen (TJM)</th>
+                    <th scope="col">Date de Début</th>
+                    <th scope="col">Date de Fin</th>
+                    <th scope="col">Condition Fac</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let contrat of contrats$ | async">
+                        <td>{{ contrat.contratId }}</td>
+                        <td>{{ contrat.tjm | currency:'EUR' }}</td>
+                        <td>{{ contrat.dateDebut | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ contrat.dateFin | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ contrat.conditionsFac}}</td>
+                        <td>
+                          <span [ngClass]="getStatutClass(contrat.statutContrat)">
+                            {{ getStatutLabel(contrat.statutContrat) }}
+                          </span>
+                        </td>
+                    
+                        <td>
+                      <ul class="list-unstyled hstack gap-1 mb-0">
+                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger">
+                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="downloadContrat(contrat.contratId)">
+                            <i class="mdi mdi-download"></i>
+                          </a>
+                        </li>
+                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-info" (click)="editContrat(contrat, content)"><i class="mdi mdi-pencil-outline"></i></a>
+                        </li>
+                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                          <a href="javascript:void(0);" data-bs-toggle="modal" class="btn btn-sm btn-soft-danger" (click)="deleteContrat(contrat.contratId)"><i class="mdi mdi-delete-outline"></i></a>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row justify-content-between align-items-center">
+                <div class="col-auto me-auto">
+                  <p class="text-muted mb-0">Affichage de <b>{{ (contrats$ | async)?.length }}</b> contrats</p>
+
+                </div>
+            </div>
+              
+              <!--end col-->
+            </div>
+            <!--end row-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  
+  <!-- View Details Model -->
+  <ng-template #ViewContent role="document" let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title mt-0">Order Details</h5>
+      <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <p class="mb-2">
+        Product id:
+        <span class="text-primary">#SK2540</span>
+      </p>
+      <p class="mb-4">
+        Billing Name:
+        <span class="text-primary">Neal Matthews</span>
+      </p>
+      <div class="table-responsive">
+        <table class="table table-centered table-nowrap">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">
+                <div>
+                  <img src="assets/images/product/img-7.png" alt class="avatar-sm" />
+                </div>
+              </th>
+              <td>
+                <div>
+                  <h5 class="text-truncate font-size-14">Wireless Headphone (Black)</h5>
+                  <p class="text-muted mb-0">$ 225 x 1</p>
+                </div>
+              </td>
+              <td>$ 255</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div>
+                  <img src="assets/images/product/img-4.png" alt class="avatar-sm" />
+                </div>
+              </th>
+              <td>
+                <div>
+                  <h5 class="text-truncate font-size-14">Phone patterned cases</h5>
+                  <p class="text-muted mb-0">$ 145 x 1</p>
+                </div>
+              </td>
+              <td>$ 145</td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <h6 class="m-0">Sub Total:</h6>
+              </td>
+              <td>$ 400</td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <h6 class="m-0">Shipping:</h6>
+              </td>
+              <td>Free</td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <h6 class="m-0">Total:</h6>
+              </td>
+              <td>$ 400</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="modal.close('Close click')">Close</button>
+    </div>
+  </ng-template>
+  
+ <!-- Modal Ajout Contrat -->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ajouter un Contrat</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  <form [formGroup]="contratForm" (ngSubmit)="saveContrat()">
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">Tarif Journalier Moyen (TJM)</label>
+        <input type="number" formControlName="tjm" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date de Début</label>
+        <input type="date" formControlName="dateDebut" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date de Fin</label>
+        <input type="date" formControlName="dateFin" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Importer un fichier</label>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName" readonly />
+          <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+          <button type="button" class="btn btn-primary" (click)="fileInput.click()">Importer un fichier</button>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Conditions</label>
+        <textarea formControlName="conditionsFac" class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+      <button type="submit" class="btn btn-primary">
+        {{ selectedContratId ? 'Modifier' : 'Ajouter' }}
+      </button>
+      
+    </div>
+  </form>
+</ng-template>
+
+  <!--End Modal -->

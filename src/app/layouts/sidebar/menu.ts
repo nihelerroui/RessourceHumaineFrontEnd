@@ -6,6 +6,7 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.MENU.TEXT',
         isTitle: true
     },
+    
     {
         id: 2,
         label: 'MENUITEMS.DASHBOARDS.TEXT',
@@ -52,6 +53,20 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.APPS.TEXT',
         isTitle: true
     },
+    {
+        id: 2,
+        label: 'Contrat',
+        icon: 'bx-home-circle'},
+    {
+        id: 18,
+        label: 'ContratSousTraitant',
+        icon: 'bx bx-message-alt-dots',
+        link: '/contratsoustraitant'},
+    {
+        id: 19,
+        label: 'ContratClient',
+        //icon: 'bx bx-message-alt-dots',
+        link: '/contratclient'},
     {
         id: 10,
         label: 'MENUITEMS.CALENDAR.TEXT',
