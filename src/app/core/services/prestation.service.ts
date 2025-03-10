@@ -1,33 +1,25 @@
-// src/app/core/services/prestation.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
+import { GenericService } from './generic.service'; // Import GenericService
 import { environment } from '../../../environments/environment';
-// src/app/core/services/prestation.service.ts
+
 @Injectable({
   providedIn: 'root'
 })
-export class PrestationService {
-  private apiUrl = `${environment.apiUrl}/prestations`;
-
-  constructor(private http: HttpClient) { }
-
-  getPrestations(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+export class PrestationService extends GenericService<any> {
+  // The constructor passes 'prestations' as the dynamic endpoint to the GenericService
+  constructor(http: HttpClient) {
+    super(http, 'prestations'); // 'prestations' will be used as the dynamic endpoint
   }
 
-  deletePrestation(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
-  }
-
+  // Create Prestation: custom endpoint remains the same
   createPrestation(prestationDTO: any): Observable<any> {
-
-    return this.http.post(`${this.apiUrl}/create`, prestationDTO);
-    
+    return this.http.post(`${this.apiUrl}/create`, prestationDTO); // Custom route for creation
   }
 
-  // Add PUT request to update prestation
+  // Use the custom update method (kept as is)
   updatePrestation(prestationDTO: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update`, prestationDTO);
+    return this.http.put(`${this.apiUrl}/update`, prestationDTO); // Custom route for update
   }
 }

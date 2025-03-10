@@ -151,63 +151,66 @@ export class DepenseListComponent implements OnInit {
       },
     });
   }
+// Save new depense
+saveDepense() {
+  if (this.createForm.valid) {
+    const depenseDTO = {
+      ...this.createForm.value,
+      societe: { societeId: this.createForm.value.societeId },
+    };
 
-  // Save new depense
-  saveDepense() {
-    if (this.createForm.valid) {
-      const depenseDTO = {
-        ...this.createForm.value,
-        societe: { societeId: this.createForm.value.societeId },
-      };
-  
-      this.depenseService.createDepense(depenseDTO).subscribe({
-        next: () => {
-          Swal.fire('Success', 'Depense created!', 'success');
-          this.modalRef?.hide();
-          this.fetchDepenses(); // Refresh list
-        },
-        error: (error) => Swal.fire('Error', error.message, 'error'),
-      });
-    }
+    // Use the `create` method from GenericService
+    this.depenseService.create(depenseDTO).subscribe({
+      next: () => {
+        Swal.fire('Success', 'Depense created!', 'success');
+        this.modalRef?.hide();
+        this.fetchDepenses(); // Refresh list
+      },
+      error: (error) => Swal.fire('Error', error.message, 'error'),
+    });
   }
+}
 
-  // Open edit modal
-  editDataGet(id: any, content: any): void {
-    const depense = this.depenses.find((d) => d.depenseId === id);
-    if (depense) {
-      this.editForm.patchValue({
-        depenseId: depense.depenseId,
-        mois: depense.mois,
-        type: depense.type,
-        montant: depense.montant,
-        designation: depense.designation,
-        motif: depense.motif,
-        societeId: depense.societe ? depense.societe.societeId : ''  // patch current societe
-      });
-      this.modalRef = this.modalService.show(content, { class: 'modal-md' });
-    }
+// Open edit modal
+editDataGet(id: any, content: any): void {
+  const depense = this.depenses.find((d) => d.depenseId === id);
+  if (depense) {
+    this.editForm.patchValue({
+      depenseId: depense.depenseId,
+      mois: depense.mois,
+      type: depense.type,
+      montant: depense.montant,
+      designation: depense.designation,
+      motif: depense.motif,
+      societeId: depense.societe ? depense.societe.societeId : '', // patch current societe
+    });
+    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
   }
-  
-  // Update depense
-  updateDepense() {
-    if (this.editForm.valid) {
-      const updatedDepense = {
-        ...this.editForm.value,
-        societe: { societeId: this.editForm.value.societeId },
-      };
-  
-      this.depenseService.updateDepense(updatedDepense).subscribe({
-        next: () => {
-          Swal.fire('Success', 'Depense updated!', 'success');
-          this.modalRef?.hide();
-          this.fetchDepenses(); // Refresh list
-        },
-        error: (error) => Swal.fire('Error', error.message, 'error'),
-      });
-    }
-  }
-  
+}
 
+// Update depense
+updateDepense() {
+  if (this.editForm.valid) {
+    const updatedDepense = {
+      ...this.editForm.value,
+      depenseId: this.editForm.value.depenseId, // Ensure ID is included in body
+      societe: { societeId: this.editForm.value.societeId },
+    };
+
+    // Use the service with dummy ID (not actually used)
+    this.depenseService.update('dummy_id', updatedDepense).subscribe({
+      next: () => {
+        Swal.fire('Success', 'Depense updated!', 'success');
+        this.modalRef?.hide();
+        this.fetchDepenses();
+      },
+      error: (error) => {
+        Swal.fire('Error', error.message, 'error');
+        console.error('Update error:', error);
+      }
+    });
+  }
+}
   // View depense details
   viewDetails(id: any, content: any) {
     console.log('Viewing depense details:', id);
