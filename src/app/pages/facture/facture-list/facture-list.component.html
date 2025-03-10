@@ -121,20 +121,42 @@
                     </div>
 
                     <!-- Comment Section (Moved Below Buttons) -->
-                    <div class="mt-5">
-                        <h3 class="fs-5 fw-bold">Commentaires</h3>
-                        <div class="border p-3 mb-3 bg-light">
-                            <strong>Jean Dupont</strong>
-                            <p class="mb-1">Très bon travail sur cette facture, tout semble correct.</p>
-                            <small class="text-muted">Posté le 05/03/2025</small>
-                        </div>
-                        <div class="border p-3 mb-3 bg-light">
-                            <strong>Marie Curie</strong>
-                            <p class="mb-1">Merci pour l'envoi rapide, je vais vérifier et vous donner un retour.</p>
-                            <small class="text-muted">Posté le 06/03/2025</small>
-                        </div>
-                        <textarea class="form-control fs-6" rows="4" placeholder="Ajouter un commentaire..."></textarea>
-                    </div>
+                    <!-- Comment Section -->
+<div class="mt-5">
+    <h3 class="fs-5 fw-bold mb-4">Commentaires</h3>
+
+    <!-- Comment Input Box -->
+    <div class="d-flex align-items-start mb-4">
+        <img src="https://avatar.iran.liara.run/public" alt="User Avatar" class="rounded-circle me-3" width="40" height="40">
+        <div class="flex-grow-1">
+            <textarea
+                class="form-control fs-6"
+                rows="3"
+                placeholder="Ajouter un commentaire..."
+                [(ngModel)]="newComment"
+            ></textarea>
+            <button
+                class="btn btn-primary mt-2"
+                (click)="addComment()"
+                [disabled]="!newComment"
+            >
+                Commenter
+            </button>
+        </div>
+    </div>
+
+    <!-- Comments List -->
+    <div *ngFor="let comment of comments" class="d-flex align-items-start mb-4">
+        <img src="https://via.placeholder.com/40" alt="User Avatar" class="rounded-circle me-3" width="40" height="40">
+        <div class="flex-grow-1">
+            <div class="bg-light p-3 rounded">
+                <strong>{{ commenterName }}</strong>
+                <p class="mb-1">{{ comment.contenu }}</p>
+                <small class="text-muted">{{ comment.dateCreation | date: 'dd/MM/yyyy à HH:mm' }}</small>
+            </div>
+        </div>
+    </div>
+</div>
 
                 </div>
             </div>

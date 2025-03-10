@@ -4,50 +4,20 @@
       <div ngClass="card">
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Prestations List</h5>
+            <h5 class="mb-0 card-title flex-grow-1">Liste des prestations</h5>
             <div class="flex-shrink-0 d-flex gap-1">
               <a
                 href="javascript:void(0);"
                 class="btn btn-primary"
                 (click)="openCreateModal(contentCreate)"
-                >Add New Prestation</a
+                >Ajouter un nouveau Prestation</a
               >
-              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshPrestations()"
+              <a
+                href="javascript:void(0);"
+                class="btn btn-light"
+                (click)="refreshPrestations()"
                 ><i class="mdi mdi-refresh"></i
               ></a>
-              <div class="dropdown d-inline-block" dropdown>
-                <button
-                  type="menu"
-                  class="btn btn-success"
-                  id="*dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  dropdownToggle
-                >
-                  <i class="mdi mdi-dots-vertical"></i>
-                </button>
-                <ul
-                  class="dropdown-menu dropdown-menu dropdown-menu-end show"
-                  aria-labelledby="*dropdownMenuButton1"
-                  *dropdownMenu
-                >
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Action</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Another action</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Something else here</a
-                    >
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -59,22 +29,26 @@
                 type="search"
                 class="form-control"
                 id="searchInput"
-                placeholder="Search for ..."
+                placeholder="Recherche"
                 [(ngModel)]="term"
                 (ngModelChange)="searchPrestation()"
               />
             </div>
-        
+
             <!-- Date Picker -->
             <div class="col">
               <input
-                type="date"
+                type="text"
                 class="form-control"
+                placeholder="Filtrer par date"
                 id="datePicker"
+                bsDatepicker
                 [(ngModel)]="selectedDate"
+                [bsConfig]="bsConfig"
+                name="datepicker"
               />
             </div>
-        
+
             <!-- Filter Button -->
             <div class="col-auto">
               <button
@@ -82,7 +56,7 @@
                 class="btn btn-soft-secondary w-100"
                 (click)="filterByDate()"
               >
-                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+                <i class="mdi mdi-filter-outline align-middle"></i> Filtrer
               </button>
             </div>
           </div>
@@ -90,84 +64,93 @@
 
         <div class="card-body">
           <!-- Loading state -->
-          
+
           <!-- Data table -->
           <div class="table-responsive" *ngIf="lists?.length">
             <table
               class="table align-middle dt-responsive nowrap w-100 table-check"
               id="prestation-list"
             >
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Client</th>
-                <th>Prix Unitaire</th>
-              
-                <th>Quantité</th>
-               
-                <th>Montant HT</th>
-                <th>Crée le</th> 
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for(data of lists;track $index){
-              <tr>
-                <td>{{ data.description }}</td>
-                <td>
-                  <span class="badge bg-primary fs-6 p-2">
-                    {{ data.client?.nom || 'N/A' }}
-                  </span>
-                </td>
-                <td>{{ data.prixUnitaire | currency : "EUR" }}</td>
-                
-                <td>{{ data.quantite }}</td>
-               
-                <td>{{ data.montantHt | currency : "EUR" }}</td>
-                <td>{{ data.createdAt | date: 'dd/MM/yyyy' || 'N/A' }}</td> <!-- Display createdAt -->
-                <td>
-                  <ul class="list-unstyled hstack gap-1 mb-0">
-                    <li
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="View"
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Client</th>
+                  <th>Prix Unitaire</th>
+
+                  <th>Quantité</th>
+
+                  <th>Montant HT</th>
+                  <th>Crée le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(data of lists;track $index){
+                <tr>
+                  <td>{{ data.description }}</td>
+                  <td>
+                    <span
+                      class="badge bg-primary fs-6 p-2 cursor-pointer"
+                      (click)="
+                        viewClientDetails(
+                          data.client?.clientId,
+                          ClientDetailsModal
+                        )
+                      "
                     >
-                      <a
-                        href="javascript:void(0);"
-                        class="btn btn-sm btn-soft-primary"
-                        (click)="viewDetails(data.prestationId, ViewContent)"
-                        ><i class="mdi mdi-eye-outline"></i
-                      ></a>
-                    </li>
-                    <li
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="Edit"
-                    >
-                      <a
-                        href="javascript:void(0);"
-                        class="btn btn-sm btn-soft-info"
-                        (click)="editDataGet(data.prestationId, contentEdit)"
-                        ><i class="mdi mdi-pencil-outline"></i
-                      ></a>
-                    </li>
-                    <li
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="top"
-                      title="Delete"
-                    >
-                      <a
-                        href="javascript:void(0);"
-                        class="btn btn-sm btn-soft-danger"
-                        (click)="delete($event, data.prestationId)"
-                        ><i class="mdi mdi-delete-outline"></i
-                      ></a>
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-              }
-            </tbody>
+                      {{ data.client?.nom || "N/A" }}
+                    </span>
+                  </td>
+                  <td>{{ data.prixUnitaire | currency : "EUR" }}</td>
+
+                  <td>{{ data.quantite }}</td>
+
+                  <td>{{ data.montantHt | currency : "EUR" }}</td>
+                  <td>{{ data.createdAt | date : "dd/MM/yyyy" || "N/A" }}</td>
+                  <!-- Display createdAt -->
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="View"
+                      >
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="viewDetails(data.prestationId, ViewContent)"
+                          ><i class="mdi mdi-eye-outline"></i
+                        ></a>
+                      </li>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-info"
+                          (click)="editDataGet(data.prestationId, contentEdit)"
+                          ><i class="mdi mdi-pencil-outline"></i
+                        ></a>
+                      </li>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Delete"
+                      >
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="delete($event, data.prestationId)"
+                          ><i class="mdi mdi-delete-outline"></i
+                        ></a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+                }
+              </tbody>
             </table>
           </div>
           <div *ngIf="loading$ | async" class="text-center p-5">
@@ -190,7 +173,7 @@
             *ngIf="!lists?.length && !(loading$ | async)"
             class="text-center p-5"
           >
-            No prestations found
+          Aucune prestation trouvée
           </div>
 
           <!-- Pagination -->
@@ -224,126 +207,140 @@
   </div>
 </div>
 <!-- View Details Modal -->
+<!-- View Details Modal -->
 <ng-template #ViewContent let-modal>
-  <div class="modal-dialog modal-md">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title mt-0">Prestation Details</h5>
+      <!-- Modal Header -->
+      <div class="modal-header bg-light p-3">
+        <h5 class="modal-title mt-0 fw-bold">Détails de la Prestation</h5>
         <button
           type="button"
           class="btn-close"
-          aria-label="Close"
+          aria-label="Fermer"
           (click)="modalRef?.hide()"
         ></button>
       </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <form [formGroup]="prestationDetailsForm">
-            <table class="table table-sm table-borderless">
-              <tbody>
-                <tr>
-                  <th>Description:</th>
-                  <td>
-                    <input 
-                      class="form-control" 
-                      formControlName="description" 
-                      [readonly]="true" 
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Client:</th>
-                  <td>
-                    <input 
-                      class="form-control" 
-                      formControlName="client" 
-                      [readonly]="true" 
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Prix Unitaire:</th>
-                  <td>
-                    <input 
-                      class="form-control" 
-                      formControlName="prixUnitaire" 
-                      [readonly]="true" 
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Quantité:</th>
-                  <td>
-                    <input 
-                      class="form-control" 
-                      formControlName="quantite" 
-                      [readonly]="true" 
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Montant HT:</th>
-                  <td>
-                    <input 
-                      class="form-control" 
-                      formControlName="montantHt" 
-                      [readonly]="true" 
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </form>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <div class="row">
+          <!-- General Information -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations Générales</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Description :</label>
+                <p class="form-control-static text-muted">
+                  {{ prestationDetailsForm.value.description }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Client :</label>
+                <p class="form-control-static text-muted">
+                  {{ prestationDetailsForm.value.client }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Créé le :</label>
+                <p class="form-control-static text-muted">
+                  {{
+                    prestationDetailsForm.value.createdAt | date : "dd/MM/yyyy"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Details -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Détails Financiers</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Prix Unitaire :</label>
+                <p class="form-control-static text-muted">
+                  {{
+                    prestationDetailsForm.value.prixUnitaire | currency : "EUR"
+                  }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Quantité :</label>
+                <p class="form-control-static text-muted">
+                  {{ prestationDetailsForm.value.quantite }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Montant HT :</label>
+                <p class="form-control-static text-muted">
+                  {{ prestationDetailsForm.value.montantHt | currency : "EUR" }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="modalRef?.hide()">Close</button>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-light p-3">
+        <button class="btn btn-secondary" (click)="modalRef?.hide()">
+          Fermer
+        </button>
       </div>
     </div>
   </div>
 </ng-template>
-
 <!-- Create Prestation Modal -->
 <ng-template #contentCreate role="document" let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">Add Prestation</h5>
+    <h5 class="modal-title">Ajouter Prestation</h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <form (ngSubmit)="savePrestation()" [formGroup]="createForm">
     <div class="modal-body">
       <div class="mb-3">
         <label class="form-label">Description</label>
-        <input type="text" formControlName="description" class="form-control" required>
+        <input
+          type="text"
+          formControlName="description"
+          class="form-control"
+          required
+        />
       </div>
       <div class="mb-3">
         <label class="form-label">Contrat</label>
         <select formControlName="contratId" class="form-control" required>
-          <option *ngFor="let contract of contracts$ | async" [value]="contract.contratClientId">{{ contract.designation }}</option>
+          <option
+            *ngFor="let contract of contracts$ | async"
+            [value]="contract.contratClientId"
+          >
+            {{ contract.designation }}
+          </option>
         </select>
       </div>
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Month</label>
+            <label class="form-label">Mois</label>
             <select formControlName="month" class="form-control" required>
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
+              <option value="1">Janvier</option>
+              <option value="2">Février</option>
+              <option value="3">Mars</option>
+              <option value="4">Avril</option>
+              <option value="5">Mai</option>
+              <option value="6">Juin</option>
+              <option value="7">Juillet</option>
+              <option value="8">Août</option>
+              <option value="9">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
             </select>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Year</label>
+            <label class="form-label">Année</label>
             <select formControlName="year" class="form-control" required>
               <option value="2024">2024</option>
               <option value="2025">2025</option>
@@ -354,8 +351,10 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
-      <button type="submit" class="btn btn-success">Add Prestation</button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Close
+      </button>
+      <button type="submit" class="btn btn-success">Ajouter Prestation</button>
     </div>
   </form>
 </ng-template>
@@ -363,39 +362,147 @@
 <!-- Edit Prestation Modal -->
 <ng-template #contentEdit role="document" let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">Edit Prestation</h5>
+    <h5 class="modal-title">Modifier Prestation</h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <form (ngSubmit)="updatePrestation()" [formGroup]="editForm">
     <div class="modal-body">
       <div class="mb-3">
         <label class="form-label">Description</label>
-        <input type="text" formControlName="description" class="form-control" required>
+        <input
+          type="text"
+          formControlName="description"
+          class="form-control"
+          required
+        />
       </div>
       <div class="row">
         <div class="col-md-4">
           <div class="mb-3">
             <label class="form-label">Prix Unitaire</label>
-            <input type="number" formControlName="prixUnitaire" class="form-control" required>
+            <input
+              type="number"
+              formControlName="prixUnitaire"
+              class="form-control"
+              required
+            />
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
             <label class="form-label">Quantite</label>
-            <input type="number" formControlName="quantite" class="form-control" required>
+            <input
+              type="number"
+              formControlName="quantite"
+              class="form-control"
+              required
+            />
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
             <label class="form-label">Montant HT</label>
-            <input type="number" formControlName="montantHt" class="form-control" required>
+            <input
+              type="number"
+              formControlName="montantHt"
+              class="form-control"
+              required
+            />
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
-      <button type="submit" class="btn btn-success">Update Prestation</button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Close
+      </button>
+      <button type="submit" class="btn btn-success">Modifier</button>
     </div>
   </form>
+</ng-template>
+
+<!-- Client Details Modal -->
+<ng-template #ClientDetailsModal let-modal>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-light p-3">
+        <h5 class="modal-title mt-0 fw-bold">Détails du Client</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          (click)="modalRef?.hide()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <div class="row">
+          <!-- Client Information -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations Générales</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nom :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.nom || "N/A" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Email :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.email || "N/A" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Téléphone :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.telephone || "N/A" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Adresse :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.adresse || "N/A" }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Details -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Détails Supplémentaires</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Numéro SIRET :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.numeroSiret || "N/A" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Type de Client :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.typeClient || "N/A" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Pays :</label>
+                <p class="form-control-static text-muted">
+                  {{ clientDetails.pays?.nomFrFr || "N/A" }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-light p-3">
+        <button class="btn btn-secondary" (click)="modalRef?.hide()">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
 </ng-template>

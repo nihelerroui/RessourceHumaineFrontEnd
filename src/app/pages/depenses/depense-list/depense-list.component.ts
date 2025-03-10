@@ -37,7 +37,22 @@ export class DepenseListComponent implements OnInit {
   breadCrumbItems: Array<{}>;
   depenseDetailsForm: FormGroup;
   societes: any[] = []; // Store societies
-
+  factures: any[] = [];
+  fetchUnassignedFactures(): void {
+  this.http.get<any[]>('http://localhost:8089/spring/factures/unassigned').subscribe({
+    next: (data) => {
+      this.factures = data;
+    },
+    error: (error) => {
+      console.error('Error fetching unassigned factures:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error fetching factures',
+        text: error.message,
+      });
+    },
+  });
+}
   constructor(
     public store: Store,
     private modalService: BsModalService,
@@ -66,12 +81,12 @@ export class DepenseListComponent implements OnInit {
     this.fetchDepenses();
 
     this.createForm = this.formBuilder.group({
-      mois: ['', Validators.required],
-      type: ['', Validators.required],
-      montant: ['', Validators.required],
-      designation: ['', Validators.required],
-      motif: ['', Validators.required],
-      societeId: ['', Validators.required], // Added societe selection
+      mois: ['', Validators.required], // Select (1-12)
+      type: ['', Validators.required], // Input (text)
+      montant: ['', [Validators.required, Validators.pattern(/^\d+$/)]], // Input (number)
+      designation: ['', Validators.required], // Input (text)
+      motif: ['', Validators.required], // Input (text)
+      societeId: ['', Validators.required], // Select (societeId)
     });
     
     this.editForm = this.formBuilder.group({

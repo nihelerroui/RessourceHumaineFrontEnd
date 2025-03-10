@@ -13,7 +13,7 @@ const routes: Routes = [
   { path: 'pages', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule), canActivate: [AuthGuard] },
   { path: 'crypto-ico-landing', component: CyptolandingComponent },
   { 
-    path: 'factures/:id', // Define a separate route for the FactureListComponent
+    path: 'factures/:id/:name', // Define a separate route for the FactureListComponent
     component: FactureListComponent // Add AuthGuard if needed
   },
   { path: '**', component: Page404Component },

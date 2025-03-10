@@ -4,30 +4,15 @@
       <div ngClass="card">
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Depenses List</h5>
+            <h5 class="mb-0 card-title flex-grow-1">Liste des dépenses</h5>
             <div class="flex-shrink-0 d-flex gap-1">
               <a href="javascript:void(0);" class="btn btn-primary" (click)="openCreateModal(contentCreate)">
-                Add New Depense
+                Ajouter une nouvelle dépense
               </a>
               <a href="javascript:void(0);" class="btn btn-light">
                 <i class="mdi mdi-refresh"></i>
               </a>
-              <div class="dropdown d-inline-block" dropdown>
-                <button type="menu" class="btn btn-success" id="*dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" dropdownToggle>
-                  <i class="mdi mdi-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu dropdown-menu-end show" aria-labelledby="*dropdownMenuButton1" *dropdownMenu>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Action</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Another action</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Something else here</a>
-                  </li>
-                </ul>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -147,7 +132,7 @@
 
           <!-- No data message -->
           <div *ngIf="!lists?.length && !(loading$ | async)" class="text-center p-5">
-            No depenses found
+            Aucune dépense n'a été trouvée
           </div>
 
           <!-- Pagination -->
@@ -173,95 +158,133 @@
     </div>
   </div>
 </div>
-
 <!-- View Details Modal -->
 <ng-template #ViewContent let-modal>
-  <div class="modal-dialog modal-md">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title mt-0">Depense Details</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+      <!-- Modal Header -->
+      <div class="modal-header bg-light p-3">
+        <h5 class="modal-title mt-0 fw-bold">Détails de la Dépense</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          (click)="modalRef?.hide()"
+        ></button>
       </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <form [formGroup]="depenseDetailsForm">
-            <table class="table table-sm table-borderless">
-              <tbody>
-                <tr>
-                  <th>Mois:</th>
-                  <td>
-                    <input class="form-control" formControlName="mois" [readonly]="true" />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Type:</th>
-                  <td>
-                    <input class="form-control" formControlName="type" [readonly]="true" />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Montant:</th>
-                  <td>
-                    <input class="form-control" formControlName="montant" [readonly]="true" />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Designation:</th>
-                  <td>
-                    <input class="form-control" formControlName="designation" [readonly]="true" />
-                  </td>
-                </tr>
-                <tr>
-                  <th>Motif:</th>
-                  <td>
-                    <input class="form-control" formControlName="motif" [readonly]="true" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </form>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <div class="row">
+          <!-- General Information -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations Générales</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Mois :</label>
+                <p class="form-control-static text-muted">
+                  {{ depenseDetailsForm.value.mois }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Type :</label>
+                <p class="form-control-static text-muted">
+                  {{ depenseDetailsForm.value.type }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Désignation :</label>
+                <p class="form-control-static text-muted">
+                  {{ depenseDetailsForm.value.designation }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Details -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Détails Financiers</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Montant :</label>
+                <p class="form-control-static text-muted">
+                  {{ depenseDetailsForm.value.montant | currency : "EUR" }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Motif :</label>
+                <p class="form-control-static text-muted">
+                  {{ depenseDetailsForm.value.motif }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="modalRef?.hide()">Close</button>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-light p-3">
+        <button class="btn btn-secondary" (click)="modalRef?.hide()">
+          Fermer
+        </button>
       </div>
     </div>
   </div>
 </ng-template>
 
-<!-- Create Depense Modal -->
 <ng-template #contentCreate role="document" let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">Add Depense</h5>
+    <h5 class="modal-title">Ajouter une Dépense</h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <form (ngSubmit)="saveDepense()" [formGroup]="createForm">
     <div class="modal-body">
+      <!-- Mois (Select) -->
       <div class="mb-3">
         <label class="form-label">Mois</label>
-        <input type="text" formControlName="mois" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Type</label>
-        <select formControlName="type" class="form-control" required>
-          <option value="Operational">Operational</option>
-          <option value="Non-Operational">Non-Operational</option>
+        <select formControlName="mois" class="form-control" required>
+          <option value="1">Janvier</option>
+          <option value="2">Février</option>
+          <option value="3">Mars</option>
+          <option value="4">Avril</option>
+          <option value="5">Mai</option>
+          <option value="6">Juin</option>
+          <option value="7">Juillet</option>
+          <option value="8">Août</option>
+          <option value="9">Septembre</option>
+          <option value="10">Octobre</option>
+          <option value="11">Novembre</option>
+          <option value="12">Décembre</option>
         </select>
       </div>
+
+      <!-- Type (Input) -->
+      <div class="mb-3">
+        <label class="form-label">Type</label>
+        <input type="text" formControlName="type" class="form-control" required>
+      </div>
+
+      <!-- Montant (Number Input) -->
       <div class="mb-3">
         <label class="form-label">Montant</label>
-        <input type="text" formControlName="montant" class="form-control" required>
+        <input type="number" formControlName="montant" class="form-control" required>
       </div>
+
+      <!-- Designation (Input) -->
       <div class="mb-3">
-        <label class="form-label">Designation</label>
+        <label class="form-label">Désignation</label>
         <input type="text" formControlName="designation" class="form-control" required>
       </div>
+
+      <!-- Motif (Input) -->
       <div class="mb-3">
         <label class="form-label">Motif</label>
         <input type="text" formControlName="motif" class="form-control" required>
       </div>
+
+      <!-- Societe (Select) -->
       <div class="mb-3">
-        <label class="form-label">Societe</label>
+        <label class="form-label">Société</label>
         <select formControlName="societeId" class="form-control" required>
           <option *ngFor="let societe of societes" [value]="societe.societeId">
             {{ societe.nom }}
@@ -271,8 +294,8 @@
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
-      <button type="submit" class="btn btn-success">Add Depense</button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+      <button type="submit" class="btn btn-success">Ajouter</button>
     </div>
   </form>
 </ng-template>
@@ -280,7 +303,7 @@
 <!-- Edit Depense Modal -->
 <ng-template #contentEdit role="document" let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">Edit Depense</h5>
+    <h5 class="modal-title">Modifier Depense</h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <form (ngSubmit)="updateDepense()" [formGroup]="editForm">
@@ -320,7 +343,7 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
-      <button type="submit" class="btn btn-success">Update Depense</button>
+      <button type="submit" class="btn btn-success">Modifier Depense</button>
     </div>
   </form>
 </ng-template>

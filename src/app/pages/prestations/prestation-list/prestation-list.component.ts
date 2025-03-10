@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
+import { DatePipe } from '@angular/common'; // Import DatePipe
 import { fetchPrestationData, deletePrestation } from '../../../store/Prestation/prestation.action';
 import { selectData, selectError, selectLoading } from '../../../store/Prestation/prestation-selector';
 import { PrestationService } from '../../../core/services/prestation.service';
@@ -38,13 +38,15 @@ export class PrestationListComponent implements OnInit {
   contracts$: Observable<any[]>;
   contracts: any[] = [];
   prestationDetailsForm: FormGroup;
+  clientDetails: any = {};
 
   constructor(
     public store: Store,
     private modalService: BsModalService,
     private formBuilder: UntypedFormBuilder,
     private prestationService: PrestationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private datePipe: DatePipe
   ) {
     this.breadCrumbItems = [{ label: 'Prestations' }, { label: 'Prestations List', active: true }];
     this.bsConfig = {
@@ -93,9 +95,35 @@ export class PrestationListComponent implements OnInit {
       prixUnitaire: ['', Validators.required],
       quantite: ['', Validators.required],
       montantHt: ['', Validators.required],
+      createdAt: ['', Validators.required],
     });
   }
 
+  viewClientDetails(clientId: number, content: any) {
+    if (!clientId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Client Inconnu',
+        text: 'Aucune information client disponible.',
+      });
+      return;
+    }
+  
+    this.http.get(`http://localhost:8089/spring/clients/${clientId}`).subscribe({
+      next: (response: any) => {
+        this.clientDetails = response;
+        this.modalRef = this.modalService.show(content, { class: 'modal-lg' });
+      },
+      error: (error) => {
+        console.error('Error fetching client details:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: 'Impossible de récupérer les détails du client.',
+        });
+      },
+    });
+  }
   // Subscribe to store data
   subscribeToStore() {
     this.store.select(selectData).subscribe({
@@ -115,7 +143,9 @@ export class PrestationListComponent implements OnInit {
   // Filter prestations by date
   filterByDate() {
     if (this.selectedDate) {
-      this.http.get(`http://localhost:8089/spring/prestations/by-date?createdAt=${this.selectedDate}`).subscribe({
+      const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd');
+      console.log('Selected Date:', formattedDate);
+      this.http.get(`http://localhost:8089/spring/prestations/by-date?createdAt=${formattedDate}`).subscribe({
         next: (response: any) => {
           this.prestations = response;
           this.lists = response?.slice(0, 8);
@@ -195,6 +225,7 @@ export class PrestationListComponent implements OnInit {
           prixUnitaire: response.prixUnitaire,
           quantite: response.quantite,
           montantHt: response.montantHt,
+          createdAt: response.createdAt,
         });
         this.modalRef = this.modalService.show(content, { class: 'modal-md' });
       },

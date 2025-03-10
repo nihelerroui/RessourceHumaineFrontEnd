@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common'; // Import DatePipe
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { TabsModule } from 'ngx-bootstrap/tabs';
@@ -50,5 +50,6 @@ import { FactureListComponent } from './facture/facture-list/facture-list.compon
     LightboxModule,
     PickerModule
   ],
+  providers: [DatePipe], // Add DatePipe to providers
 })
 export class PagesModule { }
