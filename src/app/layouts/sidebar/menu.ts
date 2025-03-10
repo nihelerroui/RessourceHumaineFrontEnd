@@ -54,22 +54,22 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 10,
-        label: 'MENUITEMS.CALENDAR.TEXT',
+        label: 'PAYS',
         icon: 'bx-calendar',
-        link: '/',
+        link: '/pays/list',
     },
     {
         id: 11,
-        label: 'MENUITEMS.CHAT.TEXT',
+        label: 'SOCIETE',
         icon: 'bx-chat',
-        link: '/',
+        link: '/societe/list',
 
     },
     {
         id: 12,
-        label: 'MENUITEMS.FILEMANAGER.TEXT',
+        label: 'CLIENT',
         icon: 'bx-file',
-        link: '/',
+        link: '/client/list',
     },
     {
         id: 13,

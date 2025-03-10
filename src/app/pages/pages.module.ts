@@ -23,11 +23,18 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
+import { PaysModule } from './pays/pays.module';
+import { SocieteModule } from './societe/societe.module';
+import { ClientModule } from './client/client.module';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+  ],
   imports: [
     CommonModule,
+    PaysModule,
+    SocieteModule,
+    ClientModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),

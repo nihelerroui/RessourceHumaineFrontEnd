@@ -37,6 +37,7 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { SocieteModule } from './pages/societe/societe.module';
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
@@ -84,6 +85,7 @@ export function createTranslateLoader(http: HttpClient): any {
     EffectsModule.forRoot([
       AuthenticationEffects,
     ]),
+   
   ],
   bootstrap: [AppComponent],
   providers: [
