@@ -1,20 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, FormGroup } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { DatePipe } from '@angular/common'; // Import DatePipe
-import { fetchPrestationData, deletePrestation } from '../../../store/Prestation/prestation.action';
-import { selectData, selectError, selectLoading } from '../../../store/Prestation/prestation-selector';
-import { PrestationService } from '../../../core/services/prestation.service';
+import { Component, OnInit } from "@angular/core";
+import { Store } from "@ngrx/store";
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormGroup,
+} from "@angular/forms";
+import Swal from "sweetalert2";
+import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
+import { Observable } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { DatePipe } from "@angular/common"; // Import DatePipe
+import {
+  fetchPrestationData,
+  deletePrestation,
+} from "../../../store/Prestation/prestation.action";
+import {
+  selectData,
+  selectError,
+  selectLoading,
+} from "../../../store/Prestation/prestation-selector";
+import { PrestationService } from "../../../core/services/prestation.service";
 
 @Component({
-  selector: 'app-prestation-list',
-  templateUrl: './prestation-list.component.html',
-  styleUrls: ['./prestation-list.component.scss'],
+  selector: "app-prestation-list",
+  templateUrl: "./prestation-list.component.html",
+  styleUrls: ["./prestation-list.component.scss"],
 })
 export class PrestationListComponent implements OnInit {
   // Pagination and variables
@@ -39,6 +51,7 @@ export class PrestationListComponent implements OnInit {
   contracts: any[] = [];
   prestationDetailsForm: FormGroup;
   clientDetails: any = {};
+  newContratSelected: boolean = false;
 
   constructor(
     public store: Store,
@@ -48,10 +61,13 @@ export class PrestationListComponent implements OnInit {
     private http: HttpClient,
     private datePipe: DatePipe
   ) {
-    this.breadCrumbItems = [{ label: 'Prestations' }, { label: 'Prestations List', active: true }];
+    this.breadCrumbItems = [
+      { label: "Prestations" },
+      { label: "Prestations List", active: true },
+    ];
     this.bsConfig = {
       showWeekNumbers: false,
-      dateInputFormat: 'YYYY-MM-DD', // Match the date format for the input
+      dateInputFormat: "YYYY-MM-DD", // Match the date format for the input
     };
   }
 
@@ -67,62 +83,90 @@ export class PrestationListComponent implements OnInit {
   initializeForms() {
     this.prestationForm = this.formBuilder.group({
       consultantId: [140, [Validators.required]],
-      contratId: ['', [Validators.required]],
-      month: ['', [Validators.required]],
-      year: ['', [Validators.required]],
-      description: ['', [Validators.required]],
+      contratId: ["", [Validators.required]],
+      month: ["", [Validators.required]],
+      year: ["", [Validators.required]],
+      description: ["", [Validators.required]],
     });
 
     this.createForm = this.formBuilder.group({
       consultantId: [140, Validators.required],
-      contratId: ['', Validators.required],
-      month: ['', Validators.required],
-      year: ['', Validators.required],
-      description: ['', Validators.required],
+      contratId: ["", Validators.required],
+      month: ["", Validators.required],
+      year: ["", Validators.required],
+      description: ["", Validators.required],
     });
 
+    // In ngOnInit() or initializeForms():
     this.editForm = this.formBuilder.group({
       prestationId: ['', Validators.required],
       description: ['', Validators.required],
-      prixUnitaire: ['', Validators.required],
-      quantite: ['', Validators.required],
-      montantHt: ['', Validators.required],
+      // Optional field: if left blank, the contract remains unchanged
+      contratId: [''],
+      // The month and year fields are required only if a new contrat is chosen.
+      month: [''],
+      year: [''],
+      consultantId: [''] // should be set on load
     });
 
     this.prestationDetailsForm = this.formBuilder.group({
-      description: ['', Validators.required],
-      client: ['', Validators.required],
-      prixUnitaire: ['', Validators.required],
-      quantite: ['', Validators.required],
-      montantHt: ['', Validators.required],
-      createdAt: ['', Validators.required],
+      description: ["", Validators.required],
+      client: ["", Validators.required],
+      prixUnitaire: ["", Validators.required],
+      quantite: ["", Validators.required],
+      montantHt: ["", Validators.required],
+      createdAt: ["", Validators.required],
     });
+  }
+
+  onContratChange(selectedContrat: string) {
+    // If a new contrat is selected (non-empty), show month and year selects.
+    this.newContratSelected = !!selectedContrat;
+    // Optionally, you can set default month/year if needed.
+    if (this.newContratSelected) {
+      // For example, set to current month/year
+      const now = new Date();
+      this.editForm.patchValue({
+        month: now.getMonth() + 1, // getMonth() returns 0-indexed value
+        year: now.getFullYear()
+      });
+    } else {
+      // Clear month and year if reverting to current contract.
+      this.editForm.patchValue({
+        month: '',
+        year: ''
+      });
+    }
   }
 
   viewClientDetails(clientId: number, content: any) {
     if (!clientId) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Client Inconnu',
-        text: 'Aucune information client disponible.',
+        icon: "warning",
+        title: "Client Inconnu",
+        text: "Aucune information client disponible.",
       });
       return;
     }
-  
-    this.http.get(`http://localhost:8089/spring/clients/${clientId}`).subscribe({
-      next: (response: any) => {
-        this.clientDetails = response;
-        this.modalRef = this.modalService.show(content, { class: 'modal-lg' });
-      },
-      error: (error) => {
-        console.error('Error fetching client details:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Erreur',
-          text: 'Impossible de récupérer les détails du client.',
-        });
-      },
-    });
+
+    this.http
+      .get(`http://localhost:8089/spring/clients/${clientId}`)
+      .subscribe({
+        next: (response: any) => {
+          this.clientDetails = response;
+          this.modalRef = this.modalService.show(content, {
+            class: "modal-lg",
+          });
+        },
+        error: (error) => {
+          console.error("Error fetching client details:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Erreur",
+            text: "Impossible de récupérer les détails du client.",
+          });
+        },
+      });
   }
   // Subscribe to store data
   subscribeToStore() {
@@ -131,39 +175,48 @@ export class PrestationListComponent implements OnInit {
         this.prestations = data;
         this.lists = data?.slice(0, 8);
       },
-      error: (error) => console.error('Store subscription error:', error),
+      error: (error) => console.error("Store subscription error:", error),
     });
 
-    this.loading$.subscribe((loading) => console.log('Loading state:', loading));
+    this.loading$.subscribe((loading) =>
+      console.log("Loading state:", loading)
+    );
     this.error$.subscribe((error) => {
-      if (error) console.error('Store error:', error);
+      if (error) console.error("Store error:", error);
     });
   }
 
   // Filter prestations by date
   filterByDate() {
     if (this.selectedDate) {
-      const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd');
-      console.log('Selected Date:', formattedDate);
-      this.http.get(`http://localhost:8089/spring/prestations/by-date?createdAt=${formattedDate}`).subscribe({
-        next: (response: any) => {
-          this.prestations = response;
-          this.lists = response?.slice(0, 8);
-        },
-        error: (error) => {
-          console.error('Error fetching prestations by date:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error fetching prestations by date',
-            text: error.message,
-          });
-        },
-      });
+      const formattedDate = this.datePipe.transform(
+        this.selectedDate,
+        "yyyy-MM-dd"
+      );
+      console.log("Selected Date:", formattedDate);
+      this.http
+        .get(
+          `http://localhost:8089/spring/prestations/by-date?createdAt=${formattedDate}`
+        )
+        .subscribe({
+          next: (response: any) => {
+            this.prestations = response;
+            this.lists = response?.slice(0, 8);
+          },
+          error: (error) => {
+            console.error("Error fetching prestations by date:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error fetching prestations by date",
+              text: error.message,
+            });
+          },
+        });
     } else {
       Swal.fire({
-        icon: 'warning',
-        title: 'No Date Selected',
-        text: 'Please select a date to filter prestations.',
+        icon: "warning",
+        title: "No Date Selected",
+        text: "Please select a date to filter prestations.",
       });
     }
   }
@@ -180,7 +233,8 @@ export class PrestationListComponent implements OnInit {
       this.lists = this.prestations.filter((data: any) => {
         return (
           data.description.toLowerCase().includes(this.term.toLowerCase()) ||
-          (data.client && data.client.nom.toLowerCase().includes(this.term.toLowerCase()))
+          (data.client &&
+            data.client.nom.toLowerCase().includes(this.term.toLowerCase()))
         );
       });
     } else {
@@ -203,37 +257,37 @@ export class PrestationListComponent implements OnInit {
     this.prestationForm.patchValue({ consultantId: 140 });
 
     setTimeout(() => {
-      const modelTitle = document.querySelector('.modal-title') as HTMLElement;
-      if (modelTitle) modelTitle.innerHTML = 'Add Prestation';
+      const modelTitle = document.querySelector(".modal-title") as HTMLElement;
+      if (modelTitle) modelTitle.innerHTML = "Add Prestation";
 
-      const addBtn = document.getElementById('add-btn') as HTMLElement;
-      if (addBtn) addBtn.innerHTML = 'Add Prestation';
+      const addBtn = document.getElementById("add-btn") as HTMLElement;
+      if (addBtn) addBtn.innerHTML = "Add Prestation";
     });
 
-    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+    this.modalRef = this.modalService.show(content, { class: "modal-md" });
   }
 
   // View prestation details
   viewDetails(id: any, content: any) {
-    console.log('Viewing prestation details:', id);
+    console.log("Viewing prestation details:", id);
     this.http.get(`http://localhost:8089/spring/prestations/${id}`).subscribe({
       next: (response: any) => {
-        console.log('Prestation Details:', response);
+        console.log("Prestation Details:", response);
         this.prestationDetailsForm.patchValue({
           description: response.description,
-          client: response.client?.nom || 'N/A',
+          client: response.client?.nom || "N/A",
           prixUnitaire: response.prixUnitaire,
           quantite: response.quantite,
           montantHt: response.montantHt,
           createdAt: response.createdAt,
         });
-        this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+        this.modalRef = this.modalService.show(content, { class: "modal-md" });
       },
       error: (error) => {
-        console.error('Error fetching prestation details:', error);
+        console.error("Error fetching prestation details:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error fetching prestation details',
+          icon: "error",
+          title: "Error fetching prestation details",
           text: error.message,
         });
       },
@@ -244,7 +298,7 @@ export class PrestationListComponent implements OnInit {
   openCreateModal(content: any): void {
     this.createForm.reset();
     this.createForm.patchValue({ consultantId: 140 });
-    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+    this.modalRef = this.modalService.show(content, { class: "modal-md" });
   }
 
   // Open modal for editing a prestation
@@ -258,7 +312,7 @@ export class PrestationListComponent implements OnInit {
         quantite: prestation.quantite,
         montantHt: prestation.montantHt,
       });
-      this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+      this.modalRef = this.modalService.show(content, { class: "modal-md" });
     }
   }
 
@@ -268,14 +322,14 @@ export class PrestationListComponent implements OnInit {
 
     if (this.createForm.valid) {
       const prestationDTO = this.createForm.value;
-      console.log('Prestation Data being sent:', prestationDTO);
+      console.log("Prestation Data being sent:", prestationDTO);
 
       this.prestationService.createPrestation(prestationDTO).subscribe({
         next: (response) => {
-          console.log('Prestation creation response:', response);
+          console.log("Prestation creation response:", response);
           Swal.fire({
-            icon: 'success',
-            title: 'Prestation created successfully!',
+            icon: "success",
+            title: "Prestation created successfully!",
             showConfirmButton: false,
             timer: 1500,
           });
@@ -283,23 +337,32 @@ export class PrestationListComponent implements OnInit {
           this.store.dispatch(fetchPrestationData());
         },
         error: (error) => {
-          console.error('Error creating prestation:', error);
+          console.error("Error creating prestation:", error);
           Swal.fire({
-            icon: 'error',
-            title: 'Error creating prestation',
+            icon: "error",
+            title: "Error creating prestation",
             text: error.message,
           });
         },
       });
     }
   }
-
-  // Update an existing prestation
   updatePrestation() {
     this.submitted = true;
-
     if (this.editForm.valid) {
-      const updatedPrestation = this.editForm.value;
+      const formValue = this.editForm.value;
+      const updatedPrestation: any = {
+        prestationId: formValue.prestationId,
+        description: formValue.description,
+        consultantId: formValue.consultantId
+      };
+
+      // Only include contratId, month, and year if a new contrat was selected.
+      if (formValue.contratId) {
+        updatedPrestation.contratId = formValue.contratId;
+        updatedPrestation.month = parseInt(formValue.month, 10);
+        updatedPrestation.year = parseInt(formValue.year, 10);
+      }
       console.log('Updated prestation data:', updatedPrestation);
 
       this.prestationService.updatePrestation(updatedPrestation).subscribe({
@@ -330,48 +393,59 @@ export class PrestationListComponent implements OnInit {
   delete(event: any, id: number) {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger ms-2',
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger ms-2",
       },
       buttonsStyling: false,
     });
 
     swalWithBootstrapButtons
       .fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'No, cancel!',
+        icon: "warning",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
         showCancelButton: true,
       })
       .then((result) => {
         if (result.value) {
           this.store.dispatch(deletePrestation({ id }));
-          swalWithBootstrapButtons.fire('Deleted!', 'Your prestation has been deleted.', 'success');
-          event.target.closest('tr')?.remove();
+          swalWithBootstrapButtons.fire(
+            "Supprimé!",
+            "Votre prestation a été supprimer.",
+            "success"
+          );
+          event.target.closest("tr")?.remove();
         } else if (result.dismiss === Swal.DismissReason.cancel) {
-          swalWithBootstrapButtons.fire('Cancelled', 'Your prestation is safe :)', 'error');
+          swalWithBootstrapButtons.fire(
+            "Cancelled",
+            "Your prestation is safe :)",
+            "error"
+          );
         }
       });
   }
 
   // Load contracts
   loadContracts() {
-    this.contracts$ = this.http.get<any[]>('http://localhost:8089/spring/contratsClient');
+    this.contracts$ = this.http.get<any[]>(
+      "http://localhost:8089/spring/contratsClient"
+    );
     this.contracts$.subscribe({
       next: (data) => {
         this.contracts = data;
-        console.log('Contracts received:', data);
+        console.log("Contracts received:", data);
       },
-      error: (error) => console.error('Error fetching contracts:', error),
+      error: (error) => console.error("Error fetching contracts:", error),
     });
   }
 
   // Get contrat name by ID
   getContratName(contratId: number | string): string {
-    const id = typeof contratId === 'string' ? parseInt(contratId, 10) : contratId;
+    const id =
+      typeof contratId === "string" ? parseInt(contratId, 10) : contratId;
     const contrat = this.contracts.find((c) => c.contratClientId === id);
-    return contrat ? contrat.designation : 'N/A';
+    return contrat ? contrat.designation : "N/A";
   }
 }

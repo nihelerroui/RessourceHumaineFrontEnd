@@ -13,7 +13,7 @@ export class FactureService {
 
   // Fetch a single facture by ID
   getFactureById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/dto/${id}`);
   }
 
   // Delete a facture by ID

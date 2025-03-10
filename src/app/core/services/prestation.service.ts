@@ -28,6 +28,6 @@ export class PrestationService {
 
   // Add PUT request to update prestation
   updatePrestation(prestationDTO: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}`, prestationDTO);
+    return this.http.put(`${this.apiUrl}/update`, prestationDTO);
   }
 }

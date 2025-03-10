@@ -10,7 +10,7 @@
                 href="javascript:void(0);"
                 class="btn btn-primary"
                 (click)="openCreateModal(contentCreate)"
-                >Ajouter un nouveau Prestation</a
+                >Ajouter une nouvelle Prestation</a
               >
               <a
                 href="javascript:void(0);"
@@ -358,7 +358,6 @@
     </div>
   </form>
 </ng-template>
-
 <!-- Edit Prestation Modal -->
 <ng-template #contentEdit role="document" let-modal>
   <div class="modal-header">
@@ -367,59 +366,69 @@
   </div>
   <form (ngSubmit)="updatePrestation()" [formGroup]="editForm">
     <div class="modal-body">
+      <!-- Editable Description -->
       <div class="mb-3">
         <label class="form-label">Description</label>
-        <input
-          type="text"
-          formControlName="description"
-          class="form-control"
-          required
-        />
+        <input type="text" formControlName="description" class="form-control" required />
       </div>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label class="form-label">Prix Unitaire</label>
-            <input
-              type="number"
-              formControlName="prixUnitaire"
-              class="form-control"
-              required
-            />
+
+      <!-- Contrat selector -->
+      <div class="mb-3">
+        <label class="form-label">Contrat</label>
+        <select formControlName="contratId" class="form-select" (change)="onContratChange($event.target.value)">
+          <option value="">-- Conserver le contrat actuel --</option>
+          <option *ngFor="let contract of contracts" [value]="contract.contratClientId">
+            {{ contract.designation }}
+          </option>
+        </select>
+      </div>
+
+      <!-- New selects for month and year appear only if a new contrat is chosen -->
+      <div *ngIf="newContratSelected">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Mois</label>
+              <select formControlName="month" class="form-control" required>
+                <option value="1">Janvier</option>
+                <option value="2">Février</option>
+                <option value="3">Mars</option>
+                <option value="4">Avril</option>
+                <option value="5">Mai</option>
+                <option value="6">Juin</option>
+                <option value="7">Juillet</option>
+                <option value="8">Août</option>
+                <option value="9">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label class="form-label">Quantite</label>
-            <input
-              type="number"
-              formControlName="quantite"
-              class="form-control"
-              required
-            />
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label class="form-label">Montant HT</label>
-            <input
-              type="number"
-              formControlName="montantHt"
-              class="form-control"
-              required
-            />
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Année</label>
+              <select formControlName="year" class="form-control" required>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Hidden fields that are always needed -->
+      <input type="hidden" formControlName="consultantId" />
+      <input type="hidden" formControlName="prestationId" />
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
-        Close
-      </button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
       <button type="submit" class="btn btn-success">Modifier</button>
     </div>
   </form>
 </ng-template>
+
 
 <!-- Client Details Modal -->
 <ng-template #ClientDetailsModal let-modal>

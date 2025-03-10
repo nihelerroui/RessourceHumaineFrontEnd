@@ -22,51 +22,60 @@
                                 <div class="col-md-4">
                                     <div class="fs-7">
                                         <span class="fw-bold">Début :</span> 
-                                        {{ (facture$ | async)?.contratSousTraitant?.dateDebut | date: 'dd/MM/yyyy' }}
+                                        {{ (facture$ | async)?.contratDateDebut | date: 'dd/MM/yyyy' }}
                                     </div>
                                     <div class="fs-7">
                                         <span class="fw-bold">Fin :</span> 
-                                        {{ (facture$ | async)?.contratSousTraitant?.dateFin | date: 'dd/MM/yyyy' }}
+                                        {{ (facture$ | async)?.contratDateFin | date: 'dd/MM/yyyy' }}
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-end">
                                     <div class="fs-5 fw-bold">
-                                        TJM : {{ (facture$ | async)?.contratSousTraitant?.tjm | currency: 'EUR' }}
+                                        TJM : {{ (facture$ | async)?.contratTjm | currency: 'EUR' }}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Billed To Card (With Labels) -->
+                    <!-- Billed To Card -->
                     <div class="card shadow-sm mb-4">
                         <div class="card-body p-3">
                             <h5 class="fw-bold fs-6 mb-3">Facturé à</h5>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="fs-7 text-muted">Nom du consultant</div>
-                                    <div class="fs-6 fw-bold">{{ (facture$ | async)?.consultant?.fullName }}</div>
+                                    <div class="fs-6 fw-bold">{{ (facture$ | async)?.consultantFullName }}</div>
                                     <div class="fs-7 text-muted mt-2">Téléphone</div>
-                                    <div class="fs-6">{{ (facture$ | async)?.consultant?.telephone }}</div>
+                                    <div class="fs-6">{{ (facture$ | async)?.consultantTelephone }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Status Badges -->
-                    <div class="d-flex justify-content-between mb-4">
-                        <span class="badge bg-primary fs-6" data-bs-toggle="tooltip" title="Type de Paiement">
-                            {{ (facture$ | async)?.typePaiement }}
-                        </span>
-                        <span class="badge bg-warning fs-6" data-bs-toggle="tooltip" title="Statut de Paiement">
-                            {{ (facture$ | async)?.statutPaiement }}
-                        </span>
-                        <span class="badge bg-info fs-6" data-bs-toggle="tooltip" title="Statut de la Facture">
-                            {{ (facture$ | async)?.statutFacture }}
-                        </span>
-                        <span class="badge bg-secondary fs-6" data-bs-toggle="tooltip" title="Type de Facture">
-                            {{ (facture$ | async)?.typeFacture }}
-                        </span>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-3">
+                            <h5 class="fw-bold fs-6 mb-3">Statuts</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <span class="fw-bold d-block">Type de Paiement :</span>
+                                    <span class="badge bg-primary fs-6">{{ (facture$ | async)?.typePaiement }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="fw-bold d-block">Statut de Paiement :</span>
+                                    <span class="badge bg-warning fs-6">{{ (facture$ | async)?.statutPaiement }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="fw-bold d-block">Statut de la Facture :</span>
+                                    <span class="badge bg-info fs-6">{{ (facture$ | async)?.statutFacture }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="fw-bold d-block">Type de Facture :</span>
+                                    <span class="badge bg-secondary fs-6">{{ (facture$ | async)?.typeFacture }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Invoice Summary -->
@@ -116,47 +125,9 @@
                             <a href="javascript:window.print()" class="btn btn-success me-2 fs-6">
                                 <i class="fa fa-print"></i> Imprimer
                             </a>
-                            <a href="javascript: void(0);" class="btn btn-primary fs-6">Envoyer</a>
+                            
                         </div>
                     </div>
-
-                    <!-- Comment Section (Moved Below Buttons) -->
-                    <!-- Comment Section -->
-<div class="mt-5">
-    <h3 class="fs-5 fw-bold mb-4">Commentaires</h3>
-
-    <!-- Comment Input Box -->
-    <div class="d-flex align-items-start mb-4">
-        <img src="https://avatar.iran.liara.run/public" alt="User Avatar" class="rounded-circle me-3" width="40" height="40">
-        <div class="flex-grow-1">
-            <textarea
-                class="form-control fs-6"
-                rows="3"
-                placeholder="Ajouter un commentaire..."
-                [(ngModel)]="newComment"
-            ></textarea>
-            <button
-                class="btn btn-primary mt-2"
-                (click)="addComment()"
-                [disabled]="!newComment"
-            >
-                Commenter
-            </button>
-        </div>
-    </div>
-
-    <!-- Comments List -->
-    <div *ngFor="let comment of comments" class="d-flex align-items-start mb-4">
-        <img src="https://via.placeholder.com/40" alt="User Avatar" class="rounded-circle me-3" width="40" height="40">
-        <div class="flex-grow-1">
-            <div class="bg-light p-3 rounded">
-                <strong>{{ commenterName }}</strong>
-                <p class="mb-1">{{ comment.contenu }}</p>
-                <small class="text-muted">{{ comment.dateCreation | date: 'dd/MM/yyyy à HH:mm' }}</small>
-            </div>
-        </div>
-    </div>
-</div>
 
                 </div>
             </div>

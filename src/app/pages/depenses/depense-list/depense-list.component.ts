@@ -182,11 +182,12 @@ export class DepenseListComponent implements OnInit {
         montant: depense.montant,
         designation: depense.designation,
         motif: depense.motif,
+        societeId: depense.societe ? depense.societe.societeId : ''  // patch current societe
       });
       this.modalRef = this.modalService.show(content, { class: 'modal-md' });
     }
   }
-
+  
   // Update depense
   updateDepense() {
     if (this.editForm.valid) {

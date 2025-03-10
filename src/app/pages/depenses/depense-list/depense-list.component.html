@@ -243,18 +243,18 @@
       <div class="mb-3">
         <label class="form-label">Mois</label>
         <select formControlName="mois" class="form-control" required>
-          <option value="1">Janvier</option>
-          <option value="2">Février</option>
-          <option value="3">Mars</option>
-          <option value="4">Avril</option>
-          <option value="5">Mai</option>
-          <option value="6">Juin</option>
-          <option value="7">Juillet</option>
-          <option value="8">Août</option>
-          <option value="9">Septembre</option>
-          <option value="10">Octobre</option>
-          <option value="11">Novembre</option>
-          <option value="12">Décembre</option>
+          <option value="Janvier">Janvier</option>
+          <option value="Février">Février</option>
+          <option value="Mars">Mars</option>
+          <option value="Avril">Avril</option>
+          <option value="Mai">Mai</option>
+          <option value="Juin">Juin</option>
+          <option value="Juillet">Juillet</option>
+          <option value="Août">Août</option>
+          <option value="Septembre">Septembre</option>
+          <option value="Octobre">Octobre</option>
+          <option value="Novembre">Novembre</option>
+          <option value="Décembre">Décembre</option>
         </select>
       </div>
 
@@ -308,17 +308,31 @@
   </div>
   <form (ngSubmit)="updateDepense()" [formGroup]="editForm">
     <div class="modal-body">
+      <!-- Mois: Use a select like in the create modal -->
       <div class="mb-3">
         <label class="form-label">Mois</label>
-        <input type="text" formControlName="mois" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Type</label>
-        <select formControlName="type" class="form-control" required>
-          <option value="Operational">Operational</option>
-          <option value="Non-Operational">Non-Operational</option>
+        <select formControlName="mois" class="form-control" required>
+          <option value="Janvier">Janvier</option>
+          <option value="Février">Février</option>
+          <option value="Mars">Mars</option>
+          <option value="Avril">Avril</option>
+          <option value="Mai">Mai</option>
+          <option value="Juin">Juin</option>
+          <option value="Juillet">Juillet</option>
+          <option value="Août">Août</option>
+          <option value="Septembre">Septembre</option>
+          <option value="Octobre">Octobre</option>
+          <option value="Novembre">Novembre</option>
+          <option value="Décembre">Décembre</option>
         </select>
       </div>
+      
+      <!-- Type: Use an input instead of a select -->
+      <div class="mb-3">
+        <label class="form-label">Type</label>
+        <input type="text" formControlName="type" class="form-control" required>
+      </div>
+      
       <div class="mb-3">
         <label class="form-label">Montant</label>
         <input type="number" formControlName="montant" class="form-control" required>
@@ -331,15 +345,16 @@
         <label class="form-label">Motif</label>
         <input type="text" formControlName="motif" class="form-control" required>
       </div>
+      
+      <!-- Societe: Ensure the select gets populated with the current societe -->
       <div class="mb-3">
-        <label class="form-label">Societe</label>
+        <label class="form-label">Société</label>
         <select formControlName="societeId" class="form-control" required>
           <option *ngFor="let societe of societes" [value]="societe.societeId">
             {{ societe.nom }}
           </option>
         </select>
       </div>
-      
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Close</button>
