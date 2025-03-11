@@ -5,7 +5,7 @@ import { of } from "rxjs";
 import * as ContratActions from "../contrat/contrat.actions";
 import { ContratService } from "../../core/services/contrat.service";
 import { GenericService } from "../../core/services/generic.service";
-import { ContratSousTraitant } from "./contrat.models";
+import { ContratSousTraitant } from "../../models/contrat.models";
 
 @Injectable()
 export class ContratEffects {

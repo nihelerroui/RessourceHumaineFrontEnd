@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { ContratClient } from "../../store/contratClient/contratClient.models";
+import { ContratClient } from "../../models/contratClient.models";
 import { GenericService } from '../../core/services/generic.service';
 
 @Injectable({

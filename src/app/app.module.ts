@@ -84,7 +84,7 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     EffectsModule.forRoot([
       AuthenticationEffects,
-    ]),
+    ]), 
   ],
   bootstrap: [AppComponent],
   providers: [

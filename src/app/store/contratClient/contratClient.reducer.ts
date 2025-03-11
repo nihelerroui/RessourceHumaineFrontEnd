@@ -1,6 +1,6 @@
 import { createReducer, on } from "@ngrx/store";
 import * as ContratClientActions from "../contratClient/contratClient.actions";
-import { ContratClient } from "../contratClient/contratClient.models";
+import { ContratClient } from "../../models/contratClient.models";
 
 export interface ContratClientState {
   contrats: ContratClient[];

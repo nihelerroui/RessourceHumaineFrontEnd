@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { ContratClient } from "../contratClient/contratClient.models";
+import { ContratClient } from "../../models/contratClient.models";
 
 // Charger les contrats clients
 export const loadContratsClient = createAction("[ContratClient] Load Contrats");

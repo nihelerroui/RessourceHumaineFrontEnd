@@ -5,7 +5,7 @@ import * as ContratActions from '../../../store/contratClient/contratClient.acti
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { ContratClient } from 'src/app/store/contratClient/contratClient.models';
+import { ContratClient } from 'src/app/models/contratClient.models';
 
 @Component({
   selector: 'app-import-contrat',

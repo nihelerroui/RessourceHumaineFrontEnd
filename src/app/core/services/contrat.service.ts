@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { GenericService } from '../../core/services/generic.service';
-import { ContratSousTraitant } from "src/app/store/contrat/contrat.models";
+import { ContratSousTraitant } from "src/app/models/contrat.models";
 
 @Injectable({
   providedIn: "root",

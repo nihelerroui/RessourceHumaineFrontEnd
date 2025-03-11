@@ -1,0 +1,436 @@
+<div class="container-fluid">
+  <app-page-title title="Liste des Sociétés"
+    [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des Sociétés</h5>
+            <div class="flex-shrink-0 d-flex gap-2">
+              <a href="javascript:void(0);" class="btn btn-primary"
+                (click)="openModal(addSocieteModal)"> Ajouter une Société</a>
+              <a href="javascript:void(0);" class="btn btn-light"><i
+                  class="mdi mdi-refresh"></i></a>
+              <div class="dropdown d-inline-block" dropdown>
+                <button type="menu" class="btn btn-success"
+                  id="*dropdownMenuButton1" data-bs-toggle="dropdown"
+                  aria-expanded="false" dropdownToggle><i
+                    class="mdi mdi-dots-vertical"></i></button>
+                <ul class="dropdown-menu dropdown-menu dropdown-menu-end show"
+                  aria-labelledby="*dropdownMenuButton1" *dropdownMenu>
+                  <li><a class="dropdown-item"
+                      href="javascript:void(0);">Action</a></li>
+                  <li><a class="dropdown-item"
+                      href="javascript:void(0);">Another action</a></li>
+                  <li><a class="dropdown-item"
+                      href="javascript:void(0);">Something else here</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <input type="search" class="form-control" id="searchInput"
+                placeholder="Rechercher une societe..."
+                [(ngModel)]="searchTerm" (ngModelChange)="filterSociete()">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <!-- 🔹 Affichage du chargement -->
+            <div *ngIf="loading$ | async" class="text-center text-primary">
+              <p><i class="mdi mdi-loading mdi-spin"></i> Chargement en
+                cours...</p>
+            </div>
+
+            <!-- 🔹 Affichage des erreurs -->
+            <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
+              <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+            </div>
+
+            <table *ngIf="filteredSocieteList.length > 0"
+              class="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nom</th>
+                  <th>Adresse</th>
+                  <th>Contact</th>
+                  <th>Email</th>
+                  <th>Numéro SIRET</th>
+                  <th>Numéro TVA</th>
+                  <th>Téléphone</th>
+                  <th>Responsable</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let societe of paginatedSocieteList; trackBy: trackById">
+                  <th>{{ societe.societeId }}</th>
+                  <td>{{ societe.nom }}</td>
+                  <td>{{ societe.adresse }}</td>
+                  <td>{{ societe.contact }}</td>
+                  <td>{{ societe.email }}</td>
+                  <td>{{ societe.numSiret }}</td>
+                  <td>{{ societe.numTva }}</td>
+                  <td>{{ societe.telephone }}</td>
+                  <td>{{ societe.responsable }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-soft-info"
+                      (click)="editDataGet(societe, editSocieteModal)">
+                      <i class="mdi mdi-pencil-outline"></i>
+                    </button>
+                    <button class="btn btn-sm btn-soft-danger"
+                      (click)="onDeleteSociete(societe.societeId)">
+                      <i class="mdi mdi-delete-outline"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+           <!-- ❗ Aucun Résultat -->
+           <div
+           *ngIf="paginatedSocieteList.length === 0 && !(loading$ | async)"
+           class="text-center text-muted">
+           <p>Aucune Societe trouvée.</p>
+       </div>
+          <!-- ✅ Pagination -->
+          <div class="row justify-content-between align-items-center mt-3"
+            *ngIf="filteredSocieteList?.length > 0">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">Affichage de <b>{{
+                  paginatedSocieteList.length }}</b> sur <b>{{
+                  filteredSocieteList.length }}</b> societes</p>
+            </div>
+            <div class="col-auto">
+              <ul
+                class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination [totalItems]="filteredSocieteList.length"
+                  [itemsPerPage]="itemsPerPage"
+                  (pageChanged)="pageChanged($event)"></pagination>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Modal Ajout -->
+  <ng-template #addSocieteModal>
+    <div class="modal-header">
+      <h5 class="modal-title">Ajouter une Société</h5>
+      <button type="button" class="btn-close"
+        (click)="modalRef?.hide()"></button>
+    </div>
+    <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
+      <div class="modal-body">
+
+        <!-- Nom -->
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="nom"
+            placeholder="Nom de la société">
+          <div
+            *ngIf="societeForm.controls['nom'].invalid && societeForm.controls['nom'].touched"
+            class="text-danger">
+            Le nom est obligatoire et doit contenir au moins 2 caractères.
+          </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="mb-3">
+          <label class="form-label">Adresse</label>
+          <input type="text" class="form-control" formControlName="adresse"
+            placeholder="Adresse de la société">
+          <div
+            *ngIf="societeForm.controls['adresse'].invalid && societeForm.controls['adresse'].touched"
+            class="text-danger">
+            L'adresse est obligatoire.
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="mb-3">
+          <label class="form-label">Contact</label>
+          <input type="text" class="form-control" formControlName="contact"
+            placeholder="Nom du contact">
+          <div
+            *ngIf="societeForm.controls['contact'].invalid && societeForm.controls['contact'].touched"
+            class="text-danger">
+            Le contact est obligatoire.
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email"
+            placeholder="Email de la société">
+          <div
+            *ngIf="societeForm.controls['email'].invalid && societeForm.controls['email'].touched"
+            class="text-danger">
+            Entrez un email valide.
+          </div>
+        </div>
+
+         <!-- Numéro SIRET -->
+         <div class="mb-3">
+          <label class="form-label">Numéro SIRET</label>
+          <input type="text" class="form-control" formControlName="numSiret"
+            placeholder="SIRET">
+          <div
+            *ngIf="societeForm.controls['numSiret'].invalid && societeForm.controls['numSiret'].touched"
+            class="text-danger">
+            <span
+              *ngIf="societeForm.controls['numSiret'].errors?.['required']">Le
+              numéro SIRET est obligatoire.</span>
+            <span
+              *ngIf="societeForm.controls['numSiret'].errors?.['pattern']">Le
+              numéro SIRET doit contenir exactement 14 chiffres.</span>
+          </div>
+        </div>
+
+        <!-- Numéro TVA -->
+        <div class="mb-3">
+          <label class="form-label">Numéro TVA</label>
+          <input type="text" class="form-control" formControlName="numTva"
+            placeholder="Numéro TVA">
+          <div
+            *ngIf="societeForm.controls['numTva'].invalid && societeForm.controls['numTva'].touched"
+            class="text-danger">
+            <span *ngIf="societeForm.controls['numTva'].errors?.['required']">Le
+              numéro TVA est obligatoire.</span>
+            <span *ngIf="societeForm.controls['numTva'].errors?.['pattern']">Le
+              numéro TVA doit commencer par 2 lettres suivies de 8 à 12
+              chiffres.</span>
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="mb-3">
+          <label class="form-label">Téléphone</label>
+          <input type="text" class="form-control" formControlName="telephone"
+            placeholder="Numéro de téléphone">
+          <div
+            *ngIf="societeForm.controls['telephone'].invalid && societeForm.controls['telephone'].touched"
+            class="text-danger">
+            Le téléphone doit contenir entre 10 et 15 chiffres.
+          </div>
+        </div>
+
+        <!-- RRT (Case à cocher) -->
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" formControlName="rrt">
+          <label class="form-check-label">RRT</label>
+        </div>
+
+        <!-- Nombre de jours -->
+        <div class="mb-3">
+          <label class="form-label">Nombre de jours</label>
+          <input type="number" class="form-control" formControlName="nbJours"
+            min="1">
+          <div
+            *ngIf="societeForm.controls['nbJours'].invalid && societeForm.controls['nbJours'].touched"
+            class="text-danger">
+            Le nombre de jours doit être au minimum 1.
+          </div>
+        </div>
+
+        <!-- Ratio coût -->
+        <div class="mb-3">
+          <label class="form-label">Ratio coût</label>
+          <input type="number" class="form-control" formControlName="ratioCout"
+            min="0">
+          <div
+            *ngIf="societeForm.controls['ratioCout'].invalid && societeForm.controls['ratioCout'].touched"
+            class="text-danger">
+            Le ratio coût doit être un nombre positif.
+          </div>
+        </div>
+
+        <!-- Responsable -->
+        <div class="mb-3">
+          <label class="form-label">Responsable</label>
+          <input type="text" class="form-control" formControlName="responsable"
+            placeholder="Nom du responsable">
+          <div
+            *ngIf="societeForm.controls['responsable'].invalid && societeForm.controls['responsable'].touched"
+            class="text-danger">
+            Le nom du responsable est obligatoire.
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light"
+          (click)="modalRef?.hide()">Annuler</button>
+        <button type="submit" class="btn btn-success"
+          [disabled]="societeForm.invalid">Ajouter</button>
+      </div>
+    </form>
+  </ng-template>
+
+  <!-- ✅ Modal Modification -->
+  <ng-template #editSocieteModal>
+    <div class="modal-header">
+      <h5 class="modal-title">Modifier une Société</h5>
+      <button type="button" class="btn-close"
+        (click)="modalRef?.hide()"></button>
+    </div>
+    <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
+      <div class="modal-body">
+
+        <!-- Nom -->
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="nom"
+            placeholder="Nom de la société">
+          <div
+            *ngIf="societeForm.controls['nom'].invalid && societeForm.controls['nom'].touched"
+            class="text-danger">
+            Le nom est obligatoire et doit contenir au moins 2 caractères.
+          </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="mb-3">
+          <label class="form-label">Adresse</label>
+          <input type="text" class="form-control" formControlName="adresse"
+            placeholder="Adresse de la société">
+          <div
+            *ngIf="societeForm.controls['adresse'].invalid && societeForm.controls['adresse'].touched"
+            class="text-danger">
+            L'adresse est obligatoire.
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="mb-3">
+          <label class="form-label">Contact</label>
+          <input type="text" class="form-control" formControlName="contact"
+            placeholder="Nom du contact">
+          <div
+            *ngIf="societeForm.controls['contact'].invalid && societeForm.controls['contact'].touched"
+            class="text-danger">
+            Le contact est obligatoire.
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email"
+            placeholder="Email de la société">
+          <div
+            *ngIf="societeForm.controls['email'].invalid && societeForm.controls['email'].touched"
+            class="text-danger">
+            Entrez un email valide.
+          </div>
+        </div>
+
+        <!-- Numéro SIRET -->
+        <div class="mb-3">
+          <label class="form-label">Numéro SIRET</label>
+          <input type="text" class="form-control" formControlName="numSiret"
+            placeholder="SIRET">
+          <div
+            *ngIf="societeForm.controls['numSiret'].invalid && societeForm.controls['numSiret'].touched"
+            class="text-danger">
+            <span
+              *ngIf="societeForm.controls['numSiret'].errors?.['required']">Le
+              numéro SIRET est obligatoire.</span>
+            <span
+              *ngIf="societeForm.controls['numSiret'].errors?.['pattern']">Le
+              numéro SIRET doit contenir exactement 14 chiffres.</span>
+          </div>
+        </div>
+
+        <!-- Numéro TVA -->
+        <div class="mb-3">
+          <label class="form-label">Numéro TVA</label>
+          <input type="text" class="form-control" formControlName="numTva"
+            placeholder="Numéro TVA">
+          <div
+            *ngIf="societeForm.controls['numTva'].invalid && societeForm.controls['numTva'].touched"
+            class="text-danger">
+            <span *ngIf="societeForm.controls['numTva'].errors?.['required']">Le
+              numéro TVA est obligatoire.</span>
+            <span *ngIf="societeForm.controls['numTva'].errors?.['pattern']">Le
+              numéro TVA doit commencer par 2 lettres suivies de 8 à 12
+              chiffres.</span>
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="mb-3">
+          <label class="form-label">Téléphone</label>
+          <input type="text" class="form-control" formControlName="telephone"
+            placeholder="Numéro de téléphone">
+          <div
+            *ngIf="societeForm.controls['telephone'].invalid && societeForm.controls['telephone'].touched"
+            class="text-danger">
+            Le téléphone doit contenir entre 9 chiffres.
+          </div>
+        </div>
+
+        <!-- RRT (Case à cocher) -->
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" formControlName="rrt">
+          <label class="form-check-label">RRT</label>
+        </div>
+
+        <!-- Nombre de jours -->
+        <div class="mb-3">
+          <label class="form-label">Nombre de jours</label>
+          <input type="number" class="form-control" formControlName="nbJours"
+            min="1">
+          <div
+            *ngIf="societeForm.controls['nbJours'].invalid && societeForm.controls['nbJours'].touched"
+            class="text-danger">
+            Le nombre de jours doit être au minimum 1.
+          </div>
+        </div>
+
+        <!-- Ratio coût -->
+        <div class="mb-3">
+          <label class="form-label">Ratio coût</label>
+          <input type="number" class="form-control" formControlName="ratioCout"
+            min="0">
+          <div
+            *ngIf="societeForm.controls['ratioCout'].invalid && societeForm.controls['ratioCout'].touched"
+            class="text-danger">
+            Le ratio coût doit être un nombre positif.
+          </div>
+        </div>
+
+        <!-- Responsable -->
+        <div class="mb-3">
+          <label class="form-label">Responsable</label>
+          <input type="text" class="form-control" formControlName="responsable"
+            placeholder="Nom du responsable">
+          <div
+            *ngIf="societeForm.controls['responsable'].invalid && societeForm.controls['responsable'].touched"
+            class="text-danger">
+            Le nom du responsable est obligatoire.
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light"
+          (click)="modalRef?.hide()">Annuler</button>
+        <button type="submit" class="btn btn-success"
+          [disabled]="societeForm.invalid">Mettre à Jour</button>
+      </div>
+    </form>
+  </ng-template>
+</div>

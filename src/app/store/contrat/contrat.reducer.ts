@@ -1,5 +1,5 @@
 import { createReducer, on } from "@ngrx/store";
-import { ContratSousTraitant } from "../contrat/contrat.models";
+import { ContratSousTraitant } from "../../models/contrat.models";
 import * as ContratActions from "../contrat/contrat.actions";
 
 // État initial

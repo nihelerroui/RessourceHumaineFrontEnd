@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
   ContratSousTraitant,
   StatutContrat,
-} from "../../../store/contrat/contrat.models";
+} from "../../../models/contrat.models";
 import * as ContratActions from "../../../store/contrat/contrat.actions";
 import { selectAllContracts } from "../../../store/contrat/contrat-selector";
 
