@@ -24,10 +24,12 @@ import { PagesRoutingModule } from './pages-routing.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FactureListComponent } from './facture/facture-list/facture-list.component'; // Updated import
+import { FactureClientDetailComponent } from './factureclientdetail/factureclientdetailview/factureclientdetail.component'; // Updated import
 
 @NgModule({
   declarations: [
-    FactureListComponent // Updated component name
+    FactureListComponent,
+    FactureClientDetailComponent // Updated component name
   ],
   imports: [
     CommonModule,

@@ -5,7 +5,7 @@ import { UntypedFormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { Observable } from 'rxjs';
-
+import { Router } from '@angular/router';
 import { createFactureClient } from '../../../store/FactureClient/factureclient.actions';
 import { selectFactureClients, selectError, selectLoading } from '../../../store/FactureClient/factureclient.selectors';
 import { FactureClientService } from '../../../core/services/factureclient.service';
@@ -43,6 +43,7 @@ export class FactureClientListComponent implements OnInit {
 
   constructor(
     public store: Store,
+    private router: Router,
     private modalService: BsModalService,
     private formBuilder: UntypedFormBuilder,
     private factureClientService: FactureClientService,
@@ -244,5 +245,9 @@ export class FactureClientListComponent implements OnInit {
         });
       }
     });
+  }
+  viewDetails(factureClientId: number): void {
+    // Navigate to the route defined as factureclient/:id
+    this.router.navigate(['/facture/client/details', factureClientId]);
   }
 }
