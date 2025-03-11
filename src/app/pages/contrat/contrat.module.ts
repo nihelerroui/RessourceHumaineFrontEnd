@@ -20,15 +20,21 @@ import { StoreModule } from '@ngrx/store';
 import { contratReducer } from 'src/app/store/contrat/contrat.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { ContratEffects } from 'src/app/store/contrat/contrat.effects';
+import { ImportContratComponent } from './import-contrat/import-contrat.component';
+import { contratClientReducer } from 'src/app/store/contratClient/contratClient.reducer';
+import { ContratClientEffects } from 'src/app/store/contratClient/contratClient.effects';
+
 
 
 @NgModule({
-  declarations: [ContratSousTraitantComponent],
+  declarations: [ContratSousTraitantComponent, ImportContratComponent],
   imports: [
     CommonModule,
     ContratRoutingModule,
     StoreModule.forFeature('contrats',contratReducer),
+    StoreModule.forFeature("contratsClient", contratClientReducer),
     EffectsModule.forFeature([ContratEffects]),
+    EffectsModule.forFeature([ContratClientEffects]),
     CollapseModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,

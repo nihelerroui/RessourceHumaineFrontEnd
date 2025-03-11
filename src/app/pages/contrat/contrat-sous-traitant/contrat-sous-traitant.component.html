@@ -270,9 +270,10 @@
       <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
         Annuler
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="contratForm.invalid || fileError">
+      <button type="submit" class="btn btn-primary" [disabled]="contratForm.invalid || !fileSelected">
         {{ selectedContratId ? "Modifier" : "Ajouter" }}
-      </button>      
+      </button>
+           
     </div>
   </form>
 </ng-template>

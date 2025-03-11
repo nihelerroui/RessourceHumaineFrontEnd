@@ -59,23 +59,34 @@ export class ContratSousTraitantComponent implements OnInit {
     this.initForm();
     this.loadContrats();
     this.statutContrats = Object.values(StatutContrat);
+    
+    // ✅ Vérifier la validité du formulaire après une petite pause pour s'assurer qu'il est bien créé
+    setTimeout(() => {
+      this.checkFormValidity();
+    }, 500);
   }
+  
   //Charger la liste des contrats
   loadContrats() {
     this.store.dispatch(ContratActions.loadContracts());
   }
+  checkFormValidity() {
+    console.log("Formulaire valide :", this.contratForm.valid, "Fichier sélectionné :", this.fileSelected);
+  }
+  
   //initialiser le formulaire
   initForm() {
     this.contratForm = this.formBuilder.group({
       tjm: ['', [Validators.required, Validators.min(1)]], 
       dateDebut: ['', Validators.required], 
       dateFin: ['', Validators.required],
-      conditionsFac: ['', [Validators.required, Validators.minLength(10)]],
-      statutContrat: ['', Validators.required]
+      conditionsFac: ['', [Validators.required, Validators.minLength(10)]]
     }, {
       validator: this.validateDates
     });
+    console.log("✅ Formulaire initialisé :", this.contratForm);
   }
+  
   
   //Vérifie que la date de fin est après la date de début
   validateDates(group: FormGroup) {
@@ -125,15 +136,19 @@ export class ContratSousTraitantComponent implements OnInit {
         this.selectedFile = file;
         this.fileName = file.name;
         this.fileError = false;
-        this.fileSelected = true; // Fichier sélectionné correctement
+        this.fileSelected = true;
       } else {
         this.selectedFile = null;
         this.fileName = "Aucun fichier sélectionné";
         this.fileError = true;
-        this.fileSelected = false; // Fichier invalide
+        this.fileSelected = false;
       }
     }
+  
+    console.log("Fichier sélectionné ?", this.fileSelected);
   }
+  
+  
   //Ajouter ou modifier un contrat
   saveContrat() {
     if (this.contratForm.valid) {
@@ -143,9 +158,8 @@ export class ContratSousTraitantComponent implements OnInit {
         statutContrat: "EN_ATTENTE",
       };
       if (this.selectedContratId) {
-        //Modification du contrat
         contrat.contratId = this.selectedContratId;
-        console.log("🔄 Mise à jour du contrat :", contrat);
+        console.log("Mise à jour du contrat :", contrat);
         this.store.dispatch(
           ContratActions.updateContract({
             id: this.selectedContratId,
@@ -156,22 +170,32 @@ export class ContratSousTraitantComponent implements OnInit {
       } else {
         //Ajout d'un nouveau contrat
         console.log("🆕 Ajout d'un contrat :", contrat);
-        this.store.dispatch(
-          ContratActions.addContract({ contrat, fichier: this.selectedFile })
-        );
+        this.store.dispatch(ContratActions.addContract({ contrat, fichier: this.selectedFile }));
+        Swal.fire({
+          title: "Succès !",
+          text: "Le contrat a été ajouté avec succès.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
       }
-      //Fermer la modal après l'ajout/modification
       if (this.modalRef) {
         this.modalRef.hide();
       }
 
-      //Réinitialiser le formulaire
       this.contratForm.reset();
       this.fileName = "Aucun fichier sélectionné";
       this.selectedFile = null;
       this.selectedContratId = null;
+    } else {
+      Swal.fire({
+        title: "Erreur",
+        text: "Veuillez remplir tous les champs obligatoires correctement.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   }
+  
   //Modifier un contrat
   editContrat(contrat: ContratSousTraitant, template: any) {
     this.submitted = false;

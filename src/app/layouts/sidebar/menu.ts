@@ -54,10 +54,6 @@ export const MENU: MenuItem[] = [
         isTitle: true
     },
     {
-        id: 2,
-        label: 'Contrat',
-        icon: 'bx-home-circle'},
-    {
         id: 18,
         label: 'ContratSousTraitant',
         icon: 'bx bx-message-alt-dots',
