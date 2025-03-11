@@ -4,14 +4,14 @@ import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { addClient, deleteClient, loadClients, updateClient } from 'src/app/store/client/client.actions';
-import { Client } from 'src/app/store/client/client.model';
+import { Client } from '../../models/client.model'; 
 import { selectClientError, selectClientList, selectClientLoading } from 'src/app/store/client/client.selectors';
-import { TypeClient } from 'src/app/store/client/type-client.enum';
+import { TypeClient } from 'src/app/pages/models/type-client.enum';
 import { loadPays } from 'src/app/store/pays/pays.actions';
-import { Pays } from 'src/app/store/pays/pays.model';
+import { Pays } from 'src/app/pages/models/pays.model';
 import { selectPaysList } from 'src/app/store/pays/pays.selectors';
 import { loadSocietes } from 'src/app/store/societe/societe.actions';
-import { Societe } from 'src/app/store/societe/societe.model';
+import { Societe } from 'src/app/pages/models/societe.model';
 import { selectSocieteList } from 'src/app/store/societe/societe.selectors';
 import Swal from 'sweetalert2';
 

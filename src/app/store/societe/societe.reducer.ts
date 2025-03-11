@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import * as SocieteActions from './societe.actions';
-import { Societe } from './societe.model';
+import { Societe } from '../../pages/models/societe.model';
 
 export interface SocieteState {
   societes: Societe[];

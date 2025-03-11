@@ -1,5 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { Client } from './client.model';
+import { Client } from 'src/app/pages/models/client.model';
 import {
   loadClients,
   loadClientsSuccess,

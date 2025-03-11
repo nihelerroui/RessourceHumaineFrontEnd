@@ -54,26 +54,26 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 10,
-        label: 'PAYS',
+        label: 'MENUITEMS.PAYS',
         icon: 'bx-calendar',
         link: '/pays/list',
     },
     {
         id: 11,
-        label: 'SOCIETE',
+        label: 'MENUITEMS.SOCIETE',
         icon: 'bx-chat',
         link: '/societe/list',
 
     },
     {
         id: 12,
-        label: 'CLIENT',
+        label: 'MENUITEMS.CLIENT',
         icon: 'bx-file',
         link: '/client/list',
     },
     {
         id: 12,
-        label: 'FACTURE',
+        label: 'MENUITEMS.FACTURE',
         icon: 'bx-file',
         link: '/facture/list',
     },

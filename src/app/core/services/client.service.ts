@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Client } from 'src/app/store/client/client.model';
+import { Client } from 'src/app/pages/models/client.model';
 import { GenericService } from './generic.service';
 
 @Injectable({

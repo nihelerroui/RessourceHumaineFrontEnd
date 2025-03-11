@@ -69,6 +69,15 @@
     "MENU": {
       "TEXT": "Menu"
     },
+    
+    "PAYS": "PAYS",
+    
+    "SOCIETE": "SOCIETE",
+    
+    "CLIENT": "CLIENT",
+    
+    "FACTURE": "FACTURE",
+    
     "DASHBOARDS": {
       "TEXT": "Dashboards",
       "BADGE": "04",

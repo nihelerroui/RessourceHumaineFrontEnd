@@ -18,7 +18,7 @@ import {
   deleteClientSuccess,
   deleteClientFailure
 } from './client.actions';
-import { Client } from './client.model';
+import { Client } from 'src/app/pages/models/client.model';
 
 @Injectable()
 export class ClientEffects {

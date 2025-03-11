@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Client } from './client.model';
+import { Client } from 'src/app/pages/models/client.model';
 
 // 🔹 Charger la liste des clients
 export const loadClients = createAction('[Client] Load Clients');

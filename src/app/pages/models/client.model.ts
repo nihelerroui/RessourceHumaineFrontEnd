@@ -1,5 +1,5 @@
-import { Pays } from "../pays/pays.model";
-import { Societe } from "../societe/societe.model";
+import { Pays } from "./pays.model";
+import { Societe } from "./societe.model";
 import { TypeClient } from "./type-client.enum";
 
 export interface Client {
