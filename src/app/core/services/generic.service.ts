@@ -30,8 +30,8 @@ export class GenericService<T> {
   }
 
   // Generic method to update a record by ID
-  update(id: string, data: T): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}/${id}`, data);
+  update(data: T): Observable<T> {
+    return this.http.put<T>(`${this.apiUrl}`, data);
   }
 
   // Generic method to delete a record by ID

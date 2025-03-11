@@ -5,7 +5,6 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators, FormGroup } from '@an
 import Swal from 'sweetalert2';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 import { fetchDepenseData, deleteDepense } from '../../../store/Depense/depense.actions';
 import { selectData, selectError, selectLoading } from '../../../store/Depense/depense.selectors';
@@ -38,27 +37,12 @@ export class DepenseListComponent implements OnInit {
   depenseDetailsForm: FormGroup;
   societes: any[] = []; // Store societies
   factures: any[] = [];
-  fetchUnassignedFactures(): void {
-  this.http.get<any[]>('http://localhost:8089/spring/factures/unassigned').subscribe({
-    next: (data) => {
-      this.factures = data;
-    },
-    error: (error) => {
-      console.error('Error fetching unassigned factures:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error fetching factures',
-        text: error.message,
-      });
-    },
-  });
-}
+
   constructor(
     public store: Store,
     private modalService: BsModalService,
     private formBuilder: UntypedFormBuilder,
-    private depenseService: DepenseService,
-    private http: HttpClient
+    private depenseService: DepenseService
   ) {
     this.breadCrumbItems = [{ label: 'Depenses' }, { label: 'Depenses List', active: true }];
     this.bsConfig = {
@@ -76,8 +60,10 @@ export class DepenseListComponent implements OnInit {
       designation: ['', [Validators.required]],
       motif: ['', [Validators.required]],
     });
+
     this.loading$.subscribe((loading) => console.log('Loading state:', loading));
-  this.error$.subscribe((error) => { if (error) console.error('Store error:', error); });
+    this.error$.subscribe((error) => { if (error) console.error('Store error:', error); });
+
     this.fetchDepenses();
 
     this.createForm = this.formBuilder.group({
@@ -88,7 +74,7 @@ export class DepenseListComponent implements OnInit {
       motif: ['', Validators.required], // Input (text)
       societeId: ['', Validators.required], // Select (societeId)
     });
-    
+
     this.editForm = this.formBuilder.group({
       depenseId: ['', Validators.required],
       mois: ['', Validators.required],
@@ -106,12 +92,10 @@ export class DepenseListComponent implements OnInit {
       designation: ['', Validators.required],
       motif: ['', Validators.required],
     });
-    this.http.get('http://localhost:8089/spring/societes').subscribe({
-      next: (data: any) => {
-        this.societes = data;
-      },
-      error: (error) => console.error('Error fetching societes:', error),
-    });
+
+    this.fetchSocietes();
+    //this.fetchUnassignedFactures();
+
     // Dispatch action to fetch depense data
     this.store.dispatch(fetchDepenseData());
 
@@ -134,8 +118,9 @@ export class DepenseListComponent implements OnInit {
     this.createForm.reset();
     this.modalRef = this.modalService.show(content, { class: 'modal-md' });
   }
+
   fetchDepenses(): void {
-    this.http.get<any[]>('http://localhost:8089/spring/depenses').subscribe({
+    this.depenseService.getAll().subscribe({
       next: (data) => {
         console.log('Fetched depenses:', data);
         this.depenses = data;
@@ -151,70 +136,97 @@ export class DepenseListComponent implements OnInit {
       },
     });
   }
-// Save new depense
-saveDepense() {
-  if (this.createForm.valid) {
-    const depenseDTO = {
-      ...this.createForm.value,
-      societe: { societeId: this.createForm.value.societeId },
-    };
 
-    // Use the `create` method from GenericService
-    this.depenseService.create(depenseDTO).subscribe({
-      next: () => {
-        Swal.fire('Success', 'Depense created!', 'success');
-        this.modalRef?.hide();
-        this.fetchDepenses(); // Refresh list
+  fetchSocietes(): void {
+    this.depenseService.getSocietes().subscribe({
+      next: (data) => {
+        this.societes = data;
       },
-      error: (error) => Swal.fire('Error', error.message, 'error'),
+      error: (error) => console.error('Error fetching societes:', error),
     });
   }
-}
 
-// Open edit modal
-editDataGet(id: any, content: any): void {
-  const depense = this.depenses.find((d) => d.depenseId === id);
-  if (depense) {
-    this.editForm.patchValue({
-      depenseId: depense.depenseId,
-      mois: depense.mois,
-      type: depense.type,
-      montant: depense.montant,
-      designation: depense.designation,
-      motif: depense.motif,
-      societeId: depense.societe ? depense.societe.societeId : '', // patch current societe
-    });
-    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
-  }
-}
-
-// Update depense
-updateDepense() {
-  if (this.editForm.valid) {
-    const updatedDepense = {
-      ...this.editForm.value,
-      depenseId: this.editForm.value.depenseId, // Ensure ID is included in body
-      societe: { societeId: this.editForm.value.societeId },
-    };
-
-    // Use the service with dummy ID (not actually used)
-    this.depenseService.update('dummy_id', updatedDepense).subscribe({
-      next: () => {
-        Swal.fire('Success', 'Depense updated!', 'success');
-        this.modalRef?.hide();
-        this.fetchDepenses();
+  fetchUnassignedFactures(): void {
+    this.depenseService.getUnassignedFactures().subscribe({
+      next: (data) => {
+        this.factures = data;
       },
       error: (error) => {
-        Swal.fire('Error', error.message, 'error');
-        console.error('Update error:', error);
-      }
+        console.error('Error fetching unassigned factures:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error fetching factures',
+          text: error.message,
+        });
+      },
     });
   }
-}
+
+  // Save new depense
+  saveDepense() {
+    if (this.createForm.valid) {
+      const depenseDTO = {
+        ...this.createForm.value,
+        societe: { societeId: this.createForm.value.societeId },
+      };
+
+      // Use the `create` method from GenericService
+      this.depenseService.create(depenseDTO).subscribe({
+        next: () => {
+          Swal.fire('Success', 'Depense created!', 'success');
+          this.modalRef?.hide();
+          this.fetchDepenses(); // Refresh list
+        },
+        error: (error) => Swal.fire('Error', error.message, 'error'),
+      });
+    }
+  }
+
+  // Open edit modal
+  editDataGet(id: any, content: any): void {
+    const depense = this.depenses.find((d) => d.depenseId === id);
+    if (depense) {
+      this.editForm.patchValue({
+        depenseId: depense.depenseId,
+        mois: depense.mois,
+        type: depense.type,
+        montant: depense.montant,
+        designation: depense.designation,
+        motif: depense.motif,
+        societeId: depense.societe ? depense.societe.societeId : '', // patch current societe
+      });
+      this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+    }
+  }
+
+  // Update depense
+  updateDepense() {
+    if (this.editForm.valid) {
+      const updatedDepense = {
+        ...this.editForm.value,
+        depenseId: this.editForm.value.depenseId, // Ensure ID is included in body
+        societe: { societeId: this.editForm.value.societeId },
+      };
+
+      // Use the service with dummy ID (not actually used)
+      this.depenseService.update(updatedDepense).subscribe({
+        next: () => {
+          Swal.fire('Success', 'Depense updated!', 'success');
+          this.modalRef?.hide();
+          this.fetchDepenses();
+        },
+        error: (error) => {
+          Swal.fire('Error', error.message, 'error');
+          console.error('Update error:', error);
+        }
+      });
+    }
+  }
+
   // View depense details
   viewDetails(id: any, content: any) {
     console.log('Viewing depense details:', id);
-    this.http.get(`http://localhost:8089/spring/depenses/${id}`).subscribe({
+    this.depenseService.getDepenseDetails(id).subscribe({
       next: (response: any) => {
         console.log('Depense Details:', response);
         this.depenseDetailsForm.patchValue({

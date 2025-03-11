@@ -14,14 +14,9 @@ export class DepenseService extends GenericService<any> {
   }
 
   // Override the generic update method to match backend API
-  override update(id: string, data: any): Observable<any> {
+  override update(data: any): Observable<any> {
     // Send to base URL without ID in path
     return this.http.put<any>(this.apiUrl, data);
-  }
-
-  // Keep custom endpoints
-  createDepense(depenseDTO: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/create`, depenseDTO);
   }
 
   getFactures(): Observable<any[]> {
@@ -30,5 +25,13 @@ export class DepenseService extends GenericService<any> {
 
   getSocietes(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/societes`);
+  }
+
+  getUnassignedFactures(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/factures/unassigned`);
+  }
+
+  getDepenseDetails(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 }

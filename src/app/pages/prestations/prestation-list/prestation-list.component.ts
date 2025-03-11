@@ -141,32 +141,17 @@ export class PrestationListComponent implements OnInit {
 
   viewClientDetails(clientId: number, content: any) {
     if (!clientId) {
-      Swal.fire({
-        icon: "warning",
-        title: "Client Inconnu",
-        text: "Aucune information client disponible.",
-      });
+      Swal.fire({ icon: "warning", title: "Client Inconnu", text: "Aucune information client disponible." });
       return;
     }
-
-    this.http
-      .get(`http://localhost:8089/spring/clients/${clientId}`)
-      .subscribe({
-        next: (response: any) => {
-          this.clientDetails = response;
-          this.modalRef = this.modalService.show(content, {
-            class: "modal-lg",
-          });
-        },
-        error: (error) => {
-          console.error("Error fetching client details:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Erreur",
-            text: "Impossible de récupérer les détails du client.",
-          });
-        },
-      });
+  
+    this.prestationService.getClientDetails(clientId).subscribe({
+      next: (response) => {
+        this.clientDetails = response;
+        this.modalRef = this.modalService.show(content, { class: "modal-lg" });
+      },
+      error: () => Swal.fire({ icon: "error", title: "Erreur", text: "Impossible de récupérer les détails du client." })
+    });
   }
   // Subscribe to store data
   subscribeToStore() {
@@ -189,35 +174,16 @@ export class PrestationListComponent implements OnInit {
   // Filter prestations by date
   filterByDate() {
     if (this.selectedDate) {
-      const formattedDate = this.datePipe.transform(
-        this.selectedDate,
-        "yyyy-MM-dd"
-      );
-      console.log("Selected Date:", formattedDate);
-      this.http
-        .get(
-          `http://localhost:8089/spring/prestations/by-date?createdAt=${formattedDate}`
-        )
-        .subscribe({
-          next: (response: any) => {
-            this.prestations = response;
-            this.lists = response?.slice(0, 8);
-          },
-          error: (error) => {
-            console.error("Error fetching prestations by date:", error);
-            Swal.fire({
-              icon: "error",
-              title: "Error fetching prestations by date",
-              text: error.message,
-            });
-          },
-        });
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "No Date Selected",
-        text: "Please select a date to filter prestations.",
+      const formattedDate = this.datePipe.transform(this.selectedDate, "yyyy-MM-dd");
+      this.prestationService.filterByDate(formattedDate!).subscribe({
+        next: (response) => {
+          this.prestations = response;
+          this.lists = response.slice(0, 8);
+        },
+        error: () => Swal.fire({ icon: "error", title: "Error", text: "Error fetching prestations by date." })
       });
+    } else {
+      Swal.fire({ icon: "warning", title: "No Date Selected", text: "Please select a date to filter prestations." });
     }
   }
 
@@ -269,10 +235,8 @@ export class PrestationListComponent implements OnInit {
 
   // View prestation details
   viewDetails(id: any, content: any) {
-    console.log("Viewing prestation details:", id);
-    this.http.get(`http://localhost:8089/spring/prestations/${id}`).subscribe({
-      next: (response: any) => {
-        console.log("Prestation Details:", response);
+    this.prestationService.getPrestationDetails(id).subscribe({
+      next: (response) => {
         this.prestationDetailsForm.patchValue({
           description: response.description,
           client: response.client?.nom || "N/A",
@@ -283,16 +247,10 @@ export class PrestationListComponent implements OnInit {
         });
         this.modalRef = this.modalService.show(content, { class: "modal-md" });
       },
-      error: (error) => {
-        console.error("Error fetching prestation details:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error fetching prestation details",
-          text: error.message,
-        });
-      },
+      error: () => Swal.fire({ icon: "error", title: "Error", text: "Error fetching prestation details." })
     });
   }
+  
 
   // Open modal for creating a new prestation
   openCreateModal(content: any): void {
@@ -429,14 +387,8 @@ export class PrestationListComponent implements OnInit {
 
   // Load contracts
   loadContracts() {
-    this.contracts$ = this.http.get<any[]>(
-      "http://localhost:8089/spring/contratsClient"
-    );
-    this.contracts$.subscribe({
-      next: (data) => {
-        this.contracts = data;
-        console.log("Contracts received:", data);
-      },
+    this.prestationService.getContrats().subscribe({
+      next: (data) => this.contracts = data,
       error: (error) => console.error("Error fetching contracts:", error),
     });
   }

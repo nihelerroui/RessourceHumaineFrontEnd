@@ -2,24 +2,36 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GenericService } from './generic.service'; // Import GenericService
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PrestationService extends GenericService<any> {
-  // The constructor passes 'prestations' as the dynamic endpoint to the GenericService
   constructor(http: HttpClient) {
-    super(http, 'prestations'); // 'prestations' will be used as the dynamic endpoint
+    super(http, 'prestations');
   }
 
-  // Create Prestation: custom endpoint remains the same
   createPrestation(prestationDTO: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/create`, prestationDTO); // Custom route for creation
+    return this.http.post(`${this.apiUrl}/create`, prestationDTO);
   }
 
-  // Use the custom update method (kept as is)
   updatePrestation(prestationDTO: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update`, prestationDTO); // Custom route for update
+    return this.http.put(`${this.apiUrl}/update`, prestationDTO);
+  }
+
+  getClientDetails(clientId: number): Observable<any> {
+    return this.http.get(`http://localhost:8089/spring/clients/${clientId}`);
+  }
+
+  filterByDate(date: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/by-date?createdAt=${date}`);
+  }
+
+  getContrats(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:8089/spring/contratsClient');
+  }
+
+  getPrestationDetails(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`);
   }
 }
