@@ -23,6 +23,7 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
+import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
 import { ClientModule } from './client/client.module';
@@ -58,7 +59,8 @@ import { TresorieModule } from './tresorie/tresorie.module';
     AlertModule.forRoot(),
     SimplebarAngularModule,
     LightboxModule,
-    PickerModule
+    PickerModule,
+    ContratModule
   ],
 })
 export class PagesModule { }

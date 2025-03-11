@@ -6,6 +6,7 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.MENU.TEXT',
         isTitle: true
     },
+    
     {
         id: 2,
         label: 'MENUITEMS.DASHBOARDS.TEXT',
@@ -52,6 +53,11 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.APPS.TEXT',
         isTitle: true
     },
+    {
+        id: 18,
+        label: 'MENUITEMS.CONTRATSOUSTRAITANT.TEXT',
+        icon: 'bx bx-message-alt-dots',
+        link: '/contratsoustraitant'},
     {
         id: 10,
         label: 'MENUITEMS.PAYS',

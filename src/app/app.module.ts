@@ -37,6 +37,7 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
@@ -51,7 +52,7 @@ export function createTranslateLoader(http: HttpClient): any {
 @NgModule({
   declarations: [
     AppComponent,
-    CyptolandingComponent,
+    CyptolandingComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,34 @@
+<div class="container">
+  <h2 class="text-center mb-4">Importer un Contrat Client</h2>
+
+  <!-- Formulaire d'importation -->
+  <form [formGroup]="contratForm" (ngSubmit)="importerContrat()">
+    <div class="mb-3">
+      <label class="form-label">Désignation du contrat</label>
+      <input type="text" class="form-control" formControlName="designation" required />
+      <div *ngIf="contratForm.controls.designation.invalid && contratForm.controls.designation.touched" class="text-danger">
+        Ce champ est requis.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tarif Journalier Moyen (TJM en EUR)</label>
+      <input type="number" class="form-control" formControlName="tjm" required min="100" />
+      <div *ngIf="contratForm.controls.tjm.invalid && contratForm.controls.tjm.touched" class="text-danger">
+        Ce champ est requis.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Importer un fichier *</label>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName" readonly />
+          <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+          <button type="button" class="btn btn-primary" (click)="fileInput.click()">Importer un fichier</button>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success w-100" [disabled]="contratForm.invalid">
+      <i class="mdi mdi-upload"></i> Importer le Contrat
+    </button>
+  </form>

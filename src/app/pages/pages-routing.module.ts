@@ -13,6 +13,10 @@ const routes: Routes = [
   },
   { path: 'dashboard', component: DefaultComponent },
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
+  {
+    path: "contrat",
+    loadChildren: () => import("./contrat/contrat.module").then((m) => m.ContratModule),
+  },
   { path: 'list', component: PaysListComponent },
   { path: 'pays', loadChildren: () => import('./pays/pays.module').then(m => m.PaysModule) },
   //{ path: 'list', component: SocieteComponent },
