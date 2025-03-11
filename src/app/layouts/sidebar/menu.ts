@@ -55,14 +55,9 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 18,
-        label: 'ContratSousTraitant',
+        label: 'MENUITEMS.CONTRATSOUSTRAITANT.TEXT',
         icon: 'bx bx-message-alt-dots',
         link: '/contratsoustraitant'},
-    {
-        id: 19,
-        label: 'ContratClient',
-        //icon: 'bx bx-message-alt-dots',
-        link: '/contratclient'},
     {
         id: 10,
         label: 'MENUITEMS.CALENDAR.TEXT',
