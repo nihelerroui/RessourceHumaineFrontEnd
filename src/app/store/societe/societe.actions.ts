@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Societe } from '../../pages/models/societe.model';
+import { Societe } from '../../models/societe.model';
 
 // Charger les sociétés
 export const loadSocietes = createAction('[Societe] Load Societes');

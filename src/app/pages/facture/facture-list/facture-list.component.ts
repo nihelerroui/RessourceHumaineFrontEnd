@@ -4,11 +4,11 @@ import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { addFacture, deleteFacture, loadFactures, updateFacture } from 'src/app/store/facture/facture.actions';
-import { Facture } from 'src/app/pages/models/facture.model';
+import { Facture } from 'src/app/models/facture.model';
 import { selectFactureError, selectFactureList, selectFactureLoading } from 'src/app/store/facture/facture.selectors';
-import { StatutFacture } from 'src/app/pages/models/statut-facture.enum';
-import { TypeFacture } from 'src/app/pages/models/type-facture.enum';
-import { TypePaiement } from 'src/app/pages/models/type-paiement.enum';
+import { StatutFacture } from 'src/app/models/statut-facture.enum';
+import { TypeFacture } from 'src/app/models/type-facture.enum';
+import { TypePaiement } from 'src/app/models/type-paiement.enum';
 import { validerPaiement } from 'src/app/store/tresorie/tresorie.actions';
 import Swal from 'sweetalert2';
 

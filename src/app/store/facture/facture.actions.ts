@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Facture } from '../../pages/models/facture.model'; 
+import { Facture } from '../../models/facture.model'; 
 
 // 🔹 Charger la liste des factures
 export const loadFactures = createAction('[Facture] Load Factures');

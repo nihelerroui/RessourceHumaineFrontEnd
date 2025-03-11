@@ -18,7 +18,7 @@ import {
   deleteFactureSuccess,
   deleteFactureFailure
 } from './facture.actions';
-import { Facture } from '../../pages/models/facture.model';
+import { Facture } from '../../models/facture.model';
 
 @Injectable()
 export class FactureEffects {

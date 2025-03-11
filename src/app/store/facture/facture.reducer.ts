@@ -1,5 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { Facture } from '../../pages/models/facture.model';
+import { Facture } from '../../models/facture.model';
 import {
   loadFactures,
   loadFacturesSuccess,

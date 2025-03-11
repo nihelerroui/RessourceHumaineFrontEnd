@@ -18,7 +18,7 @@ import {
   deletePaysSuccess,
   deletePaysFailure
 } from './pays.actions';
-import { Pays } from '../../pages/models/pays.model';
+import { Pays } from '../../models/pays.model';
 
 @Injectable()
 export class PaysEffects {

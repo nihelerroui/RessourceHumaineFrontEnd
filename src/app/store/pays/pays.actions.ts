@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Pays } from '../../pages/models/pays.model';
+import { Pays } from '../../models/pays.model';
 
 // 🔹 Charger la liste des pays
 export const loadPays = createAction('[Pays] Load Pays');
