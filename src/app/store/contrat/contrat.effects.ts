@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { catchError, map, mergeMap, switchMap } from "rxjs/operators";
+import { catchError, map, mergeMap, switchMap, tap } from "rxjs/operators";
 import { of } from "rxjs";
 import * as ContratActions from "../contrat/contrat.actions";
 import { ContratService } from "../../core/services/contrat.service";
+import { GenericService } from "../../core/services/generic.service";
+import { ContratSousTraitant } from "./contrat.models";
 
 @Injectable()
 export class ContratEffects {
@@ -15,12 +17,15 @@ export class ContratEffects {
   loadContracts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ContratActions.loadContracts),
+      tap(() => console.log("Action loadContracts déclenchée")),
       switchMap(() =>
-        this.contratService.getContracts().pipe(
+        this.contratService.getAll().pipe(
+          tap((contrats) => console.log("Contrats chargés :", contrats)),
           map((contrats) => ContratActions.loadContractsSuccess({ contrats })),
-          catchError((error) =>
-            of(ContratActions.loadContractsFailure({ error: error.message }))
-          )
+          catchError((error) => {
+            console.error("❌ Erreur lors du chargement des contrats :", error);
+            return of(ContratActions.loadContractsFailure({ error: error.message || error }));
+          })
         )
       )
     )
@@ -59,10 +64,15 @@ export class ContratEffects {
     deleteContract$ = createEffect(() =>
       this.actions$.pipe(
         ofType(ContratActions.deleteContract),
+        tap(({ id }) => console.log("Suppression du contrat ID :", id)),
         mergeMap(({ id }) =>
-          this.contratService.deleteContrat(id).pipe(
+          this.contratService.delete(id.toString()).pipe(
+            tap(() => console.log("Contrat supprimé avec succès, ID :", id)),
             map(() => ContratActions.deleteContractSuccess({ id })),
-            catchError((error) => of(ContratActions.deleteContractFailure({ error })))
+            catchError((error) => {
+              console.error("Erreur lors de la suppression du contrat :", error);
+              return of(ContratActions.deleteContractFailure({ error: error.message || error }));
+            })
           )
         )
       )

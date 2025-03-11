@@ -11,27 +11,14 @@ export class ContratClientEffects {
     private contratClientService: ContratClientService
   ) {}
 
-  // Charger les contrats clients
-  loadContratsClient$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ContratClientActions.loadContratsClient),
-      mergeMap(() =>
-        this.contratClientService.getAllContrats().pipe(
-          map((contrats) => ContratClientActions.loadContratsClientSuccess({ contrats })),
-          catchError((error) => of(ContratClientActions.loadContratsClientFailure({ error: error.message })))
-        )
-      )
-    )
-  );
-
   // Importer un contrat client
   importerContratClient$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ContratClientActions.importerContratClient),
-      tap((action) => console.log("🚀 Effet déclenché avec :", action)), // Vérifier si l'action est bien captée
+      tap((action) => console.log("🚀 Effet déclenché avec :", action)), 
       mergeMap(({ file, token, designation, tjm }) =>
         this.contratClientService.importerContrat(file, token, designation, tjm).pipe(
-          tap((response) => console.log("✅ Réponse du backend :", response)), // Vérifier la réponse backend
+          tap((response) => console.log("✅ Réponse du backend :", response)), 
           map((contrat) => {
             console.log("🎉 Contrat importé avec succès :", contrat);
             return ContratClientActions.importerContratClientSuccess({ contrat });
