@@ -13,7 +13,7 @@ import {
   deletePaysSuccess,
   deletePaysFailure
 } from './pays.actions';
-import { Pays } from './pays.models';
+import { Pays } from './pays.model';
 
 // 🔹 Interface pour le state Pays
 export interface PaysState {

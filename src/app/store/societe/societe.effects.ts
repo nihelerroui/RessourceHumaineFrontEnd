@@ -13,7 +13,7 @@ export class SocieteEffects {
     this.actions$.pipe(
       ofType(SocieteActions.loadSocietes),
       mergeMap(() =>
-        this.societeService.getSocietes().pipe(
+        this.societeService.getAll().pipe(
           map(societes => SocieteActions.loadSocietesSuccess({ societes })),
           catchError(error => of(SocieteActions.loadSocietesFailure({ error: error.message })))
         )
@@ -26,7 +26,7 @@ export class SocieteEffects {
     this.actions$.pipe(
       ofType(SocieteActions.addSociete),
       mergeMap(action =>
-        this.societeService.addSociete(action.societe).pipe(
+        this.societeService.create(action.societe).pipe(
           map(societe => SocieteActions.addSocieteSuccess({ societe })),
           catchError(error => of(SocieteActions.addSocieteFailure({ error: error.message })))
         )
@@ -39,7 +39,7 @@ export class SocieteEffects {
     this.actions$.pipe(
       ofType(SocieteActions.updateSociete),
       mergeMap(action =>
-        this.societeService.updateSociete(action.societe).pipe(
+        this.societeService.update(action.societe).pipe(
           map(societe => SocieteActions.updateSocieteSuccess({ societe })),
           catchError(error => of(SocieteActions.updateSocieteFailure({ error: error.message })))
         )
@@ -52,7 +52,7 @@ export class SocieteEffects {
     this.actions$.pipe(
       ofType(SocieteActions.deleteSociete),
       mergeMap(action =>
-        this.societeService.deleteSociete(action.societeId).pipe(
+        this.societeService.delete(String(action.societeId)).pipe(
           map(() => SocieteActions.deleteSocieteSuccess({ societeId: action.societeId })),
           catchError(error => of(SocieteActions.deleteSocieteFailure({ error: error.message })))
         )

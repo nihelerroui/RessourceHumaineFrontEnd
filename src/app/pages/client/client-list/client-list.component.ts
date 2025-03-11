@@ -8,10 +8,10 @@ import { Client } from 'src/app/store/client/client.model';
 import { selectClientError, selectClientList, selectClientLoading } from 'src/app/store/client/client.selectors';
 import { TypeClient } from 'src/app/store/client/type-client.enum';
 import { loadPays } from 'src/app/store/pays/pays.actions';
-import { Pays } from 'src/app/store/pays/pays.models';
+import { Pays } from 'src/app/store/pays/pays.model';
 import { selectPaysList } from 'src/app/store/pays/pays.selectors';
 import { loadSocietes } from 'src/app/store/societe/societe.actions';
-import { Societe } from 'src/app/store/societe/societe.models';
+import { Societe } from 'src/app/store/societe/societe.model';
 import { selectSocieteList } from 'src/app/store/societe/societe.selectors';
 import Swal from 'sweetalert2';
 

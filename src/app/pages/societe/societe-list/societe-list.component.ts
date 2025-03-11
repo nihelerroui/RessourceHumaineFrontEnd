@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { addSociete, deleteSociete, loadSocietes, updateSociete } from 'src/app/store/societe/societe.actions';
-import { Societe } from 'src/app/store/societe/societe.models';
+import { Societe } from 'src/app/store/societe/societe.model';
 import { selectSocieteError, selectSocieteList, selectSocieteLoading } from 'src/app/store/societe/societe.selectors';
 import Swal from 'sweetalert2';
 

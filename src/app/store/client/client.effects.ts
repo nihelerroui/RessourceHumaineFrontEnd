@@ -28,7 +28,7 @@ export class ClientEffects {
     this.actions$.pipe(
       ofType(loadClients),
       mergeMap(() =>
-        this.clientService.getClients().pipe(
+        this.clientService.getAll().pipe(
           map((clients: Client[]) => loadClientsSuccess({ clients })),
           catchError((error) => of(loadClientsFailure({ error: error.message })))
         )
@@ -41,7 +41,7 @@ export class ClientEffects {
     this.actions$.pipe(
       ofType(addClient),
       mergeMap((action) =>
-        this.clientService.addClient(action.client).pipe(
+        this.clientService.create(action.client).pipe(
           map((newClient: Client) => addClientSuccess({ client: newClient })),
           catchError((error) => of(addClientFailure({ error: error.message })))
         )
@@ -54,7 +54,7 @@ export class ClientEffects {
     this.actions$.pipe(
       ofType(updateClient),
       mergeMap((action) =>
-        this.clientService.updateClient(action.client).pipe(
+        this.clientService.update(action.client).pipe(
           map((updatedClient: Client) => updateClientSuccess({ client: updatedClient })),
           catchError((error) => of(updateClientFailure({ error: error.message })))
         )
@@ -67,7 +67,7 @@ export class ClientEffects {
     this.actions$.pipe(
       ofType(deleteClient),
       mergeMap((action) =>
-        this.clientService.deleteClient(action.clientId).pipe(
+        this.clientService.delete(String(action.clientId)).pipe(
           map(() => deleteClientSuccess({ clientId: action.clientId })),
           catchError((error) => of(deleteClientFailure({ error: error.message })))
         )

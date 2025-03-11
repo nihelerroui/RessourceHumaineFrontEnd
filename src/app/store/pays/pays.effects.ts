@@ -18,7 +18,7 @@ import {
   deletePaysSuccess,
   deletePaysFailure
 } from './pays.actions';
-import { Pays } from './pays.models';
+import { Pays } from './pays.model';
 
 @Injectable()
 export class PaysEffects {
@@ -28,7 +28,7 @@ export class PaysEffects {
     this.actions$.pipe(
       ofType(loadPays),
       mergeMap(() =>
-        this.paysService.getPays().pipe(
+        this.paysService.getAll().pipe(
           map((paysList: Pays[]) => loadPaysSuccess({ paysList })),
           catchError((error) => of(loadPaysFailure({ error: error.message })))
         )
@@ -41,7 +41,7 @@ export class PaysEffects {
     this.actions$.pipe(
       ofType(addPays),
       mergeMap((action) =>
-        this.paysService.addPays(action.pays).pipe(
+        this.paysService.create(action.pays).pipe(
           map((newPays: Pays) => addPaysSuccess({ pays: newPays })),
           catchError((error) => of(addPaysFailure({ error: error.message })))
         )
@@ -54,7 +54,7 @@ export class PaysEffects {
     this.actions$.pipe(
       ofType(updatePays),
       mergeMap((action) =>
-        this.paysService.updatePays(action.pays).pipe(
+        this.paysService.update(action.pays).pipe(
           map((updatedPays: Pays) => updatePaysSuccess({ pays: updatedPays })),
           catchError((error) => of(updatePaysFailure({ error: error.message })))
         )
@@ -67,7 +67,7 @@ export class PaysEffects {
     this.actions$.pipe(
       ofType(deletePays),
       mergeMap((action) =>
-        this.paysService.deletePays(action.paysId).pipe(
+        this.paysService.delete(String(action.paysId)).pipe(
           map(() => deletePaysSuccess({ paysId: action.paysId })),
           catchError((error) => of(deletePaysFailure({ error: error.message })))
         )

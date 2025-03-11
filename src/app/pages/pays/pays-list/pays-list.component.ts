@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { Pays } from 'src/app/store/pays/pays.models';
+import { Pays } from 'src/app/store/pays/pays.model';
 import { selectPaysError, selectPaysList, selectPaysLoading } from 'src/app/store/pays/pays.selectors';
 import { addPays, deletePays, loadPays, updatePays } from 'src/app/store/pays/pays.actions';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';

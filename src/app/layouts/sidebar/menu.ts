@@ -72,6 +72,18 @@ export const MENU: MenuItem[] = [
         link: '/client/list',
     },
     {
+        id: 12,
+        label: 'FACTURE',
+        icon: 'bx-file',
+        link: '/facture/list',
+    },
+    {
+        id: 12,
+        label: 'TRESORIE',
+        icon: 'bx-file',
+        link: '/tresorie',
+    },
+    {
         id: 13,
         label: 'MENUITEMS.ECOMMERCE.TEXT',
         icon: 'bx-store',

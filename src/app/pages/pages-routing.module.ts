@@ -18,6 +18,8 @@ const routes: Routes = [
   //{ path: 'list', component: SocieteComponent },
   { path: 'societe', loadChildren: () => import('./societe/societe.module').then(m => m.SocieteModule) },
   { path: 'client', loadChildren: () => import('./client/client.module').then(m => m.ClientModule) },
+  { path: 'facture', loadChildren: () => import('./facture/facture.module').then(m => m.FactureModule) },
+  { path: 'tresorie', loadChildren: () => import('./tresorie/tresorie.module').then(m => m.TresorieModule) },
 
 
 ];
