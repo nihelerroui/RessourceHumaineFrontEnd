@@ -1,0 +1,437 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des Factures Clients</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-primary" (click)="openCreateModal(contentCreate)">
+                Ajouter une nouvelle facture
+              </a>
+              <a href="javascript:void(0);" class="btn btn-light">
+                <i class="mdi mdi-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-xxl-4 col-lg-6">
+              <input
+                type="search"
+                class="form-control"
+                id="searchInput"
+                placeholder="Rechercher ..."
+                [(ngModel)]="term"
+                (ngModelChange)="searchFactureClient()"
+              />
+            </div>
+            <div class="col-xxl-2 col-lg-6">
+              <select class="form-select" id="idStatus" aria-label="Sélectionner le statut">
+                <option value="">Sélectionner le statut</option>
+                <option value="En_Attente">En Attente</option>
+                <option value="Payée">Payée</option>
+                <option value="Annulée">Annulée</option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <select class="form-select" id="idType" aria-label="Sélectionner le type de paiement">
+                <option value="">Sélectionner le type de paiement</option>
+                <option value="CHEQUE">Chèque</option>
+                <option value="VIREMENT">Virement</option>
+                <option value="ESPECE">Espèce</option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <div id="datepicker1">
+                <input
+                  type="text"
+                  placeholder="Date d'émission"
+                  class="form-control"
+                  bsDatepicker
+                  [(ngModel)]="selectedDate"
+                  [bsConfig]="bsConfig"
+                  name="datepicker"
+                />
+              </div>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filtrer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loading$ | async" class="text-center p-5">
+            <i class="mdi mdi-loading mdi-spin"></i> Chargement...
+          </div>
+
+          <!-- Error state -->
+          <div *ngIf="error$ | async as error" class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+
+          <!-- Data table -->
+          <div class="table-responsive" *ngIf="factures?.length">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="facture-list">
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Date d'émission</th>
+                  <th>Montant HT</th>
+                  <th>Montant TTC</th>
+                  <th>Montant TVA</th>
+                  <th>% TVA</th>
+                  <th>Date d'échéance</th>
+                  <th>% Remise</th>
+                  <th>Num. Bon de Commande</th>
+                  <th>Objet</th>
+                  <th>Statut</th>
+                  <th>Statut Paiement</th>
+                  <th>Type Paiement</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let facture of factures; let i = index">
+                  <td>{{ facture.refFacture }}</td>
+                  <td>{{ facture.dateEmmission | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ facture.montantHt | currency : 'EUR' }}</td>
+                  <td>{{ facture.montantTtc | currency : 'EUR' }}</td>
+                  <td>{{ facture.montantTva | currency : 'EUR' }}</td>
+                  <td>{{ facture.pourcentageTva }}%</td>
+                  <td>{{ facture.dateEcheance | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ facture.pourcentageRemise }}%</td>
+                  <td>{{ facture.numBonCommande || 'N/A' }}</td>
+                  <td>{{ facture.objet || 'N/A' }}</td>
+                  <td>{{ facture.statutFacture }}</td>
+                  <td>{{ facture.statutPaiement }}</td>
+                  <td>{{ facture.typePaiement }}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="viewDetails(facture.factureClientId, ViewContent)"
+                        >
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-info"
+                          (click)="editFacture(facture.factureClientId, contentEdit)"
+                        >
+                          <i class="mdi mdi-pencil-outline"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="deleteFacture(facture.factureClientId)"
+                        >
+                          <i class="mdi mdi-delete-outline"></i>
+                        </a>
+                      </li>
+                      
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No data message -->
+          <div *ngIf="!factures?.length && !(loading$ | async)" class="text-center p-5">
+            Aucune facture n'a été trouvée
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="factures?.length > 0">
+            <div class="row justify-content-between align-items-center">
+              <div class="col-auto me-auto">
+                <p class="text-muted mb-0">
+                  Affichage de <b>{{ factures?.length }}</b> sur <b>{{ factures?.length }}</b> entrées
+                </p>
+              </div>
+              <div class="col-auto">
+                <div class="text-md-right float-md-end pagination-rounded">
+                  <ul class="pagination pagination-rounded justify-content-end mb-2">
+                    <pagination [totalItems]="factures?.length" [itemsPerPage]="8" (pageChanged)="pageChanged($event)">
+                    </pagination>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #ViewContent let-modal>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-light p-3">
+        <h5 class="modal-title mt-0 fw-bold">Détails de la Facture</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          (click)="modalRef?.hide()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <div class="row">
+          <!-- General Information -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations Générales</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Référence de Facture :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.refFacture }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Date d'Emmission :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.dateEmmission | date: 'dd/MM/yyyy' }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Objet :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.objet || 'N/A' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Details -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Détails Financiers</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Montant HT :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.montantHt | currency: 'EUR' }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Montant TTC :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.montantTtc | currency: 'EUR' }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Montant TVA :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.montantTva | currency: 'EUR' }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Pourcentage TVA :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.pourcentageTva }}%
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Date d'Échéance :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.dateEcheance | date: 'dd/MM/yyyy' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations Complémentaires</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Pourcentage Remise :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.pourcentageRemise }}%
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Numéro Bon de Commande :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.numBonCommande || 'N/A' }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Statut de la Facture :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.statutFacture }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Information -->
+          <div class="col-md-6">
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 text-primary">Informations de Paiement</h6>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Statut de Paiement :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.statutPaiement }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Type de Paiement :</label>
+                <p class="form-control-static text-muted">
+                  {{ facture?.typePaiement }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer bg-light p-3">
+        <button class="btn btn-secondary" (click)="modalRef?.hide()">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Edit Facture Modal -->
+<ng-template #contentEdit let-modal>
+  <!-- Modal content goes here -->
+</ng-template>
+
+<!-- Create Facture Modal -->
+<ng-template #contentCreate let-modal>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-light p-3">
+        <h5 class="modal-title mt-0 fw-bold">Ajouter une Facture Client</h5>
+        <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.dismiss()"></button>
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <form [formGroup]="createForm" (ngSubmit)="saveFactureClient()">
+          <div class="row">
+            <!-- Prestation Selection -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="prestationIds" class="form-label fw-bold">Prestations</label>
+                <ng-select 
+                  formControlName="prestationIds" 
+                  id="prestationIds" 
+                  [items]="prestations" 
+                  bindLabel="description" 
+                  bindValue="prestationId" 
+                  placeholder="Sélectionner des prestations" 
+                  [multiple]="true" 
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="createForm.get('prestationIds')?.invalid && createForm.get('prestationIds')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Consultant Selection -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="consultantId" class="form-label fw-bold">Consultant</label>
+                <ng-select 
+                  formControlName="consultantId" 
+                  id="consultantId" 
+                  [items]="consultants" 
+                  bindLabel="fullName" 
+                  bindValue="consultantId" 
+                  placeholder="Sélectionner un consultant" 
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="createForm.get('consultantId')?.invalid && createForm.get('consultantId')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Contrat Selection -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="contratId" class="form-label fw-bold">Contrat</label>
+                <ng-select 
+                  formControlName="contratId" 
+                  id="contratId" 
+                  [items]="contratsClient" 
+                  bindLabel="designation" 
+                  bindValue="contratClientId" 
+                  placeholder="Sélectionner un contrat" 
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="createForm.get('contratId')?.invalid && createForm.get('contratId')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Date Echéance -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="dateEcheance" class="form-label fw-bold">Date d'échéance</label>
+                <input type="date" formControlName="dateEcheance" id="dateEcheance" class="form-control" placeholder="Date d'échéance" />
+                <div *ngIf="createForm.get('dateEcheance')?.invalid && createForm.get('dateEcheance')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Payment Type -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="typePaiement" class="form-label fw-bold">Type de Paiement</label>
+                <ng-select 
+                  formControlName="typePaiement" 
+                  id="typePaiement" 
+                  [items]="['CHEQUE', 'VIREMENT_BANCAIRE', 'ESPECES']" 
+                  placeholder="Sélectionner le type de paiement" 
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="createForm.get('typePaiement')?.invalid && createForm.get('typePaiement')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Discount Percentage -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="pourcentageRemise" class="form-label fw-bold">Remise (%)</label>
+                <input type="number" formControlName="pourcentageRemise" id="pourcentageRemise" class="form-control" placeholder="Remise (facultatif)" />
+              </div>
+            </div>
+          </div>
+          <!-- Submit Button -->
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" [disabled]="createForm.invalid" class="btn btn-primary w-100">
+                Créer la Facture
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
