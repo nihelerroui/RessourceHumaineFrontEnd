@@ -16,10 +16,19 @@ export class FactureClientService extends GenericService<any> {
   createFactureClient(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/create`, data); // POST /create
   }
+  
+  updateFactureClient(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update/${id}`, data); // PUT /update/{id}
+  }
 
   // Get FactureClient preview by ID
   getFacturePreview(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/preview/${id}`); // GET /preview/{id}
+  }
+
+  // Fetch factures for a specific client by clientId
+  getFacturesByClientId(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/byClient/${clientId}`);
   }
 
   // Fetch all prestations

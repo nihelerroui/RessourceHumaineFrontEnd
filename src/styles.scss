@@ -167,3 +167,41 @@ dropzone>.dropzone.dz-wrapper {
   background-color: #556ee6 !important;
 }
 
+
+/* Hide unwanted page title and footer during print */
+@media print {
+  body {
+    margin: 0;
+  }
+
+  /* This hides the print button section */
+  .d-print-none {
+    display: none !important;
+  }
+
+  /* Hide the default headers/footers in the print */
+  @page {
+    margin: 0;
+  }
+
+  /* Hide any unwanted text or header that the browser might add */
+  header,
+  footer,
+  .print-header,
+  .print-footer {
+    display: none !important;
+  }
+
+  /* If there's any specific title or text causing issues, you can hide it like this */
+  .page-title,
+  .page-header {
+    display: none !important;
+  }
+
+  /* Prevent page breaks inside specific sections */
+  .no-page-break {
+    page-break-before: avoid;
+    page-break-after: avoid;
+  }
+}
+

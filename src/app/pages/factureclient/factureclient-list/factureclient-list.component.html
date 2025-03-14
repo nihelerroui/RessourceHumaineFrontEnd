@@ -17,7 +17,8 @@
         </div>
         <div class="card-body border-bottom">
           <div class="row g-3">
-            <div class="col-xxl-4 col-lg-6">
+            <!-- Search Input -->
+            <div class="col-xxl-3 col-lg-6">
               <input
                 type="search"
                 class="form-control"
@@ -27,39 +28,35 @@
                 (ngModelChange)="searchFactureClient()"
               />
             </div>
-            <div class="col-xxl-2 col-lg-6">
-              <select class="form-select" id="idStatus" aria-label="Sélectionner le statut">
+
+            <!-- Statut Facture Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut" [(ngModel)]="statutFactureFilter" (ngModelChange)="applyFilters()">
                 <option value="">Sélectionner le statut</option>
                 <option value="En_Attente">En Attente</option>
-                <option value="Payée">Payée</option>
-                <option value="Annulée">Annulée</option>
+                <option value="Confirmé_Admin">Confirmé Admin</option>
+                <option value="Confirmation_Complet">Confirmation Complet</option>
+                <option value="Rejete">Rejeté</option>
               </select>
             </div>
-            <div class="col-xxl-2 col-lg-4">
-              <select class="form-select" id="idType" aria-label="Sélectionner le type de paiement">
+
+            <!-- Type Paiement Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idTypePaiement" aria-label="Sélectionner le type de paiement" [(ngModel)]="typePaiementFilter" (ngModelChange)="applyFilters()">
                 <option value="">Sélectionner le type de paiement</option>
+                <option value="ESPECES">Espèces</option>
+                <option value="VIREMENT_BANCAIRE">Virement Bancaire</option>
                 <option value="CHEQUE">Chèque</option>
-                <option value="VIREMENT">Virement</option>
-                <option value="ESPECE">Espèce</option>
               </select>
             </div>
-            <div class="col-xxl-2 col-lg-4">
-              <div id="datepicker1">
-                <input
-                  type="text"
-                  placeholder="Date d'émission"
-                  class="form-control"
-                  bsDatepicker
-                  [(ngModel)]="selectedDate"
-                  [bsConfig]="bsConfig"
-                  name="datepicker"
-                />
-              </div>
-            </div>
-            <div class="col-xxl-2 col-lg-4">
-              <button type="button" class="btn btn-soft-secondary w-100">
-                <i class="mdi mdi-filter-outline align-middle"></i> Filtrer
-              </button>
+
+            <!-- Statut Paiement Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idStatutPaiement" aria-label="Sélectionner le statut de paiement" [(ngModel)]="statutPaiementFilter" (ngModelChange)="applyFilters()">
+                <option value="">Sélectionner le statut de paiement</option>
+                <option value="PAYÉE">Payée</option>
+                <option value="NON_PAYÉE">Non Payée</option>
+              </select>
             </div>
           </div>
         </div>
@@ -90,14 +87,14 @@
                   <th>% Remise</th>
                   <th>Num. Bon de Commande</th>
                   <th>Objet</th>
-                  <th>Statut</th>
+                  <th>Statut Facture</th>
                   <th>Statut Paiement</th>
                   <th>Type Paiement</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let facture of factures; let i = index">
+                <tr *ngFor="let facture of factures; let i = index" [ngClass]="getRowClass(facture.statutFacture)">
                   <td>{{ facture.refFacture }}</td>
                   <td>{{ facture.dateEmmission | date: 'dd/MM/yyyy' }}</td>
                   <td>{{ facture.montantHt | currency : 'EUR' }}</td>
@@ -113,6 +110,11 @@
                   <td>{{ facture.typePaiement }}</td>
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Add Comment">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-secondary" (click)="openCommentModal(facture, commentModal)">
+                          <i class="mdi mdi-message-text-outline"></i>
+                        </a>
+                      </li>
                       <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                         <a
                           href="javascript:void(0);"
@@ -126,7 +128,7 @@
                         <a
                           href="javascript:void(0);"
                           class="btn btn-sm btn-soft-info"
-                          (click)="editFacture(facture.factureClientId, contentEdit)"
+                          (click)="openEditModal(contentEdit, facture.factureClientId)"
                         >
                           <i class="mdi mdi-pencil-outline"></i>
                         </a>
@@ -140,7 +142,6 @@
                           <i class="mdi mdi-delete-outline"></i>
                         </a>
                       </li>
-                      
                     </ul>
                   </td>
                 </tr>
@@ -176,152 +177,125 @@
     </div>
   </div>
 </div>
-
-<ng-template #ViewContent let-modal>
-  <div class="modal-dialog modal-lg">
+<ng-template #contentEdit let-modal>
+  <div class="modal-lg">
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header bg-light p-3">
-        <h5 class="modal-title mt-0 fw-bold">Détails de la Facture</h5>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Fermer"
-          (click)="modalRef?.hide()"
-        ></button>
+        <h5 class="modal-title mt-0 fw-bold">Modifier une Facture Client</h5>
+        <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.dismiss()"></button>
       </div>
-
       <!-- Modal Body -->
       <div class="modal-body p-4">
-        <div class="row">
-          <!-- General Information -->
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="fw-bold mb-3 text-primary">Informations Générales</h6>
+        <form [formGroup]="editForm" (ngSubmit)="updateFactureClient()">
+          <div class="row">
+            <!-- Prestation Selection -->
+            <div class="col-md-12">
               <div class="mb-3">
-                <label class="form-label fw-bold">Référence de Facture :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.refFacture }}
-                </p>
+                <label for="prestationIds" class="form-label fw-bold">Prestations</label>
+                <ng-select
+                  formControlName="prestationIds"
+                  id="prestationIds"
+                  [items]="prestations"
+                  bindLabel="description"
+                  bindValue="prestationId"
+                  placeholder="Sélectionner des prestations"
+                  [multiple]="true"
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="editForm.get('prestationIds')?.invalid && editForm.get('prestationIds')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
               </div>
+            </div>
+            <!-- Consultant Selection -->
+            <div class="col-md-12">
               <div class="mb-3">
-                <label class="form-label fw-bold">Date d'Emmission :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.dateEmmission | date: 'dd/MM/yyyy' }}
-                </p>
+                <label for="consultantId" class="form-label fw-bold">Consultant</label>
+                <ng-select
+                  formControlName="consultantId"
+                  id="consultantId"
+                  [items]="consultants"
+                  bindLabel="fullName"
+                  bindValue="consultantId"
+                  placeholder="Sélectionner un consultant"
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="editForm.get('consultantId')?.invalid && editForm.get('consultantId')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
               </div>
+            </div>
+            <!-- Contrat Selection -->
+            <div class="col-md-12">
               <div class="mb-3">
-                <label class="form-label fw-bold">Objet :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.objet || 'N/A' }}
-                </p>
+                <label for="contratId" class="form-label fw-bold">Contrat</label>
+                <ng-select
+                  formControlName="contratId"
+                  id="contratId"
+                  [items]="contratsClient"
+                  bindLabel="designation"
+                  bindValue="contratClientId"
+                  placeholder="Sélectionner un contrat"
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="editForm.get('contratId')?.invalid && editForm.get('contratId')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Date Echéance -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="dateEcheance" class="form-label fw-bold">Date d'échéance</label>
+                <input type="date" formControlName="dateEcheance" id="dateEcheance" class="form-control" placeholder="Date d'échéance" />
+                <div *ngIf="editForm.get('dateEcheance')?.invalid && editForm.get('dateEcheance')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Payment Type -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="typePaiement" class="form-label fw-bold">Type de Paiement</label>
+                <ng-select
+                  formControlName="typePaiement"
+                  id="typePaiement"
+                  [items]="['CHEQUE', 'VIREMENT_BANCAIRE', 'ESPECES']"
+                  placeholder="Sélectionner le type de paiement"
+                  [searchable]="true">
+                </ng-select>
+                <div *ngIf="editForm.get('typePaiement')?.invalid && editForm.get('typePaiement')?.touched" class="text-danger">
+                  Ce champ est requis.
+                </div>
+              </div>
+            </div>
+            <!-- Discount Percentage -->
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="pourcentageRemise" class="form-label fw-bold">Remise (%)</label>
+                <input type="number" formControlName="pourcentageRemise" id="pourcentageRemise" class="form-control" placeholder="Remise (facultatif)" />
               </div>
             </div>
           </div>
-
-          <!-- Financial Details -->
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="fw-bold mb-3 text-primary">Détails Financiers</h6>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Montant HT :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.montantHt | currency: 'EUR' }}
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Montant TTC :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.montantTtc | currency: 'EUR' }}
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Montant TVA :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.montantTva | currency: 'EUR' }}
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Pourcentage TVA :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.pourcentageTva }}%
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Date d'Échéance :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.dateEcheance | date: 'dd/MM/yyyy' }}
-                </p>
-              </div>
+          <!-- Submit Button -->
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" [disabled]="editForm.invalid" class="btn btn-primary w-100">
+                Modifier la Facture
+              </button>
             </div>
           </div>
-        </div>
-
-        <!-- Additional Information -->
-        <div class="row">
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="fw-bold mb-3 text-primary">Informations Complémentaires</h6>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Pourcentage Remise :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.pourcentageRemise }}%
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Numéro Bon de Commande :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.numBonCommande || 'N/A' }}
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Statut de la Facture :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.statutFacture }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Payment Information -->
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="fw-bold mb-3 text-primary">Informations de Paiement</h6>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Statut de Paiement :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.statutPaiement }}
-                </p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Type de Paiement :</label>
-                <p class="form-control-static text-muted">
-                  {{ facture?.typePaiement }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="modal-footer bg-light p-3">
-        <button class="btn btn-secondary" (click)="modalRef?.hide()">
-          Fermer
-        </button>
+        </form>
       </div>
     </div>
   </div>
 </ng-template>
 
-<!-- Edit Facture Modal -->
-<ng-template #contentEdit let-modal>
-  <!-- Modal content goes here -->
-</ng-template>
 
 <!-- Create Facture Modal -->
 <ng-template #contentCreate let-modal>
-  <div class="modal-dialog modal-lg">
+  <div class="modal-lg">
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header bg-light p-3">
@@ -434,4 +408,175 @@
     </div>
   </div>
 </ng-template>
+<!-- Modernized Comment Modal -->
+<ng-template #commentModal let-modal>
+  <div class="modal-lg">
+    <div class="modal-content border-0 shadow">
+      <!-- Modal Header -->
+      <div class="modal-header bg-light">
+        <h5 class="modal-title">
+          <i class="mdi mdi-comment-text-outline me-2"></i>Commentaires
+        </h5>
+        <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.dismiss()"></button>
+      </div>
 
+      <!-- Modal Body -->
+      <div class="modal-body p-0">
+        <div class="p-3 bg-light border-bottom">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="mdi mdi-file-document-outline"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h6 class="mb-0">Facture #<span class="text-primary">{{ facture?.refFacture }}</span></h6>
+              <small class="text-muted">{{ facture?.dateEmmission | date: 'dd/MM/yyyy' }} - {{ facture?.montantTtc | currency : 'EUR' }}</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="comment-section p-3" #commentSection style="max-height: 350px; overflow-y: auto;">
+          <!-- Comments -->
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Mohamed.Ali&#64;gmail.com</h6>
+                  <small class="text-muted">2 heures</small>
+                </div>
+                <p class="mb-0 mt-1">C'est une excellente facture, bien détaillée !</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Responsable Financier</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">Any comments anywhere ?</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Mohamed.Ali&#64;gmail.com</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">All good.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Nice</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Nice</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Nice</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-3">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i class="mdi mdi-account text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Nice</h6>
+                  <small class="text-muted">1 heure</small>
+                </div>
+                <p class="mb-0 mt-1">Cool!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer with Comment Input -->
+      <div class="modal-footer bg-light">
+        <div class="input-group">
+          <textarea
+            class="form-control"
+            placeholder="Écrire un commentaire..."
+            rows="2"
+            style="border-radius: 20px 0 0 20px;"
+          ></textarea>
+          <button
+            type="button"
+            class="btn btn-primary"
+            style="border-radius: 0 20px 20px 0;"
+          >
+            <i class="mdi mdi-send me-1"></i> Commenter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,349 @@
+<div class="container" style="max-width: 1200px;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1 fs-4">Bienvenue, {{factures[0].contratClient.client.nom}}!</h5>
+          </div>
+        </div>
+
+        <div class="card-body border-bottom">
+          <!-- Filters and other UI components -->
+          <div class="row g-3">
+            <!-- Search Input -->
+            <div class="col-xxl-3 col-lg-6">
+              <input
+                type="search"
+                class="form-control"
+                id="searchInput"
+                placeholder="Rechercher ..."
+                [(ngModel)]="term"
+                (ngModelChange)="searchFactureClient()"
+              />
+            </div>
+       
+            <!-- Statut Facture Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut" [(ngModel)]="statutFactureFilter" (ngModelChange)="applyFilters()">
+                <option value="">Sélectionner le statut</option>
+                <option value="En_Attente">En Attente</option>
+                <option value="Confirmé_Admin">Confirmé Admin</option>
+                <option value="Confirmation_Complet">Confirmation Complet</option>
+                <option value="Rejete">Rejeté</option>
+              </select>
+            </div>
+       
+            <!-- Type Paiement Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idTypePaiement" aria-label="Sélectionner le type de paiement" [(ngModel)]="typePaiementFilter" (ngModelChange)="applyFilters()">
+                <option value="">Sélectionner le type de paiement</option>
+                <option value="ESPECES">Espèces</option>
+                <option value="VIREMENT_BANCAIRE">Virement Bancaire</option>
+                <option value="CHEQUE">Chèque</option>
+              </select>
+            </div>
+       
+            <!-- Statut Paiement Dropdown -->
+            <div class="col-xxl-3 col-lg-6">
+              <select class="form-select" id="idStatutPaiement" aria-label="Sélectionner le statut de paiement" [(ngModel)]="statutPaiementFilter" (ngModelChange)="applyFilters()">
+                <option value="">Sélectionner le statut de paiement</option>
+                <option value="PAYÉE">Payée</option>
+                <option value="NON_PAYÉE">Non Payée</option>
+              </select>
+            </div>
+          </div>
+       </div>
+       
+
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loading$ | async" class="text-center p-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-3 fs-5">Chargement des factures...</p>
+          </div>
+
+          <!-- Error state -->
+          <div *ngIf="error$ | async as error" class="alert alert-danger fs-5" role="alert">
+            <i class="mdi mdi-alert-circle me-2"></i>{{ error }}
+          </div>
+
+          <!-- No data message -->
+          <div *ngIf="!factures?.length && !(loading$ | async)" class="text-center p-5">
+            <i class="mdi mdi-file-document-outline" style="font-size: 4rem; opacity: 0.5;"></i>
+            <p class="mt-3 fs-5">Aucune facture n'a été trouvée</p>
+          </div>
+
+          <!-- Card-based invoice list - 2 cards per row -->
+          <div *ngIf="factures?.length" class="row">
+            <div *ngFor="let facture of factures; let i = index" class="col-12 col-md-6 mb-4">
+              <div class="card h-100 shadow border-0" [ngClass]="{'border-start border-5 border-success': facture.statutFacture === 'PAYÉE', 'border-start border-5 border-warning': facture.statutFacture === 'EN_ATTENTE', 'border-start border-5 border-danger': facture.statutFacture === 'RETARD'}">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+                  <h5 class="mb-0 text-primary fs-4">{{ facture.refFacture }}</h5>
+                  <span class="badge fs-6 px-3 py-2" [ngClass]="{'bg-success': facture.statutFacture === 'PAYÉE', 'bg-warning text-dark': facture.statutFacture === 'EN_ATTENTE', 'bg-danger': facture.statutFacture === 'RETARD'}">
+                    {{ facture.statutFacture }}
+                  </span>
+                </div>
+                <div class="card-body">
+                  <div class="row g-4">
+                    <!-- Financial information -->
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0 fw-bold">{{ facture.montantTtc | currency : 'EUR' }}</h4>
+                        <span class="badge bg-light text-dark fs-6 px-3 py-2">{{ facture.statutPaiement }}</span>
+                      </div>
+                      <div class="d-flex justify-content-between fs-5">
+                        <span>HT: {{ facture.montantHt | currency : 'EUR' }}</span>
+                        <span>TVA: {{ facture.montantTva | currency : 'EUR' }}</span>
+                      </div>
+                      <div class="fs-6 mt-2">Taux TVA: {{ facture.pourcentageTva }}%</div>
+                      <div *ngIf="facture.pourcentageRemise > 0" class="fs-6 text-success mt-2">
+                        <i class="mdi mdi-tag-outline me-1"></i>Remise: {{ facture.pourcentageRemise }}%
+                      </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="col-12">
+                      <div class="row">
+                        <div class="col-6">
+                          <div class="text-muted fs-6 mb-1">Date d'émission</div>
+                          <div class="fs-5"><i class="mdi mdi-calendar-outline me-1"></i>{{ facture.dateEmmission | date: 'dd/MM/yyyy' }}</div>
+                        </div>
+                        <div class="col-6">
+                          <div class="text-muted fs-6 mb-1">Date d'échéance</div>
+                          <div class="fs-5"><i class="mdi mdi-calendar-clock me-1"></i>{{ facture.dateEcheance | date: 'dd/MM/yyyy' }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Additional information -->
+                    <div class="col-12">
+                      <div class="row">
+                        <div class="col-6">
+                          <div class="text-muted fs-6 mb-1">Bon de commande</div>
+                          <div class="fs-5">{{ facture.numBonCommande || 'N/A' }}</div>
+                        </div>
+                        <div class="col-6">
+                          <div class="text-muted fs-6 mb-1">Type de paiement</div>
+                          <div class="fs-5">{{ facture.typePaiement }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Object -->
+                    <div class="col-12" *ngIf="facture.objet">
+                      <div class="text-muted fs-6 mb-1">Objet</div>
+                      <div class="fs-5">{{ facture.objet || 'N/A' }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent border-top d-flex justify-content-between py-3">
+                  <button class="btn btn-outline-secondary btn-lg" (click)="openCommentModal(facture, commentModal)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ajouter un commentaire">
+                    <i class="mdi mdi-message-text-outline me-2"></i>Commentaires
+                  </button>
+                  <button class="btn btn-primary btn-lg" (click)="viewDetails(facture.factureClientId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Voir les détails">
+                    <i class="mdi mdi-eye-outline me-2"></i>Détails
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="factures?.length > 0" class="mt-4">
+            <div class="row justify-content-between align-items-center">
+              <div class="col-auto me-auto">
+                <p class="text-muted mb-0 fs-5">
+                  Affichage de <b>{{ factures?.length }}</b> sur <b>{{ factures?.length }}</b> entrées
+                </p>
+              </div>
+              <div class="col-auto">
+                <div class="pagination pagination-rounded justify-content-end mb-2">
+                  <!-- Pagination controls -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modernized Comment Modal -->
+<ng-template #commentModal let-modal>
+  <div class="modal-lg">
+    <div class="modal-content border-0 shadow">
+      <!-- Modal Header -->
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fs-4">
+          <i class="mdi mdi-comment-text-outline me-2"></i>Commentaires
+        </h5>
+        <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.dismiss()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-0">
+        <div class="p-4 bg-light border-bottom">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <i class="mdi mdi-file-document-outline fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="mb-1">Facture #<span class="text-primary">{{ facture?.refFacture }}</span></h5>
+              <div class="fs-5">
+                <span class="me-3">{{ facture?.dateEmmission | date: 'dd/MM/yyyy' }}</span>
+                <span class="fw-bold">{{ facture?.montantTtc | currency : 'EUR' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="comment-section p-4" #commentSection style="max-height: 400px; overflow-y: auto;">
+          <!-- Comments -->
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Mohamed.Ali&#64;gmail.com</h6>
+                  <small class="text-muted fs-6">2 heures</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">C'est une excellente facture, bien détaillée !</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Responsable Financier</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">Any comments anywhere ?</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Mohamed.Ali&#64;gmail.com</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">All good.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Nice</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Nice</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Nice</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">Cool!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment mb-4">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                  <i class="mdi mdi-account text-primary fs-4"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fs-5">Nice</h6>
+                  <small class="text-muted fs-6">1 heure</small>
+                </div>
+                <p class="mb-0 mt-2 fs-5">Cool!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer with Comment Input -->
+      <div class="modal-footer bg-light p-4">
+        <div class="input-group">
+          <textarea
+            class="form-control form-control-lg fs-5"
+            placeholder="Écrire un commentaire..."
+            rows="3"
+            style="border-radius: 20px 0 0 20px;"
+          ></textarea>
+          <button
+            type="button"
+            class="btn btn-primary btn-lg px-4"
+            style="border-radius: 0 20px 20px 0;"
+          >
+            <i class="mdi mdi-send me-2"></i> Commenter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

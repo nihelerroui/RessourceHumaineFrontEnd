@@ -8,10 +8,16 @@ export const MENU: MenuItem[] = [
         link: '/prestations'
       },
       {
-        id: 69,
+        id: 59,
         label: 'Depenses',
         icon: 'bx-file',
         link: '/depenses'
+      },
+      {
+        id: 111,
+        label: 'Facture clients',
+        icon: 'bx-file',
+        link: '/factureclient'
       },
     {
         id: 2,

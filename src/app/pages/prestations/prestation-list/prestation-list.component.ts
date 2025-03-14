@@ -256,6 +256,7 @@ export class PrestationListComponent implements OnInit {
   openCreateModal(content: any): void {
     this.createForm.reset();
     this.createForm.patchValue({ consultantId: 140 });
+    this.loadContracts(); // Ensure contracts are fetched
     this.modalRef = this.modalService.show(content, { class: "modal-md" });
   }
 
@@ -388,10 +389,14 @@ export class PrestationListComponent implements OnInit {
   // Load contracts
   loadContracts() {
     this.prestationService.getContrats().subscribe({
-      next: (data) => this.contracts = data,
+      next: (data) => {
+        this.contracts = data;
+        console.log("Contracts loaded:", this.contracts);
+      },
       error: (error) => console.error("Error fetching contracts:", error),
     });
   }
+  
 
   // Get contrat name by ID
   getContratName(contratId: number | string): string {
