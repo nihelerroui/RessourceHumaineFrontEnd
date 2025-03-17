@@ -41,6 +41,7 @@ import { prestationReducer } from './store/Prestation/prestation.reducer';
 import { PrestationEffects } from './store/Prestation/prestation.effects';
 import { factureReducer } from './store/Facture/facture.reducer';
 import { FactureEffects } from './store/Facture/facture.effects';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -55,6 +56,7 @@ export function createTranslateLoader(http: HttpClient): any {
   ],
   imports: [
     BrowserModule,
+    NgSelectModule,
     BrowserAnimationsModule,
     HttpClientModule,
     AngularFireAuthModule,

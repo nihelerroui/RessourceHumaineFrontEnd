@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
 import { DefaultComponent } from './dashboards/default/default.component';
-import { FactureListComponent } from './facture/facture-list/facture-list.component'; // Import the component
-
 const routes: Routes = [
   {
     path: "",
@@ -16,7 +13,6 @@ const routes: Routes = [
   { path: 'factureclient', loadChildren: () => import('./factureclient/factureclient.module').then(m => m.FactureClientModule) },
 
 ];
-
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]

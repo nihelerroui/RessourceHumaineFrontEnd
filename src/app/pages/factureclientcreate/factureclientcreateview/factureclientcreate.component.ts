@@ -1,9 +1,11 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, EventEmitter, Output } from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
 import { FactureClientService } from "../../../core/services/factureclient.service";
 import { Router } from "@angular/router";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { forkJoin } from "rxjs";
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: "app-factureclientcreate",
@@ -19,11 +21,13 @@ export class FactureClientCreateComponent implements OnInit {
   bsConfig: Partial<BsDatepickerConfig>;
   isLoading = false;
   today = new Date();
+  @Output() factureCreated = new EventEmitter<any>();
 
   constructor(
     private fb: FormBuilder,
     private factureClientService: FactureClientService,
-    private router: Router
+    private router: Router,
+    public modalRef: BsModalRef  // Make sure this is public so you can call hide()
   ) {
     this.bsConfig = {
       dateInputFormat: "DD/MM/YYYY",
@@ -220,6 +224,23 @@ getSelectedPrestation(index: number): any {
     };
     console.log(this.facturePreview); 
   }
+  clearForm(): void {
+    this.factureForm.reset({
+      contratId: null,
+      refFacture: "",
+      dateEmmission: new Date(),
+      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
+      pourcentageTva: 20,
+      pourcentageRemise: 0,
+      objet: "",
+      numBonCommande: "",
+      typePaiement: "VIREMENT",
+      prestationIds: this.fb.array([]),
+    });
+  
+    this.selectedContrat = null;
+    this.facturePreview = null;
+  }
 
   saveFacture(): void {
     //TODO check how to fix the form being valid.
@@ -231,34 +252,53 @@ getSelectedPrestation(index: number): any {
       return;
     }*/
   
-    const factureData = {
-      prestationIds: this.factureForm.value.prestationIds.filter(
-        (id: number) => id !== null
-      ),
-      consultantId: 1,  // Static value for consultantId
-      contratId: this.factureForm.value.contratId,
-      dateEcheance: this.factureForm.value.dateEcheance,
-      typePaiement: this.factureForm.value.typePaiement,
-      pourcentageRemise: this.factureForm.value.pourcentageRemise || 0,
-      objet: this.factureForm.value.objet,  // Include "objet"
-      numBonCommande: this.factureForm.value.numBonCommande,  // Include "numBonCommande"
-    };
-    console.log(factureData);
-    this.isLoading = true;
-  
-    this.factureClientService.createFactureClient(factureData).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.router.navigate([
-          "/facture/client/details",
-          response.factureClientId,
-        ]);
-      },
-      error: (error) => {
-        console.error("Error creating invoice:", error);
-        this.isLoading = false;
-      },
-    });
-  }
+      const factureData = {
+        prestationIds: this.factureForm.value.prestationIds.filter(
+          (id: number) => id !== null
+        ),
+        consultantId: 1, // Static value for consultantId
+        contratId: this.factureForm.value.contratId,
+        dateEcheance: this.factureForm.value.dateEcheance,
+        typePaiement: this.factureForm.value.typePaiement,
+        pourcentageRemise: this.factureForm.value.pourcentageRemise || 0,
+        objet: this.factureForm.value.objet,
+        numBonCommande: this.factureForm.value.numBonCommande,
+      };
+    
+      console.log(factureData);
+      this.isLoading = true;
+    
+      this.factureClientService.createFactureClient(factureData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.factureCreated.emit(response);
+          
+          // Show success alert
+          Swal.fire({
+            icon: "success",
+            title: "Facture créée avec succès!",
+            showConfirmButton: true
+       
+          });
+    
+          // Close modal
+          this.modalRef.hide();
+    
+          // Open the facture details in a new tab
+          window.open(`/facture/client/details/${response.factureClientId}`, '_blank');
+        },
+        error: (error) => {
+          console.error("Error creating invoice:", error);
+          this.isLoading = false;
+    
+          // Show error alert
+          Swal.fire({
+            icon: "error",
+            title: "Erreur lors de la création de la facture",
+            text: error.message,
+          });
+        },
+      });
+    }
   
 }

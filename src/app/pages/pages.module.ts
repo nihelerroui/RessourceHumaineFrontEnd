@@ -1,36 +1,30 @@
-import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common'; // Import DatePipe
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { TabsModule } from 'ngx-bootstrap/tabs';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { ModalModule } from 'ngx-bootstrap/modal';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { AlertModule } from 'ngx-bootstrap/alert';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import { SimplebarAngularModule } from 'simplebar-angular';
-import { LightboxModule } from 'ngx-lightbox';
-
-import { WidgetModule } from '../shared/widget/widget.module';
-import { UIModule } from '../shared/ui/ui.module';
-
-// Emoji Picker
-import { PickerModule } from '@ctrl/ngx-emoji-mart';
-
-import { PagesRoutingModule } from './pages-routing.module';
-
-import { DashboardsModule } from './dashboards/dashboards.module';
-import { HttpClientModule } from '@angular/common/http';
-import { FactureListComponent } from './facture/facture-list/facture-list.component'; // Updated import
-import { FactureClientDetailComponent } from './factureclientdetail/factureclientdetailview/factureclientdetail.component'; // Updated import
-import { ClientViewFactureComponent } from './clientsidefacture/clientsidefactureview/clientsidefacture.component'; // Updated import
-
+import { NgModule } from "@angular/core";
+import { CommonModule, DatePipe } from "@angular/common"; // Import DatePipe
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { TabsModule } from "ngx-bootstrap/tabs";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { ModalModule } from "ngx-bootstrap/modal";
+import { TooltipModule } from "ngx-bootstrap/tooltip";
+import { CollapseModule } from "ngx-bootstrap/collapse";
+import { AlertModule } from "ngx-bootstrap/alert";
+import { NgApexchartsModule } from "ng-apexcharts";
+import { FullCalendarModule } from "@fullcalendar/angular";
+import { SimplebarAngularModule } from "simplebar-angular";
+import { LightboxModule } from "ngx-lightbox";
+import { WidgetModule } from "../shared/widget/widget.module";
+import { UIModule } from "../shared/ui/ui.module";
+import { PickerModule } from "@ctrl/ngx-emoji-mart";
+import { PagesRoutingModule } from "./pages-routing.module";
+import { DashboardsModule } from "./dashboards/dashboards.module";
+import { HttpClientModule } from "@angular/common/http";
+import { FactureListComponent } from "./facture/facture-list/facture-list.component"; // Updated import
+import { FactureClientDetailComponent } from "./factureclientdetail/factureclientdetailview/factureclientdetail.component"; // Updated import
+import { FactureClientUpdateComponent } from "./factureclientupdate/factureclientupdateview/factureclientupdate.component"; // Updated import
 @NgModule({
   declarations: [
     FactureListComponent,
-    FactureClientDetailComponent // Updated component name
+    FactureClientDetailComponent,
+    FactureClientUpdateComponent, // Updated component name
   ],
   imports: [
     CommonModule,
@@ -51,8 +45,8 @@ import { ClientViewFactureComponent } from './clientsidefacture/clientsidefactur
     AlertModule.forRoot(),
     SimplebarAngularModule,
     LightboxModule,
-    PickerModule
+    PickerModule,
   ],
   providers: [DatePipe], // Add DatePipe to providers
 })
-export class PagesModule { }
+export class PagesModule {}

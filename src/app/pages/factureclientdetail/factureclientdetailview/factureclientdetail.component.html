@@ -32,7 +32,9 @@
 
 <!-- Increased size & bold for attention and subject -->
 <p class="mb-1 fw-bold" style="line-height: 1.4; font-size: 1.3rem;">A l'attention de: {{ facturePreview.clientNom }}</p>
-<p class="mb-3 fw-bold" style="line-height: 1.4; font-size: 1.3rem;">Objet: Facture {{ getMonthName(facturePreview.dateEmmission) }}</p>
+<p class="mb-1 fw-bold" style="line-height: 1.4; font-size: 1.3rem;">Objet: {{ facturePreview.objet }}</p>
+<p class="mb-3 fw-bold" style="line-height: 1.4; font-size: 1.3rem;">Numéro de Bon de Commande: {{ facturePreview.numBonCommande }}
+</p>
 
 <div class="table-responsive">
   <table class="table table-bordered border-dark" style="font-size: 1.1rem;">

@@ -11,6 +11,9 @@ import { selectFactureClients, selectError, selectLoading } from '../../../store
 import { FactureClientService } from '../../../core/services/factureclient.service';
 import { fetchFactureClients } from '../../../store/FactureClient/factureclient.actions';
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { FactureClientCreateComponent } from '../../factureclientcreate/factureclientcreateview/factureclientcreate.component';
+//FactureClientUpdateComponent
+import { FactureClientUpdateComponent } from '../../factureclientupdate/factureclientupdateview/factureclientupdate.component';
 
 @Component({
   selector: 'app-factureclient-list',
@@ -152,34 +155,21 @@ export class FactureClientListComponent implements OnInit {
   }
 
   // Open create modal
-  openCreateModal(content: any): void {
-    this.createForm.reset();
-    this.modalRef = this.modalService.show(content, { class: 'modal-md' });
+  openCreateModal(): void {
+    this.modalRef = this.modalService.show(FactureClientCreateComponent, {
+      class: 'modal-lg',
+      // Optionally, you can pass initial state if needed:
+      initialState: {
+        // any input properties of FactureClientCreateComponent can be passed here.
+      },
+    });
   }
-  openEditModal(content: any, factureClientId: number): void {
-    console.log('Editing facture client:', factureClientId);
-    
-    // Fetch facture client details based on the ID
-    this.factureClientService.getFacturePreview(factureClientId).subscribe((factureClientData) => {
-      
-      // Ensure the form is patched with the correct values
-      this.editForm.patchValue({
-        factureClientId: factureClientData.factureClientId,
-        prestationIds: factureClientData.prestations.map(p => p.prestationId), // Extract prestation IDs
-        consultantId: factureClientData.consultantId,
-        contratId: factureClientData.contratClientId,
-        dateEcheance: factureClientData.dateEcheance,
-        typePaiement: factureClientData.typePaiement,
-        pourcentageRemise: factureClientData.pourcentageRemise,
-      });
-  
-      // Select the relevant options for prestations, consultant, and contrat
-      this.selectedPrestationIds = factureClientData.prestations.map(p => p.prestationId); // Store selected prestations
-      this.selectedConsultantId = factureClientData.consultantId; // Store selected consultant
-      this.selectedContratId = factureClientData.contratClientId; // Store selected contrat
-      
-      // Show the modal
-      this.modalRef = this.modalService.show(content, { class: 'modal-lg' });
+  openEditModal(factureClientId: number): void {
+    this.modalRef = this.modalService.show(FactureClientUpdateComponent, {
+      class: 'modal-lg',
+      initialState: {
+        factureClientId: factureClientId
+      }
     });
   }
   
@@ -406,7 +396,9 @@ export class FactureClientListComponent implements OnInit {
     this.modalRef = this.modalService.show(template);
   }
   viewDetails(factureClientId: number): void {
-    // Navigate to the route defined as factureclient/:id
-    this.router.navigate(['/facture/client/details', factureClientId]);
-  }
+    const url = this.router.serializeUrl(
+        this.router.createUrlTree(['/facture/client/details', factureClientId])
+    );
+    window.open(url, '_blank');
+}
 }
