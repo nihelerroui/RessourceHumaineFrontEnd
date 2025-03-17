@@ -1,0 +1,103 @@
+<!-- Comment Modal -->
+<div class="modal-lg">
+  <div class="modal-content border-0 shadow-sm">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h5 class="modal-title d-flex align-items-center">
+        <i class="mdi mdi-comment-text-outline me-2"></i>Commentaires
+      </h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body p-0">
+      <!-- Invoice Info -->
+      <div class="invoice-info p-3 border-bottom">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="mdi mdi-file-document-outline"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <h6 class="mb-0">Facture #<span class="text-primary">{{ facture?.refFacture }}</span></h6>
+            <small class="text-muted">{{ facture?.dateEmmission | date: 'dd/MM/yyyy' }} - {{ facture?.montantTtc | currency : 'EUR' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="fb-comments-container">
+        <!-- Loading indicator -->
+        <div *ngIf="isLoading" class="fb-comments-loading">
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+        <!-- Comments Area -->
+        <div class="fb-comments-area" #commentSection>
+          <!-- Empty state -->
+          <div *ngIf="!isLoading && comments.length === 0" class="fb-comments-empty">
+            <div class="empty-illustration">
+              <i class="mdi mdi-comment-multiple-outline"></i>
+            </div>
+            <div class="empty-text">Aucun commentaire</div>
+            <div class="empty-subtext">Soyez le premier à commenter cette facture</div>
+          </div>
+
+          <!-- Comments list -->
+          <div class="fb-comments-list" *ngIf="comments.length > 0">
+            <div class="fb-comment" *ngFor="let comment of comments; let i = index">
+              <div class="fb-comment-avatar">
+                <div class="avatar-circle">
+                  <i class="mdi mdi-account"></i>
+                </div>
+              </div>
+              <div class="fb-comment-content">
+                <div class="fb-comment-bubble">
+                  <div class="fb-comment-author">{{ comment.auteurCommentaire }}</div>
+                  <div class="fb-comment-text">{{ comment.contenu }}</div>
+                </div>
+                <div class="fb-comment-actions">
+                  <span class="fb-comment-time">{{ getTimeAgo(comment.dateCommentaire) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment Input Area -->
+        <div class="fb-comment-composer">
+          <div class="fb-composer-avatar">
+            <div class="avatar-circle">
+              <i class="mdi mdi-account"></i>
+            </div>
+          </div>
+          <div class="fb-composer-input-container">
+            <div class="fb-composer-input-wrapper" [ngClass]="{'focused': isInputFocused}">
+              <textarea 
+                class="fb-composer-input"
+                [(ngModel)]="newComment"
+                placeholder="Écrire un commentaire..."
+                [disabled]="isSubmitting"
+                (focus)="isInputFocused = true"
+                (blur)="isInputFocused = false"
+                (keydown.enter)="$event.preventDefault(); !$event.shiftKey && addComment()"
+              ></textarea>
+            </div>
+            
+            <button 
+              class="fb-composer-submit" 
+              [disabled]="!newComment.trim() || isSubmitting"
+              [ngClass]="{'active': newComment.trim()}"
+              (click)="addComment()"
+            >
+              <i class="mdi" [ngClass]="isSubmitting ? 'mdi-loading mdi-spin' : 'mdi-send'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

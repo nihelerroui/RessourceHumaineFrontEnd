@@ -1,4 +1,3 @@
-// commentaire-facture-client.reducer.ts
 import { createReducer, on } from '@ngrx/store';
 import * as CommentaireFactureClientActions from './commentaire-facture-client.actions';
 import { CommentaireFactureClient } from '../../shared/models/commentairefactureclient.model';
@@ -28,6 +27,16 @@ export const commentaireFactureClientReducer = createReducer(
     loading: false
   })),
   on(CommentaireFactureClientActions.fetchCommentaireFactureClientDataFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  on(CommentaireFactureClientActions.createCommentaireFactureClientSuccess, (state, { commentaire }) => ({
+    ...state,
+    commentaires: [...state.commentaires, commentaire],
+    loading: false
+  })),
+  on(CommentaireFactureClientActions.createCommentaireFactureClientFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error

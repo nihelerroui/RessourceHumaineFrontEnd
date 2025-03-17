@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { selectFactureClients, selectError, selectLoading } from '../../../store/FactureClient/factureclient.selectors';
 import { FactureClientService } from '../../../core/services/factureclient.service';
+import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
 
 @Component({
   selector: 'app-clientsidefacture',
@@ -185,9 +186,16 @@ export class ClientViewFactureComponent implements OnInit {
     });
   }
 
-  openCommentModal(facture: any, template: any): void {
-    this.modalRef = this.modalService.show(template);
-  }
+   openCommentModal(factureClientId: number): void {
+     console.log("Opening comment modal for facture:", factureClientId);
+     this.modalRef = this.modalService.show(CommentModalComponent, {
+       class: "modal-lg",
+       initialState: {
+         factureId: factureClientId, // Pass the factureId to the comment modal
+       },
+     });
+     console.log("Modal Reference:", this.modalRef); // Check if modalRef is being set
+   }
 
   viewDetails(factureClientId: number): void {
     this.router.navigate(['/facture/client/details', factureClientId]);
