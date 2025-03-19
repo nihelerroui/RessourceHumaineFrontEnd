@@ -2,31 +2,40 @@
   <div class="row justify-content-center">
     <div class="col-12">
       <div ngClass="card">
-        <div class="card-body border-bottom">
-          <div class="d-flex align-items-center">
+        <div class="card-body border-bottom bg-light">
+          <div class="d-flex align-items-center justify-content-between">
             <h5 class="mb-0 card-title flex-grow-1 fs-4">Bienvenue, {{factures[0].contratClient.client.nom}}!</h5>
+            <span class="badge bg-primary px-3 py-2 fs-6" *ngIf="factures?.length">
+              <i class="mdi mdi-file-document-outline me-1"></i>
+              <span>Total Factures: {{factures?.length}}</span>
+            </span>
           </div>
         </div>
 
-        <div class="card-body border-bottom">
-          <!-- Filters and other UI components -->
+        <div class="card-body border-bottom bg-light">
+          <h6 class="mb-3 text-primary"><i class="mdi mdi-filter-outline me-1"></i>Filtres</h6>
           <div class="row g-3">
             <!-- Search Input -->
             <div class="col-xxl-3 col-lg-6">
-              <input
-                type="search"
-                class="form-control"
-                id="searchInput"
-                placeholder="Rechercher ..."
-                [(ngModel)]="term"
-                (ngModelChange)="searchFactureClient()"
-              />
+              <label for="searchInput" class="form-label">Recherche</label>
+              <div class="input-group">
+                <span class="input-group-text bg-primary text-white"><i class="mdi mdi-magnify"></i></span>
+                <input
+                  type="search"
+                  class="form-control"
+                  id="searchInput"
+                  placeholder="Rechercher ..."
+                  [(ngModel)]="term"
+                  (ngModelChange)="searchFactureClient()"
+                />
+              </div>
             </div>
        
             <!-- Statut Facture Dropdown -->
             <div class="col-xxl-3 col-lg-6">
+              <label for="idStatutFacture" class="form-label">Statut de la facture</label>
               <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut" [(ngModel)]="statutFactureFilter" (ngModelChange)="applyFilters()">
-                <option value="">Sélectionner le statut</option>
+                <option value="">Tous les statuts</option>
                 <option value="En_Attente">En Attente</option>
                 <option value="Confirmé_Admin">Confirmé Admin</option>
                 <option value="Confirmation_Complet">Confirmation Complet</option>
@@ -36,8 +45,9 @@
        
             <!-- Type Paiement Dropdown -->
             <div class="col-xxl-3 col-lg-6">
+              <label for="idTypePaiement" class="form-label">Type de paiement</label>
               <select class="form-select" id="idTypePaiement" aria-label="Sélectionner le type de paiement" [(ngModel)]="typePaiementFilter" (ngModelChange)="applyFilters()">
-                <option value="">Sélectionner le type de paiement</option>
+                <option value="">Tous les types</option>
                 <option value="ESPECES">Espèces</option>
                 <option value="VIREMENT_BANCAIRE">Virement Bancaire</option>
                 <option value="CHEQUE">Chèque</option>
@@ -46,16 +56,16 @@
        
             <!-- Statut Paiement Dropdown -->
             <div class="col-xxl-3 col-lg-6">
+              <label for="idStatutPaiement" class="form-label">Statut de paiement</label>
               <select class="form-select" id="idStatutPaiement" aria-label="Sélectionner le statut de paiement" [(ngModel)]="statutPaiementFilter" (ngModelChange)="applyFilters()">
-                <option value="">Sélectionner le statut de paiement</option>
+                <option value="">Tous les statuts</option>
                 <option value="PAYÉE">Payée</option>
                 <option value="NON_PAYÉE">Non Payée</option>
               </select>
             </div>
           </div>
-       </div>
+        </div>
        
-
         <div class="card-body">
           <!-- Loading state -->
           <div *ngIf="loading$ | async" class="text-center p-5">
@@ -81,26 +91,54 @@
             <div *ngFor="let facture of factures; let i = index" class="col-12 col-md-6 mb-4">
               <div class="card h-100 shadow border-0" [ngClass]="{'border-start border-5 border-success': facture.statutFacture === 'PAYÉE', 'border-start border-5 border-warning': facture.statutFacture === 'EN_ATTENTE', 'border-start border-5 border-danger': facture.statutFacture === 'RETARD'}">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
-                  <h5 class="mb-0 text-primary fs-4">{{ facture.refFacture }}</h5>
-                  <span class="badge fs-6 px-3 py-2" [ngClass]="{'bg-success': facture.statutFacture === 'PAYÉE', 'bg-warning text-dark': facture.statutFacture === 'EN_ATTENTE', 'bg-danger': facture.statutFacture === 'RETARD'}">
-                    {{ facture.statutFacture }}
-                  </span>
+                  <div>
+                    <span class="text-muted fs-6">Référence</span>
+                    <h5 class="mb-0 text-primary fs-4">{{ facture.refFacture }}</h5>
+                  </div>
+                  <div class="text-end">
+                    <span class="d-block text-muted fs-6 mb-1">Statut facture</span>
+                    <span class="badge fs-6 px-3 py-2" [ngClass]="{'bg-secondary': facture.statutFacture === 'En_Attente', 'bg-info text-dark': facture.statutFacture === 'Confirmé_Admin', 'bg-danger': facture.statutFacture === 'Rejete', 'bg-success': facture.statutFacture === 'Confirmation_Complet'}">
+                      {{ facture.statutFacture }}
+                    </span>
+                  </div>
                 </div>
                 <div class="card-body">
                   <div class="row g-4">
                     <!-- Financial information -->
-                    <div class="col-12">
+                    <div class="col-12 p-3 bg-light rounded">
                       <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0 fw-bold">{{ facture.montantTtc | currency : 'EUR' }}</h4>
-                        <span class="badge bg-light text-dark fs-6 px-3 py-2">{{ facture.statutPaiement }}</span>
+                        <div>
+                          <span class="text-muted fs-6">Montant total</span>
+                          <h4 class="mb-0 fw-bold text-primary">{{ facture.montantTtc | currency : 'EUR' }}</h4>
+                        </div>
+                        <div class="text-end">
+                          <span class="d-block text-muted fs-6 mb-1">Statut paiement</span>
+                          <span class="badge fs-6 px-3 py-2" [ngClass]="{'bg-success': facture.statutPaiement === 'PAYÉE', 'bg-danger': facture.statutPaiement === 'NON_PAYÉE'}">
+                            {{ facture.statutPaiement }}
+                          </span>
+                        </div>
                       </div>
-                      <div class="d-flex justify-content-between fs-5">
-                        <span>HT: {{ facture.montantHt | currency : 'EUR' }}</span>
-                        <span>TVA: {{ facture.montantTva | currency : 'EUR' }}</span>
+                      <div class="row mt-3">
+                        <div class="col-6">
+                          <span class="text-muted fs-6">Montant HT</span>
+                          <div class="fs-5">{{ facture.montantHt | currency : 'EUR' }}</div>
+                        </div>
+                        <div class="col-6 text-end">
+                          <span class="text-muted fs-6">Montant TVA</span>
+                          <div class="fs-5">{{ facture.montantTva | currency : 'EUR' }}</div>
+                        </div>
                       </div>
-                      <div class="fs-6 mt-2">Taux TVA: {{ facture.pourcentageTva }}%</div>
-                      <div *ngIf="facture.pourcentageRemise > 0" class="fs-6 text-success mt-2">
-                        <i class="mdi mdi-tag-outline me-1"></i>Remise: {{ facture.pourcentageRemise }}%
+                      <div class="row mt-2">
+                        <div class="col-6">
+                          <span class="text-muted fs-6">Taux TVA</span>
+                          <div class="fs-6">{{ facture.pourcentageTva }}%</div>
+                        </div>
+                        <div class="col-6 text-end" *ngIf="facture.pourcentageRemise > 0">
+                          <span class="text-muted fs-6">Remise</span>
+                          <div class="fs-6 text-success">
+                            <i class="mdi mdi-tag-outline me-1"></i>{{ facture.pourcentageRemise }}%
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -109,11 +147,17 @@
                       <div class="row">
                         <div class="col-6">
                           <div class="text-muted fs-6 mb-1">Date d'émission</div>
-                          <div class="fs-5"><i class="mdi mdi-calendar-outline me-1"></i>{{ facture.dateEmmission | date: 'dd/MM/yyyy' }}</div>
+                          <div class="fs-5 text-primary">
+                            <i class="mdi mdi-calendar-outline me-1"></i>
+                            {{ facture.dateEmmission | date: 'dd/MM/yyyy' }}
+                          </div>
                         </div>
                         <div class="col-6">
                           <div class="text-muted fs-6 mb-1">Date d'échéance</div>
-                          <div class="fs-5"><i class="mdi mdi-calendar-clock me-1"></i>{{ facture.dateEcheance | date: 'dd/MM/yyyy' }}</div>
+                          <div class="fs-5" [ngClass]="{'text-danger': facture.statutFacture === 'RETARD', 'text-primary': facture.statutFacture !== 'RETARD'}">
+                            <i class="mdi mdi-calendar-clock me-1"></i>
+                            {{ facture.dateEcheance | date: 'dd/MM/yyyy' }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -123,11 +167,21 @@
                       <div class="row">
                         <div class="col-6">
                           <div class="text-muted fs-6 mb-1">Bon de commande</div>
-                          <div class="fs-5">{{ facture.numBonCommande || 'N/A' }}</div>
+                          <div class="fs-5 badge bg-light text-dark p-2">
+                            <i class="mdi mdi-file-document-outline me-1"></i>
+                            {{ facture.numBonCommande || 'N/A' }}
+                          </div>
                         </div>
                         <div class="col-6">
                           <div class="text-muted fs-6 mb-1">Type de paiement</div>
-                          <div class="fs-5">{{ facture.typePaiement }}</div>
+                          <div class="fs-5 badge bg-light text-dark p-2">
+                            <i [ngClass]="{
+                              'mdi mdi-cash': facture.typePaiement === 'ESPECES',
+                              'mdi mdi-bank-transfer': facture.typePaiement === 'VIREMENT_BANCAIRE',
+                              'mdi mdi-checkbox-marked-circle-outline': facture.typePaiement === 'CHEQUE'
+                            }" class="me-1"></i>
+                            {{ facture.typePaiement }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -135,7 +189,7 @@
                     <!-- Object -->
                     <div class="col-12" *ngIf="facture.objet">
                       <div class="text-muted fs-6 mb-1">Objet</div>
-                      <div class="fs-5">{{ facture.objet || 'N/A' }}</div>
+                      <div class="fs-5 p-2 bg-light rounded">{{ facture.objet || 'N/A' }}</div>
                     </div>
                   </div>
                 </div>
@@ -152,10 +206,11 @@
           </div>
 
           <!-- Pagination -->
-          <div *ngIf="factures?.length > 0" class="mt-4">
+          <div *ngIf="factures?.length > 0" class="mt-4 p-3 bg-light rounded">
             <div class="row justify-content-between align-items-center">
               <div class="col-auto me-auto">
                 <p class="text-muted mb-0 fs-5">
+                  <i class="mdi mdi-information-outline me-1"></i>
                   Affichage de <b>{{ factures?.length }}</b> sur <b>{{ factures?.length }}</b> entrées
                 </p>
               </div>
@@ -171,3 +226,4 @@
     </div>
   </div>
 </div>
+

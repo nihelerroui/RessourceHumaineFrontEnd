@@ -27,4 +27,7 @@ export class CommentaireFactureClientService extends GenericService<CommentaireF
   deleteCommentaire(commentaireId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${commentaireId}`);
   }
+  updateCommentaire(commentaireId: number, dto: any): Observable<CommentaireFactureClient> {
+    return this.http.put<CommentaireFactureClient>(`${this.apiUrl}/update/${commentaireId}`, dto);
+  }
 }

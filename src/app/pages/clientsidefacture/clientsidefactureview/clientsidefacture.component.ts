@@ -100,7 +100,8 @@ export class ClientViewFactureComponent implements OnInit {
   }
   applyFilters(): void {
     let filteredData = [...this.originalFactures];
-  
+    filteredData = filteredData.filter(facture => facture.statutPaiement === 'NON_PAYÉE');
+
     if (this.term) {
       const lowerCaseTerm = this.term.toLowerCase();
       filteredData = filteredData.filter(facture => 

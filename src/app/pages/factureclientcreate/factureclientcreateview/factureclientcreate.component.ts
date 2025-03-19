@@ -45,7 +45,7 @@ export class FactureClientCreateComponent implements OnInit {
         pourcentageTva: [20, Validators.required],
         pourcentageRemise: [0],
         objet: ["", Validators.required],  // New form field for "objet"
-        numBonCommande: [""],  // New form field for "numBonCommande"
+        numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
         typePaiement: ["VIREMENT", Validators.required],
         prestationIds: this.fb.array([]),
       });

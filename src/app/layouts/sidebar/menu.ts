@@ -3,20 +3,20 @@ import { MenuItem } from './menu.model';
 export const MENU: MenuItem[] = [
     {
         id: 1,
-        label: 'Prestations',
+        label: 'MENUITEMS.PRESTATIONS',
         icon: 'bx-file',
         link: '/prestations'
       },
       {
         id: 59,
-        label: 'Depenses',
-        icon: 'bx-file',
+        label: 'MENUITEMS.DEPENSES',
+        icon: 'bx-briefcase-alt-2',
         link: '/depenses'
       },
       {
         id: 111,
-        label: 'Facture clients',
-        icon: 'bx-file',
+        label: 'MENUITEMS.FACTURE CLIENT',
+        icon: 'bx-receipt',
         link: '/factureclient'
       },
     {
