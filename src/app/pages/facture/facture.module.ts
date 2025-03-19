@@ -1,21 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Routes } from '@angular/router';
-import { PaginationModule } from 'ngx-bootstrap/pagination';
+
+
+import { FactureRoutingModule } from './facture-routing.module';
 import { FactureListComponent } from './facture-list/facture-list.component';
+import { factureReducer } from 'src/app/store/facture/facture.reducer';
+import { FactureEffects } from 'src/app/store/facture/facture.effects';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
-import { NgxSliderModule } from 'ngx-slider-v2'; // Add this import
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { UIModule } from 'src/app/shared/ui/ui.module';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
-// Import the shared module that contains the page-title component
-import { SharedModule } from '../../shared/shared.module';
 
-const routes: Routes = [
-  {
-    path: '',
-    component: FactureListComponent
-  }
-];
 
 @NgModule({
   declarations: [
@@ -23,13 +23,17 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+
+    FactureRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forChild(routes),
-    PaginationModule.forRoot(),
-    SharedModule,
+    StoreModule.forFeature('facture', factureReducer),
+    EffectsModule.forFeature([FactureEffects]),
     BsDatepickerModule.forRoot(),
-    NgxSliderModule // Add this line
+    PaginationModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    CollapseModule.forRoot(),
+    UIModule
   ]
 })
 export class FactureModule { }

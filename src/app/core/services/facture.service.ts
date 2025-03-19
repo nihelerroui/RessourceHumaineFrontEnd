@@ -1,23 +1,17 @@
-// src/app/core/services/facture.service.ts
-import { Injectable } from '@angular/core';
+
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Facture } from 'src/app/models/facture.model';
+import { GenericService } from './generic.service';
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class FactureService {
-  private apiUrl = 'http://localhost:8089/spring/factures';
 
-  constructor(private http: HttpClient) {}
+export class FactureService extends GenericService<Facture> {
 
-  // Fetch a single facture by ID
-  getFactureById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/dto/${id}`);
-  }
-
-  // Delete a facture by ID
-  deleteFacture(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  constructor(protected http: HttpClient) {
+    super(http, 'factures'); 
   }
 }

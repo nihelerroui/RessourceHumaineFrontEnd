@@ -1,3 +1,4 @@
+
 import { NgModule } from "@angular/core";
 import { CommonModule, DatePipe } from "@angular/common"; // Import DatePipe
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -21,7 +22,13 @@ import { FactureListComponent } from "./facture/facture-list/facture-list.compon
 import { FactureClientDetailComponent } from "./factureclientdetail/factureclientdetailview/factureclientdetail.component"; // Updated import
 import { FactureClientUpdateComponent } from "./factureclientupdate/factureclientupdateview/factureclientupdate.component"; // Updated import
 import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
-
+import { ContratModule } from './contrat/contrat.module';
+import { PaysModule } from './pays/pays.module';
+import { SocieteModule } from './societe/societe.module';
+import { ClientModule } from './client/client.module';
+import { FactureListComponent } from './facture/facture-list/facture-list.component';
+import { FactureModule } from './facture/facture.module';
+import { TresorieModule } from './tresorie/tresorie.module';
 @NgModule({
   declarations: [
     FactureListComponent,
@@ -31,6 +38,11 @@ import { CommentModalComponent } from './factureclientcomment-modal/factureclien
   ],
   imports: [
     CommonModule,
+    PaysModule,
+    SocieteModule,
+    ClientModule,
+    FactureModule,
+    TresorieModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
@@ -49,6 +61,9 @@ import { CommentModalComponent } from './factureclientcomment-modal/factureclien
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
+
+    ContratModule
+
   ],
   providers: [DatePipe], // Add DatePipe to providers
 })
