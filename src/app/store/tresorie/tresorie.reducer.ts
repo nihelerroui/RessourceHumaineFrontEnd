@@ -1,21 +1,23 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { 
-  loadSoldeTresorie, 
-  loadSoldeTresorieSuccess, 
-  loadSoldeTresorieFailure,
+  loadTresorie, 
+  loadTresorieSuccess, 
+  loadTresorieFailure,
   setSoldeInitial,
   setSoldeInitialSuccess,
   setSoldeInitialFailure,
   validerPaiement,
   validerPaiementSuccess,
-  validerPaiementFailure
+  validerPaiementFailure,
+  augmenterSoldeActuel,
+  augmenterSoldeActuelSuccess,
+  augmenterSoldeActuelFailure
 } from './tresorie.actions';
-import { Tresorie } from './tresorie.model';
+import { Tresorie } from '../../models/tresorie.model';
 
 // 🔹 Interface pour le state de la trésorerie
 export interface TresorieState {
-  tresorie: Tresorie | null;
-  solde: number;
+  tresorie: Tresorie | null;  // ✅ Stocke toute la trésorerie
   loading: boolean;
   error: string | null;
 }
@@ -23,7 +25,6 @@ export interface TresorieState {
 // 🔹 État initial de la trésorerie
 export const initialState: TresorieState = {
   tresorie: null,
-  solde: 0,
   loading: false,
   error: null
 };
@@ -32,18 +33,18 @@ export const initialState: TresorieState = {
 export const tresorieReducer = createReducer(
   initialState,
 
-  // 🚀 Charger le solde actuel
-  on(loadSoldeTresorie, (state) => ({
+  // 🚀 Charger la trésorerie complète
+  on(loadTresorie, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
-  on(loadSoldeTresorieSuccess, (state, { solde }) => ({
+  on(loadTresorieSuccess, (state, { tresorie }) => ({
     ...state,
-    solde,
+    tresorie, // ✅ Stocke toute la trésorerie, pas juste le solde
     loading: false
   })),
-  on(loadSoldeTresorieFailure, (state, { error }) => ({
+  on(loadTresorieFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
@@ -56,9 +57,9 @@ export const tresorieReducer = createReducer(
   })),
   on(setSoldeInitialSuccess, (state, { tresorie }) => ({
     ...state,
-    tresorie,
-    solde: tresorie.montant, // Mettre à jour le solde avec la valeur définie
-    loading: false
+    tresorie, // ✅ Stocke toute la trésorerie mise à jour
+    loading: false,
+    error: null
   })),
   on(setSoldeInitialFailure, (state, { error }) => ({
     ...state,
@@ -66,22 +67,40 @@ export const tresorieReducer = createReducer(
     loading: false
   })),
 
-  // 🚀 Valider un paiement
+  // 🚀 Valider un paiement et mettre à jour la trésorerie
   on(validerPaiement, (state) => ({
     ...state,
     loading: true
   })),
-  on(validerPaiementSuccess, (state, { solde }) => ({
+  on(validerPaiementSuccess, (state, { tresorie }) => ({
     ...state,
-    solde, // Mettre à jour le solde après validation du paiement
+    tresorie, // ✅ Stocke toute la trésorerie après validation
     loading: false
   })),
   on(validerPaiementFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
-  }))
+  })),
+  // 🚀 Augmenter le solde actuel et les entrées totales
+on(augmenterSoldeActuel, (state) => ({
+  ...state,
+  loading: true
+})),
+on(augmenterSoldeActuelSuccess, (state, { tresorie }) => ({
+  ...state,
+  tresorie, // ✅ Met à jour toute la trésorerie après augmentation
+  loading: false,
+  error: null
+})),
+on(augmenterSoldeActuelFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false
+}))
 );
+
+
 
 // 🔹 Exporter le reducer
 export function reducer(state: TresorieState | undefined, action: Action) {

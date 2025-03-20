@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, mergeMap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
-
 import { FactureService } from 'src/app/core/services/facture.service';
 import {
   loadFactures,
@@ -23,7 +22,7 @@ import { Facture } from '../../models/facture.model';
 @Injectable()
 export class FactureEffects {
   
-  // 🔹 Effet pour charger la liste des factures
+  // 🔹 Charger les factures
   loadFactures$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadFactures),
@@ -36,25 +35,26 @@ export class FactureEffects {
     )
   );
 
-  // 🔹 Effet pour ajouter une facture
+  // 🔹 Ajouter une facture avec fichier
   addFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(addFacture),
       mergeMap((action) =>
-        this.factureService.create(action.facture).pipe(
+        this.factureService.createFacture(action.facture).pipe( // ✅ `facture` est bien un `FormData`
           map((newFacture: Facture) => addFactureSuccess({ facture: newFacture })),
           catchError((error) => of(addFactureFailure({ error: error.message })))
         )
       )
+      
     )
   );
 
-  // 🔹 Effet pour mettre à jour une facture
+  // 🔹 Mettre à jour une facture avec fichier
   updateFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateFacture),
       mergeMap((action) =>
-        this.factureService.update(action.facture).pipe(
+        this.factureService.updateFacture(action.facture).pipe( // ✅ Supprime `action.file`
           map((updatedFacture: Facture) => updateFactureSuccess({ facture: updatedFacture })),
           catchError((error) => of(updateFactureFailure({ error: error.message })))
         )
@@ -62,7 +62,7 @@ export class FactureEffects {
     )
   );
 
-  // 🔹 Effet pour supprimer une facture
+  // 🔹 Supprimer une facture
   deleteFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(deleteFacture),

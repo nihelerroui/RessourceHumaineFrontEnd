@@ -12,7 +12,7 @@
                         <div class="flex-shrink-0 d-flex gap-2">
                             <a href="javascript:void(0);"
                                 class="btn btn-primary"
-                                (click)="openModal(addFactureModal)"> Ajouter
+                                (click)="openModalAdd(factureModal)"> Ajouter
                                 une Facture</a>
                             <a href="javascript:void(0);" class="btn btn-light"
                                 (click)="refreshList()"><i
@@ -52,11 +52,12 @@
                         </div>
                         <div class="col-lg-3">
                             <select class="form-select"
-                                [(ngModel)]="selectedStatutFacture"
+                                [(ngModel)]="selectedStatutPaiement"
                                 (change)="filterFactures()">
-                                <option value>Sélectionner un Statut</option>
+                                <option value>Sélectionner un Statut de
+                                    paiement</option>
                                 <option
-                                    *ngFor="let statut of statutFactureOptions"
+                                    *ngFor="let statut of statutPaiementOptions"
                                     [value]="statut">
                                     {{ statut }}
                                 </option>
@@ -66,12 +67,19 @@
                             <select class="form-select"
                                 [(ngModel)]="selectedTypeFacture"
                                 (change)="filterFactures()">
-                                <option value>Sélectionner un Type</option>
+                                <option value>Sélectionner un Type
+                                    Facture</option>
                                 <option *ngFor="let type of typeFactureOptions"
                                     [value]="type">
                                     {{ type }}
                                 </option>
                             </select>
+                        </div>
+                        <div class="col-xxl-2 col-lg-4">
+                            <button type="button"
+                                class="btn btn-soft-secondary w-100"><i
+                                    class="mdi mdi-filter-outline align-middle"></i>
+                                Filter</button>
                         </div>
                     </div>
                 </div>
@@ -102,8 +110,9 @@
                                     <th>Référence</th>
                                     <th>Montant TTC</th>
                                     <th>Date Emission</th>
-                                    <th>Statut Facture</th>
-                                    <th>Type</th>
+                                    <th>Type Facture</th>
+                                    <th>Type Paiement</th>
+                                    <th>Statut Paiement</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -117,38 +126,100 @@
                                     <td>{{ facture.dateEmmission |
                                         date:'dd/MM/yyyy' }}</td>
 
-                                    <td>
-                                        <span class="badge"
+                                    <td><span class="badge"
                                             [ngClass]="{
-                                              'badge-soft-success': facture.statutFacture === 'Confirmation_Complet',  
-                                              'badge-soft-primary': facture.statutFacture === 'Confirmé_Admin',  
-                                              'badge-soft-warning': facture.statutFacture === 'En_Attente',
-                                              'badge-soft-danger': facture.statutFacture === 'Rejete'
-                                            }">
-                                            {{ facture.statutFacture }}
+                          'badge-soft-primary': facture.typeFacture === 'ACHAT',
+                          'badge-soft-secondary': facture.typeFacture === 'SOUSTRAITANT'
+                        }">
+                                            {{ facture.typeFacture }}
+                                        </span></td>
+                                    <td> <span class="badge"
+                                            [ngClass]="{
+                                          'badge-soft-warning': facture.typePaiement === 'ESPECES',
+                                          'badge-soft-info': facture.typePaiement === 'VIREMENT_BANCAIRE',
+                                          'badge-soft-dark': facture.typePaiement === 'CHEQUE'
+                                        }">
+                                            {{ facture.typePaiement }}
                                         </span>
                                     </td>
 
-                                    <td>{{ facture.typeFacture }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-soft-info"
-                                            (click)="editDataGet(facture, editFactureModal)">
-                                            <i
-                                                class="mdi mdi-pencil-outline"></i>
-                                        </button>
-                                        <button
-                                            class="btn btn-sm btn-soft-danger"
-                                            (click)="onDeleteFacture(facture.factureId)">
-                                            <i
-                                                class="mdi mdi-delete-outline"></i>
-                                        </button>
-                                        <button
-                                            *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
-                                            class="btn btn-sm btn-soft-success"
-                                            (click)="validerPaiement(facture.factureId)">
-                                            <i
-                                                class="mdi mdi-pencil-outline"></i>
-                                        </button>
+                                        <span class="badge"
+                                            [ngClass]="{
+                                              'badge-soft-success': facture.statutPaiement === 'PAYÉE',  
+                                              'badge-soft-danger': facture.statutPaiement === 'NON_PAYÉE'
+                                            }">
+                                            {{ facture.statutPaiement }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <ul
+                                            class="list-unstyled hstack gap-1 mb-0">
+                                            <li data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="View">
+                                                <button
+                                                    class="btn btn-soft-info btn-sm"
+                                                    (click)="openDetailsModal(facture, detailsFactureModal)">
+                                                    <i class="mdi mdi-eye"></i>
+                                                </button>
+                                            </li>
+                                            <li data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Edit">
+                                                <button
+                                                    *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
+                                                    class="btn btn-sm btn-soft-info"
+                                                    (click)="openModalEdit(facture, factureModal)">
+                                                    <i
+                                                        class="mdi mdi-pencil-outline"></i>
+                                                </button>
+                                            </li>
+                                            <li data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Delete">
+                                                <button
+                                                    *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
+                                                    class="btn btn-sm btn-soft-danger"
+                                                    (click)="onDeleteFacture(facture.factureId)"
+                                                    [disabled]="facture.statutPaiement === 'PAYÉE'">
+                                                    <i
+                                                        class="mdi mdi-delete-outline"></i>
+                                                </button>
+                                            </li>
+                                            <li data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Validate">
+                                                <button
+                                                    *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
+                                                    class="btn btn-sm btn-soft-success"
+                                                    (click)="validerPaiement(facture.factureId)"
+                                                    [disabled]="facture.statutPaiement === 'PAYÉE'">
+                                                    <i
+                                                        class="mdi mdi-check-circle-outline"></i>
+                                                </button>
+                                            </li>
+                                            <li data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="ViewFacture">
+                                                <button *ngIf="facture.filePath"
+                                                    class="btn btn-sm btn-soft-warning"
+                                                    (click)="openFacture(facture.filePath)">
+                                                    <i class="bx bx-file"></i>
+                                                </button></li>
+                                            <li ata-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Download">
+                                                <button *ngIf="facture.filePath"
+                                                    class="btn btn-sm btn-soft-success"
+                                                    (click)="downloadFacture(facture.filePath)">
+                                                    <i
+                                                        class="bx bx-cloud-download"></i>
+                                                </button>
+
+                                            </li>
+                                        </ul>
                                     </td>
                                 </tr>
                             </tbody>
@@ -188,10 +259,11 @@
         </div>
     </div>
 
-    <!-- Modal Ajout Facture -->
-    <ng-template #addFactureModal>
+    <!-- ✅ Modal Ajout / Modification Facture -->
+    <ng-template #factureModal>
         <div class="modal-header">
-            <h5 class="modal-title">Ajouter une Facture</h5>
+            <h5 class="modal-title">{{ factureForm.value.factureId ?
+                'Modifier une Facture' : 'Ajouter une Facture' }}</h5>
             <button type="button" class="btn-close"
                 (click)="modalRef?.hide()"></button>
         </div>
@@ -220,8 +292,7 @@
                 <div class="mb-3">
                     <label class="form-label">Désignation</label>
                     <input type="text" class="form-control"
-                        formControlName="designation"
-                        placeholder="Désignation">
+                        formControlName="designation" placeholder="Désignation">
                     <div
                         *ngIf="factureForm.controls['designation'].invalid && factureForm.controls['designation'].touched"
                         class="text-danger">
@@ -233,8 +304,7 @@
                 <div class="mb-3">
                     <label class="form-label">Montant TTC</label>
                     <input type="number" class="form-control"
-                        formControlName="montantTtc"
-                        placeholder="Montant">
+                        formControlName="montantTtc" placeholder="Montant">
                     <div
                         *ngIf="factureForm.controls['montantTtc'].invalid && factureForm.controls['montantTtc'].touched"
                         class="text-danger">
@@ -250,26 +320,20 @@
                     <div
                         *ngIf="factureForm.controls['dateEmmission'].invalid && factureForm.controls['dateEmmission'].touched"
                         class="text-danger">
-                        La date est requise.
+                        <span
+                            *ngIf="factureForm.controls['dateEmmission'].errors?.['required']">La
+                            date est requise.</span>
+                        <span
+                            *ngIf="factureForm.controls['dateEmmission'].errors?.['invalidDate']">La
+                            date doit être ≤ aujourd’hui.</span>
                     </div>
-                </div>
-
-                <!-- Statut Facture-->
-                <div class="mb-3">
-                    <label class="form-label">Statut Facture</label>
-                    <select class="form-control"
-                        formControlName="statutFacture">
-                        <option *ngFor="let statut of statutFactureOptions"
-                            [value]="statut">
-                            {{ statut }}
-                        </option>
-                    </select>
                 </div>
 
                 <!-- Type Facture -->
                 <div class="mb-3">
                     <label class="form-label">Type Facture</label>
                     <select class="form-control" formControlName="typeFacture">
+                        
                         <option *ngFor="let type of typeFactureOptions"
                             [value]="type">
                             {{ type }}
@@ -280,13 +344,19 @@
                 <!-- Type Paiement -->
                 <div class="mb-3">
                     <label class="form-label">Type Paiement</label>
-                    <select class="form-control"
-                        formControlName="typePaiement">
-                        <option *ngFor="let statut of typePaiementOptions"
-                            [value]="statut">
-                            {{ statut }}
+                    <select class="form-control" formControlName="typePaiement">
+                        <option *ngFor="let type of filteredTypePaiementOptions" [value]="type">
+                            {{ type }}
                         </option>
                     </select>
+                </div>
+                
+
+                <div class="mb-3">
+                    <label class="form-label">Importer la facture (PDF,
+                        Image)</label>
+                    <input type="file" class="form-control"
+                        (change)="onFileSelected($event)">
                 </div>
 
             </div>
@@ -295,118 +365,94 @@
                 <button type="button" class="btn btn-light"
                     (click)="modalRef?.hide()">Annuler</button>
                 <button type="submit" class="btn btn-success"
-                    [disabled]="factureForm.invalid">Ajouter</button>
+                    [disabled]="factureForm.invalid">
+                    {{ factureForm.value.factureId ? 'Mettre à Jour' : 'Ajouter'
+                    }}
+                </button>
             </div>
         </form>
     </ng-template>
 
-    <!-- Modal Modification Facture -->
-    <ng-template #editFactureModal>
+    <!-- ✅ Modal Détails Facture -->
+    <ng-template #detailsFactureModal>
         <div class="modal-header">
-            <h5 class="modal-title">Modifier une Facture</h5>
-            <button type="button" class="btn-close"
-                (click)="modalRef?.hide()"></button>
+            <h5 class="modal-title"><i class="bi bi-file-text text-primary"></i> Détails de la Facture</h5>
+            <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
         </div>
-        <form (ngSubmit)="saveFacture()" [formGroup]="factureForm">
-            <div class="modal-body">
-                <!-- Référence Facture -->
-                <div class="mb-3">
-                    <label class="form-label">Référence Facture</label>
-                    <input type="text" class="form-control"
-                        formControlName="refFacture"
-                        placeholder="Référence Facture">
-                    <div
-                        *ngIf="factureForm.controls['refFacture'].invalid && factureForm.controls['refFacture'].touched"
-                        class="text-danger">
-                        <span
-                            *ngIf="factureForm.controls['refFacture'].errors?.['required']">La
-                            référence est requise.</span>
-                        <span
-                            *ngIf="factureForm.controls['refFacture'].errors?.['minlength']">La
-                            référence doit contenir au moins 3
-                            caractères.</span>
-                    </div>
-                </div>
-
-                <!-- Désignation -->
-                <div class="mb-3">
-                    <label class="form-label">Désignation</label>
-                    <input type="text" class="form-control"
-                        formControlName="designation"
-                        placeholder="Désignation">
-                    <div
-                        *ngIf="factureForm.controls['designation'].invalid && factureForm.controls['designation'].touched"
-                        class="text-danger">
-                        La désignation est requise.
-                    </div>
-                </div>
-
-                <!-- Montant TTC -->
-                <div class="mb-3">
-                    <label class="form-label">Montant TTC</label>
-                    <input type="number" class="form-control"
-                        formControlName="montantTtc"
-                        placeholder="Montant">
-                    <div
-                        *ngIf="factureForm.controls['montantTtc'].invalid && factureForm.controls['montantTtc'].touched"
-                        class="text-danger">
-                        Le montant est requis.
-                    </div>
-                </div>
-
-                <!-- Date Emission -->
-                <div class="mb-3">
-                    <label class="form-label">Date d'Émission</label>
-                    <input type="date" class="form-control"
-                        formControlName="dateEmmission">
-                    <div
-                        *ngIf="factureForm.controls['dateEmmission'].invalid && factureForm.controls['dateEmmission'].touched"
-                        class="text-danger">
-                        La date est requise.
-                    </div>
-                </div>
-
-                <!-- Statut Facture-->
-                <div class="mb-3">
-                    <label class="form-label">Statut Facture</label>
-                    <select class="form-control"
-                        formControlName="statutFacture">
-                        <option *ngFor="let statut of statutFactureOptions"
-                            [value]="statut">
-                            {{ statut }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Type Facture -->
-                <div class="mb-3">
-                    <label class="form-label">Type Facture</label>
-                    <select class="form-control" formControlName="typeFacture">
-                        <option *ngFor="let type of typeFactureOptions"
-                            [value]="type">
-                            {{ type }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Type Paiement -->
-                <div class="mb-3">
-                    <label class="form-label">Type Paiement</label>
-                    <select class="form-control"
-                        formControlName="typePaiement">
-                        <option *ngFor="let statut of typePaiementOptions"
-                            [value]="statut">
-                            {{ statut }}
-                        </option>
-                    </select>
-                </div>
+        <div class="modal-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="row"><i class="bi bi-hash text-secondary"></i> Référence :</th>
+                            <td>{{ selectedFacture?.refFacture }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><i class="bi bi-card-text text-dark"></i> Désignation :</th>
+                            <td>{{ selectedFacture?.designation }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><i class="bi bi-currency-euro text-success"></i> Montant TTC :</th>
+                            <td>{{ selectedFacture?.montantTtc | currency:'EUR' }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><i class="bi bi-calendar-event text-warning"></i> Date d'émission :</th>
+                            <td>{{ selectedFacture?.dateEmmission | date:'dd MMMM yyyy' }}</td>
+                        </tr>
+    
+                        <tr>
+                            <th scope="row"><i class="bi bi-receipt text-info"></i> Type de Facture :</th>
+                            <td>
+                                <span class="badge"
+                                    [ngClass]="{
+                                      'badge-soft-primary': selectedFacture?.typeFacture === 'ACHAT',
+                                      'badge-soft-secondary': selectedFacture?.typeFacture === 'SOUSTRAITANT'
+                                    }">
+                                    {{ selectedFacture?.typeFacture }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><i class="bi bi-credit-card text-danger"></i> Type de Paiement :</th>
+                            <td>
+                                <span class="badge"
+                                    [ngClass]="{
+                                      'badge-soft-warning': selectedFacture?.typePaiement === 'ESPECES',
+                                      'badge-soft-info': selectedFacture?.typePaiement === 'VIREMENT_BANCAIRE',
+                                      'badge-soft-dark': selectedFacture?.typePaiement === 'CHEQUE'
+                                    }">
+                                    {{ selectedFacture?.typePaiement }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><i class="bi bi-check-circle text-success"></i> Statut Paiement :</th>
+                            <td>
+                                <span class="badge"
+                                    [ngClass]="{
+                                      'badge-soft-success': selectedFacture?.statutPaiement === 'PAYÉE',
+                                      'badge-soft-danger': selectedFacture?.statutPaiement === 'NON_PAYÉE'
+                                    }">
+                                    {{ selectedFacture?.statutPaiement }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="selectedFacture?.filePath">
+                            <th scope="row"><i class="bi bi-file-earmark-pdf text-primary"></i> Facture PDF :</th>
+                            <td>
+                                <a [href]="'http://localhost:8089/spring/factures/files/' + getFileName(selectedFacture.filePath)" target="_blank">
+                                    📄 Voir la facture
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light"
-                    (click)="modalRef?.hide()">Annuler</button>
-                <button type="submit" class="btn btn-success"
-                    [disabled]="factureForm.invalid">Mettre à Jour</button>
-            </div>
-        </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+        </div>
     </ng-template>
+    
+
 </div>

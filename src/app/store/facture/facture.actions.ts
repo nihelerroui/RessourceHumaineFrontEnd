@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Facture } from '../../models/facture.model'; 
+import { Facture } from '../../models/facture.model';
 
 // 🔹 Charger la liste des factures
 export const loadFactures = createAction('[Facture] Load Factures');
@@ -12,10 +12,10 @@ export const loadFacturesFailure = createAction(
   props<{ error: string }>()
 );
 
-// 🔹 Ajouter une facture
+// 🔹 Ajouter une facture avec un fichier optionnel
 export const addFacture = createAction(
   '[Facture] Add Facture',
-  props<{ facture: Facture }>()
+  props<{ facture: FormData }>() // ✅ Accepte maintenant FormData
 );
 export const addFactureSuccess = createAction(
   '[Facture] Add Facture Success',
@@ -26,11 +26,12 @@ export const addFactureFailure = createAction(
   props<{ error: string }>()
 );
 
-// 🔹 Mettre à jour une facture
+// 🔹 Mettre à jour une facture avec un fichier optionnel
 export const updateFacture = createAction(
   '[Facture] Update Facture',
-  props<{ facture: Facture }>()
+  props<{ facture: FormData }>() // ✅ Même correction pour update
 );
+
 export const updateFactureSuccess = createAction(
   '[Facture] Update Facture Success',
   props<{ facture: Facture }>()
