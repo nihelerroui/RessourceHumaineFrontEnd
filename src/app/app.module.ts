@@ -37,11 +37,22 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
 import { prestationReducer } from './store/Prestation/prestation.reducer';
 import { PrestationEffects } from './store/Prestation/prestation.effects';
 import { factureReducer } from './store/Facture/facture.reducer';
 import { FactureEffects } from './store/Facture/facture.effects';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { TokenInterceptor } from './core/helpers/token.interceptor'; // Import the new TokenInterceptor
+
+
+
+if (environment.defaultauth === 'firebase') {
+  initFirebaseBackend(environment.firebaseConfig);
+} else {
+  // tslint:disable-next-line: no-unused-expression
+  FakeBackendInterceptor;
+}
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -51,8 +62,10 @@ export function createTranslateLoader(http: HttpClient): any {
 @NgModule({
   declarations: [
     AppComponent,
+
     CyptolandingComponent,
    
+
   ],
   imports: [
     BrowserModule,
@@ -91,10 +104,12 @@ export function createTranslateLoader(http: HttpClient): any {
       PrestationEffects,
       FactureEffects
     ]),
+
   ],
   bootstrap: [AppComponent],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }, // Add TokenInterceptor here
+   // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
   ],

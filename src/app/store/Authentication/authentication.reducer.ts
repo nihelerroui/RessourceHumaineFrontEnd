@@ -1,29 +1,72 @@
 import { createReducer, on } from '@ngrx/store';
-import { Register, RegisterFailure, RegisterSuccess, login, loginFailure, loginSuccess, logout } from './authentication.actions';
-import { User } from './auth.models';
+import * as AuthActions from './authentication.actions';
 
-export interface AuthenticationState {
-    isLoggedIn: boolean;
-    user: User | null;
-    error: string | null;
+export interface AuthState {
+  user: any | null;
+  accessToken: string | null;
+  tokenType: string | null;
+  loading: boolean;
+  error: string | null;
 }
 
-const initialState: AuthenticationState = {
-    isLoggedIn: false,
-    user: null,
-    error: null,
+export const initialState: AuthState = {
+  user: null,
+  accessToken: null,
+  tokenType: null,
+  loading: false,
+  error: null
 };
 
-export const authenticationReducer = createReducer(
-    initialState,
-    on(Register, (state) => ({ ...state, error: null })),
-    on(RegisterSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, })),
-    on(RegisterFailure, (state, { error }) => ({ ...state, error })),
-
-    on(login, (state) => ({ ...state, error: null })),
-    on(loginSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, })),
-    on(loginFailure, (state, { error }) => ({ ...state, error })),
-    on(logout, (state) => ({ ...state, user: null })),
-
-
+export const authReducer = createReducer(
+  initialState,
+  // Login Reducers
+  on(AuthActions.login, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(AuthActions.loginSuccess, (state, { accessToken, tokenType }) => ({
+    ...state,
+    accessToken,
+    tokenType,
+    loading: false
+  })),
+  on(AuthActions.loginFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  // Register Reducers
+  on(AuthActions.register, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(AuthActions.registerSuccess, (state, { authResponse }) => ({
+    ...state,
+    accessToken: authResponse.accessToken,
+    tokenType: authResponse.tokenType,
+    loading: false
+  })),
+  on(AuthActions.registerFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  // Get User Reducers
+  on(AuthActions.getUser, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(AuthActions.getUserSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    loading: false
+  })),
+  on(AuthActions.getUserFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  }))
 );

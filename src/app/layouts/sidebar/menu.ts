@@ -923,4 +923,3 @@ export const MENU: MenuItem[] = [
         ]
     }
 ];
-

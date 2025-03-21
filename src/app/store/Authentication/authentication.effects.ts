@@ -1,53 +1,64 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { map, switchMap, catchError, exhaustMap, tap, first } from 'rxjs/operators';
-import { from, of } from 'rxjs';
-import { AuthenticationService } from '../../core/services/auth.service';
-import { login, loginSuccess, loginFailure, logout, logoutSuccess, Register, RegisterSuccess, RegisterFailure } from './authentication.actions';
-import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { AuthfakeauthenticationService } from 'src/app/core/services/authfake.service';
-import { UserProfileService } from 'src/app/core/services/user.service';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import * as AuthActions from './authentication.actions';
+import { AuthenticationService } from '../../core/services/authentication.service';
 
 @Injectable()
 export class AuthenticationEffects {
-
-  Register$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(Register),
-      exhaustMap(({ email, username, password }) => {
-        
-          return this.AuthenticationService.register({ email, username, password }).pipe(
-            map((user) => {
-              this.router.navigate(['/auth/login']);
-              return RegisterSuccess({ user })
-            })
-          )
-        
-      })
-    )
-  );
-
-
-
-  
-
-
-  logout$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(logout),
-      tap(() => {
-        // Perform any necessary cleanup or side effects before logging out
-      }),
-      exhaustMap(() => of(logoutSuccess()))
-    )
-  );
-
   constructor(
-    @Inject(Actions) private actions$: Actions,
-    private AuthenticationService: AuthenticationService,
-    private AuthfakeService: AuthfakeauthenticationService,
-    private userService: UserProfileService,
-    private router: Router) { }
+    private actions$: Actions,
+    private authService: AuthenticationService
+  ) {}
 
+  // Effect to perform login
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.login),
+      switchMap(({ credentials }) =>
+        this.authService.login(credentials).pipe(
+          map(authResponse =>
+            AuthActions.loginSuccess({
+              accessToken: authResponse.accessToken,
+              tokenType: authResponse.tokenType
+            })
+          ),
+          catchError(error =>
+            of(AuthActions.loginFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+
+  // Effect to perform registration
+  register$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.register),
+      switchMap(({ credentials }) =>
+        this.authService.register(credentials).pipe(
+          map(authResponse => AuthActions.registerSuccess({ authResponse })),
+          catchError(error =>
+            of(AuthActions.registerFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+
+  // Effect to get user details using the authenticated token
+  getUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.getUser),
+      switchMap(() =>
+        this.authService.getUser().pipe(
+          map(user => AuthActions.getUserSuccess({ user })),
+          catchError(error =>
+            of(AuthActions.getUserFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
 }

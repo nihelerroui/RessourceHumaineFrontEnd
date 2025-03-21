@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { AuthenticationService } from '../../../core/services/auth.service';
 import { AuthfakeauthenticationService } from '../../../core/services/authfake.service';
 import { login } from 'src/app/store/Authentication/authentication.actions';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 @Component({
@@ -11,20 +12,21 @@ import { Store } from '@ngrx/store';
   templateUrl: './login2.component.html',
   styleUrls: ['./login2.component.scss']
 })
-/**
- * Login-2 component
- */
 export class Login2Component implements OnInit {
-
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService,
-    private authFackservice: AuthfakeauthenticationService, public store: Store) { }
   loginForm: UntypedFormGroup;
-  submitted: any = false;
+  submitted = false;
   error: any = '';
   returnUrl: string;
-
-  // set the currenr year
   year: number = new Date().getFullYear();
+
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private authenticationService: AuthenticationService,
+    private authFackservice: AuthfakeauthenticationService,
+    public store: Store
+  ) { }
 
   ngOnInit(): void {
     document.body.classList.add("auth-body-bg");
@@ -35,15 +37,7 @@ export class Login2Component implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
-  // swiper config
-  slideConfig = {
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    dots: true
-  };
-
-  // convenience getter for easy access to form fields
+  // Convenience getter for easy access to form fields
   get f() { return this.loginForm.controls; }
 
   /**
@@ -51,13 +45,12 @@ export class Login2Component implements OnInit {
    */
   onSubmit() {
     this.submitted = true;
-    this.submitted = true;
-
-    const email = this.f['email'].value; // Get the username from the form
-    const password = this.f['password'].value; // Get the password from the form
-
-    // Login Api
-    this.store.dispatch(login({ email: email, password: password }));
+    if (this.loginForm.invalid) {
+      return;
+    }
+    const email = this.f['email'].value;
+    const password = this.f['password'].value;
+    // Dispatch login action with proper payload shape.
+    this.store.dispatch(login({ credentials: { email, password } }));
   }
-
 }

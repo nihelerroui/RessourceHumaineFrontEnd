@@ -1,3 +1,4 @@
+
 import { NgModule } from "@angular/core";
 import { CommonModule, DatePipe } from "@angular/common"; // Import DatePipe
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -17,14 +18,13 @@ import { PickerModule } from "@ctrl/ngx-emoji-mart";
 import { PagesRoutingModule } from "./pages-routing.module";
 import { DashboardsModule } from "./dashboards/dashboards.module";
 import { HttpClientModule } from "@angular/common/http";
-import { FactureListComponent } from "./facture/facture-list/facture-list.component"; // Updated import
 import { FactureClientDetailComponent } from "./factureclientdetail/factureclientdetailview/factureclientdetail.component"; // Updated import
 import { FactureClientUpdateComponent } from "./factureclientupdate/factureclientupdateview/factureclientupdate.component"; // Updated import
 import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
 
 @NgModule({
   declarations: [
-    FactureListComponent,
+
     FactureClientDetailComponent,
     FactureClientUpdateComponent,
     CommentModalComponent, // Updated component name
@@ -49,6 +49,9 @@ import { CommentModalComponent } from './factureclientcomment-modal/factureclien
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
+
+
+
   ],
   providers: [DatePipe], // Add DatePipe to providers
 })

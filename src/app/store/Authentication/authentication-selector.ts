@@ -1,19 +1,32 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { AuthenticationState } from './authentication.reducer';
+import { AuthState } from './authentication.reducer';
 
-export const getLayoutState = createFeatureSelector<AuthenticationState>('auth');
+// Selector to select the authentication state
+export const selectAuthState = createFeatureSelector<AuthState>('auth');
 
-export const getUser = createSelector(
-    getLayoutState,
-    (state: AuthenticationState) => state.user
+export const selectUser = createSelector(
+  selectAuthState,
+  (state: AuthState) => state?.user
 );
 
-export const getisLoggedIn = createSelector(
-    getLayoutState,
-    (state: AuthenticationState) => state.isLoggedIn
+export const selectAccessToken = createSelector(
+  selectAuthState,
+  (state: AuthState) => state?.accessToken
 );
 
-export const getError = createSelector(
-    getLayoutState,
-    (state: AuthenticationState) => state.error
+
+
+export const selectTokenType = createSelector(
+  selectAuthState,
+  (state: AuthState) => state?.tokenType
+);
+
+export const selectLoading = createSelector(
+  selectAuthState,
+  (state: AuthState) => state?.loading
+);
+
+export const selectError = createSelector(
+  selectAuthState,
+  (state: AuthState) => state?.error
 );

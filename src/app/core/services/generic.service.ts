@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { environment } from 'src/environments/environment';  // Adjust the path based on your environment file
+
 
 @Injectable({
   providedIn: 'root',
@@ -38,4 +40,5 @@ export class GenericService<T> {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
 }

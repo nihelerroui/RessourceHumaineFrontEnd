@@ -3,11 +3,9 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthenticationService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
-import { first } from 'rxjs/operators';
 import { UserProfileService } from '../../../core/services/user.service';
 import { Store } from '@ngrx/store';
-import { Register } from 'src/app/store/Authentication/authentication.actions';
+import { register } from 'src/app/store/Authentication/authentication.actions';
 
 @Component({
   selector: 'app-signup',
@@ -15,18 +13,20 @@ import { Register } from 'src/app/store/Authentication/authentication.actions';
   styleUrls: ['./signup.component.scss']
 })
 export class SignupComponent implements OnInit {
-
   signupForm: UntypedFormGroup;
-  submitted: any = false;
+  submitted = false;
   error: any = '';
   successmsg: any = false;
-
-  // set the currenr year
   year: number = new Date().getFullYear();
 
-  // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService,
-    private userService: UserProfileService, public store: Store) { }
+  constructor(
+    private formBuilder: UntypedFormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private authenticationService: AuthenticationService,
+    private userService: UserProfileService,
+    public store: Store
+  ) { }
 
   ngOnInit() {
     this.signupForm = this.formBuilder.group({
@@ -36,7 +36,7 @@ export class SignupComponent implements OnInit {
     });
   }
 
-  // convenience getter for easy access to form fields
+  // Convenience getter for easy access to form fields
   get f() { return this.signupForm.controls; }
 
   /**
@@ -44,14 +44,12 @@ export class SignupComponent implements OnInit {
    */
   onSubmit() {
     this.submitted = true;
-
-    // stop here if form is invalid
-
+    if (this.signupForm.invalid) {
+      return;
+    }
     const email = this.f['email'].value;
-    const name = this.f['username'].value;
     const password = this.f['password'].value;
-
-    //Dispatch Action
-    this.store.dispatch(Register({ email: email, username: name, password: password }));
+    // Dispatch Action with the proper payload shape.
+    this.store.dispatch(register({ credentials: { email, password } }));
   }
 }

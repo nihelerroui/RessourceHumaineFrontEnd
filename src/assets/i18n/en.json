@@ -69,9 +69,19 @@
     "MENU": {
       "TEXT": "Menu"
     },
+
     "PRESTATIONS": "PRESTATIONS",
     "DEPENSES": "DEPENSES",
     "FACTURE CLIENT": "FACTURE CLIENT",
+
+    "CONTRATSOUSTRAITANT": {
+      "TEXT": "ContratSousTraitant"
+    },
+    "PAYS": "PAYS",
+    "SOCIETE": "SOCIETE",
+    "CLIENT": "CLIENT",
+    "FACTURE": "FACTURE",
+
     "DASHBOARDS": {
       "TEXT": "Dashboards",
       "BADGE": "04",

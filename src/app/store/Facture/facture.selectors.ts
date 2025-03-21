@@ -1,19 +1,30 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import type { FactureState } from './facture.reducer';
+import { FactureState } from './facture.reducer';
 
+// 🔹 Sélectionner l'état de la fonctionnalité "Facture"
 export const selectFactureState = createFeatureSelector<FactureState>('facture');
 
-export const selectFacture = createSelector(
+// 🔹 Sélectionner la liste complète des factures
+export const selectFactureList = createSelector(
   selectFactureState,
-  (state: FactureState) => state.facture
+  (state: FactureState) => state.factures
 );
 
-export const selectLoading = createSelector(
+// 🔹 Sélectionner une facture par son ID
+export const selectFactureById = (factureId: number) =>
+  createSelector(
+    selectFactureState,
+    (state: FactureState) => state.factures.find((facture) => facture.factureId === factureId)
+  );
+
+// 🔹 Sélectionner l'état de chargement des factures
+export const selectFactureLoading = createSelector(
   selectFactureState,
   (state: FactureState) => state.loading
 );
 
-export const selectError = createSelector(
+// 🔹 Sélectionner les erreurs éventuelles liées aux factures
+export const selectFactureError = createSelector(
   selectFactureState,
   (state: FactureState) => state.error
 );
