@@ -1,0 +1,170 @@
+<div class="profile-container">
+    <!-- Profile Header with Role-based styling -->
+    <div class="profile-header" [ngStyle]="{'background-color': getRoleStyle().primary}">
+      <div class="avatar-container">
+        <div class="avatar" [ngStyle]="{'border-color': getRoleStyle().secondary}">
+          <i class="fa" [ngClass]="'fa-' + getRoleStyle().icon"></i>
+        </div>
+      </div>
+      <div class="user-info">
+        <h2>{{ user?.consultant?.fullName || 'Profil Utilisateur' }}</h2>
+        <div class="role-badge" [ngStyle]="{'background-color': getRoleStyle().secondary}">
+          {{ user?.role }}
+        </div>
+      </div>
+      <div class="profile-actions">
+        <!-- Edit button removed from here -->
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="profile-content">
+      <!-- Left Column - Professional Info -->
+      <div class="profile-column">
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Informations du compte</h3>
+          </div>
+          <div class="section-body">
+            <div class="info-row">
+              <div class="info-label">E-mail</div>
+              <div class="info-value">{{ user?.email }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Statut</div>
+              <div class="info-value">
+                <span class="status-indicator" [ngClass]="{'active': user?.enabled}"></span>
+                {{ user?.enabled ? 'Actif' : 'Inactif' }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Détails professionnels</h3>
+          </div>
+          <div class="section-body">
+            <div class="info-row">
+              <div class="info-label">Nom complet</div>
+              <div class="info-value">{{ user?.consultant?.fullName }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Prénom</div>
+              <div class="info-value">{{ user?.consultant?.prenom }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Nom de famille</div>
+              <div class="info-value">{{ user?.consultant?.name }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Téléphone</div>
+              <div class="info-value">{{ user?.consultant?.telephone }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Poste</div>
+              <div class="info-value">{{ user?.consultant?.fonction }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">ID Employé</div>
+              <div class="info-value">{{ user?.consultant?.matricule }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Type</div>
+              <div class="info-value">{{ user?.consultant?.typeLibelle }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Date d'embauche</div>
+              <div class="info-value">{{ formatDate(user?.consultant?.dateRecrutement) }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Date de fin</div>
+              <div class="info-value">{{ formatDate(user?.consultant?.dateSortie) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column - Personal Details -->
+      <div class="profile-column">
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Informations d'adresse</h3>
+          </div>
+          <div class="section-body">
+            <div class="info-row">
+              <div class="info-label">Numéro de rue</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.numRue || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Nom de rue</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.nomRue || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Informations supplémentaires</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.complementAdr || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Code postal</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.codePostal || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Ville</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.ville || 'Non fourni' }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Informations bancaires</h3>
+          </div>
+          <div class="section-body">
+            <div class="info-row">
+              <div class="info-label">IBAN</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.iban || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">BIC</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.bic || 'Non fourni' }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Documents</h3>
+          </div>
+          <div class="section-body">
+            <div class="info-row">
+              <div class="info-label">Carte d'identité</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.cni ? 'Fournie' : 'Non fournie' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Carte d'identité valide depuis</div>
+              <div class="info-value">{{ formatDate(user?.consultant?.personalDetails?.dateDebCni) }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Carte d'identité valide jusqu'à</div>
+              <div class="info-value">{{ formatDate(user?.consultant?.personalDetails?.dateFinCni) }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Sécurité sociale</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.nummss || 'Non fourni' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Carte grise</div>
+              <div class="info-value">{{ user?.consultant?.personalDetails?.carteGrise ? 'Fournie' : 'Non fournie' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Add this after the profile-content div, before the closing div of profile-container -->
+    <div class="profile-footer">
+      <button class="edit-button" (click)="editProfile()">
+        <i class="fa fa-edit"></i> Modifier le profil
+      </button>
+    </div>
+  </div>

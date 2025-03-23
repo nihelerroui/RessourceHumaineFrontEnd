@@ -1,0 +1,299 @@
+<div class="modal-container">
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  
+    <div *ngIf="!isLoading" class="modal-content">
+      <h2 class="modal-title">Modifier les informations de l'utilisateur</h2>
+      
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <!-- Tab Navigation -->
+        <div class="tabs">
+          <div class="tab-header">
+            <div class="tab-item" [class.active]="activeTab === 'account'" (click)="setActiveTab('account')">
+              Compte Utilisateur
+            </div>
+            <div class="tab-item" [class.active]="activeTab === 'professional'" (click)="setActiveTab('professional')">
+              Détails Professionnels
+            </div>
+            <div class="tab-item" [class.active]="activeTab === 'personal'" (click)="setActiveTab('personal')">
+              Informations Personnelles
+            </div>
+          </div>
+          
+          <!-- USER INFORMATION TAB -->
+          <div class="tab-content" [class.active]="activeTab === 'account'">
+            <div class="form-section">
+              <h3>Informations du Compte</h3>
+              
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input id="email" class="form-control" formControlName="email" type="email" required>
+                <div class="error-message" *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)">
+                  <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
+                  <span *ngIf="userForm.get('email')?.errors?.['email']">Veuillez entrer un email valide</span>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="role">Rôle <span class="required">*</span></label>
+                <select id="role" class="form-control" formControlName="role" required>
+                  <option value="">Sélectionner un rôle</option>
+                  <option value="ADMINISTRATEUR">Administrateur</option>
+                  <option value="RESPONSABLE_FINANCIER">Responsable Financier</option>
+                  <option value="SOUS_TRAITANT">Sous Traitant</option>
+                </select>
+                <div class="error-message" *ngIf="userForm.get('role')?.invalid && (userForm.get('role')?.dirty || userForm.get('role')?.touched)">
+                  <span *ngIf="userForm.get('role')?.errors?.['required']">Le rôle est requis</span>
+                </div>
+              </div>
+              
+              <div class="form-group checkbox-group">
+                <label class="checkbox-container">
+                  <input type="checkbox" formControlName="enabled">
+                  <span class="checkbox-label">Compte Activé</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CONSULTANT INFORMATION TAB -->
+          <div class="tab-content" [class.active]="activeTab === 'professional'">
+            <div class="form-section">
+              <h3>Informations du Consultant</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fullName">Nom Complet</label>
+                  <input id="fullName" class="form-control" formControlName="fullName">
+                </div>
+                
+                <div class="form-group">
+                  <label for="name">Nom</label>
+                  <input id="name" class="form-control" formControlName="name">
+                </div>
+                
+                <div class="form-group">
+                  <label for="prenom">Prénom</label>
+                  <input id="prenom" class="form-control" formControlName="prenom">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="telephone">Numéro de Téléphone</label>
+                  <input id="telephone" class="form-control" formControlName="telephone">
+                </div>
+                
+                <div class="form-group">
+                  <label for="typeLibelle">Type</label>
+                  <input id="typeLibelle" class="form-control" formControlName="typeLibelle">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dateRecrutement">Date de Recrutement</label>
+                  <input id="dateRecrutement" class="form-control" type="date" formControlName="dateRecrutement">
+                </div>
+                
+                <div class="form-group">
+                  <label for="dateSortie">Date de Sortie</label>
+                  <input id="dateSortie" class="form-control" type="date" formControlName="dateSortie">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fonction">Fonction</label>
+                  <input id="fonction" class="form-control" formControlName="fonction">
+                </div>
+                
+                <div class="form-group">
+                  <label for="matricule">Matricule</label>
+                  <input id="matricule" class="form-control" formControlName="matricule">
+                </div>
+              </div>
+              
+              <div class="form-group checkbox-group">
+                <label class="checkbox-container">
+                  <input type="checkbox" formControlName="commercial">
+                  <span class="checkbox-label">Commercial</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- PERSONAL DETAILS TAB -->
+          <div class="tab-content" [class.active]="activeTab === 'personal'">
+            <div class="form-section">
+              <h3>Informations Personnelles</h3>
+              
+              <div class="accordion">
+                <!-- Address Information -->
+                <div class="accordion-item">
+                  <div class="accordion-header" (click)="toggleAccordion('address')">
+                    <span>Informations d'Adresse</span>
+                    <span class="accordion-icon">{{ accordionState.address ? '−' : '+' }}</span>
+                  </div>
+                  <div class="accordion-content" [class.active]="accordionState.address">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="numRue">Numéro de Rue</label>
+                        <input id="numRue" class="form-control" formControlName="numRue">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="bisTer">Bis/Ter</label>
+                        <input id="bisTer" class="form-control" formControlName="bisTer">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="nomRue">Nom de Rue</label>
+                      <input id="nomRue" class="form-control" formControlName="nomRue">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="complementAdr">Complément d'Adresse</label>
+                      <input id="complementAdr" class="form-control" formControlName="complementAdr">
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="codePostal">Code Postal</label>
+                        <input id="codePostal" class="form-control" formControlName="codePostal">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="ville">Ville</label>
+                        <input id="ville" class="form-control" formControlName="ville">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Banking Information -->
+                <div class="accordion-item">
+                  <div class="accordion-header" (click)="toggleAccordion('banking')">
+                    <span>Informations Bancaires</span>
+                    <span class="accordion-icon">{{ accordionState.banking ? '−' : '+' }}</span>
+                  </div>
+                  <div class="accordion-content" [class.active]="accordionState.banking">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="iban">IBAN</label>
+                        <input id="iban" class="form-control" formControlName="iban">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="bic">BIC</label>
+                        <input id="bic" class="form-control" formControlName="bic">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="rib">RIB</label>
+                      <input id="rib" class="form-control" formControlName="rib">
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Identity Documents -->
+                <div class="accordion-item">
+                  <div class="accordion-header" (click)="toggleAccordion('identity')">
+                    <span>Documents d'Identité</span>
+                    <span class="accordion-icon">{{ accordionState.identity ? '−' : '+' }}</span>
+                  </div>
+                  <div class="accordion-content" [class.active]="accordionState.identity">
+                    <div class="form-group">
+                      <label for="cni">CNI</label>
+                      <input id="cni" class="form-control" formControlName="cni">
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="dateDebCni">Date de Début CNI</label>
+                        <input id="dateDebCni" class="form-control" type="date" formControlName="dateDebCni">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="dateFinCni">Date de Fin CNI</label>
+                        <input id="dateFinCni" class="form-control" type="date" formControlName="dateFinCni">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="nummss">Numéro de Sécurité Sociale</label>
+                      <input id="nummss" class="form-control" formControlName="nummss">
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Other Documents -->
+                <div class="accordion-item">
+                  <div class="accordion-header" (click)="toggleAccordion('documents')">
+                    <span>Autres Documents</span>
+                    <span class="accordion-icon">{{ accordionState.documents ? '−' : '+' }}</span>
+                  </div>
+                  <div class="accordion-content" [class.active]="accordionState.documents">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="carteGrise">Carte Grise</label>
+                        <input id="carteGrise" class="form-control" formControlName="carteGrise">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="navigo">Navigo</label>
+                        <input id="navigo" class="form-control" formControlName="navigo">
+                      </div>
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="attestations">Attestations</label>
+                        <input id="attestations" class="form-control" formControlName="attestations">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="contart">Contrat</label>
+                        <input id="contart" class="form-control" formControlName="contart">
+                      </div>
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="kbis">Kbis</label>
+                        <input id="kbis" class="form-control" formControlName="kbis">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="urssaf">URSSAF</label>
+                        <input id="urssaf" class="form-control" formControlName="urssaf">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group file-upload-group">
+                      <label for="photo">Photo</label>
+                      <input id="photo" type="file" class="file-input" (change)="onFileSelected($event)" accept="image/*">
+                      <div class="file-info" *ngIf="userForm.get('photo')?.value">
+                        Fichier actuel: {{ userForm.get('photo')?.value }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isLoading">
+            <i class="icon-save"></i> Mettre à jour l'utilisateur
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

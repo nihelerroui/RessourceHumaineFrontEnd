@@ -7,16 +7,12 @@
             <div class="row">
               <div class="col-7">
                 <div class="text-primary p-4">
-                  <h5 class="text-primary">Welcome Back !</h5>
-                  <p>Sign in to continue to Skote.</p>
+                  <h5 class="text-primary">Bienvenue !</h5>
+                  <p>Connectez-vous pour continuer vers Featway.</p>
                 </div>
               </div>
               <div class="col-5 align-self-end">
-                <img
-                  src="assets/images/profile-img.png"
-                  alt=""
-                  class="img-fluid"
-                />
+                <img src="assets/images/featway.png" alt="" class="img-fluid" />
               </div>
             </div>
           </div>
@@ -48,38 +44,44 @@
                     formControlName="email"
                     class="form-control"
                     id="email"
-                    placeholder="Email"
+                    placeholder="Entrez votre email"
                   />
                   <div *ngIf="submitted && f.email.errors" class="error">
-                    <div *ngIf="f.email.errors.required">Email is required</div>
+                    <div *ngIf="f.email.errors.required">L'email est requis</div>
                     <div *ngIf="f.email.errors.email">
-                      Enter a valid email address
+                      Entrez une adresse email valide
                     </div>
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="password">Password</label>
+                  <label for="password">Mot de passe</label>
                   <div class="input-group auth-pass-inputgroup">
                     <input
                       class="form-control"
                       [type]="fieldTextType ? 'text' : 'password'"
                       formControlName="password"
-                      placeholder="Enter your password"
+                      placeholder="Entrez votre mot de passe"
                     />
-                    <button type="button" (click)="toggleFieldTextType()">
-                      Toggle
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="toggleFieldTextType()"
+                    >
+                      <i class="mdi" [ngClass]="fieldTextType ? 'mdi-eye-off' : 'mdi-eye'"></i>
                     </button>
-                    <div *ngIf="submitted && f.password.errors" class="error">
-                      <div *ngIf="f.password.errors.required">
-                        Password is required
-                      </div>
+                  </div>
+                  <div *ngIf="submitted && f.password.errors" class="error">
+                    <div *ngIf="f.password.errors.required">
+                      Le mot de passe est requis
                     </div>
                   </div>
                 </div>
+
                 <div *ngIf="error" class="error-message">
                   {{ error }}
                 </div>
+
                 <div class="form-check">
                   <input
                     class="form-check-input"
@@ -87,7 +89,7 @@
                     id="remember-check"
                   />
                   <label class="form-check-label" for="remember-check">
-                    Remember me
+                    Se souvenir de moi
                   </label>
                 </div>
 
@@ -96,68 +98,35 @@
                     class="spinner-border text-primary avatar-sm"
                     role="status"
                   >
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">Chargement...</span>
                   </div>
                 </div>
 
                 <div class="mt-3 d-grid">
-                  <button class="btn btn-primary" [disabled]="loading" type="submit">Log In</button>
+                  <button class="btn btn-primary" [disabled]="loading" type="submit">
+                    Connexion
+                  </button>
                 </div>
-                <div class="mt-4 text-center">
-                  <h5 class="font-size-14 mb-3">Sign in with</h5>
 
-                  <ul class="list-inline">
-                    <li class="list-inline-item">
-                      <a
-                        href="javascript::void()"
-                        class="social-list-item bg-primary text-white border-primary"
-                      >
-                        <i class="mdi mdi-facebook"></i>
-                      </a>
-                    </li>
-                    <li class="list-inline-item">
-                      <a
-                        href="javascript::void()"
-                        class="social-list-item bg-info text-white border-info"
-                      >
-                        <i class="mdi mdi-twitter"></i>
-                      </a>
-                    </li>
-                    <li class="list-inline-item">
-                      <a
-                        href="javascript::void()"
-                        class="social-list-item bg-danger text-white border-danger"
-                      >
-                        <i class="mdi mdi-google"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
                 <div class="mt-4 text-center">
-                  <a routerLink="/auth/reset-password" class="text-muted"
-                    ><i class="mdi mdi-lock mr-1"></i> Forgot your password?</a
-                  >
+                  <a routerLink="/auth/reset-password" class="text-muted">
+                    <i class="mdi mdi-lock mr-1"></i> Mot de passe oublié ?
+                  </a>
                 </div>
               </form>
             </div>
           </div>
         </div>
+
         <div class="mt-5 text-center">
           <p>
-            Don't have an account ?
+            Vous n'avez pas de compte ?
             <a routerLink="/auth/signup" class="fw-medium text-primary">
-              Signup now
+              Inscrivez-vous maintenant
             </a>
-          </p>
-          <p>
-            © {{ year }} Skote. Crafted with
-            <i class="mdi mdi-heart text-danger"></i> by Themesbrand
           </p>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- end container -->
 </div>
-<!-- end page -->

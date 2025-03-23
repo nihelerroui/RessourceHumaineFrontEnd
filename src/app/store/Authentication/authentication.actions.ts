@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { AdminRegisterRequest } from '../../models/admin-register-request.model';  // <-- Import here
 
 // Login Actions
 export const login = createAction(
@@ -19,9 +20,8 @@ export const loginFailure = createAction(
 // Register Actions
 export const register = createAction(
   '[Authentication] Register',
-  props<{ credentials: { email: string; password: string } }>()
+  props<{ credentials: AdminRegisterRequest }>()
 );
-
 export const registerSuccess = createAction(
   '[Authentication] Register Success',
   props<{ authResponse: any }>()

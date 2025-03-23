@@ -47,12 +47,6 @@ import { TokenInterceptor } from './core/helpers/token.interceptor'; // Import t
 
 
 
-if (environment.defaultauth === 'firebase') {
-  initFirebaseBackend(environment.firebaseConfig);
-} else {
-  // tslint:disable-next-line: no-unused-expression
-  FakeBackendInterceptor;
-}
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -111,7 +105,7 @@ export function createTranslateLoader(http: HttpClient): any {
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }, // Add TokenInterceptor here
    // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
+    //{ provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
   ],
 })
 export class AppModule { }

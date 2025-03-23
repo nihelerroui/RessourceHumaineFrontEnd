@@ -1,0 +1,232 @@
+<div class="profile-edit-container">
+    <div class="profile-edit-header">
+      <h2>Modifier votre profil</h2>
+      <p>Mettez à jour vos informations personnelles et professionnelles</p>
+    </div>
+  
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+    
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-edit-form">
+      <!-- Account Information Section -->
+      <div class="form-section">
+        <h3>Informations du compte</h3>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" formControlName="email" class="form-control" 
+                 [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
+          <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+            <div *ngIf="f.email.errors.required">L'email est requis</div>
+            <div *ngIf="f.email.errors.email">Veuillez entrer une adresse email valide</div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Professional Details Section -->
+      <div class="form-section">
+        <h3>Détails professionnels</h3>
+        
+        <div class="form-group">
+          <label for="fullName">Nom complet</label>
+          <input type="text" id="fullName" formControlName="fullName" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.fullName.errors }">
+          <div *ngIf="submitted && f.fullName.errors" class="invalid-feedback">
+            <div *ngIf="f.fullName.errors.required">Le nom complet est requis</div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="prenom">Prénom</label>
+            <input type="text" id="prenom" formControlName="prenom" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.prenom.errors }">
+            <div *ngIf="submitted && f.prenom.errors" class="invalid-feedback">
+              <div *ngIf="f.prenom.errors.required">Le prénom est requis</div>
+            </div>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="name">Nom de famille</label>
+            <input type="text" id="name" formControlName="name" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.name.errors }">
+            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+              <div *ngIf="f.name.errors.required">Le nom de famille est requis</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="telephone">Téléphone</label>
+          <input type="tel" id="telephone" formControlName="telephone" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.telephone.errors }">
+          <div *ngIf="submitted && f.telephone.errors" class="invalid-feedback">
+            <div *ngIf="f.telephone.errors.required">Le numéro de téléphone est requis</div>
+            <div *ngIf="f.telephone.errors.pattern">Veuillez entrer un numéro de téléphone valide (10 chiffres)</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="fonction">Poste</label>
+          <input type="text" id="fonction" formControlName="fonction" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.fonction.errors }">
+          <div *ngIf="submitted && f.fonction.errors" class="invalid-feedback">
+            <div *ngIf="f.fonction.errors.required">Le poste est requis</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="matricule">ID Employé</label>
+          <input type="text" id="matricule" formControlName="matricule" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.matricule.errors }">
+          <div *ngIf="submitted && f.matricule.errors" class="invalid-feedback">
+            <div *ngIf="f.matricule.errors.required">L'ID employé est requis</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="typeLibelle">Type</label>
+          <input type="text" id="typeLibelle" formControlName="typeLibelle" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.typeLibelle.errors }">
+          <div *ngIf="submitted && f.typeLibelle.errors" class="invalid-feedback">
+            <div *ngIf="f.typeLibelle.errors.required">Le type est requis</div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="dateRecrutement">Date d'embauche</label>
+            <input type="date" id="dateRecrutement" formControlName="dateRecrutement" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.dateRecrutement.errors }">
+            <div *ngIf="submitted && f.dateRecrutement.errors" class="invalid-feedback">
+              <div *ngIf="f.dateRecrutement.errors.required">La date d'embauche est requise</div>
+            </div>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="dateSortie">Date de fin</label>
+            <input type="date" id="dateSortie" formControlName="dateSortie" class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group form-check">
+          <input type="checkbox" id="commercial" formControlName="commercial" class="form-check-input">
+          <label for="commercial" class="form-check-label">Commercial</label>
+        </div>
+      </div>
+  
+      <!-- Address Information Section -->
+      <div class="form-section">
+        <h3>Informations d'adresse</h3>
+        
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="numRue">Numéro de rue</label>
+            <input type="text" id="numRue" formControlName="numRue" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.numRue.errors }">
+            <div *ngIf="submitted && f.numRue.errors" class="invalid-feedback">
+              <div *ngIf="f.numRue.errors.pattern">Veuillez entrer un numéro valide</div>
+            </div>
+          </div>
+          
+          <div class="form-group col-md-8">
+            <label for="nomRue">Nom de rue</label>
+            <input type="text" id="nomRue" formControlName="nomRue" class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="complementAdr">Informations supplémentaires</label>
+          <input type="text" id="complementAdr" formControlName="complementAdr" class="form-control">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="codePostal">Code postal</label>
+            <input type="text" id="codePostal" formControlName="codePostal" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.codePostal.errors }">
+            <div *ngIf="submitted && f.codePostal.errors" class="invalid-feedback">
+              <div *ngIf="f.codePostal.errors.pattern">Veuillez entrer un code postal valide (5 chiffres)</div>
+            </div>
+          </div>
+          
+          <div class="form-group col-md-8">
+            <label for="ville">Ville</label>
+            <input type="text" id="ville" formControlName="ville" class="form-control">
+          </div>
+        </div>
+      </div>
+  
+      <!-- Banking Information Section -->
+      <div class="form-section">
+        <h3>Informations bancaires</h3>
+        
+        <div class="form-group">
+          <label for="iban">IBAN</label>
+          <input type="text" id="iban" formControlName="iban" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.iban.errors }">
+          <div *ngIf="submitted && f.iban.errors" class="invalid-feedback">
+            <div *ngIf="f.iban.errors.pattern">Veuillez entrer un IBAN valide</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="bic">BIC</label>
+          <input type="text" id="bic" formControlName="bic" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.bic.errors }">
+          <div *ngIf="submitted && f.bic.errors" class="invalid-feedback">
+            <div *ngIf="f.bic.errors.pattern">Veuillez entrer un BIC valide (8-11 caractères)</div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Documents Section -->
+      <div class="form-section">
+        <h3>Documents</h3>
+        
+        <div class="form-group">
+          <label for="cni">Carte d'identité</label>
+          <input type="text" id="cni" formControlName="cni" class="form-control">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="dateDebCni">Carte d'identité valide depuis</label>
+            <input type="date" id="dateDebCni" formControlName="dateDebCni" class="form-control">
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="dateFinCni">Carte d'identité valide jusqu'à</label>
+            <input type="date" id="dateFinCni" formControlName="dateFinCni" class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="nummss">Sécurité sociale</label>
+          <input type="text" id="nummss" formControlName="nummss" class="form-control"
+                 [ngClass]="{ 'is-invalid': submitted && f.nummss.errors }">
+          <div *ngIf="submitted && f.nummss.errors" class="invalid-feedback">
+            <div *ngIf="f.nummss.errors.pattern">Veuillez entrer un numéro de sécurité sociale valide (15 chiffres)</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="carteGrise">Carte grise</label>
+          <input type="text" id="carteGrise" formControlName="carteGrise" class="form-control">
+        </div>
+      </div>
+  
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>

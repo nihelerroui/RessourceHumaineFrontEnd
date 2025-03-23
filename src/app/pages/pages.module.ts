@@ -21,13 +21,24 @@ import { HttpClientModule } from "@angular/common/http";
 import { FactureClientDetailComponent } from "./factureclientdetail/factureclientdetailview/factureclientdetail.component"; // Updated import
 import { FactureClientUpdateComponent } from "./factureclientupdate/factureclientupdateview/factureclientupdate.component"; // Updated import
 import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
+import { UtilisateurdetailviewComponent } from './utilisateursdetail/utilisateurdetailview/utilisateurdetailview.component';
+import { UtilisateurregisterviewComponent } from './utilisateurregister/utilisateurregisterview/utilisateurregisterview.component';
+import { UtilisateurAdminUpdateViewComponent } from './utilisateuradminupdate/utilisateuradminupdateview/utilisateuradminupdateview.component';
+import { ProfileEditComponent } from './userprofileedit/profileedit.component'; // Updated import
+
+//UtilisateurAdminUpdateViewComponent
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
 
     FactureClientDetailComponent,
     FactureClientUpdateComponent,
-    CommentModalComponent, // Updated component name
+    CommentModalComponent,
+    UtilisateurdetailviewComponent,
+    UtilisateurregisterviewComponent,
+    UtilisateurAdminUpdateViewComponent,
+    ProfileEditComponent // Updated component name
   ],
   imports: [
     CommonModule,
@@ -49,7 +60,11 @@ import { CommentModalComponent } from './factureclientcomment-modal/factureclien
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
-
+    ToastrModule.forRoot({
+      timeOut: 5000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+    }),
 
 
   ],

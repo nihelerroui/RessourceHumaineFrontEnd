@@ -1,14 +1,14 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
-import { AuthenticationService } from '../../core/services/auth.service';
+import { AuthenticationService } from '../../core/services/authentication.service';
 import { AuthfakeauthenticationService } from '../../core/services/authfake.service';
 import { environment } from '../../../environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
-import { Observable, map } from 'rxjs';
+import { Observable, map, Subscription } from 'rxjs';
 import { changesLayout } from 'src/app/store/layouts/layout.actions';
 import { getLayoutMode } from 'src/app/store/layouts/layout.selector';
 import { RootReducerState } from 'src/app/store';
@@ -22,8 +22,8 @@ import { RootReducerState } from 'src/app/store';
 /**
  * Topbar component
  */
-export class TopbarComponent implements OnInit {
-  mode: any
+export class TopbarComponent implements OnInit, OnDestroy {
+  mode: any;
   element: any;
   cookieValue: any;
   flagvalue: any;
@@ -32,14 +32,17 @@ export class TopbarComponent implements OnInit {
   theme: any;
   layout: string;
   dataLayout$: Observable<string>;
-  // Define layoutMode as a property
+  private userUpdateSubscription: Subscription;
+
+  // New properties for the user data
+  userName: string = '';
+  userInitial: string = ''; // To store the first character of the user's full name
 
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private authService: AuthenticationService,
     private authFackservice: AuthfakeauthenticationService,
     public languageService: LanguageService,
     public translate: TranslateService,
     public _cookiesService: CookieService, public store: Store<RootReducerState>) {
-
   }
 
   listLang: any = [
@@ -56,10 +59,20 @@ export class TopbarComponent implements OnInit {
   @Output() mobileMenuButtonClicked = new EventEmitter();
 
   ngOnInit() {
-    // this.initialAppState = initialState;
+    // Load initial user data
+    this.loadUserData();
+    
+    // Subscribe to user updates
+    this.userUpdateSubscription = this.authService.userUpdated$.subscribe(updated => {
+      if (updated) {
+        // Reload user data when updated
+        this.loadUserData();
+      }
+    });
+
     this.store.select('layout').subscribe((data) => {
       this.theme = data.DATA_LAYOUT;
-    })
+    });
     this.openMobileMenu = false;
     this.element = document.documentElement;
 
@@ -71,6 +84,27 @@ export class TopbarComponent implements OnInit {
     } else {
       this.flagvalue = val.map(element => element.flag);
     }
+  }
+
+  ngOnDestroy() {
+    // Unsubscribe to prevent memory leaks
+    if (this.userUpdateSubscription) {
+      this.userUpdateSubscription.unsubscribe();
+    }
+  }
+
+  // Load user data from session storage
+  loadUserData() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (currentUser && currentUser.consultant && currentUser.consultant.fullName) {
+      this.userName = currentUser.consultant.fullName; // Get the full name of the user
+      this.userInitial = currentUser.consultant.fullName.charAt(0).toUpperCase(); // Extract first letter and convert to uppercase
+    }
+  }
+
+  // Navigate to profile page
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
   }
 
   setLanguage(text: string, lang: string, flag: string) {
@@ -99,9 +133,9 @@ export class TopbarComponent implements OnInit {
    * Logout the user
    */
   logout() {
-    
-      this.authFackservice.logout();
-    
+    sessionStorage.removeItem('currentUserToken');
+    sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('currentUser');
     this.router.navigate(['/auth/login']);
   }
 
@@ -146,6 +180,6 @@ export class TopbarComponent implements OnInit {
     this.store.dispatch(changesLayout({ layoutMode }));
     this.store.select(getLayoutMode).subscribe((layout) => {
       document.documentElement.setAttribute('data-layout', layout)
-    })
+    });
   }
 }

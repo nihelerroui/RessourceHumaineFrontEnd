@@ -15,7 +15,7 @@ export class TokenInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     // Retrieve the token from sessionStorage
     const token = sessionStorage.getItem('currentUserToken');
-
+    console.log('Token interceptor:', token);
     if (token) {
       // Clone the request and add the Authorization header
       const cloned = req.clone({

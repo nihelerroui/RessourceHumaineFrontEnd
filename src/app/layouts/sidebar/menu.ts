@@ -19,6 +19,12 @@ export const MENU: MenuItem[] = [
         icon: 'bx-receipt',
         link: '/factureclient'
       },
+      {
+        id: 123123,
+        label: 'MENUITEMS.UTILISATEURS',
+        icon: 'bx-user-circle',
+        link: '/utilisateurs'
+      },
     {
         id: 2,
         label: 'MENUITEMS.DASHBOARDS.TEXT',

@@ -50,6 +50,6 @@ export class SignupComponent implements OnInit {
     const email = this.f['email'].value;
     const password = this.f['password'].value;
     // Dispatch Action with the proper payload shape.
-    this.store.dispatch(register({ credentials: { email, password } }));
+    //this.store.dispatch(register({ credentials: { email, password } }));
   }
 }

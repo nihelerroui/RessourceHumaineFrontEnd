@@ -1,0 +1,146 @@
+<div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div ngClass="card">
+          <div class="card-body border-bottom">
+            <div class="d-flex align-items-center">
+              <h5 class="mb-0 card-title flex-grow-1">Liste des Utilisateurs</h5>
+              <div class="flex-shrink-0 d-flex gap-1">
+                <a href="javascript:void(0);" class="btn btn-primary" (click)="openCreateUserModal()">Ajouter un nouvel utilisateur</a>
+                <a href="javascript:void(0);" class="btn btn-light" (click)="reloadUsers()">
+                  <i class="mdi mdi-refresh"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+  
+          <div class="card-body border-bottom">
+            <div class="row g-3">
+              <!-- Search Input -->
+              <div class="col-xxl-4 col-lg-6">
+                <input
+                  type="search"
+                  class="form-control"
+                  placeholder="Rechercher un utilisateur..."
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="searchUser()"
+                />
+              </div>
+  
+              <!-- Role Filter -->
+              <div class="col-xxl-4 col-lg-6">
+                <select class="form-select" [(ngModel)]="roleFilter" (ngModelChange)="applyFilters()">
+                  <option value="">Sélectionner un rôle</option>
+                  <option value="ADMINISTRATEUR">Administrateur</option>
+                  <option value="RESPONSABLE_FINANCIER">Responsable Financier</option>
+                  <option value="SOUS_TRAITANT">Sous Traitant</option>
+                </select>
+              </div>
+  
+              <!-- Status Filter -->
+              <div class="col-xxl-4 col-lg-6">
+                <select class="form-select" [(ngModel)]="enabledFilter" (ngModelChange)="applyFilters()">
+                  <option value="">Sélectionner un statut</option>
+                  <option value="true">Activé</option>
+                  <option value="false">Désactivé</option>
+                </select>
+              </div>
+            </div>
+          </div>
+  
+          <div class="card-body">
+            <!-- Loading State -->
+            <div *ngIf="loading$ | async" class="text-center p-5">
+              <i class="mdi mdi-loading mdi-spin"></i> Chargement...
+            </div>
+  
+            <!-- Error State -->
+            <div *ngIf="error$ | async as error" class="alert alert-danger">
+              {{ error }}
+            </div>
+  
+            <!-- Data Table -->
+            <div class="table-responsive" *ngIf="users?.length">
+              <table class="table align-middle dt-responsive nowrap w-100 table-check">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Nom Complet</th>
+                    <th>Téléphone</th>
+                    <th>Matricule</th>
+                    <th>Fonction</th>
+                    <th>Type</th>
+                    <th>Date de Recrutement</th>
+                    <th>Date de Sortie</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of users" [ngClass]="{'table-warning': !user.enabled}">
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.consultant?.fullName || 'N/A' }}</td>
+                    <td>{{ user.consultant?.telephone || 'N/A' }}</td>
+                    <td>{{ user.consultant?.matricule || 'N/A' }}</td>
+                    <td>{{ user.consultant?.fonction || 'N/A' }}</td>
+                    <td>{{ user.consultant?.typeLibelle || 'N/A' }}</td>
+                    <td>{{ user.consultant?.dateRecrutement || 'N/A' }}</td>
+                    <td>{{ user.consultant?.dateSortie || 'N/A' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+                        {{ formatUserRole(user.role) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{'bg-success': user.enabled, 'bg-danger': !user.enabled}">
+                        {{ user.enabled ? 'Activé' : 'Désactivé' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-primary" (click)="viewUserDetails(user.userId)">
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info" (click)="openEditUserModal(user)">
+                          <i class="mdi mdi-pencil-outline"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="btn btn-sm" 
+                           [ngClass]="{'btn-soft-success': !user.enabled, 'btn-soft-danger': user.enabled}"
+                           (click)="toggleUserStatus(user)">
+                          <i [ngClass]="{'mdi mdi-account-plus-outline': !user.enabled, 'mdi mdi-account-off-outline': user.enabled}"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                
+              </table>
+            </div>
+  
+            <!-- No Data Message -->
+            <div *ngIf="!users?.length && !(loading$ | async)" class="text-center p-5">
+              Aucun utilisateur trouvé
+            </div>
+  
+            <!-- Pagination -->
+            <div *ngIf="users?.length > 0">
+              <div class="row justify-content-between align-items-center">
+                <div class="col-auto me-auto">
+                  <p class="text-muted mb-0">
+                    Affichage de <b>{{ users?.length }}</b> sur <b>{{ totalUsers }}</b> entrées
+                  </p>
+                </div>
+                <div class="col-auto">
+                  <ul class="pagination pagination-rounded justify-content-end mb-2">
+                    <pagination [totalItems]="totalUsers" [itemsPerPage]="itemsPerPage" (pageChanged)="pageChanged($event)">
+                    </pagination>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
