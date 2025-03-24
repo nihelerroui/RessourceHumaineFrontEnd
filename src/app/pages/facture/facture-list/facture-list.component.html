@@ -105,9 +105,8 @@
                             class="table table-striped table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Désignation</th>
                                     <th>Référence</th>
+                                    <th>Désignation</th>
                                     <th>Montant TTC</th>
                                     <th>Date Emission</th>
                                     <th>Type Facture</th>
@@ -119,9 +118,8 @@
                             <tbody>
                                 <tr
                                     *ngFor="let facture of paginatedFactureList; trackBy: trackById">
-                                    <th>{{ facture.factureId }}</th>
-                                    <td>{{ facture.designation }}</td>
                                     <td>{{ facture.refFacture }}</td>
+                                    <td>{{ facture.designation }}</td>
                                     <td>{{ facture.montantTtc }}</td>
                                     <td>{{ facture.dateEmmission |
                                         date:'dd/MM/yyyy' }}</td>

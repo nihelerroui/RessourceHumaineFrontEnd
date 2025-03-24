@@ -48,7 +48,6 @@
             <table *ngIf="filteredPaysList?.length > 0" class="table table-striped table-hover align-middle">
               <thead>
                 <tr>
-                  <th scope="col">ID</th>
                   <th scope="col">Nom (Français)</th>
                   <th scope="col">Nom (Anglais)</th>
                   <th scope="col">Code Alpha (Français)</th>
@@ -58,7 +57,6 @@
               </thead>
               <tbody>
                 <tr *ngFor="let pays of paginatedPaysList; trackBy: trackById">
-                  <th scope="row">{{ pays.paysId }}</th>
                   <td>{{ pays.nomFrFr }}</td>
                   <td>{{ pays.nomEnGb }}</td>
                   <td>{{ pays.alphaFr }}</td>

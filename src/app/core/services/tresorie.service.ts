@@ -34,13 +34,11 @@ export class TresorieService extends GenericService<Tresorie> {
 
   // 🔹 Valider le paiement d'une facture
   validerPaiement(factureId: number): Observable<any> {
-    const body = { factureId };
-    console.log("Body envoyé à l'API :", JSON.stringify(body)); // Debug
-
-    return this.http.post<any>(`${this.apiUrl}/valider-paiement`, body, {
+    return this.http.post<any>(`${this.apiUrl}/valider-paiement`, factureId, {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+  
 
 
 }
