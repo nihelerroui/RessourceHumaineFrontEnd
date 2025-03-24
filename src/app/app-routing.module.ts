@@ -8,7 +8,9 @@ import { Page404Component } from './extrapages/page404/page404.component';
 import { FactureClientDetailComponent } from './pages/factureclientdetail/factureclientdetailview/factureclientdetail.component'; // Import the detail component
 import { ClientViewFactureComponent } from './pages/clientsidefacture/clientsidefactureview/clientsidefacture.component'; // Import the detail component
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { ResetPasswordComponent } from './pages/resetpassword/resetpassword.component';
 
+import { ForgotPasswordComponent } from './pages/forgotpassword/forgotpassword.component';
 const routes: Routes = [
   { path: 'auth', loadChildren: () => import('./account/account.module').then(m => m.AccountModule) },
   { path: '', component: LayoutComponent, loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule), canActivate: [AuthGuard] },
@@ -28,6 +30,8 @@ const routes: Routes = [
     loadChildren: () => import('./pages/factureclientcreate/factureclientcreate.module').then(m => m.FactureClientCreateModule)
 
   },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: Page404Component },
 ];
 

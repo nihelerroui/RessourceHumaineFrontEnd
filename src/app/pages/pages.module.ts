@@ -25,7 +25,9 @@ import { UtilisateurdetailviewComponent } from './utilisateursdetail/utilisateur
 import { UtilisateurregisterviewComponent } from './utilisateurregister/utilisateurregisterview/utilisateurregisterview.component';
 import { UtilisateurAdminUpdateViewComponent } from './utilisateuradminupdate/utilisateuradminupdateview/utilisateuradminupdateview.component';
 import { ProfileEditComponent } from './userprofileedit/profileedit.component'; // Updated import
+import { ResetPasswordComponent } from './resetpassword/resetpassword.component';
 
+import { ForgotPasswordComponent } from './forgotpassword/forgotpassword.component';
 //UtilisateurAdminUpdateViewComponent
 import { ToastrModule } from 'ngx-toastr';
 
@@ -38,7 +40,9 @@ import { ToastrModule } from 'ngx-toastr';
     UtilisateurdetailviewComponent,
     UtilisateurregisterviewComponent,
     UtilisateurAdminUpdateViewComponent,
-    ProfileEditComponent // Updated component name
+    ProfileEditComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent // Updated component name
   ],
   imports: [
     CommonModule,

@@ -145,4 +145,21 @@ export class AuthenticationService {
   toggleUserStatus(userId: number): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/users/toggle-status/${userId}`, {});
   }
+  // Request password reset (send email)
+forgotPassword(email: string): Observable<any> {
+  return this.http.post<any>(`${this.baseUrlAuth}/forgot-password`, { email });
+}
+
+// Reset password with token
+resetPassword(token: string, newPassword: string): Observable<any> {
+  return this.http.post<any>(`${this.baseUrlAuth}/reset-password`, { 
+    token, 
+    newPassword 
+  });
+}
+
+// Validate reset token
+validateResetToken(token: string): Observable<any> {
+  return this.http.get<any>(`${this.baseUrlAuth}/validate-reset-token/${token}`);
+}
 }
