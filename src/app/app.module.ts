@@ -49,6 +49,14 @@ import { TokenInterceptor } from './core/helpers/token.interceptor'; // Import t
 
 
 
+if (environment.defaultauth === 'firebase') {
+  initFirebaseBackend(environment.firebaseConfig);
+} else {
+  // tslint:disable-next-line: no-unused-expression
+  FakeBackendInterceptor;
+}
+
+
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
 }
@@ -57,8 +65,8 @@ export function createTranslateLoader(http: HttpClient): any {
   declarations: [
     AppComponent,
 
+
     CyptolandingComponent,
-   
 
   ],
   imports: [
@@ -95,9 +103,11 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     EffectsModule.forRoot([
       AuthenticationEffects,
+
       PrestationEffects,
       FactureEffects
     ]),
+
 
   ],
   bootstrap: [AppComponent],

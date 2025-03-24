@@ -1,15 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Facture } from 'src/app/models/facture.model';
+import { Societe } from 'src/app/models/societe.model';
 import { GenericService } from './generic.service';
 
 @Injectable({
   providedIn: 'root'
 })
-
-export class FactureService extends GenericService<Facture> {
+export class SocieteService extends GenericService<Societe>{
 
   constructor(protected http: HttpClient) {
-    super(http, 'factures'); 
+    super(http, 'societes'); 
   }
+
+  
 }

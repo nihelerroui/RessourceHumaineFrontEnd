@@ -70,10 +70,12 @@
       "TEXT": "Menu"
     },
 
+
     "PRESTATIONS": "PRESTATIONS",
     "DEPENSES": "DEPENSES",
     "FACTURE CLIENT": "FACTURE CLIENT",
     "UTILISATEURS": "UTILISATEURS",
+
 
     "CONTRATSOUSTRAITANT": {
       "TEXT": "ContratSousTraitant"

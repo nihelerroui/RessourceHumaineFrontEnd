@@ -26,6 +26,13 @@ import { UtilisateurregisterviewComponent } from './utilisateurregister/utilisat
 import { UtilisateurAdminUpdateViewComponent } from './utilisateuradminupdate/utilisateuradminupdateview/utilisateuradminupdateview.component';
 import { ProfileEditComponent } from './userprofileedit/profileedit.component'; // Updated import
 import { ResetPasswordComponent } from './resetpassword/resetpassword.component';
+import { ContratModule } from './contrat/contrat.module';
+import { PaysModule } from './pays/pays.module';
+import { SocieteModule } from './societe/societe.module';
+import { ClientModule } from './client/client.module';
+import { FactureListComponent } from './facture/facture-list/facture-list.component';
+import { FactureModule } from './facture/facture.module';
+import { TresorieModule } from './tresorie/tresorie.module';
 
 import { ForgotPasswordComponent } from './forgotpassword/forgotpassword.component';
 //UtilisateurAdminUpdateViewComponent
@@ -46,6 +53,11 @@ import { ToastrModule } from 'ngx-toastr';
   ],
   imports: [
     CommonModule,
+    PaysModule,
+    SocieteModule,
+    ClientModule,
+    FactureModule,
+    TresorieModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
@@ -64,6 +76,7 @@ import { ToastrModule } from 'ngx-toastr';
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
+
     ToastrModule.forRoot({
       timeOut: 5000,
       positionClass: 'toast-top-right',
@@ -71,6 +84,8 @@ import { ToastrModule } from 'ngx-toastr';
     }),
 
 
+
+    ContratModule
   ],
   providers: [DatePipe], // Add DatePipe to providers
 })

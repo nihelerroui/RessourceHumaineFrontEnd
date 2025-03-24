@@ -72,23 +72,40 @@ export const MENU: MenuItem[] = [
         isTitle: true
     },
     {
+        id: 18,
+        label: 'MENUITEMS.CONTRATSOUSTRAITANT.TEXT',
+        icon: 'bx bx-message-alt-dots',
+        link: '/contratsoustraitant'},
+    {
         id: 10,
-        label: 'MENUITEMS.CALENDAR.TEXT',
+        label: 'MENUITEMS.PAYS',
         icon: 'bx-calendar',
-        link: '/',
+        link: '/pays/list',
     },
     {
         id: 11,
-        label: 'MENUITEMS.CHAT.TEXT',
+        label: 'MENUITEMS.SOCIETE',
         icon: 'bx-chat',
-        link: '/',
+        link: '/societe/list',
 
     },
     {
         id: 12,
-        label: 'MENUITEMS.FILEMANAGER.TEXT',
+        label: 'MENUITEMS.CLIENT',
         icon: 'bx-file',
-        link: '/',
+        link: '/client/list',
+    },
+    {
+        id: 12,
+        label: 'MENUITEMS.FACTURE',
+        icon: 'bx-file',
+        link: '/facture/list',
+    },
+    {
+        id: 12,
+        label: 'TRESORIE',
+        icon: 'bx-file',
+        link: '/tresorie',
     },
     {
         id: 13,
