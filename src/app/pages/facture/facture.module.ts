@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { FactureRoutingModule } from './facture-routing.module';
 import { FactureListComponent } from './facture-list/facture-list.component';
-import { factureReducer } from 'src/app/store/facture/facture.reducer';
-import { FactureEffects } from 'src/app/store/facture/facture.effects';
+import { factureReducer } from 'src/app/store/Facture/facture.reducer';
+import { FactureEffects } from 'src/app/store/Facture/facture.effects';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
