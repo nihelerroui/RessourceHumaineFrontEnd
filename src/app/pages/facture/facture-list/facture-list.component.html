@@ -122,7 +122,7 @@
                                     <th>{{ facture.factureId }}</th>
                                     <td>{{ facture.designation }}</td>
                                     <td>{{ facture.refFacture }}</td>
-                                    <td>{{ facture.montantTtc | currency }}</td>
+                                    <td>{{ facture.montantTtc }}</td>
                                     <td>{{ facture.dateEmmission |
                                         date:'dd/MM/yyyy' }}</td>
 
@@ -333,7 +333,7 @@
                 <div class="mb-3">
                     <label class="form-label">Type Facture</label>
                     <select class="form-control" formControlName="typeFacture">
-                        
+
                         <option *ngFor="let type of typeFactureOptions"
                             [value]="type">
                             {{ type }}
@@ -345,18 +345,17 @@
                 <div class="mb-3">
                     <label class="form-label">Type Paiement</label>
                     <select class="form-control" formControlName="typePaiement">
-                        <option *ngFor="let type of filteredTypePaiementOptions" [value]="type">
+                        <option *ngFor="let type of filteredTypePaiementOptions"
+                            [value]="type">
                             {{ type }}
                         </option>
                     </select>
                 </div>
-                
 
-                <div class="mb-3">
-                    <label class="form-label">Importer la facture (PDF,
-                        Image)</label>
-                    <input type="file" class="form-control"
-                        (change)="onFileSelected($event)">
+                <input type="file" class="form-control"
+                    (change)="onFileSelected($event)">
+                <div *ngIf="!selectedFile && submitted" class="text-danger">
+                    Le fichier est requis.
                 </div>
 
             </div>
@@ -376,32 +375,46 @@
     <!-- ✅ Modal Détails Facture -->
     <ng-template #detailsFactureModal>
         <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-file-text text-primary"></i> Détails de la Facture</h5>
-            <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+            <h5 class="modal-title"><i class="bi bi-file-text text-primary"></i>
+                Détails de la Facture</h5>
+            <button type="button" class="btn-close"
+                (click)="modalRef?.hide()"></button>
         </div>
         <div class="modal-body">
             <div class="table-responsive">
                 <table class="table">
                     <tbody>
                         <tr>
-                            <th scope="row"><i class="bi bi-hash text-secondary"></i> Référence :</th>
+                            <th scope="row"><i
+                                    class="bi bi-hash text-secondary"></i>
+                                Référence :</th>
                             <td>{{ selectedFacture?.refFacture }}</td>
                         </tr>
                         <tr>
-                            <th scope="row"><i class="bi bi-card-text text-dark"></i> Désignation :</th>
+                            <th scope="row"><i
+                                    class="bi bi-card-text text-dark"></i>
+                                Désignation :</th>
                             <td>{{ selectedFacture?.designation }}</td>
                         </tr>
                         <tr>
-                            <th scope="row"><i class="bi bi-currency-euro text-success"></i> Montant TTC :</th>
-                            <td>{{ selectedFacture?.montantTtc | currency:'EUR' }}</td>
+                            <th scope="row"><i
+                                    class="bi bi-currency-euro text-success"></i>
+                                Montant TTC :</th>
+                            <td>{{ selectedFacture?.montantTtc | currency:'EUR'
+                                }}</td>
                         </tr>
                         <tr>
-                            <th scope="row"><i class="bi bi-calendar-event text-warning"></i> Date d'émission :</th>
-                            <td>{{ selectedFacture?.dateEmmission | date:'dd MMMM yyyy' }}</td>
+                            <th scope="row"><i
+                                    class="bi bi-calendar-event text-warning"></i>
+                                Date d'émission :</th>
+                            <td>{{ selectedFacture?.dateEmmission |
+                                date:'dd MMMM yyyy' }}</td>
                         </tr>
-    
+
                         <tr>
-                            <th scope="row"><i class="bi bi-receipt text-info"></i> Type de Facture :</th>
+                            <th scope="row"><i
+                                    class="bi bi-receipt text-info"></i> Type de
+                                Facture :</th>
                             <td>
                                 <span class="badge"
                                     [ngClass]="{
@@ -413,7 +426,9 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><i class="bi bi-credit-card text-danger"></i> Type de Paiement :</th>
+                            <th scope="row"><i
+                                    class="bi bi-credit-card text-danger"></i>
+                                Type de Paiement :</th>
                             <td>
                                 <span class="badge"
                                     [ngClass]="{
@@ -426,7 +441,9 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><i class="bi bi-check-circle text-success"></i> Statut Paiement :</th>
+                            <th scope="row"><i
+                                    class="bi bi-check-circle text-success"></i>
+                                Statut Paiement :</th>
                             <td>
                                 <span class="badge"
                                     [ngClass]="{
@@ -438,9 +455,13 @@
                             </td>
                         </tr>
                         <tr *ngIf="selectedFacture?.filePath">
-                            <th scope="row"><i class="bi bi-file-earmark-pdf text-primary"></i> Facture PDF :</th>
+                            <th scope="row"><i
+                                    class="bi bi-file-earmark-pdf text-primary"></i>
+                                Facture PDF :</th>
                             <td>
-                                <a [href]="'http://localhost:8089/spring/factures/files/' + getFileName(selectedFacture.filePath)" target="_blank">
+                                <a
+                                    [href]="'http://localhost:8089/spring/factures/files/' + getFileName(selectedFacture.filePath)"
+                                    target="_blank">
                                     📄 Voir la facture
                                 </a>
                             </td>
@@ -450,9 +471,9 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+            <button type="button" class="btn btn-light"
+                (click)="modalRef?.hide()">Fermer</button>
         </div>
     </ng-template>
-    
 
 </div>

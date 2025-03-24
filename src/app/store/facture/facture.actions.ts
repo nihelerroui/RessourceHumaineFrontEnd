@@ -54,3 +54,8 @@ export const deleteFactureFailure = createAction(
   '[Facture] Delete Facture Failure',
   props<{ error: string }>()
 );
+
+export const setFileUrl = createAction(
+  '[Facture] Set File URL',
+  props<{ fileUrl: string }>()
+);

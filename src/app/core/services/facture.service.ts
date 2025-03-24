@@ -21,5 +21,8 @@ export class FactureService extends GenericService<Facture> {
     return this.http.put<Facture>(`${this.apiUrl}/update`, formData);
   }
   
+  getFileUrl(filename: string, disposition: 'inline' | 'attachment' = 'inline'): string {
+    return `${this.apiUrl}/files/${filename}?disposition=${disposition}`;
+  }
   
 }

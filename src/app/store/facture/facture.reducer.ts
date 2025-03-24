@@ -11,7 +11,8 @@ import {
   updateFactureFailure,
   deleteFacture,
   deleteFactureSuccess,
-  deleteFactureFailure
+  deleteFactureFailure,
+  setFileUrl
 } from './facture.actions';
 import { Facture } from '../../models/facture.model';
 
@@ -19,12 +20,14 @@ export interface FactureState {
   factures: Facture[];
   loading: boolean;
   error: string | null;
+  fileUrl: string | null;
 }
 
 export const initialState: FactureState = {
   factures: [],
   loading: false,
-  error: null
+  error: null,
+  fileUrl: null
 };
 
 export const factureReducer = createReducer(
@@ -55,5 +58,9 @@ export const factureReducer = createReducer(
     factures: state.factures.filter(f => f.factureId !== factureId),
     loading: false
   })),
-  on(deleteFactureFailure, (state, { error }) => ({ ...state, error, loading: false }))
+  on(deleteFactureFailure, (state, { error }) => ({ ...state, error, loading: false })),
+  on(setFileUrl, (state, { fileUrl }) => ({
+    ...state,
+    fileUrl
+  }))
 );

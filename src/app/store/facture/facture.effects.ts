@@ -53,14 +53,15 @@ export class FactureEffects {
   updateFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateFacture),
-      mergeMap((action) =>
-        this.factureService.updateFacture(action.facture).pipe( // ✅ Supprime `action.file`
-          map((updatedFacture: Facture) => updateFactureSuccess({ facture: updatedFacture })),
-          catchError((error) => of(updateFactureFailure({ error: error.message })))
+      mergeMap(action =>
+        this.factureService.updateFacture(action.facture).pipe(
+          map(facture => updateFactureSuccess({ facture })),
+          catchError(error => of(updateFactureFailure({ error: error.message })))
         )
       )
     )
   );
+
 
   // 🔹 Supprimer une facture
   deleteFacture$ = createEffect(() =>

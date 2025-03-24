@@ -3,14 +3,17 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { addFacture, deleteFacture, loadFactures, updateFacture } from 'src/app/store/facture/facture.actions';
+import { addFacture, addFactureSuccess, deleteFacture, loadFactures, setFileUrl, updateFacture, updateFactureSuccess } from 'src/app/store/facture/facture.actions';
 import { Facture } from 'src/app/models/facture.model';
-import { selectFactureError, selectFactureList, selectFactureLoading } from 'src/app/store/facture/facture.selectors';
+import { selectFactureError, selectFactureList, selectFactureLoading, selectFileUrl } from 'src/app/store/facture/facture.selectors';
 import { TypeFacture } from 'src/app/models/type-facture.enum';
 import { TypePaiement } from 'src/app/models/type-paiement.enum';
-import { validerPaiement } from 'src/app/store/tresorie/tresorie.actions';
+import { validerPaiement, validerPaiementSuccess } from 'src/app/store/tresorie/tresorie.actions';
 import Swal from 'sweetalert2';
 import { StatutPaiement } from 'src/app/models/statut-paiement.enum';
+import { environment } from 'src/environments/environment';
+import { Actions, ofType } from '@ngrx/effects';
+import { selectTresorieError } from 'src/app/store/tresorie/tresorie.selectors';
 
 @Component({
   selector: 'app-facture-list',
@@ -52,7 +55,8 @@ export class FactureListComponent implements OnInit {
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
-    public store: Store
+    public store: Store,
+    private actions$: Actions,
   ) {
     this.factureList$ = this.store.select(selectFactureList);
   }
@@ -62,6 +66,47 @@ export class FactureListComponent implements OnInit {
       { label: 'Dashboard', path: '/' },
       { label: 'Liste des Factures', active: true }
     ];
+
+    this.actions$.pipe(
+      ofType(validerPaiementSuccess)
+    ).subscribe(() => {
+      Swal.fire('Succès', 'Le paiement a été validé.', 'success');
+      this.store.dispatch(loadFactures());
+    });
+    
+    this.store.select(selectTresorieError).subscribe(error => {
+      if (error) {
+        Swal.fire('Erreur', error, 'error');
+      }
+    });
+
+    this.actions$.pipe(ofType(updateFactureSuccess)).subscribe(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Facture mise à jour avec succès !',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.modalRef?.hide();
+      this.factureForm.reset();
+      this.selectedFile = null;
+      this.store.dispatch(loadFactures());
+    });
+    
+    this.actions$.pipe(ofType(addFactureSuccess)).subscribe(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Nouvelle facture ajoutée avec succès !',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.modalRef?.hide();
+      this.factureForm.reset();
+      this.selectedFile = null;
+      this.store.dispatch(loadFactures());
+    });
+    
+    
 
     // Charger les factures
     this.store.dispatch(loadFactures());
@@ -84,7 +129,8 @@ export class FactureListComponent implements OnInit {
       montantTtc: [0, [Validators.required, Validators.min(0)]],
       dateEmmission: ['', [Validators.required, this.dateEmmissionValidator.bind(this)]],
       typeFacture: ['', Validators.required],
-      typePaiement: ['', Validators.required],
+      typePaiement: ['', Validators.required]
+
     });
 
     this.factureForm.get('typeFacture')?.valueChanges.subscribe(() => {
@@ -142,17 +188,22 @@ export class FactureListComponent implements OnInit {
   /** ✅ Ouvrir le modal en mode modification */
   openModalEdit(facture: Facture, template: TemplateRef<any>) {
     this.factureForm.patchValue(facture);
+    this.factureForm.patchValue({ filePath: facture.filePath });
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
   saveFacture() {
     if (this.factureForm.valid) {
       let factureData = this.factureForm.value;
-      factureData.consultant = { consultantId: 1 };
-
-      if (!factureData.consultant || !factureData.consultant.consultantId) {
-        console.error("Erreur : consultantId manquant !");
+      factureData.consultantId = 1;
+  
+      if (!factureData.consultantId) {
         Swal.fire("Erreur", "Veuillez sélectionner un consultant.", "error");
+        return;
+      }
+  
+      if (!this.selectedFile && !factureData.factureId) {
+        Swal.fire("Erreur", "Veuillez importer un fichier (PDF).", "error");
         return;
       }
   
@@ -160,7 +211,6 @@ export class FactureListComponent implements OnInit {
         factureData.statutPaiement = 'NON_PAYÉE';
       }
   
-      // ✅ Vérification de l'unicité de la référence facture
       if (!this.isRefFactureUnique(factureData.refFacture, factureData.factureId)) {
         Swal.fire({
           icon: 'error',
@@ -171,41 +221,18 @@ export class FactureListComponent implements OnInit {
         return;
       }
   
-      // ✅ Construire correctement FormData
       const formData = new FormData();
-      formData.append('facture', JSON.stringify(factureData)); // ✅ Envoi en tant que string et non fichier
+      formData.append('facture', JSON.stringify(factureData));
   
       if (this.selectedFile) {
         formData.append('file', this.selectedFile);
       }
   
-      // ✅ Vérifier que FormData contient bien les données avant l'envoi
-      console.log("FormData contenu :");
-      formData.forEach((value, key) => {
-        console.log(`${key}:`, value);
-      });
-  
       if (factureData.factureId) {
-        this.store.dispatch(updateFacture({ facture: formData })); // ✅ Corrigé
-        Swal.fire({
-          icon: 'success',
-          title: 'Facture mise à jour avec succès !',
-          showConfirmButton: false,
-          timer: 1500
-        });
+        this.store.dispatch(updateFacture({ facture: formData }));
       } else {
-        this.store.dispatch(addFacture({ facture: formData })); // ✅ Corrigé
-        Swal.fire({
-          icon: 'success',
-          title: 'Nouvelle facture ajoutée avec succès !',
-          showConfirmButton: false,
-          timer: 1500
-        });
+        this.store.dispatch(addFacture({ facture: formData }));
       }
-  
-      this.modalRef?.hide();
-      this.factureForm.reset();
-      this.selectedFile = null; // Réinitialiser le fichier
     }
   }
   
@@ -235,24 +262,21 @@ export class FactureListComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
-validerPaiement(factureId: number) {
-  Swal.fire({
-    title: 'Confirmer le paiement ?',
-    text: "Cette action est irréversible.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Oui, valider !',
-    cancelButtonText: 'Annuler'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.store.dispatch(validerPaiement({ factureId }));
-
-
-      Swal.fire('Succès', 'Le paiement a été validé.', 'success');
-      this.store.dispatch(loadFactures());
-    }
-  });
-}
+  validerPaiement(factureId: number) {
+    Swal.fire({
+      title: 'Confirmer le paiement ?',
+      text: "Cette action est irréversible.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, valider !',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.store.dispatch(validerPaiement({ factureId }));
+      }
+    });
+  }
+  
 
 onFileSelected(event: any) {
   const file = event.target.files[0];
@@ -272,14 +296,11 @@ onFileSelected(event: any) {
 }
 
 openFacture(filePath: string): void {
-  const fileUrl = 'http://localhost:8089/spring/factures/files/' + this.getFileName(filePath) + '?disposition=inline';
-  window.open(fileUrl, '_blank'); // 📄 Ouvre dans un nouvel onglet
-}
-
-
-/** ✅ Récupère uniquement le nom du fichier */
-getFileName(filePath: string): string {
-  return filePath.split('\\').pop() || ''; // Extrait le nom du fichier depuis le chemin
+  if (!filePath) return;
+  this.generateFileUrl(filePath, 'inline');
+  this.store.select(selectFileUrl).subscribe(url => {
+    if (url) window.open(url, '_blank');
+  });
 }
 
 downloadFacture(filePath: string): void {
@@ -292,10 +313,26 @@ downloadFacture(filePath: string): void {
     });
     return;
   }
-
-  const fileUrl = 'http://localhost:8089/spring/factures/files/' + this.getFileName(filePath) + '?disposition=attachment';
-  window.open(fileUrl, '_blank'); // 📥 Télécharge le fichier
+  this.generateFileUrl(filePath, 'attachment');
+  this.store.select(selectFileUrl).subscribe(url => {
+    if (url) window.open(url, '_blank');
+  });
 }
+
+
+generateFileUrl(filePath: string, disposition: 'inline' | 'attachment' = 'inline') {
+  const fileName = this.getFileName(filePath);
+  const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=${disposition}`;
+  this.store.dispatch(setFileUrl({ fileUrl }));
+}
+
+
+
+/** ✅ Récupère uniquement le nom du fichier */
+getFileName(filePath: string): string {
+  return filePath.split('\\').pop() || ''; // Extrait le nom du fichier depuis le chemin
+}
+
 
 
 updatePaiementOptions() {
@@ -308,7 +345,7 @@ updatePaiementOptions() {
   }
 
   // Réinitialiser la valeur de typePaiement pour afficher "Sélectionner un type de paiement"
-  this.factureForm.patchValue({ typePaiement: '' });
+  this.factureForm.patchValue({ typePaiement: TypePaiement.CHEQUE });
 }
 
 

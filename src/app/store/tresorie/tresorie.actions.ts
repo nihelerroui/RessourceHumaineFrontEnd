@@ -40,12 +40,14 @@ export const validerPaiement = createAction(
 );
 
 export const validerPaiementSuccess = createAction(
-  '[Tresorie] Valider Paiement Success',
-  props<{ tresorie: Tresorie }>() // ✅ Retourne toute la trésorerie mise à jour après paiement
+  '[Trésorie] Paiement validé avec succès',
+  props<{ tresorie: Tresorie, factureId: number }>() 
 );
 
+
+
 export const validerPaiementFailure = createAction(
-  '[Tresorie] Valider Paiement Failure',
+  '[Trésorie] Paiement échoué',
   props<{ error: string }>()
 );
 

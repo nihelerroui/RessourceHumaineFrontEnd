@@ -52,14 +52,28 @@ export class TresorieEffects {
   validerPaiement$ = createEffect(() =>
     this.actions$.pipe(
       ofType(validerPaiement),
-      mergeMap((action) =>
+      mergeMap(action =>
         this.tresorieService.validerPaiement(action.factureId).pipe(
-          map((response) => validerPaiementSuccess({ tresorie: response.tresorie })), // ✅ Retourne toute la trésorerie mise à jour
-          catchError((error) => of(validerPaiementFailure({ error: error.message })))
+          map(response => {
+            if (response.status === 'error') {
+              return validerPaiementFailure({ error: response.message });
+            }
+            return validerPaiementSuccess({
+              tresorie: response.nouveauSolde, 
+              factureId: action.factureId       
+            });
+          }),
+          catchError(error =>
+            of(validerPaiementFailure({ error: error.message }))
+          )
         )
       )
     )
   );
+  
+  
+  
+  
 
 
   // 🔹 Effet pour augmenter le solde actuel lorsque le seuil est atteint

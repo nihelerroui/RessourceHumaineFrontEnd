@@ -21,3 +21,8 @@ export const selectFactureError = createSelector(
   selectFactureState,
   (state) => state.error
 );
+
+export const selectFileUrl = createSelector(
+  (state: any) => state.facture,
+  (state) => state.fileUrl
+);
