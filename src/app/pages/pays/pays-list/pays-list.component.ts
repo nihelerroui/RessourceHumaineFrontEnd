@@ -29,21 +29,23 @@ export class PaysListComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
+  selectedPays!: Pays | null; // Pays sélectionné pour affichage
+
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
     public store: Store
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.breadCrumbItems = [
       { label: 'Dashboard', path: '/' },
       { label: 'Liste des Pays', active: true }
     ];
-  
+
     // Déclencher l'action NgRx pour charger les pays
     this.store.dispatch(loadPays());
-  
+
     // Sélectionner les données depuis le store
     this.store.select(selectPaysList).subscribe(pays => {
       this.filteredPaysList = pays;
@@ -65,44 +67,46 @@ export class PaysListComponent implements OnInit {
         [Validators.required, Validators.pattern('^[A-Za-z]{2,3}$'), Validators.maxLength(3)]
       ],
     });
-    
+
   }
 
-    /** ✅ Filtrer la liste des pays */
-    filterPays() {
-      this.store.select(selectPaysList).subscribe(pays => {
-        this.filteredPaysList = pays.filter(p =>
-          p.nomFrFr.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          p.nomEnGb.toLowerCase().includes(this.searchTerm.toLowerCase())
-        );
-        this.pageChanged({ page: 1 });
-      });
-    }
-  
-    /** ✅ Pagination */
-    pageChanged(event: any) {
-      this.currentPage = event.page;
-      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-      this.paginatedPaysList = this.filteredPaysList.slice(startIndex, startIndex + this.itemsPerPage);
-    }
-  
-    /** ✅ Rafraîchir la liste */
-    refreshList() {
-      this.store.dispatch(loadPays());
-    }
+  /** ✅ Filtrer la liste des pays */
+  filterPays() {
+    this.store.select(selectPaysList).subscribe(pays => {
+      this.filteredPaysList = pays.filter(p =>
+        p.nomFrFr.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        p.nomEnGb.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+      this.pageChanged({ page: 1 });
+    });
+  }
 
- 
-  openModal(template: TemplateRef<any>) {
-    this.submitted = false;
+  /** ✅ Pagination */
+  pageChanged(event: any) {
+    this.currentPage = event.page;
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    this.paginatedPaysList = this.filteredPaysList.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  /** ✅ Rafraîchir la liste */
+  refreshList() {
+    this.store.dispatch(loadPays());
+  }
+
+
+  /** ✅ Ouvrir le modal en mode ajout */
+  openModalAdd(template: TemplateRef<any>) {
+    this.paysForm.reset(); 
+    this.paysForm.patchValue({ paysId: null }); 
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
-  
-  editDataGet(pays: Pays, template: TemplateRef<any>) {
-    this.submitted = false;
-    this.paysForm.patchValue(pays);
+
+  /** ✅ Ouvrir le modal en mode modification */
+  openModalEdit(pays: Pays, template: TemplateRef<any>) {
+    this.paysForm.patchValue(pays); 
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
-  
+
 
   /** ✅ Ajouter ou modifier un pays */
   savePays() {
@@ -156,5 +160,11 @@ export class PaysListComponent implements OnInit {
         });
       }
     });
+  }
+
+  /** ✅ Ouvrir le modal des détails */
+  showDetails(pays: Pays, template: TemplateRef<any>) {
+    this.selectedPays = pays; // Stocke le pays sélectionné
+    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 }

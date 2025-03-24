@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { addClient, deleteClient, loadClients, updateClient } from 'src/app/store/client/client.actions';
-import { Client } from '../../../models/client.model'; 
+import { Client } from '../../../models/client.model';
 import { selectClientError, selectClientList, selectClientLoading } from 'src/app/store/client/client.selectors';
 import { TypeClient } from 'src/app/models/type-client.enum';
 import { loadPays } from 'src/app/store/pays/pays.actions';
@@ -20,7 +20,7 @@ import Swal from 'sweetalert2';
   templateUrl: './client-list.component.html',
   styleUrls: ['./client-list.component.css']
 })
-export class ClientListComponent implements OnInit{
+export class ClientListComponent implements OnInit {
   breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
   clientList$: Observable<Client[]>;
   societeList$: Observable<Societe[]>;
@@ -41,11 +41,13 @@ export class ClientListComponent implements OnInit{
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
+  selectedClient!: Client | null;
+
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
     public store: Store
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.breadCrumbItems = [
@@ -71,31 +73,31 @@ export class ClientListComponent implements OnInit{
     // Initialisation du formulaire
     this.clientForm = this.formBuilder.group({
       clientId: [''],
-      nom: ['', [Validators.required,Validators.minLength(2), Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/)]],
+      nom: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/)]],
       email: ['', [Validators.required, Validators.email]],
       telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
       adresse: ['', [Validators.required]],
-      numeroSiret: ['', [Validators.required ,Validators.pattern(/^\d{14}$/)]],
+      numeroSiret: ['', [Validators.required, Validators.pattern(/^\d{14}$/)]],
       typeClient: ['', [Validators.required]],
       paysId: ['', [Validators.required]],
       societeId: ['', [Validators.required]]
     });
   }
 
- /** 🔍 Filtrer la liste des clients */
- filterClients() {
-  this.store.select(selectClientList).subscribe(clients => {
-    this.filteredClientList = clients.filter(client =>
-      (client.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       client.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       client.telephone.includes(this.searchTerm)) &&
-       (this.selectedPays === '' || client.pays?.paysId == this.selectedPays)       &&
-      (this.selectedSociete === '' || client.societe.societeId == this.selectedSociete) &&
-      (this.selectedTypeClient === '' || client.typeClient === this.selectedTypeClient)
-    );
-    this.pageChanged({ page: 1 });
-  });
-}
+  /** 🔍 Filtrer la liste des clients */
+  filterClients() {
+    this.store.select(selectClientList).subscribe(clients => {
+      this.filteredClientList = clients.filter(client =>
+        (client.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          client.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          client.telephone.includes(this.searchTerm)) &&
+        (this.selectedPays === '' || client.pays?.paysId == this.selectedPays) &&
+        (this.selectedSociete === '' || client.societe.societeId == this.selectedSociete) &&
+        (this.selectedTypeClient === '' || client.typeClient === this.selectedTypeClient)
+      );
+      this.pageChanged({ page: 1 });
+    });
+  }
 
   /** 📌 Pagination */
   pageChanged(event: any) {
@@ -109,42 +111,43 @@ export class ClientListComponent implements OnInit{
     this.store.dispatch(loadClients());
   }
 
-  openModal(template: TemplateRef<any>) {
-    this.submitted = false;
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
+  /** ✅ Ouvrir le modal en mode ajout */
+openModalAdd(template: TemplateRef<any>) {
+  this.clientForm.reset(); // Réinitialiser le formulaire
+  this.clientForm.patchValue({ clientId: null }); // S'assurer que clientId est null
+  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+}
 
-  editDataGet(client: Client, template: TemplateRef<any>) {
-    this.submitted = false;
-    this.clientForm.patchValue({
-      clientId: client.clientId,
-      nom: client.nom,
-      email: client.email,
-      telephone: client.telephone,
-      adresse: client.adresse,
-      numeroSiret: client.numeroSiret,
-      typeClient: client.typeClient,
-      paysId: client.pays?.paysId || '',
-      societeId: client.societe?.societeId || ''
-    });
-  
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
-  
+/** ✅ Ouvrir le modal en mode modification */
+openModalEdit(client: any, template: TemplateRef<any>) {
+  this.clientForm.patchValue({
+    clientId: client.clientId,
+    nom: client.nom,
+    email: client.email,
+    telephone: client.telephone,
+    adresse: client.adresse,
+    numeroSiret: client.numeroSiret,
+    typeClient: client.typeClient,
+    paysId: client.pays?.paysId || '',
+    societeId: client.societe?.societeId || ''
+  });
+  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+}
+
 
   /** ✅ Ajouter ou modifier un client */
   saveClient() {
     if (this.clientForm.valid) {
       let clientData = this.clientForm.value;
-  
-      
-      clientData.pays = { paysId: clientData.paysId }; 
+
+
+      clientData.pays = { paysId: clientData.paysId };
       clientData.societe = { societeId: clientData.societeId };
 
       delete clientData.paysId;
       delete clientData.societeId;
-      
-  
+
+
       if (clientData.clientId) {
         this.store.dispatch(updateClient({ client: clientData }));
         Swal.fire({
@@ -162,12 +165,12 @@ export class ClientListComponent implements OnInit{
           timer: 1500
         });
       }
-  
+
       this.modalRef?.hide();
       this.clientForm.reset();
     }
   }
-  
+
 
   /** ✅ Supprimer un client avec confirmation */
   onDeleteClient(clientId: number) {
@@ -192,6 +195,15 @@ export class ClientListComponent implements OnInit{
       }
     });
   }
+
+  /** ✅ Ouvrir le modal des détails */
+  openDetailsModal(client: any, template: TemplateRef<any>) {
+    console.log("Détails du client:", client);
+    this.selectedClient = client;
+    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+  }
+
+
 }
 
 

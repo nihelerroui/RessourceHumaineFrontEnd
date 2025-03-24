@@ -1,4 +1,3 @@
-import { StatutFacture } from "./statut-facture.enum";
 import { StatutPaiement } from "./statut-paiement.enum";
 import { TypeFacture } from "./type-facture.enum";
 import { TypePaiement } from "./type-paiement.enum";
@@ -10,10 +9,9 @@ export class Facture {
   montantTtc: number;
   dateEmmission: Date;
   filePath?: string;
-  statutFacture: StatutFacture;
   typeFacture: TypeFacture;
   statutPaiement: StatutPaiement;
   typePaiement: TypePaiement;
   dateModified?: Date;
- 
+  consultantId?: number;
 }
