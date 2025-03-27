@@ -11,6 +11,12 @@ export const loadContractsFailure = createAction(
   "[Contrat] Load Contracts Failure",
   props<{ error: string }>()
 );
+//charger la liste des contrats par sous-traintant
+export const loadContractsByConsultant = createAction(
+  '[Contrat] Load Contracts By Consultant',
+  props<{ consultantId: number }>()
+);
+
 
 // Ajouter un contrat
 export const addContract = createAction(

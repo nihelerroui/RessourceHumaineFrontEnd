@@ -42,13 +42,41 @@ export const contratClientReducer = createReducer(
   
   on(ContratClientActions.importerContratClientSuccess, (state, { contrat }) => ({
     ...state,
-    contrats: [...state.contrats, contrat],
+    contrats: contrat ? [...state.contrats, contrat] : [...state.contrats],
     loading: false,
     error: null,
   })),
+  
   on(ContratClientActions.importerContratClientFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,
-  }))
+  })),
+   // Charger les contrats client par token
+   on(ContratClientActions.loadContratsClientByToken, (state) => {
+    console.log("✅ Reducer exécuté côté client !");
+    return {
+      ...state,
+      loading: true,
+    };
+  }),
+  on(ContratClientActions.loadContratsClientByTokenSuccess, (state, { contrats }) => {
+    console.log('✅ Reducer appelé : loadContratsClientByTokenSuccess', contrats); // ← ici
+    return {
+      ...state,
+      contrats,
+      loading: false,
+      error: null
+    };
+  }),
+  
+  on(ContratClientActions.loadContratsClientByTokenFailure, (state, { error }) => {
+    console.log("❌ Reducer: loadContratsClientByTokenFailure", error);
+    return {
+      ...state,
+      loading: false,
+      error,
+    };
+  })
+
 );

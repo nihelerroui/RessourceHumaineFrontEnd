@@ -29,6 +29,11 @@ export class ContratService extends GenericService<ContratSousTraitant> {
 
     return this.http.put<ContratSousTraitant>(`${this.apiUrl}/update/${id}`, formData);
   }
+  //récupérer les contrats d'un sous-traitant
+  getContratsByConsultant(consultantId: number): Observable<ContratSousTraitant[]> {
+    return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}/sous-traitant/${consultantId}`);
+  }
+  
 
   // Télécharger un contrat
   downloadContrat(id: number): Observable<Blob> {
@@ -49,4 +54,5 @@ export class ContratService extends GenericService<ContratSousTraitant> {
 
     return this.http.get<ContratSousTraitant[]>(`${this.apiUrl}/search`, { params });
   }
+  
 }

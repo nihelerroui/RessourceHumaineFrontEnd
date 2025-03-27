@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
@@ -12,15 +12,18 @@ import { selectAllContracts } from "../../../store/contrat/contrat-selector";
 
 import Swal from "sweetalert2";
 import { ContratService } from "../../../core/services/contrat.service";
+import { CommentContratModalComponent } from "../comment-contrat-modal/comment-contrat-modal.component";
 
 @Component({
   selector: "app-contrat-sous-traitant",
   templateUrl: "./contrat-sous-traitant.component.html",
-  styleUrls: ["./contrat-sous-traitant.component.css"],
 })
 export class ContratSousTraitantComponent implements OnInit {
   modalRef?: BsModalRef;
-  page: number = 1;
+  contratsParPage = 5;
+  page = 1;
+  contratsPagination$: Observable<ContratSousTraitant[]> = new Observable();
+  total$: Observable<number> = new Observable();
   selectedFile: File | null = null;
   fileName: string = "Aucun fichier sélectionné";
   breadCrumbItems: Array<{}>;
@@ -56,19 +59,32 @@ export class ContratSousTraitantComponent implements OnInit {
       { label: "Contrats" },
       { label: "Liste des Contrats", active: true },
     ];
+  
     this.initForm();
     this.loadContrats();
     this.statutContrats = Object.values(StatutContrat);
-    
-    // ✅ Vérifier la validité du formulaire après une petite pause pour s'assurer qu'il est bien créé
+  
+    this.total$ = this.contrats$.pipe(map(contrats => contrats.length));
+    this.updatePagination(); 
+  
     setTimeout(() => {
       this.checkFormValidity();
     }, 500);
   }
+  //pagination
+  updatePagination() {
+    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
+      map(([contrats]) => {
+        const start = (this.page - 1) * this.contratsParPage;
+        return contrats.slice(start, start + this.contratsParPage);
+      })
+    );
+  }
   
   //Charger la liste des contrats
   loadContrats() {
-    this.store.dispatch(ContratActions.loadContracts());
+    const consultantId = 1; 
+    this.store.dispatch(ContratActions.loadContractsByConsultant({ consultantId }));
   }
   checkFormValidity() {
     console.log("Formulaire valide :", this.contratForm.valid, "Fichier sélectionné :", this.fileSelected);
@@ -262,5 +278,14 @@ export class ContratSousTraitantComponent implements OnInit {
   
     this.store.dispatch(ContratActions.searchContracts({ filters }));
   }
+  ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
+      this.modalRef = this.modalService.show(CommentContratModalComponent, {
+        initialState: {
+          contratId: contrat.contratId,
+          contrat: contrat
+        },
+        class: "modal-lg",
+      });
+    }
   
 }

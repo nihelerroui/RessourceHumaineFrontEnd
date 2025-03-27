@@ -72,6 +72,12 @@
     "CONTRATSOUSTRAITANT": {
       "TEXT": "ContratSousTraitant"
     },
+    "LISTCONTRATSOUSTRAITANT": {
+      "TEXT": "ListContratSousTraitant"
+    },
+    "CONTRATCLIENTADMIN": {
+      "TEXT": "ContratClient"
+    },
     "PAYS": "PAYS",
     "SOCIETE": "SOCIETE",
     "CLIENT": "CLIENT",

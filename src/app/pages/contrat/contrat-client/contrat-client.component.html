@@ -1,0 +1,126 @@
+<div class="container-fluid">
+  <app-page-title title="Liste des Contrats client" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div *ngIf="loading$ | async" class="text-center">
+    <p class="text-muted">Chargement des contrats...</p>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Désignation</th>
+                  <th>TJM</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let contrat of contratsPagination$ | async">
+                  <td>{{ contrat.client?.nom || 'N/A' }}</td>
+                  <td>{{ contrat.designation }}</td>
+                  <td>{{ contrat.tjm }}</td>
+                  <td>
+                    <!-- Affichage du statut -->
+                    <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'" class="badge badge-soft-success me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'REJETE'" class="badge badge-soft-danger me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                  </td>
+                  
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <!-- Visualiser le contrat -->
+                      <li data-bs-toggle="tooltip" title="Voir le contrat">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info"
+                          (click)="visualiserContrat(contrat)">
+                          <i class="mdi mdi-eye"></i>
+                        </a>
+                      </li>
+
+                      <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Valider">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                          (click)="modifierStatutContrat(contrat, 'CONFIRME_ADMIN')">
+                          <i class="mdi mdi-check-circle-outline"></i>
+                        </a>
+                      </li>
+
+                      <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Rejeter">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
+                          (click)="modifierStatutContrat(contrat, 'REJETE')">
+                          <i class="mdi mdi-close-circle-outline"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" title="Ajouter un commentaire">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-warning"
+                           (click)="ouvrirCommentaireContrat(contrat)">
+                          <i class="mdi mdi-comment-text-multiple-outline"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Pagination -->
+        <div class="col-sm-12 col-md-5 mt-3">
+          <div class="text-md-right float-md-end pagination-rounded">
+            <pagination [totalItems]="total$ | async" [(ngModel)]="page" (ngModelChange)="updatePagination()"
+              [itemsPerPage]="contratsParPage" [maxSize]="5" [boundaryLinks]="true" previousText="‹" nextText="›"
+              firstText="«" lastText="»" class="pagination-sm">
+            </pagination>
+
+        <!-- Message si aucun contrat n'est disponible -->
+        <ng-template #noContrats>
+          <div class="card-body text-center">
+            <p class="text-muted">Aucun contrat client disponible.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour visualiser le contrat -->
+<ng-template #contratModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Visualisation du Contrat</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="contratFileUrl; else noFile">
+      <!-- Si contratFileUrl est défini, on affiche l'iframe -->
+      <iframe [src]="contratFileUrl" width="100%" height="500px"></iframe>
+    </div>
+    <ng-template #noFile>
+      <!-- Si contratFileUrl est null ou undefined, afficher ce message -->
+      <p class="text-danger">Aucun fichier disponible.</p>
+    </ng-template>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+  </div>
+</ng-template>
+
+
+

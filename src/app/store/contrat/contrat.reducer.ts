@@ -16,11 +16,9 @@ const initialState: ContratState = {
 export const contratReducer = createReducer(
   initialState,
   //charger les contrat
-  on(ContratActions.loadContractsSuccess, (state, { contrats }) => ({
-    ...state,
-    contrats,
-    error: null,
-  })),
+  on(ContratActions.loadContractsSuccess, (state, { contrats }) => {
+    return { ...state, contrats, loading: false };
+  }),
   on(ContratActions.loadContractsFailure, (state, { error }) => ({
     ...state,
     error,

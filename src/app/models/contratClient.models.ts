@@ -1,9 +1,13 @@
 export interface ContratClient {
   contratClientId?: number;
-  designation: string;
+  designation?: string;
   tjm: number;
   filePath?: string;
   statutContrat: string;
+  client?: { 
+    clientId: number;
+    nom?: String;
+  };
 }
 
 export enum StatutContrat {

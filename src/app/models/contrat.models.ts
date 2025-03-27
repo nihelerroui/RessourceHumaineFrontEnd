@@ -1,11 +1,22 @@
 export interface ContratSousTraitant {
   contratId?: number;
-  dateDebut: string; // format yyyy-MM-dd
+  dateDebut: string;
   dateFin: string;
   tjm: number;
   conditionsFac: string;
   statutContrat: string;
-  filePath?: string; // Chemin du fichier
+  filePath?: string;
+  designation?: string;
+  consultant: {
+    consultantId: number;
+    name?: string; 
+  };
+}
+
+export interface Consultant {
+  consultantId: number;
+  name: string;
+  // ajoute d’autres propriétés si nécessaire
 }
 
   export enum StatutContrat {

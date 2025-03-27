@@ -37,6 +37,12 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { UIModule } from "./shared/ui/ui.module";
+import { SharedContratModule } from './shared-contrat/shared-contrat.module';
+import { ContratClientStoreModule } from './store/contratClient/contrat-client-store.module';
+import { CommentaireContratStoreModule } from './store/commentaire-contrat/commentaire-contrat-store.module';
+
+
 
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
@@ -52,7 +58,7 @@ export function createTranslateLoader(http: HttpClient): any {
 @NgModule({
   declarations: [
     AppComponent,
-    CyptolandingComponent
+    CyptolandingComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,11 +67,11 @@ export function createTranslateLoader(http: HttpClient): any {
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: createTranslateLoader,
-        deps: [HttpClient]
-      }
+        loader: {
+            provide: TranslateLoader,
+            useFactory: createTranslateLoader,
+            deps: [HttpClient]
+        }
     }),
     LayoutsModule,
     AppRoutingModule,
@@ -79,13 +85,18 @@ export function createTranslateLoader(http: HttpClient): any {
     ToastrModule.forRoot(),
     StoreModule.forRoot(rootReducer),
     StoreDevtoolsModule.instrument({
-      maxAge: 25, // Retains last 25 states
-      logOnly: environment.production, // Restrict extension to log-only mode
+        maxAge: 25, // Retains last 25 states
+        logOnly: environment.production, // Restrict extension to log-only mode
     }),
     EffectsModule.forRoot([
-      AuthenticationEffects,
-    ]), 
-  ],
+        AuthenticationEffects,
+    ]),
+    UIModule,
+    SharedContratModule,
+    ContratClientStoreModule,
+    CommentaireContratStoreModule,
+    
+],
   bootstrap: [AppComponent],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
