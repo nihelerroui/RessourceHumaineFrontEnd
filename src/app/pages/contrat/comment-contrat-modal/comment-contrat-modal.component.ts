@@ -43,7 +43,7 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
   @Input() token: string | null = null;
   @Input() isClientMode: boolean = false;
   @Input() contratId: number | null = null;
-
+  @Input() isAdminMode: boolean = false;
 
   @ViewChild("commentSection") commentSection!: ElementRef;
 
@@ -81,40 +81,47 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
   addComment(): void {
     if (!this.newComment.trim() || this.isSubmitting) return;
-  
+
     this.isSubmitting = true;
-  
-    let auteur = "Sous-traitant";
+
+    let auteur = "Administrateur";
+
+    // Client connecté avec token => Client
     if (this.isClientMode) {
       auteur = "Client";
-    } else if (
-      (this.contrat as ContratSousTraitant)?.consultant?.name
+    }
+    else if (this.isAdminMode) {
+      auteur = "Administrateur";
+    }
+    // Si l'utilisateur est un sous-traitant et non un admin => nom du consultant
+    else if (
+      this.contrat &&
+      (this.contrat as ContratSousTraitant)?.consultant?.name &&
+      !this.token // si token inexistant = pas un client = sous-traitant
     ) {
       auteur = (this.contrat as ContratSousTraitant).consultant.name;
     }
-  
+
     const newCommentaire: CommentaireContrat = {
       contenu: this.newComment,
       auteurCommentaire: auteur,
       dateCommentaire: new Date() as any,
     };
-  
+
     if (this.contratClientId) {
       newCommentaire.contratClient = { contratClientId: this.contratClientId };
-      this.store.dispatch(addCommentaireContrat({ commentaire: newCommentaire }));
     } else if (this.contratId) {
       newCommentaire.contratSousTraitant = { contratId: this.contratId };
-      this.store.dispatch(addCommentaireContrat({ commentaire: newCommentaire }));
     }
-  
+
+    this.store.dispatch(addCommentaireContrat({ commentaire: newCommentaire }));
     this.newComment = "";
     this.isSubmitting = false;
-  
     setTimeout(() => this.scrollToBottom(), 300);
   }
   
   
-
+  
   startEdit(comment: CommentaireContratWithEdit): void {
     comment.isEditing = true;
     comment.editContent = comment.contenu;

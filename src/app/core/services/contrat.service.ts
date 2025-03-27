@@ -10,7 +10,7 @@ import { ContratSousTraitant } from "src/app/models/contrat.models";
 export class ContratService extends GenericService<ContratSousTraitant> {
 
   constructor(protected override http: HttpClient) {
-    super(http, "contratsSousTraitant"); // Définition de l'endpoint
+    super(http, "contratsSousTraitant");
   }
 
   // Ajouter un contrat

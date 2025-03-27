@@ -1,9 +1,12 @@
-import { Component, OnInit, TemplateRef } from "@angular/core";
+import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Store, select } from "@ngrx/store";
 import { Observable } from "rxjs";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
-import { selectAllContratsClient, selectContratsClientLoading } from "../../../store/contratClient/contratClient-selector";
+import {
+  selectAllContratsClient,
+  selectContratsClientLoading
+} from "../../../store/contratClient/contratClient-selector";
 import { ContratClient } from "src/app/models/contratClient.models";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { CommentContratModalComponent } from "../comment-contrat-modal/comment-contrat-modal.component";
@@ -14,11 +17,13 @@ import { CommentContratModalComponent } from "../comment-contrat-modal/comment-c
 })
 export class ContratsClientListComponent implements OnInit {
   contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectAllContratsClient));
-  loading$: Observable<boolean> ;
+  loading$: Observable<boolean> = this.store.select(selectContratsClientLoading);
+
   token: string | null = null;
-  modalRef?: BsModalRef;
   contratFileUrl: string | null = null;
-  breadCrumbItems: Array<{}>;
+  modalRef: BsModalRef | null = null;
+
+  @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>; // ✅ Important
 
   constructor(
     private route: ActivatedRoute,
@@ -27,34 +32,28 @@ export class ContratsClientListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Récupérer le token depuis l'URL
-      this.token = this.route.snapshot.paramMap.get("token");
+    this.token = this.route.snapshot.paramMap.get("token");
+    if (this.token) {
       this.store.dispatch(ContratActions.loadContratsClientByToken({ token: this.token }));
-      
-      this.loading$ = this.store.select(selectContratsClientLoading);
-      this.loading$.subscribe(value => console.log('🔥 Chargement en cours ?', value));
-
-
+    }
   }
+
   trackById(index: number, item: ContratClient): number {
     return item.contratClientId;
   }
-  
 
-  // Fonction pour afficher un contrat dans le modal
-  visualiserContrat(contrat: ContratClient, template: TemplateRef<any>) {
-    if (contrat.filePath) {
-      this.contratFileUrl = `http://localhost:8089/contratsClient/fichier/${contrat.filePath}`;
-      this.modalRef = this.modalService.show(template);
-    } else {
-      console.warn("⚠️ Aucun fichier disponible pour ce contrat.");
-      this.contratFileUrl = null;
-      this.modalRef = this.modalService.show(template);
-    }
+  visualiserContrat(contrat: ContratClient): void {
+    this.contratFileUrl = contrat.filePath
+      ? `http://localhost:8089/contratsClient/fichier/${contrat.filePath}`
+      : null;
+
+    this.modalRef = this.modalService.show(this.contratModalTemplate, {
+      class: 'modal-lg'
+    });
   }
+
   ouvrirCommentairesClient(contrat: ContratClient): void {
     if (!this.token) return;
-
     this.modalRef = this.modalService.show(CommentContratModalComponent, {
       initialState: {
         contrat: contrat,

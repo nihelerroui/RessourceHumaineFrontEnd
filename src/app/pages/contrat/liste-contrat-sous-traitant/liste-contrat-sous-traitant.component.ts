@@ -64,17 +64,17 @@ export class ListeContratSousTraitantComponent {
   loadContrats() {
     this.store.dispatch(ContratActions.loadContracts());
   }
- 
+  //commentaires
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
     this.modalRef = this.modalService.show(CommentContratModalComponent, {
       initialState: {
         contratId: contrat.contratId,
-        contrat: contrat
+        contrat: contrat,
+        isAdminMode: true,
       },
       class: "modal-lg",
     });
   }
-  
   //téléchargement de fichier
   downloadContrat(id: number) {
     this.contratService.downloadContrat(id).subscribe(
@@ -92,27 +92,33 @@ export class ListeContratSousTraitantComponent {
       }
     );
   }
-  modifierStatutContrat(contrat: ContratSousTraitant, nouveauStatut: StatutContrat): void {
+  modifierStatutContrat(
+    contrat: ContratSousTraitant,
+    nouveauStatut: StatutContrat
+  ): void {
     const contratModifie: ContratSousTraitant = {
       ...contrat,
       statutContrat: nouveauStatut,
       consultant: {
-        consultantId: contrat.consultant?.consultantId!
-      }
+        consultantId: contrat.consultant?.consultantId!,
+      },
     };
-  
-    // Appel direct via le GenericService (PUT /contratsSousTraitant)
     this.contratService.update(contratModifie).subscribe({
       next: () => {
-        Swal.fire("Succès", "Le statut du contrat a été mis à jour.", "success");
+        Swal.fire(
+          "Succès",
+          "Le statut du contrat a été mis à jour.",
+          "success"
+        );
         this.loadContrats();
       },
       error: () => {
-        Swal.fire("Erreur", "Erreur lors de la mise à jour du contrat.", "error");
-      }
+        Swal.fire(
+          "Erreur",
+          "Erreur lors de la mise à jour du contrat.",
+          "error"
+        );
+      },
     });
   }
-  
-  
-  
 }

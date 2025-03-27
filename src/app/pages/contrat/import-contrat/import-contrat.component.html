@@ -1,51 +1,68 @@
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
-  <div class="card shadow-lg p-4" style="width: 40rem; border-radius: 12px;">
-    <h2 class="text-center mb-4 text-primary fw-bold">Importer un Contrat Client</h2>
-
-    <!-- Formulaire d'importation -->
-    <form [formGroup]="contratForm" (ngSubmit)="importerContrat()">
-      <!-- Désignation -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Désignation du contrat</label>
-        <input type="text" class="form-control" formControlName="designation" required placeholder="Ex: Contrat Prestataire 2024" />
-        <div *ngIf="contratForm.controls.designation.invalid && contratForm.controls.designation.touched" class="text-danger small">
-          ⚠ Ce champ est requis.
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  .fullscreen-wrapper {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa; 
+    padding-right: 200px;
+    padding-bottom: 70px;
+    box-sizing: border-box;
+  }
+  </style>
+  <div class="fullscreen-wrapper">
+    <div class="card shadow-lg p-4" style="width: 40rem; border-radius: 12px;">
+      <h2 class="text-center mb-4 text-primary fw-bold">Importer un Contrat Client</h2>
+  
+      <!-- Formulaire d'importation -->
+      <form [formGroup]="contratForm" (ngSubmit)="importerContrat()">
+        <!-- Désignation -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Désignation du contrat</label>
+          <input type="text" class="form-control" formControlName="designation" required placeholder="Ex: Contrat Prestataire 2024" />
+          <div *ngIf="contratForm.controls.designation.invalid && contratForm.controls.designation.touched" class="text-danger small">
+            ⚠ Ce champ est requis.
+          </div>
         </div>
-      </div>
-
-      <!-- TJM -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Tarif Journalier Moyen (TJM en EUR)</label>
-        <input type="number" class="form-control" formControlName="tjm" required placeholder="Ex: 70" />
-        <div *ngIf="contratForm.controls.tjm.invalid && contratForm.controls.tjm.touched" class="text-danger small">
-          ⚠ Ce champ est requis et doit être supérieur à 0.
+  
+        <!-- TJM -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Tarif Journalier Moyen (TJM en EUR)</label>
+          <input type="number" class="form-control" formControlName="tjm" required placeholder="Ex: 70" />
+          <div *ngIf="contratForm.controls.tjm.invalid && contratForm.controls.tjm.touched" class="text-danger small">
+            ⚠ Ce champ est requis et doit être supérieur à 0.
+          </div>
         </div>
-      </div>
-
-      <!-- Importation Fichier -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Importer un fichier *</label>
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName || 'Sélectionnez un fichier...'" readonly />
-          <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
-          <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()">
-            <i class="mdi mdi-file-upload"></i> Choisir un fichier
-          </button>
+  
+        <!-- Importation Fichier -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Importer un fichier *</label>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName || 'Sélectionnez un fichier...'" readonly />
+            <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+            <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()">
+              <i class="mdi mdi-file-upload"></i> Choisir un fichier
+            </button>
+          </div>
+          <!-- Message d'erreur si le fichier n'est pas valide -->
+          <div *ngIf="fileError" class="text-danger small mt-2">
+            ⚠ Format de fichier non valide ! Formats acceptés : PDF, DOC, DOCX, XLS, XLSX.
+          </div>
+          <!-- Aperçu du fichier -->
+          <div *ngIf="fileSelected" class="mt-2 small text-success">
+            ✅ Fichier sélectionné : <strong>{{ fileName }}</strong>
+          </div>
         </div>
-        <!-- Message d'erreur si le fichier n'est pas valide -->
-        <div *ngIf="fileError" class="text-danger small mt-2">
-          ⚠ Format de fichier non valide ! Formats acceptés : PDF, DOC, DOCX, XLS, XLSX.
-        </div>
-        <!-- Aperçu du fichier -->
-        <div *ngIf="fileSelected" class="mt-2 small text-success">
-          ✅ Fichier sélectionné : <strong>{{ fileName }}</strong>
-        </div>
-      </div>
-
-      <!-- Bouton de soumission -->
-      <button type="submit" class="btn btn-success w-100 mt-3 py-2 fw-bold shadow-sm" [disabled]="contratForm.invalid || !fileSelected">
-        <i class="mdi mdi-cloud-upload"></i> Importer le Contrat
-      </button>
-    </form>
+  
+        <!-- Bouton de soumission -->
+        <button type="submit" class="btn btn-success w-100 mt-3 py-2 fw-bold shadow-sm" [disabled]="contratForm.invalid || !fileSelected">
+          <i class="mdi mdi-cloud-upload"></i> Importer le Contrat
+        </button>
+      </form>
+    </div>
   </div>
-</div>
+  

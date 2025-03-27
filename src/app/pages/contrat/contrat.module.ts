@@ -26,16 +26,30 @@ import { WidgetModule } from 'src/app/shared/widget/widget.module';
 import { contratReducer } from 'src/app/store/contrat/contrat.reducer';
 
 import { ContratEffects } from 'src/app/store/contrat/contrat.effects';
-import { ListeContratSousTraitantComponent } from './liste-contrat-sous-traitant/liste-contrat-sous-traitant.component'; // ✅ Ne pas redéclarer ici
+import { ListeContratSousTraitantComponent } from './liste-contrat-sous-traitant/liste-contrat-sous-traitant.component'; 
+import { ContratClientEffects } from 'src/app/store/contratClient/contratClient.effects';
+import { contratClientReducer } from 'src/app/store/contratClient/contratClient.reducer';
+import { CommentaireContratEffects } from 'src/app/store/commentaire-contrat/commentaire-contrat.effects';
+import { commentaireContratReducer } from 'src/app/store/commentaire-contrat/commentaire-contrat.reducer';
+import { CommentContratModalComponent } from './comment-contrat-modal/comment-contrat-modal.component';
+import { ImportContratComponent } from './import-contrat/import-contrat.component';
+import { SharedModule } from 'src/app/cyptolanding/shared/shared.module';
+import { ContratsClientListComponent } from './contrats-client-list/contrats-client-list.component';
+
+
 
 @NgModule({
   declarations: [
     ContratSousTraitantComponent,
     ContratClientAdminComponent,
-    ListeContratSousTraitantComponent
+    ListeContratSousTraitantComponent,
+    ImportContratComponent,
+    CommentContratModalComponent,
+    ContratsClientListComponent
   ],
   imports: [
     CommonModule,
+    SharedModule,
     ContratRoutingModule,
     FormsModule,
     ReactiveFormsModule,
@@ -51,10 +65,10 @@ import { ListeContratSousTraitantComponent } from './liste-contrat-sous-traitant
     NgApexchartsModule,
     SimplebarAngularModule,
     ModalModule.forRoot(),
-
-    
+    StoreModule.forFeature('contratsClient', contratClientReducer),
     StoreModule.forFeature('contrats', contratReducer),
-    EffectsModule.forFeature([ContratEffects])
+    EffectsModule.forFeature([ContratEffects,ContratClientEffects,CommentaireContratEffects]),
+    StoreModule.forFeature('commentaireContrat', commentaireContratReducer)
   ]
 })
 export class ContratModule {}

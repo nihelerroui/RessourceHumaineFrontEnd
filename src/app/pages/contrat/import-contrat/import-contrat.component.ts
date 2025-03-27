@@ -88,10 +88,10 @@ export class ImportContratComponent implements OnInit {
       
         console.log("✅ Token Final :", this.token);
         if (typeof this.token === "string" && this.token.trim().length > 0) {
-          console.log('🔁 REDIRECTION VERS:', `/client-interface/contrats-client/${encodeURIComponent(this.token.trim())}`);
+          console.log('🔁 REDIRECTION VERS:', `/contrats-client/${encodeURIComponent(this.token.trim())}`);
           console.log('🔍 Type token:', typeof this.token);
           console.log('🧪 Token:', this.token);
-          window.location.href = `/client-interface/contrats-client/${encodeURIComponent(this.token.trim())}`;
+          window.location.href = `/contrats-client/${encodeURIComponent(this.token.trim())}`;
         } else {
           console.error("ERREUR : Token invalide, la navigation est annulée.");
         }

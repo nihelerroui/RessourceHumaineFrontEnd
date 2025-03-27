@@ -5,6 +5,7 @@ import { RootReducerState } from '../store';
 import { Store } from '@ngrx/store';
 import { LayoutState } from '../store/layouts/layouts.reducer';
 import { Observable, map } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -22,8 +23,14 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   sidebartype: string;
   layoutData: LayoutState;
   dataLayout$: Observable<string>;
+   //routes client
+   routesToHideBars: string[] = [
+    '/import-contrat',
+    '/contrats-client'
+  ];
+  showBars: boolean = true;
 
-  constructor(private eventService: EventService, private store: Store<{ layout: { DATA_LAYOUT: string } }>, private stores: Store<RootReducerState>) {
+  constructor(private router: Router,private eventService: EventService, private store: Store<{ layout: { DATA_LAYOUT: string } }>, private stores: Store<RootReducerState>) {
     this.dataLayout$ = store.select('layout').pipe(map(data => data.DATA_LAYOUT));
   }
 

@@ -25,6 +25,12 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   data: any;
 
   menuItems: MenuItem[] = [];
+  //routes client
+  routesToHideBars: string[] = [
+    '/import-contrat',
+    '/contrats-client'
+  ];
+  showBars: boolean = true;
 
   @ViewChild('sideMenu') sideMenu: ElementRef;
 
@@ -38,6 +44,13 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
+    //détection de currentPath et le comparer
+    this.router.events.subscribe(() => {
+      const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
+      const currentPath = '/' + (urlSegments?.[0]?.path || '');
+  
+      this.showBars = !this.routesToHideBars.includes(currentPath);
+    });
     this.initialize();
     this._scrollElement();
   }

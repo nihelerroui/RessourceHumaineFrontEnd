@@ -16,21 +16,20 @@ import { VerticalComponent } from './vertical/vertical.component';
 import { HorizontaltopbarComponent } from './horizontaltopbar/horizontaltopbar.component';
 import { LanguageService } from '../core/services/language.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { EmptyLayoutComponent } from './empty-layout/empty-layout.component';
+
 @NgModule({
   // tslint:disable-next-line: max-line-length
-  declarations: [EmptyLayoutComponent ,LayoutComponent, SidebarComponent, TopbarComponent, FooterComponent, RightsidebarComponent, HorizontalComponent, VerticalComponent, HorizontaltopbarComponent],
+  declarations: [LayoutComponent, SidebarComponent, TopbarComponent, FooterComponent, RightsidebarComponent, HorizontalComponent, VerticalComponent, HorizontaltopbarComponent],
   imports: [
     CommonModule,
     TranslateModule,
     RouterModule,
     BsDropdownModule.forRoot(),
     UIModule,
-    SimplebarAngularModule
+    SimplebarAngularModule,
   ],
   providers: [LanguageService],
   exports: [
-    EmptyLayoutComponent 
   ],
 })
 export class LayoutsModule { }

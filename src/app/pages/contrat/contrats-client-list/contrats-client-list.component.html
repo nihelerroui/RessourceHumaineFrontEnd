@@ -1,102 +1,129 @@
-<div class="container-fluid ">
-  
-  <div *ngIf="(loading$ | async)" class="text-center">
-      <p class="text-muted">Chargement des contrats...</p>
-    </div>
-  
-    <div class="row d-flex justify-content-center">
-      <div class="col-12 d-flex justify-content-center">
-        <div class="card mt-4" style="width: 60%; max-width: 1000px;">
-          <div class="card-body border-bottom">
-            <div class="d-flex align-items-center">
-              <h5 class="mb-0 card-title flex-grow-1 text-center">Contrats Lists</h5>
+<style>
+  body {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+  .table-container {
+    width: 100%;
+    max-width: 1000px;
+  }
+</style>
+<div class="container-fluid">
+  <div *ngIf="loading$ | async" class="text-center">
+    <p class="text-muted">Chargement des contrats...</p>
+  </div>
 
-            </div>
-          </div>
-  
-          <div class="card-body " >
-            <div class="table-responsive">
-              <table class="table table-hover align-middle " style="min-width: 1000px; margin: auto;">
+  <div class="table-container">
+    <div class="card">
+      <div class="card-body border-bottom">
+        <div class="d-flex align-items-center">
+          <h5 class="mb-0 card-title flex-grow-1 text-center">
+            Contrats Lists
+          </h5>
+        </div>
+      </div>
 
-                <thead>
-                  <tr>
-                    <th style="width: 15%;">Désignation</th>
-                    <th style="width: 15%;">TJM</th>
-                    <th style="width: 25%;">Statut</th>
-                    <th style="width: 20%;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let contrat of contratsClients$ | async; trackBy: trackById">
-                    <td>{{ contrat.designation }}</td>
-                    <td>{{ contrat.tjm }}</td>
-                    <td>
-                      <!-- Affichage du statut -->
-                      <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
-                        {{ contrat.statutContrat }}
-                      </span>
-                      <span *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'" class="badge badge-soft-success me-1">
-                        {{ contrat.statutContrat }}
-                      </span>
-                      <span *ngIf="contrat.statutContrat === 'REJETE'" class="badge badge-soft-danger me-1">
-                        {{ contrat.statutContrat }}
-                      </span>
-                    </td>
-                    <td>
-                      <ul class="list-unstyled hstack gap-1 mb-0">
-                        <!-- Visualiser le contrat -->
-                        <li data-bs-toggle="tooltip" title="Voir le contrat">
-                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-info"
-                            (click)="visualiserContrat(contrat)">
-                            <i class="mdi mdi-eye"></i>
-                          </a>
-                        </li>
-                        <li data-bs-toggle="tooltip" title="Commentaires">
-                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-primary"
-                             (click)="ouvrirCommentairesClient(contrat)">
-                            <i class="mdi mdi-comment-text-outline"></i>
-                          </a>
-                        </li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              </div>
-            </div>
-          </div>
-  
-          <ng-template #noContrats>
-            <div class="card-body text-center">
-              <p class="text-muted">Aucun contrat client disponible.</p>
-            </div>
-          </ng-template>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="width: 15%">Désignation</th>
+                <th style="width: 15%">TJM</th>
+                <th style="width: 25%">Statut</th>
+                <th style="width: 20%">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let contrat of contratsClients$ | async;
+                  trackBy: trackById
+                "
+              >
+                <td>{{ contrat.designation }}</td>
+                <td>{{ contrat.tjm }}</td>
+                <td>
+                  <!-- Affichage du statut -->
+                  <span
+                    *ngIf="contrat.statutContrat === 'EN_ATTENTE'"
+                    class="badge badge-soft-warning me-1"
+                  >
+                    {{ contrat.statutContrat }}
+                  </span>
+                  <span
+                    *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'"
+                    class="badge badge-soft-success me-1"
+                  >
+                    {{ contrat.statutContrat }}
+                  </span>
+                  <span
+                    *ngIf="contrat.statutContrat === 'REJETE'"
+                    class="badge badge-soft-danger me-1"
+                  >
+                    {{ contrat.statutContrat }}
+                  </span>
+                </td>
+                <td>
+                  <ul class="list-unstyled hstack gap-1 mb-0">
+                    <!-- Visualiser le contrat -->
+                    <li data-bs-toggle="tooltip" title="Voir le contrat">
+                      <a
+                        href="javascript:void(0);"
+                        class="btn btn-sm btn-soft-info"
+                        (click)="visualiserContrat(contrat)"
+                      >
+                        <i class="mdi mdi-eye"></i>
+                      </a>
+                    </li>
+                    <li data-bs-toggle="tooltip" title="Commentaires">
+                      <a
+                        href="javascript:void(0);"
+                        class="btn btn-sm btn-soft-primary"
+                        (click)="ouvrirCommentairesClient(contrat)"
+                      >
+                        <i class="mdi mdi-comment-text-outline"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-  
-  <!-- Modal pour visualiser le contrat -->
-  <ng-template #contratModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title">Visualisation du Contrat</h5>
-      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-    </div>
-    <div class="modal-body">
-      <div *ngIf="contratFileUrl; else noFile">
-        <!-- Si contratFileUrl est défini, on affiche l'iframe -->
-        <iframe [src]="contratFileUrl" width="100%" height="500px"></iframe>
+    <ng-template #noContrats>
+      <div class="card-body text-center">
+        <p class="text-muted">Aucun contrat client disponible.</p>
       </div>
-      <ng-template #noFile>
-        <!-- Si contratFileUrl est null ou undefined, afficher ce message -->
-        <p class="text-danger">Aucun fichier disponible.</p>
-      </ng-template>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Modal pour visualiser le contrat -->
+<ng-template #contratModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Visualisation du Contrat</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="contratFileUrl; else noFile">
+      <!-- Si contratFileUrl est défini, on affiche l'iframe -->
+      <iframe [src]="contratFileUrl" width="100%" height="500px"></iframe>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
-    </div>
-  </ng-template>
-  
-  
-  
-  
+    <ng-template #noFile>
+      <!-- Si contratFileUrl est null ou undefined, afficher ce message -->
+      <p class="text-danger">Aucun fichier disponible.</p>
+    </ng-template>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
+      Fermer
+    </button>
+  </div>
+</ng-template>
