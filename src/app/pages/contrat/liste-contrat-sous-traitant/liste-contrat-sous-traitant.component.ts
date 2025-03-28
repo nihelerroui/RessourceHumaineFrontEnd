@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
@@ -20,7 +20,6 @@ import { CommentContratModalComponent } from "../comment-contrat-modal/comment-c
 })
 export class ListeContratSousTraitantComponent {
   modalRef?: BsModalRef;
-  page: number = 1;
   selectedFile: File | null = null;
   fileName: string = "Aucun fichier sélectionné";
   breadCrumbItems: Array<{}>;
@@ -39,6 +38,10 @@ export class ListeContratSousTraitantComponent {
   dateFin: string = "";
   minTjm: number | null = null;
   maxTjm: number | null = null;
+  contratsParPage = 5;
+    page = 1;
+    contratsPagination$: Observable<ContratSousTraitant[]> = new Observable();
+    total$: Observable<number> = new Observable();
 
   // Liste des statuts disponibles
   statutContrats: string[] = [];
@@ -59,7 +62,15 @@ export class ListeContratSousTraitantComponent {
     this.loadContrats();
     this.statutContrats = Object.values(StatutContrat);
   }
-
+  //pagination
+      updatePagination() {
+        this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
+          map(([contrats]) => {
+            const start = (this.page - 1) * this.contratsParPage;
+            return contrats.slice(start, start + this.contratsParPage);
+          })
+        );
+      }
   //Charger la liste des contrats
   loadContrats() {
     this.store.dispatch(ContratActions.loadContracts());

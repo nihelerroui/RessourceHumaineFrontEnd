@@ -79,6 +79,7 @@
                         <i class="mdi mdi-eye"></i>
                       </a>
                     </li>
+                    
                     <li data-bs-toggle="tooltip" title="Commentaires">
                       <a
                         href="javascript:void(0);"
@@ -93,6 +94,34 @@
               </tr>
             </tbody>
           </table>
+           <!-- Pagination -->
+        <div
+        class="card-footer d-flex justify-content-between align-items-center"
+      >
+        <div class="text-muted">
+          Affichage de {{ (page - 1) * contratsParPage + 1 }} à
+          {{
+            page * contratsParPage > (total$ | async)!
+              ? (total$ | async)
+              : page * contratsParPage
+          }}
+          sur {{ total$ | async }} contrats
+        </div>
+
+        <pagination
+          [(ngModel)]="page"
+          [totalItems]="total$ | async"
+          [itemsPerPage]="contratsParPage"
+          [maxSize]="5"
+          [boundaryLinks]="true"
+          (ngModelChange)="updatePagination()"
+          previousText="‹"
+          nextText="›"
+          firstText="«"
+          lastText="»"
+          class="pagination pagination-rounded mb-0"
+        >
+        </pagination>
         </div>
       </div>
     </div>

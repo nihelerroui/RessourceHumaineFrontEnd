@@ -1,22 +1,25 @@
 <div class="container-fluid">
-    <app-page-title title="Liste des Contrats" [breadcrumbItems]="breadCrumbItems"></app-page-title>
-  
-    <div class="row">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body border-bottom">
-            <div class="d-flex align-items-center">
-              <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
-              <div class="flex-shrink-0 d-flex gap-1">
-                <a href="javascript:void(0);" class="btn btn-light"><i class="mdi mdi-refresh"></i></a>
-              </div>
+  <app-page-title
+    title="Liste des Contrats"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-light"
+                ><i class="mdi mdi-refresh"></i
+              ></a>
             </div>
           </div>
-          <div class="card-body border-bottom">
-            <div class="row g-3">
-              
-          </div>
-  
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3"></div>
+
           <div class="card-body">
             <div class="table-responsive">
               <table class="table align-middle dt-responsive nowrap w-100">
@@ -33,57 +36,124 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let contrat of contrats$ | async">
-                    <td>{{ contrat.consultant?.name || 'N/A' }}</td>
-                    <td>{{ contrat.tjm | currency:'EUR' }}</td>
-                    <td>{{ contrat.dateDebut | date:'dd/MM/yyyy' }}</td>
-                    <td>{{ contrat.dateFin | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ contrat.consultant?.name || "N/A" }}</td>
+                    <td>{{ contrat.tjm | currency : "EUR" }}</td>
+                    <td>{{ contrat.dateDebut | date : "dd/MM/yyyy" }}</td>
+                    <td>{{ contrat.dateFin | date : "dd/MM/yyyy" }}</td>
                     <td>{{ contrat.conditionsFac }}</td>
                     <td>
-                        <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
-                          {{ contrat.statutContrat }}
-                        </span>
-                        <span *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'" class="badge badge-soft-success me-1">
-                          {{ contrat.statutContrat }}
-                        </span>
-                        <span *ngIf="contrat.statutContrat === 'REJETE'" class="badge badge-soft-danger me-1">
-                          {{ contrat.statutContrat }}
-                        </span>
-                      </td>
+                      <span
+                        *ngIf="contrat.statutContrat === 'EN_ATTENTE'"
+                        class="badge badge-soft-warning me-1"
+                      >
+                        {{ contrat.statutContrat }}
+                      </span>
+                      <span
+                        *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'"
+                        class="badge badge-soft-success me-1"
+                      >
+                        {{ contrat.statutContrat }}
+                      </span>
+                      <span
+                        *ngIf="contrat.statutContrat === 'REJETE'"
+                        class="badge badge-soft-danger me-1"
+                      >
+                        {{ contrat.statutContrat }}
+                      </span>
+                    </td>
                     <td>
                       <ul class="list-unstyled hstack gap-1 mb-0">
-                        <li><a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="downloadContrat(contrat.contratId)"><i class="mdi mdi-download"></i></a></li>
+                        <li>
+                          <a
+                            href="javascript:void(0);"
+                            class="btn btn-sm btn-soft-success"
+                            (click)="downloadContrat(contrat.contratId)"
+                            ><i class="mdi mdi-download"></i
+                          ></a>
+                        </li>
                         <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Valider">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
-                          (click)="modifierStatutContrat(contrat, 'CONFIRME_ADMIN')">
-                          <i class="mdi mdi-check-circle-outline"></i>
-                        </a>
-                      </li>
+                        <li
+                          *ngIf="contrat.statutContrat === 'EN_ATTENTE'"
+                          data-bs-toggle="tooltip"
+                          title="Valider"
+                        >
+                          <a
+                            href="javascript:void(0);"
+                            class="btn btn-sm btn-soft-success"
+                            (click)="
+                              modifierStatutContrat(contrat, 'CONFIRME_ADMIN')
+                            "
+                          >
+                            <i class="mdi mdi-check-circle-outline"></i>
+                          </a>
+                        </li>
 
-                      <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Rejeter">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
-                          (click)="modifierStatutContrat(contrat, 'REJETE')">
-                          <i class="mdi mdi-close-circle-outline"></i>
-                        </a>
-                      </li>
-                      <li data-bs-toggle="tooltip" title="Ajouter un commentaire">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-warning"
-                           (click)="ouvrirCommentaireContrat(contrat)">
-                          <i class="mdi mdi-comment-text-multiple-outline"></i>
-                        </a>
-                      </li>
+                        <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
+                        <li
+                          *ngIf="contrat.statutContrat === 'EN_ATTENTE'"
+                          data-bs-toggle="tooltip"
+                          title="Rejeter"
+                        >
+                          <a
+                            href="javascript:void(0);"
+                            class="btn btn-sm btn-soft-danger"
+                            (click)="modifierStatutContrat(contrat, 'REJETE')"
+                          >
+                            <i class="mdi mdi-close-circle-outline"></i>
+                          </a>
+                        </li>
+                        <li
+                          data-bs-toggle="tooltip"
+                          title="Ajouter un commentaire"
+                        >
+                          <a
+                            href="javascript:void(0);"
+                            class="btn btn-sm btn-soft-warning"
+                            (click)="ouvrirCommentaireContrat(contrat)"
+                          >
+                            <i
+                              class="mdi mdi-comment-text-multiple-outline"
+                            ></i>
+                          </a>
+                        </li>
                       </ul>
                     </td>
                   </tr>
                 </tbody>
               </table>
+              <!-- Pagination -->
+              <div
+                class="card-footer d-flex justify-content-between align-items-center"
+              >
+                <div class="text-muted">
+                  Affichage de {{ (page - 1) * contratsParPage + 1 }} à
+                  {{
+                    page * contratsParPage > (total$ | async)!
+                      ? (total$ | async)
+                      : page * contratsParPage
+                  }}
+                  sur {{ total$ | async }} contrats
+                </div>
+
+                <pagination
+                  [(ngModel)]="page"
+                  [totalItems]="total$ | async"
+                  [itemsPerPage]="contratsParPage"
+                  [maxSize]="5"
+                  [boundaryLinks]="true"
+                  (ngModelChange)="updatePagination()"
+                  previousText="‹"
+                  nextText="›"
+                  firstText="«"
+                  lastText="»"
+                  class="pagination pagination-rounded mb-0"
+                >
+                </pagination>
+              </div>
             </div>
-            <p class="text-muted">Affichage de <b>{{ (contrats$ | async)?.length }}</b> contrats</p>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  
+</div>

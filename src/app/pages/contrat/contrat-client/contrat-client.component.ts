@@ -78,26 +78,18 @@ export class ContratClientAdminComponent implements OnInit {
       console.error("❌ Erreur : L'ID du contrat est NULL !");
       return;
     }
-
+  
     const contratModifie: ContratClient = {
       ...contrat,
       statutContrat: nouveauStatut,
-      client: contrat.client
+      client: {
+        clientId: contrat.client?.clientId!
+      }
     };
-    
-    console.log("📡 Envoi de la requête PUT avec :", contratModifie);
-
-    // Mettre à jour immédiatement le statut côté frontend pour éviter le délai d'affichage
-    this.contratsClients$ = this.contratsClients$.pipe(
-      map((contrats) =>
-        contrats.map((c) =>
-          c.contratClientId === contrat.contratClientId ? contratModifie : c
-        )
-      )
-    );
-
+  
     this.store.dispatch(updateContratClient({ contrat: contratModifie }));
   }
+  
   visualiserContrat(contrat: ContratClient): void {
     if (!contrat.filePath) {
       console.error("❌ Erreur : Aucun fichier associé à ce contrat !");

@@ -77,6 +77,18 @@ export const contratClientReducer = createReducer(
       loading: false,
       error,
     };
-  })
+  }),
 
+  on(ContratClientActions.updateContratClientSuccess, (state, { contrat }) => ({
+    ...state,
+    contrats: state.contrats.map(c =>
+      c.contratClientId === contrat.contratClientId ? contrat : c
+    ),
+  })),
+
+  on(ContratClientActions.updateContratClientFailure, (state, { error }) => ({
+    ...state,
+    error,
+  }))
 );
+

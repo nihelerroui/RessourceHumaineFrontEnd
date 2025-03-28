@@ -11,7 +11,6 @@ export class CommentaireContratService extends GenericService<CommentaireContrat
   constructor(protected override http: HttpClient) {
     super(http, 'commentairesContrat');
   }
-
   //récupérer les commentaires d’un contrat client
   getCommentairesByContrat(id: number, isSousTraitant: boolean = false): Observable<CommentaireContrat[]> {
     const param = isSousTraitant ? 'contratSTId' : 'contratClientId';
@@ -21,7 +20,6 @@ export class CommentaireContratService extends GenericService<CommentaireContrat
     ).pipe(
       tap(data => console.log('Commentaires récupérés pour contrat:', data)),
       catchError(error => {
-        console.error('Erreur getCommentairesByContrat:', error);
         return throwError(() => new Error('Erreur récupération commentaires'));
       })
     );

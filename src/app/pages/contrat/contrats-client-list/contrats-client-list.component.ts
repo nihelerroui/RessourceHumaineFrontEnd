@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Store, select } from "@ngrx/store";
-import { Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
 import {
   selectAllContratsClient,
@@ -22,6 +22,10 @@ export class ContratsClientListComponent implements OnInit {
   token: string | null = null;
   contratFileUrl: string | null = null;
   modalRef: BsModalRef | null = null;
+  contratsParPage = 5;
+  page = 1;
+  contratsPagination$: Observable<ContratClient[]> = new Observable();
+  total$: Observable<number> = new Observable();
 
   @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>; // ✅ Important
 
@@ -41,7 +45,15 @@ export class ContratsClientListComponent implements OnInit {
   trackById(index: number, item: ContratClient): number {
     return item.contratClientId;
   }
-
+  //pagination
+    updatePagination() {
+      this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
+        map(([contratsClients]) => {
+          const start = (this.page - 1) * this.contratsParPage;
+          return contratsClients.slice(start, start + this.contratsParPage);
+        })
+      );
+    }
   visualiserContrat(contrat: ContratClient): void {
     this.contratFileUrl = contrat.filePath
       ? `http://localhost:8089/contratsClient/fichier/${contrat.filePath}`

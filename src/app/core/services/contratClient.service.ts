@@ -24,16 +24,11 @@ export class ContratClientService extends GenericService<ContratClient> {
     formData.append("token", token);
     formData.append("designation", designation);
     formData.append("tjm", tjm.toString());
-
-    console.log("📡 Envoi FormData vers API :", formData);
-
     return this.http.post(`${this.apiUrl}/importer`, formData, { responseType: 'text' }).pipe(
       tap((token: string) => {
         console.log("✅ Contrat importé avec token :", token);
-        // redirection ici si besoin
       }),
       catchError((error) => {
-        console.error("❌ Erreur lors de l'importation :", error);
         return throwError(() => new Error(error.message || "Erreur inconnue"));
       })
     );
@@ -54,3 +49,5 @@ export class ContratClientService extends GenericService<ContratClient> {
       );
   }
 }
+
+
