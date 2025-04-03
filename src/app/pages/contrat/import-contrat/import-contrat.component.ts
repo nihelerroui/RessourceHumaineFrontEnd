@@ -4,6 +4,7 @@ import { Store } from "@ngrx/store";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import Swal from "sweetalert2";
+import { TokenUtilService } from "src/app/core/services/token-util.service";
 
 @Component({
   selector: "app-import-contrat",
@@ -21,17 +22,18 @@ export class ImportContratComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private store: Store
+    private store: Store,
+    private tokenUtil: TokenUtilService
   ) {}
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.paramMap.get("token") || "";
-  this.token = String(this.token);
-  console.log("✅ Token converti :", this.token, "Type:", typeof this.token);
+    this.token = this.route.snapshot.paramMap.get("token") || '';
+    const clientId = this.tokenUtil.extractClientId(this.token);
+    if (clientId) {
+      localStorage.setItem('clientId', clientId.toString());
+    }
     this.initForm();
   }
-  
-
   // Initialisation du formulaire
   initForm() {
     this.contratForm = this.fb.group({
@@ -62,40 +64,33 @@ export class ImportContratComponent implements OnInit {
   }
   // Soumission du formulaire d'importation
   importerContrat() {
-    if (this.contratForm.valid && this.selectedFile && this.token) {
+    const clientId = localStorage.getItem('clientId');
+  
+    if (this.contratForm.valid && this.selectedFile && clientId) {
       const { designation, tjm } = this.contratForm.value;
-
+  
       this.store.dispatch(
         ContratActions.importerContratClient({
           file: this.selectedFile,
-          token: this.token,
+          clientId: +clientId,
           designation,
-          tjm,
+          tjm
         })
       );
+  
       Swal.fire({
         icon: "success",
         title: "Contrat importé avec succès !",
         text: `Le contrat "${designation}" a été ajouté.`,
         confirmButtonText: "Consulter mes contrats"
       }).then(() => {
-        
-        if (Array.isArray(this.token)) {
-          this.token = this.token[0];
-        } else if (typeof this.token === "object") {
-          this.token = JSON.stringify(this.token); 
-        }
-      
-        console.log("✅ Token Final :", this.token);
-        if (typeof this.token === "string" && this.token.trim().length > 0) {
-          console.log('🔁 REDIRECTION VERS:', `/contrats-client/${encodeURIComponent(this.token.trim())}`);
-          console.log('🔍 Type token:', typeof this.token);
-          console.log('🧪 Token:', this.token);
-          window.location.href = `/contrats-client/${encodeURIComponent(this.token.trim())}`;
-        } else {
-          console.error("ERREUR : Token invalide, la navigation est annulée.");
-        }
+        console.log("✅ Redirection vers les contrats du clientId :", clientId);
+        window.location.href = `/contrats-client/${clientId}`;
       });
-      
-    }}           
+  
+    } else {
+      console.error("❌ Formulaire invalide ou clientId manquant");
+    }
+  }
+           
 }

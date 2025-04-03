@@ -39,9 +39,9 @@ export class ListeContratSousTraitantComponent {
   minTjm: number | null = null;
   maxTjm: number | null = null;
   contratsParPage = 5;
-    page = 1;
-    contratsPagination$: Observable<ContratSousTraitant[]> = new Observable();
-    total$: Observable<number> = new Observable();
+  page = 1;
+  contratsPagination$: Observable<ContratSousTraitant[]> = new Observable();
+  total$: Observable<number> = new Observable();
 
   // Liste des statuts disponibles
   statutContrats: string[] = [];
@@ -63,25 +63,28 @@ export class ListeContratSousTraitantComponent {
     this.statutContrats = Object.values(StatutContrat);
   }
   //pagination
-      updatePagination() {
-        this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
-          map(([contrats]) => {
-            const start = (this.page - 1) * this.contratsParPage;
-            return contrats.slice(start, start + this.contratsParPage);
-          })
-        );
-      }
+  updatePagination() {
+    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
+      map(([contrats]) => {
+        const start = (this.page - 1) * this.contratsParPage;
+        return contrats.slice(start, start + this.contratsParPage);
+      })
+    );
+  }
   //Charger la liste des contrats
   loadContrats() {
     this.store.dispatch(ContratActions.loadContracts());
   }
   //commentaires
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
+    const emailAdmin = 'admin@featway.com';
+
     this.modalRef = this.modalService.show(CommentContratModalComponent, {
       initialState: {
         contratId: contrat.contratId,
         contrat: contrat,
         isAdminMode: true,
+        currentUserEmail: emailAdmin
       },
       class: "modal-lg",
     });

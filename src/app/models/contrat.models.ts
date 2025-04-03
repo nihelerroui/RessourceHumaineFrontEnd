@@ -1,3 +1,5 @@
+import { Consultant } from "./consultant.models";
+
 export interface ContratSousTraitant {
   contratId?: number;
   dateDebut: string;
@@ -7,16 +9,7 @@ export interface ContratSousTraitant {
   statutContrat: string;
   filePath?: string;
   designation?: string;
-  consultant: {
-    consultantId: number;
-    name?: string; 
-  };
-}
-
-export interface Consultant {
-  consultantId: number;
-  name: string;
-  // ajoute d’autres propriétés si nécessaire
+  consultant: Consultant;
 }
 
   export enum StatutContrat {

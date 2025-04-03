@@ -19,61 +19,75 @@ export class ContratsClientListComponent implements OnInit {
   contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectAllContratsClient));
   loading$: Observable<boolean> = this.store.select(selectContratsClientLoading);
 
-  token: string | null = null;
-  contratFileUrl: string | null = null;
-  modalRef: BsModalRef | null = null;
-  contratsParPage = 5;
-  page = 1;
   contratsPagination$: Observable<ContratClient[]> = new Observable();
   total$: Observable<number> = new Observable();
 
-  @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>; // ✅ Important
+  token: string | null = null;
+  modalRef: BsModalRef | null = null;
+  contratFileUrl: string | null = null;
+
+  page = 1;
+  contratsParPage = 5;
+
+  @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>;
 
   constructor(
     private route: ActivatedRoute,
     private store: Store,
     private modalService: BsModalService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.paramMap.get("token");
-    if (this.token) {
-      this.store.dispatch(ContratActions.loadContratsClientByToken({ token: this.token }));
+    const idFromStorage = localStorage.getItem("clientId");
+    if (idFromStorage) {
+      const clientId = Number(idFromStorage);
+      this.store.dispatch(ContratActions.loadContratsClientByClientId({ clientId }));
+      this.updatePagination();
     }
   }
+
+  //pagination
+  updatePagination(): void {
+    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
+      map(([contratsClients]) => {
+        const total = contratsClients.length;
+        this.total$ = new Observable(observer => observer.next(total));
+        const start = (this.page - 1) * this.contratsParPage;
+        return contratsClients.slice(start, start + this.contratsParPage);
+      })
+    );
+  }
+
 
   trackById(index: number, item: ContratClient): number {
     return item.contratClientId;
   }
-  //pagination
-    updatePagination() {
-      this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
-        map(([contratsClients]) => {
-          const start = (this.page - 1) * this.contratsParPage;
-          return contratsClients.slice(start, start + this.contratsParPage);
-        })
-      );
-    }
-  visualiserContrat(contrat: ContratClient): void {
-    this.contratFileUrl = contrat.filePath
-      ? `http://localhost:8089/contratsClient/fichier/${contrat.filePath}`
-      : null;
 
-    this.modalRef = this.modalService.show(this.contratModalTemplate, {
-      class: 'modal-lg'
-    });
+  visualiserContrat(contrat: ContratClient): void {
+    if (!contrat.filePath) {
+      console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
+      return;
+    }
+
+    const fileName = contrat.filePath.split("\\").pop();
+    const fileUrl = `http://localhost:8089/spring/contratsClient/fichier/${fileName}`;
+
+    console.log("Ouverture du fichier :", fileUrl);
+    window.open(fileUrl, "_blank");
   }
 
   ouvrirCommentairesClient(contrat: ContratClient): void {
-    if (!this.token) return;
+    const emailClient = contrat.client?.email || 'client@featway.com';
+
     this.modalRef = this.modalService.show(CommentContratModalComponent, {
       initialState: {
         contrat: contrat,
         contratClientId: contrat.contratClientId,
-        token: this.token,
-        isClientMode: true
+        isClientMode: true,
+        currentUserEmail: emailClient
       },
       class: "modal-lg"
     });
   }
+
 }

@@ -279,13 +279,16 @@ export class ContratSousTraitantComponent implements OnInit {
     this.store.dispatch(ContratActions.searchContracts({ filters }));
   }
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
-      this.modalRef = this.modalService.show(CommentContratModalComponent, {
-        initialState: {
-          contratId: contrat.contratId,
-          contrat: contrat
-        },
-        class: "modal-lg",
-      });
-    }
+    const emailSousTraitant = contrat.consultant?.user?.email || 'consultant@featway.com';
+  
+    this.modalRef = this.modalService.show(CommentContratModalComponent, {
+      initialState: {
+        contratId: contrat.contratId,
+        contrat: contrat,
+        currentUserEmail: emailSousTraitant
+      },
+      class: "modal-lg",
+    });
+  }
   
 }

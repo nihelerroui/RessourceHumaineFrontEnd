@@ -71,7 +71,7 @@ export class CommentaireContratEffects {
     this.actions$.pipe(
       ofType(CommentaireActions.addCommentaireContratClient),
       mergeMap(({ commentaire, token }) =>
-        this.commentaireService.addCommentaireClient(commentaire, token).pipe(
+        this.commentaireService.create(commentaire).pipe(
           map((res) =>
             CommentaireActions.addCommentaireContratClientSuccess({ commentaire: res })
           ),

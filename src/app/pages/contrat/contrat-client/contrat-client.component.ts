@@ -103,10 +103,13 @@ export class ContratClientAdminComponent implements OnInit {
     window.open(fileUrl, "_blank");
   }
   ouvrirCommentaireContrat(contrat: ContratClient): void {
+    const emailAdmin = 'admin@featway.com';
     this.modalRef = this.modalService.show(CommentContratModalComponent, {
       initialState: {
         contratClientId: contrat.contratClientId,
-        contrat: contrat
+        contrat: contrat,
+        isAdminMode: true,
+        currentUserEmail: emailAdmin 
       },
       class: "modal-lg",
     });

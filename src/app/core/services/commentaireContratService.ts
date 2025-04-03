@@ -25,10 +25,4 @@ export class CommentaireContratService extends GenericService<CommentaireContrat
     );
   }
   
-  addCommentaireClient(commentaire: CommentaireContrat, token: string): Observable<CommentaireContrat> {
-    return this.http.post<CommentaireContrat>(
-      `${this.apiUrl}/client/add?token=${token}`, commentaire
-    );
-  }
-  
 }

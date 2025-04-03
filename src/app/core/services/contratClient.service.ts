@@ -8,46 +8,29 @@ import { GenericService } from "../../core/services/generic.service";
   providedIn: "root",
 })
 export class ContratClientService extends GenericService<ContratClient> {
-  constructor(protected http: HttpClient) {
+
+  constructor(protected override http: HttpClient) {
     super(http, "contratsClient");
   }
 
-  // Importer un contrat client
-  importerContrat(
-    file: File,
-    token: string,
-    designation: string,
-    tjm: number
-  ): Observable<string> {
+  importerContrat(file: File, clientId: number, designation: string, tjm: number): Observable<ContratClient> {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("token", token);
+    formData.append("clientId", clientId.toString());
     formData.append("designation", designation);
     formData.append("tjm", tjm.toString());
-    return this.http.post(`${this.apiUrl}/importer`, formData, { responseType: 'text' }).pipe(
-      tap((token: string) => {
-        console.log("✅ Contrat importé avec token :", token);
-      }),
-      catchError((error) => {
-        return throwError(() => new Error(error.message || "Erreur inconnue"));
-      })
-    );
-    
+  
+    return this.http.post<ContratClient>(`${this.apiUrl}/importer`, formData);
   }
-
-  consulterContratsClient(token: string): Observable<ContratClient[]> {
-    return this.http
-      .get<ContratClient[]>(`${this.apiUrl}/liste?token=${token}`)
-      .pipe(
-        tap((contrats) => console.log("✅ Contrats récupérés :", contrats)),
-        catchError((error) => {
-          console.error("Erreur lors de la récupération des contrats :", error);
-          return throwError(
-            () => new Error(error.message || "Erreur inconnue")
-          );
+    consulterContratsClientParId(clientId: number): Observable<ContratClient[]> {
+      return this.http.get<ContratClient[]>(`${this.apiUrl}/liste?clientId=${clientId}`).pipe(
+        tap(contrats => console.log("✅ Contrats par clientId récupérés :", contrats)),
+        catchError(error => {
+          console.error("❌ Erreur récupération contrats :", error);
+          return throwError(() => new Error(error.message || "Erreur inconnue"));
         })
       );
-  }
+    }
+  
+  
 }
-
-

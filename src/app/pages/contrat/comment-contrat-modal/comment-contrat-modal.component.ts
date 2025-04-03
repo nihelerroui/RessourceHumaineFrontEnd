@@ -4,7 +4,7 @@ import {
   ElementRef,
   Input,
   OnInit,
-  ViewChild
+  ViewChild,
 } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Store } from "@ngrx/store";
@@ -14,18 +14,13 @@ import { ContratClient } from "src/app/models/contratClient.models";
 import { ContratSousTraitant } from "src/app/models/contrat.models";
 import {
   addCommentaireContrat,
-  addCommentaireContratClient,
   deleteCommentaireContrat,
   loadCommentairesContrat,
-  updateCommentaireContrat
+  updateCommentaireContrat,
 } from "src/app/store/commentaire-contrat/commentaire-contrat.actions";
-import {
-  selectCommentairesLoading
-} from "src/app/store/commentaire-contrat/commentaire-contrat.selectors";
+import { selectCommentairesLoading } from "src/app/store/commentaire-contrat/commentaire-contrat.selectors";
 import { selectCommentairesByContratId } from "src/app/store/contratClient/contratClient-selector";
 import { selectCommentairesByContratSousTraitantId } from "src/app/store/commentaire-contrat/commentaire-contrat.selectors";
-
-
 
 type CommentaireContratWithEdit = CommentaireContrat & {
   isEditing?: boolean;
@@ -35,7 +30,7 @@ type CommentaireContratWithEdit = CommentaireContrat & {
 @Component({
   selector: "app-comment-contrat-modal",
   templateUrl: "./comment-contrat-modal.component.html",
-  styleUrls: ["./comment-contrat-modal.component.scss"]
+  styleUrls: ["./comment-contrat-modal.component.scss"],
 })
 export class CommentContratModalComponent implements OnInit, AfterViewInit {
   @Input() contrat!: ContratClient | ContratSousTraitant;
@@ -44,6 +39,7 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
   @Input() isClientMode: boolean = false;
   @Input() contratId: number | null = null;
   @Input() isAdminMode: boolean = false;
+  @Input() currentUserEmail: string | null = null;
 
   @ViewChild("commentSection") commentSection!: ElementRef;
 
@@ -57,22 +53,30 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
   commentToDelete: { id: number; index: number } | null = null;
   isLoading = false;
   hasNoComments = false;
-  
 
-  constructor(public modalRef: BsModalRef, private store: Store) {}
+  constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
     this.isLoading$ = this.store.select(selectCommentairesLoading);
 
     if (this.contratClientId !== null) {
-      this.store.dispatch(loadCommentairesContrat({ contratId: this.contratClientId }));
-      this.comments$ = this.store.select(selectCommentairesByContratId(this.contratClientId));
+      this.store.dispatch(
+        loadCommentairesContrat({ contratId: this.contratClientId })
+      );
+      this.comments$ = this.store.select(
+        selectCommentairesByContratId(this.contratClientId)
+      );
     } else if (this.contratId !== null) {
-      this.store.dispatch(loadCommentairesContrat({ contratId: this.contratId, isSousTraitant: true }));
-      this.comments$ = this.store.select(selectCommentairesByContratSousTraitantId(this.contratId));
+      this.store.dispatch(
+        loadCommentairesContrat({
+          contratId: this.contratId,
+          isSousTraitant: true,
+        })
+      );
+      this.comments$ = this.store.select(
+        selectCommentairesByContratSousTraitantId(this.contratId)
+      );
     }
-    
-    
   }
 
   ngAfterViewInit(): void {
@@ -84,23 +88,7 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
     this.isSubmitting = true;
 
-    let auteur = "Administrateur";
-
-    // Client connecté avec token => Client
-    if (this.isClientMode) {
-      auteur = "Client";
-    }
-    else if (this.isAdminMode) {
-      auteur = "Administrateur";
-    }
-    // Si l'utilisateur est un sous-traitant et non un admin => nom du consultant
-    else if (
-      this.contrat &&
-      (this.contrat as ContratSousTraitant)?.consultant?.name &&
-      !this.token // si token inexistant = pas un client = sous-traitant
-    ) {
-      auteur = (this.contrat as ContratSousTraitant).consultant.name;
-    }
+    const auteur = this.currentUserEmail || "Utilisateur inconnu";
 
     const newCommentaire: CommentaireContrat = {
       contenu: this.newComment,
@@ -119,9 +107,7 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
     this.isSubmitting = false;
     setTimeout(() => this.scrollToBottom(), 300);
   }
-  
-  
-  
+
   startEdit(comment: CommentaireContratWithEdit): void {
     comment.isEditing = true;
     comment.editContent = comment.contenu;
@@ -133,25 +119,19 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
   saveEdit(comment: CommentaireContratWithEdit): void {
     if (!comment.editContent?.trim()) return;
-  
+
     const updatedComment: CommentaireContrat = {
       commentaireId: comment.commentaireId,
       contenu: comment.editContent,
       auteurCommentaire: comment.auteurCommentaire,
-      dateCommentaire: comment.dateCommentaire
+      dateCommentaire: comment.dateCommentaire,
+      ...(this.contratClientId && { contratClient: { contratClientId: this.contratClientId } }),
+      ...(this.contratId && { contratSousTraitant: { contratId: this.contratId } }),
     };
-  
-    // Associer le bon contrat
-    if (this.contratClientId) {
-      updatedComment.contratClient = { contratClientId: this.contratClientId };
-    } else if (this.contratId) {
-      updatedComment.contratSousTraitant = { contratId: this.contratId };
-    }
-  
+
     this.store.dispatch(updateCommentaireContrat({ commentaire: updatedComment }));
     comment.isEditing = false;
   }
-  
 
   confirmDelete(commentaireId: number): void {
     this.showDeleteConfirmation = true;
@@ -165,7 +145,9 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
   confirmDeleteAction(): void {
     if (!this.commentToDelete) return;
-    this.store.dispatch(deleteCommentaireContrat({ commentaireId: this.commentToDelete.id }));
+    this.store.dispatch(
+      deleteCommentaireContrat({ commentaireId: this.commentToDelete.id })
+    );
     this.cancelDelete();
   }
 

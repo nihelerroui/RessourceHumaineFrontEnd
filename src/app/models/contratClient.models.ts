@@ -6,7 +6,8 @@ export interface ContratClient {
   statutContrat: string;
   client?: { 
     clientId: number;
-    nom?: String;
+    nom?: string;
+    email?: string;
   };
 }
 
