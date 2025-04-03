@@ -1,5 +1,4 @@
-import { Action, createReducer, on } from '@ngrx/store';
-import { Facture } from '../../models/facture.model';
+import { createReducer, on } from '@ngrx/store';
 import {
   loadFactures,
   loadFacturesSuccess,
@@ -12,94 +11,56 @@ import {
   updateFactureFailure,
   deleteFacture,
   deleteFactureSuccess,
-  deleteFactureFailure
+  deleteFactureFailure,
+  setFileUrl
 } from './facture.actions';
+import { Facture } from '../../models/facture.model';
 
-// 🔹 Interface pour le state Facture
 export interface FactureState {
   factures: Facture[];
   loading: boolean;
   error: string | null;
+  fileUrl: string | null;
 }
 
-// 🔹 État initial
 export const initialState: FactureState = {
   factures: [],
   loading: false,
-  error: null
+  error: null,
+  fileUrl: null
 };
 
-// 🔹 Reducer
 export const factureReducer = createReducer(
   initialState,
-
-  // 🚀 Charger les factures
-  on(loadFactures, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
-  on(loadFacturesSuccess, (state, { factures }) => ({
-    ...state,
-    factures,
-    loading: false
-  })),
-  on(loadFacturesFailure, (state, { error }) => ({
-    ...state,
-    error,
-    loading: false
-  })),
-
-  // 🚀 Ajouter une facture
-  on(addFacture, (state) => ({
-    ...state,
-    loading: true
-  })),
+  on(loadFactures, (state) => ({ ...state, loading: true })),
+  on(loadFacturesSuccess, (state, { factures }) => ({ ...state, factures, loading: false })),
+  on(loadFacturesFailure, (state, { error }) => ({ ...state, error, loading: false })),
+  
+  on(addFacture, (state) => ({ ...state, loading: true })),
   on(addFactureSuccess, (state, { facture }) => ({
     ...state,
     factures: [...state.factures, facture],
     loading: false
   })),
-  on(addFactureFailure, (state, { error }) => ({
-    ...state,
-    error,
-    loading: false
-  })),
+  on(addFactureFailure, (state, { error }) => ({ ...state, error, loading: false })),
 
-  // 🚀 Mettre à jour une facture
-  on(updateFacture, (state) => ({
-    ...state,
-    loading: true
-  })),
+  on(updateFacture, (state) => ({ ...state, loading: true })),
   on(updateFactureSuccess, (state, { facture }) => ({
     ...state,
-    factures: state.factures.map((f) => (f.factureId === facture.factureId ? facture : f)),
+    factures: state.factures.map(f => f.factureId === facture.factureId ? facture : f),
     loading: false
   })),
-  on(updateFactureFailure, (state, { error }) => ({
-    ...state,
-    error,
-    loading: false
-  })),
+  on(updateFactureFailure, (state, { error }) => ({ ...state, error, loading: false })),
 
-  // 🚀 Supprimer une facture
-  on(deleteFacture, (state) => ({
-    ...state,
-    loading: true
-  })),
+  on(deleteFacture, (state) => ({ ...state, loading: true })),
   on(deleteFactureSuccess, (state, { factureId }) => ({
     ...state,
-    factures: state.factures.filter((f) => f.factureId !== factureId),
+    factures: state.factures.filter(f => f.factureId !== factureId),
     loading: false
   })),
-  on(deleteFactureFailure, (state, { error }) => ({
+  on(deleteFactureFailure, (state, { error }) => ({ ...state, error, loading: false })),
+  on(setFileUrl, (state, { fileUrl }) => ({
     ...state,
-    error,
-    loading: false
+    fileUrl
   }))
 );
-
-// 🔹 Exporter le reducer
-export function reducer(state: FactureState | undefined, action: Action) {
-  return factureReducer(state, action);
-}

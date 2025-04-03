@@ -82,6 +82,18 @@
     "SOCIETE": "SOCIETE",
     "CLIENT": "CLIENT",
     "FACTURE": "FACTURE",
+    "PAYS": {
+      "TEXT": "PAYS"
+    },
+    "SOCIETE": {
+      "TEXT": "SOCIETE"
+    },
+    "CLIENT": {
+      "TEXT": "CLIENT"
+    },
+    "FACTURE": {
+      "TEXT": "FACTURE"
+    },
     "DASHBOARDS": {
       "TEXT": "Dashboards",
       "BADGE": "04",
