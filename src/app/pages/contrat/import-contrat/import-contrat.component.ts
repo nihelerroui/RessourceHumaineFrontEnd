@@ -62,7 +62,6 @@ export class ImportContratComponent implements OnInit {
       }
     }
   }
-  // Soumission du formulaire d'importation
   importerContrat() {
     const clientId = localStorage.getItem('clientId');
   
