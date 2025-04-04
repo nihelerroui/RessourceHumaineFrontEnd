@@ -1,31 +1,31 @@
-import { NgModule } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { environment } from "../environments/environment";
+import { environment } from '../environments/environment';
 
 // Swiper Slider
-import { SlickCarouselModule } from "ngx-slick-carousel";
+import { SlickCarouselModule } from 'ngx-slick-carousel';
 // bootstrap component
-import { TabsModule } from "ngx-bootstrap/tabs";
-import { TooltipModule } from "ngx-bootstrap/tooltip";
-import { AccordionModule } from "ngx-bootstrap/accordion";
-import { ToastrModule } from "ngx-toastr";
-import { ScrollToModule } from "@nicky-lenaers/ngx-scroll-to";
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { AccordionModule } from 'ngx-bootstrap/accordion';
+import { ToastrModule } from 'ngx-toastr';
+import { ScrollToModule } from '@nicky-lenaers/ngx-scroll-to';
 
 // Store
-import { StoreModule } from "@ngrx/store";
-import { StoreDevtoolsModule } from "@ngrx/store-devtools";
-import { EffectsModule } from "@ngrx/effects";
+import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
 // Page Route
-import { ExtrapagesModule } from "./extrapages/extrapages.module";
-import { LayoutsModule } from "./layouts/layouts.module";
-import { AppRoutingModule } from "./app-routing.module";
-import { AppComponent } from "./app.component";
-import { initFirebaseBackend } from "./authUtils";
-import { CyptolandingComponent } from "./cyptolanding/cyptolanding.component";
-import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { ExtrapagesModule } from './extrapages/extrapages.module';
+import { LayoutsModule } from './layouts/layouts.module';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { initFirebaseBackend } from './authUtils';
+import { CyptolandingComponent } from './cyptolanding/cyptolanding.component';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 // Auth
 import {
@@ -33,15 +33,15 @@ import {
   HTTP_INTERCEPTORS,
   HttpClient,
 } from "@angular/common/http";
-import { ErrorInterceptor } from "./core/helpers/error.interceptor";
-import { JwtInterceptor } from "./core/helpers/jwt.interceptor";
-import { FakeBackendInterceptor } from "./core/helpers/fake-backend";
-import { rootReducer } from "./store";
-import { AuthenticationEffects } from "./store/Authentication/authentication.effects";
-import { AngularFireModule } from "@angular/fire/compat";
-import { AngularFireAuthModule } from "@angular/fire/compat/auth";
-import { UIModule } from "./shared/ui/ui.module";
-import { SharedModule } from "./cyptolanding/shared/shared.module";
+import { ErrorInterceptor } from './core/helpers/error.interceptor';
+import { JwtInterceptor } from './core/helpers/jwt.interceptor';
+import { FakeBackendInterceptor } from './core/helpers/fake-backend';
+import { rootReducer } from './store';
+import { AuthenticationEffects } from './store/Authentication/authentication.effects';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { UIModule } from './shared/ui/ui.module';
+import { SharedModule } from './cyptolanding/shared/shared.module';
 
 if (environment.defaultauth === "firebase") {
   initFirebaseBackend(environment.firebaseConfig);
