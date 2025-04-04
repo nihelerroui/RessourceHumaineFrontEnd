@@ -10,6 +10,7 @@ import {
 import { ContratClient } from "src/app/models/contratClient.models";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { CommentContratModalComponent } from "../comment-contrat-modal/comment-contrat-modal.component";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-contrats-client-list",
@@ -68,13 +69,14 @@ export class ContratsClientListComponent implements OnInit {
       console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
       return;
     }
-
+  
     const fileName = contrat.filePath.split("\\").pop();
-    const fileUrl = `http://localhost:8089/spring/contratsClient/fichier/${fileName}`;
-
+    const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
+  
     console.log("Ouverture du fichier :", fileUrl);
     window.open(fileUrl, "_blank");
   }
+  
 
   ouvrirCommentairesClient(contrat: ContratClient): void {
     const emailClient = contrat.client?.email || 'client@featway.com';

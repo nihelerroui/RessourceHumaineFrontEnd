@@ -17,6 +17,7 @@ import {
 } from "src/app/store/contratClient/contratClient.actions";
 import {SafeResourceUrl } from "@angular/platform-browser";
 import { CommentContratModalComponent } from "../../contrat/comment-contrat-modal/comment-contrat-modal.component";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-contrat-client-admin",
@@ -95,13 +96,14 @@ export class ContratClientAdminComponent implements OnInit {
       console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
       return;
     }
-
+  
     const fileName = contrat.filePath.split("\\").pop();
-    const fileUrl = `http://localhost:8089/spring/contratsClient/fichier/${fileName}`;
-
-    console.log("📄 Ouverture du fichier :", fileUrl);
+    const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
+  
+    console.log("Ouverture du fichier :", fileUrl);
     window.open(fileUrl, "_blank");
   }
+  
   ouvrirCommentaireContrat(contrat: ContratClient): void {
     const emailAdmin = 'admin@featway.com';
     this.modalRef = this.modalService.show(CommentContratModalComponent, {

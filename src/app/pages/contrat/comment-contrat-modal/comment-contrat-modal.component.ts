@@ -90,23 +90,24 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
     const auteur = this.currentUserEmail || "Utilisateur inconnu";
 
-    const newCommentaire: CommentaireContrat = {
+    const commentaire: CommentaireContrat = {
       contenu: this.newComment,
       auteurCommentaire: auteur,
-      dateCommentaire: new Date() as any,
+      dateCommentaire: new Date().toISOString(),
     };
 
-    if (this.contratClientId) {
-      newCommentaire.contratClient = { contratClientId: this.contratClientId };
-    } else if (this.contratId) {
-      newCommentaire.contratSousTraitant = { contratId: this.contratId };
+    if ('contratClientId' in (this.contrat as ContratClient)) {
+      commentaire.contratClient = this.contrat as ContratClient;
+    } else if ('contratId' in (this.contrat as ContratSousTraitant)) {
+      commentaire.contratSousTraitant = this.contrat as ContratSousTraitant;
     }
 
-    this.store.dispatch(addCommentaireContrat({ commentaire: newCommentaire }));
+    this.store.dispatch(addCommentaireContrat({ commentaire }));
     this.newComment = "";
     this.isSubmitting = false;
     setTimeout(() => this.scrollToBottom(), 300);
   }
+
 
   startEdit(comment: CommentaireContratWithEdit): void {
     comment.isEditing = true;
@@ -125,8 +126,12 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
       contenu: comment.editContent,
       auteurCommentaire: comment.auteurCommentaire,
       dateCommentaire: comment.dateCommentaire,
-      ...(this.contratClientId && { contratClient: { contratClientId: this.contratClientId } }),
-      ...(this.contratId && { contratSousTraitant: { contratId: this.contratId } }),
+      ...(this.contrat && 'contratClientId' in this.contrat && {
+        contratClient: this.contrat as ContratClient,
+      }),
+      ...(this.contrat && 'contratId' in this.contrat && {
+        contratSousTraitant: this.contrat as ContratSousTraitant,
+      }),
     };
 
     this.store.dispatch(updateCommentaireContrat({ commentaire: updatedComment }));
