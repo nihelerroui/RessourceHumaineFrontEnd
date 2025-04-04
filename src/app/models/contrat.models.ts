@@ -1,12 +1,12 @@
 import { Consultant } from "./consultant.models";
 
 export interface ContratSousTraitant {
-  contratId?: number;
-  dateDebut: string;
-  dateFin: string;
-  tjm: number;
-  conditionsFac: string;
-  statutContrat: string;
+  contratId: number;
+  dateDebut?: string;
+  dateFin?: string;
+  tjm?: number;
+  conditionsFac?: string;
+  statutContrat?: string;
   filePath?: string;
   designation?: string;
   consultant: Consultant;

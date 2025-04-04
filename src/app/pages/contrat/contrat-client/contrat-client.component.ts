@@ -70,13 +70,12 @@ export class ContratClientAdminComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  //Modifier le statut du contrat (Valider ou Rejeter)
   modifierStatutContrat(
     contrat: ContratClient,
     nouveauStatut: StatutContrat
   ): void {
-    if (!contrat.contratClientId) {
-      console.error("❌ Erreur : L'ID du contrat est NULL !");
+    if (!contrat.contratClientId || !contrat.client?.clientId) {
+      console.error("❌ Erreur : L'ID du contrat ou du client est manquant !");
       return;
     }
   
@@ -84,12 +83,13 @@ export class ContratClientAdminComponent implements OnInit {
       ...contrat,
       statutContrat: nouveauStatut,
       client: {
-        clientId: contrat.client?.clientId!
+        clientId: contrat.client.clientId
       }
     };
   
     this.store.dispatch(updateContratClient({ contrat: contratModifie }));
   }
+  
   
   visualiserContrat(contrat: ContratClient): void {
     if (!contrat.filePath) {

@@ -1,14 +1,12 @@
+import { Client } from "./client.model";
+
 export interface ContratClient {
   contratClientId?: number;
   designation?: string;
   tjm: number;
   filePath?: string;
   statutContrat: string;
-  client?: { 
-    clientId: number;
-    nom?: string;
-    email?: string;
-  };
+  client?: Client
 }
 
 export enum StatutContrat {
