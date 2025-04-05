@@ -62,4 +62,18 @@ export const loadContratsClientByClientIdFailure = createAction(
   "[ContratClient] Load Contrats By Client ID Failure",
   props<{ error: string }>()
 );
+// Recherche avancée avec filtres
+export const searchContracts = createAction(
+  "[ContratClient] Search Contracts",
+  props<{ filters: any }>()
+);
+export const searchContractsSuccess = createAction(
+  "[ContratClient] Search Contracts Success",
+  props<{ contrats: ContratClient[] }>()
+);
+
+export const searchContractsFailure = createAction(
+  "[ContratClient] Search Contracts Failure",
+  props<{ error: string }>()
+);
 

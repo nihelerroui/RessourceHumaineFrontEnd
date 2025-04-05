@@ -1,8 +1,14 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { catchError, Observable, tap, throwError } from "rxjs";
 import { ContratClient } from "../../models/contratClient.models";
 import { GenericService } from "../../core/services/generic.service";
+
+interface ContratFilters {
+  statutContrat?: string;
+  minTjm?: number;
+  maxTjm?: number;
+}
 
 @Injectable({
   providedIn: "root",
@@ -19,18 +25,29 @@ export class ContratClientService extends GenericService<ContratClient> {
     formData.append("clientId", clientId.toString());
     formData.append("designation", designation);
     formData.append("tjm", tjm.toString());
-  
+
     return this.http.post<ContratClient>(`${this.apiUrl}/importer`, formData);
   }
-    consulterContratsClientParId(clientId: number): Observable<ContratClient[]> {
-      return this.http.get<ContratClient[]>(`${this.apiUrl}/liste?clientId=${clientId}`).pipe(
-        tap(contrats => console.log("✅ Contrats par clientId récupérés :", contrats)),
-        catchError(error => {
-          console.error("❌ Erreur récupération contrats :", error);
-          return throwError(() => new Error(error.message || "Erreur inconnue"));
-        })
-      );
+  consulterContratsClientParId(clientId: number): Observable<ContratClient[]> {
+    return this.http.get<ContratClient[]>(`${this.apiUrl}/liste?clientId=${clientId}`).pipe(
+      tap(contrats => console.log("✅ Contrats par clientId récupérés :", contrats)),
+      catchError(error => {
+        console.error("❌ Erreur récupération contrats :", error);
+        return throwError(() => new Error(error.message || "Erreur inconnue"));
+      })
+    );
+  }
+  // Rechercher un contrat client avec filtres
+searchContrats(filters: ContratFilters): Observable<ContratClient[]> {
+  let params = new HttpParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      params = params.set(key, value.toString());
     }
-  
-  
+  });
+
+  return this.http.get<ContratClient[]>(`${this.apiUrl}/search`, { params }).pipe(
+    tap(data => console.log("📦 Résultat de recherche (contrats):", data))
+  );
+}
 }

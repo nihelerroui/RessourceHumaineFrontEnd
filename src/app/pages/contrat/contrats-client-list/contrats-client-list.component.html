@@ -17,14 +17,32 @@
   </div>
 
   <div class="table-container">
-    <div class="card">
-      <div class="card-body border-bottom">
-        <div class="d-flex align-items-center">
-          <h5 class="mb-0 card-title flex-grow-1 text-center">
-            Contrats Lists
-          </h5>
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-xxl-2 col-lg-6">
+              <select class="form-select" [(ngModel)]="selectedStatut">
+                <option value>Tous les statuts</option>
+                <option *ngFor="let statut of statutContratValues" [value]="statut">
+                  {{ getStatutLabel(statut) }}
+                </option>
+              </select>
+            </div>
+            <div class="col-xxl-3 col-lg-4">
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm" />
+                <span class="input-group-text">-</span>
+                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm" />
+              </div>
+            </div>
+            <div class="col-xxl-2 col-lg-4 d-flex align-items-center">
+              <button type="button" class="btn btn-primary w-100 px-2" (click)="searchContrat()">
+                <i class="mdi mdi-filter-outline align-middle"></i> Appliquer le filtre
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
 
       <div class="card-body">
         <div class="table-responsive">

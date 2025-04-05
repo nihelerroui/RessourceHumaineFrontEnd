@@ -4,12 +4,14 @@ import { ContratClient } from "../../models/contratClient.models";
 
 export interface ContratClientState {
   contrats: ContratClient[];
+  searchResults: ContratClient[];
   loading: boolean;
   error: string | null;
 }
 
 export const initialState: ContratClientState = {
   contrats: [],
+  searchResults: [], 
   loading: false,
   error: null,
 };
@@ -24,6 +26,7 @@ export const contratClientReducer = createReducer(
   on(ContratClientActions.loadContratsClientSuccess, (state, { contrats }) => ({
     ...state,
     contrats,
+    searchResults: contrats,
     loading: false,
     error: null,
   })),
@@ -56,6 +59,7 @@ export const contratClientReducer = createReducer(
   on(ContratClientActions.loadContratsClientByClientIdSuccess, (state, { contrats }) => ({
     ...state,
     contrats,
+    searchResults: contrats,
     loading: false,
     error: null,
   })),
@@ -74,5 +78,17 @@ export const contratClientReducer = createReducer(
   on(ContratClientActions.updateContratClientFailure, (state, { error }) => ({
     ...state,
     error,
-  }))
+  })),
+  // Recherche avancée
+  on(ContratClientActions.searchContractsSuccess, (state, { contrats }) => ({
+    ...state,
+    searchResults: contrats,
+    loading: false,
+  })),
+  on(ContratClientActions.searchContractsFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+  
 );

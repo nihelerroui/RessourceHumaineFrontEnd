@@ -5,9 +5,10 @@ import { combineLatest, map, Observable } from "rxjs";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
 import {
   selectAllContratsClient,
-  selectContratsClientLoading
+  selectContratsClientLoading,
+  selectContratsClientSearchResults
 } from "../../../store/contratClient/contratClient-selector";
-import { ContratClient } from "src/app/models/contratClient.models";
+import { ContratClient, StatutContrat } from "src/app/models/contratClient.models";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { CommentContratModalComponent } from "../comment-contrat-modal/comment-contrat-modal.component";
 import { environment } from "src/environments/environment";
@@ -17,7 +18,7 @@ import { environment } from "src/environments/environment";
   templateUrl: "./contrats-client-list.component.html"
 })
 export class ContratsClientListComponent implements OnInit {
-  contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectAllContratsClient));
+  contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectContratsClientSearchResults));
   loading$: Observable<boolean> = this.store.select(selectContratsClientLoading);
 
   contratsPagination$: Observable<ContratClient[]> = new Observable();
@@ -26,6 +27,12 @@ export class ContratsClientListComponent implements OnInit {
   token: string | null = null;
   modalRef: BsModalRef | null = null;
   contratFileUrl: string | null = null;
+  // Critères de recherche
+  searchTerm: string = "";
+  selectedStatut: string = "";
+  minTjm: number | null = null;
+  maxTjm: number | null = null;
+  statutContratValues = Object.values(StatutContrat);
 
   page = 1;
   contratsParPage = 5;
@@ -58,8 +65,6 @@ export class ContratsClientListComponent implements OnInit {
       })
     );
   }
-
-
   trackById(index: number, item: ContratClient): number {
     return item.contratClientId;
   }
@@ -76,8 +81,6 @@ export class ContratsClientListComponent implements OnInit {
     console.log("Ouverture du fichier :", fileUrl);
     window.open(fileUrl, "_blank");
   }
-  
-
   ouvrirCommentairesClient(contrat: ContratClient): void {
     const emailClient = contrat.client?.email || 'client@featway.com';
 
@@ -91,5 +94,32 @@ export class ContratsClientListComponent implements OnInit {
       class: "modal-lg"
     });
   }
-
+  getStatutLabel(statut: string): string {
+      const statutLabels: { [key: string]: string } = {
+        EN_ATTENTE: "En Attente",
+        CONFIRME_ADMIN: "Confirmé Admin",
+        CONFIRMATION_COMPLETE: "Confirmation Complète",
+        REJETE: "Rejeté",
+      };
+      return statutLabels[statut] || "Inconnu";
+    }
+    getStatutClass(statut: string): string {
+      const statutClasses: { [key: string]: string } = {
+        EN_ATTENTE: "badge bg-warning text-dark",
+        CONFIRME_ADMIN: "badge bg-primary",
+        CONFIRMATION_COMPLETE: "badge bg-success",
+        REJETE: "badge bg-danger",
+      };
+      return statutClasses[statut] || "badge bg-secondary";
+    }
+    searchContrat() {
+        const filters = {
+          statutContrat: this.selectedStatut || null,
+          minTjm: this.minTjm !== null ? this.minTjm : null,
+          maxTjm: this.maxTjm !== null ? this.maxTjm : null
+        };
+      
+        this.store.dispatch(ContratActions.searchContracts({ filters }));
+        this.updatePagination();
+      }
 }

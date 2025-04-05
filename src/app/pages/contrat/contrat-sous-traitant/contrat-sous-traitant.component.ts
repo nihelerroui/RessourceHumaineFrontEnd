@@ -277,6 +277,7 @@ export class ContratSousTraitantComponent implements OnInit {
     };
   
     this.store.dispatch(ContratActions.searchContracts({ filters }));
+    this.updatePagination();
   }
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
     const emailSousTraitant = contrat.consultant?.user?.email || 'consultant@featway.com';

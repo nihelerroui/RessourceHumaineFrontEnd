@@ -27,3 +27,8 @@ export const selectContratsClientError = createSelector(
   selectContratClientState,
   (state) => state.error
 );
+export const selectContratsClientSearchResults = createSelector(
+  selectContratClientState,
+  (state) => state.searchResults
+);
+

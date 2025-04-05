@@ -106,6 +106,36 @@ export class ListeContratSousTraitantComponent {
       }
     );
   }
+  searchContrat() {
+    const filters = {
+      statutContrat: this.selectedStatut || null,
+      dateDebut: this.dateDebut || null,
+      dateFin: this.dateFin || null,
+      minTjm: this.minTjm !== null ? this.minTjm : null,
+      maxTjm: this.maxTjm !== null ? this.maxTjm : null
+    };
+    this.store.dispatch(ContratActions.searchContracts({ filters }));
+    this.updatePagination();
+  }
+  getStatutLabel(statut: string): string {
+    const statutLabels: { [key: string]: string } = {
+      EN_ATTENTE: "En Attente",
+      CONFIRME_ADMIN: "Confirmé Admin",
+      CONFIRMATION_COMPLETE: "Confirmation Complète",
+      REJETE: "Rejeté",
+    };
+    return statutLabels[statut] || "Inconnu";
+  }
+
+  getStatutClass(statut: string): string {
+    const statutClasses: { [key: string]: string } = {
+      EN_ATTENTE: "badge bg-warning text-dark",
+      CONFIRME_ADMIN: "badge bg-primary",
+      CONFIRMATION_COMPLETE: "badge bg-success",
+      REJETE: "badge bg-danger",
+    };
+    return statutClasses[statut] || "badge bg-secondary";
+  }
   modifierStatutContrat(
     contrat: ContratSousTraitant,
     nouveauStatut: StatutContrat
@@ -134,5 +164,7 @@ export class ListeContratSousTraitantComponent {
         );
       },
     });
+    
   }
+  
 }

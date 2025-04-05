@@ -5,10 +5,33 @@
     <div class="col-12">
       <div class="card">
         <div class="card-body border-bottom">
-          <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
-            <div class="flex-shrink-0 d-flex gap-1">
-              <a href="javascript:void(0);" class="btn btn-light"><i class="mdi mdi-refresh"></i></a>
+          <div class="row g-3">
+            <div class="col-xxl-2 col-lg-6">
+              <select class="form-select" [(ngModel)]="selectedStatut">
+                <option value>Tous les statuts</option>
+                <option *ngFor="let statut of statutContrats" [value]="statut">
+                  {{ getStatutLabel(statut) }}
+                </option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <input type="date" class="form-control" [(ngModel)]="dateDebut" />
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <input type="date" class="form-control" [(ngModel)]="dateFin" />
+            </div>
+            <div class="col-xxl-3 col-lg-4">
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm" />
+                <span class="input-group-text">-</span>
+                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm" />
+              </div>
+            </div>
+            <div class="col-xxl-2 col-lg-4 d-flex align-items-center">
+              <button type="button" class="btn btn-primary w-100" (click)="searchContrat()">
+                <i class="mdi mdi-filter-outline align-middle"></i> Appliquer le
+                filtre
+              </button>
             </div>
           </div>
         </div>
