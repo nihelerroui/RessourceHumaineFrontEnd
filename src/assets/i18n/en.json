@@ -78,10 +78,7 @@
     "CONTRATCLIENTADMIN": {
       "TEXT": "ContratClient"
     },
-    "PAYS": "PAYS",
-    "SOCIETE": "SOCIETE",
-    "CLIENT": "CLIENT",
-    "FACTURE": "FACTURE",
+
     "PAYS": {
       "TEXT": "PAYS"
     },

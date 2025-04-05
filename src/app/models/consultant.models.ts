@@ -1,4 +1,6 @@
 import { User } from "../store/Authentication/auth.models";
+import { PersonalDetails } from "./PersonalDetails.model";
+import { Societe } from "./societe.model";
 
 
 export interface Consultant {
@@ -15,4 +17,6 @@ export interface Consultant {
   isCommercial?: boolean;
 
   user?: User;
+  societe?:Societe;
+  personaldetails?: PersonalDetails;
 }

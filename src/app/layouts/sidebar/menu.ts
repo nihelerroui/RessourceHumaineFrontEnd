@@ -73,25 +73,25 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 10,
-    label: "MENUITEMS.PAYS",
+    label: "MENUITEMS.PAYS.TEXT",
     icon: "bx-calendar",
     link: "/pays/list",
   },
   {
     id: 11,
-    label: "MENUITEMS.SOCIETE",
+    label: "MENUITEMS.SOCIETE.TEXT",
     icon: "bx-chat",
     link: "/societe/list",
   },
   {
     id: 12,
-    label: "MENUITEMS.CLIENT",
+    label: "MENUITEMS.CLIENT.TEXT",
     icon: "bx-file",
     link: "/client/list",
   },
   {
     id: 12,
-    label: "MENUITEMS.FACTURE",
+    label: "MENUITEMS.FACTURE.TEXT",
     icon: "bx-file",
     link: "/facture/list",
   },
@@ -227,37 +227,7 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.CONTRATSOUSTRAITANT.TEXT',
         icon: 'bx bx-message-alt-dots',
         link: '/contratsoustraitant'},
-    {
-        id: 10,
-        label: 'MENUITEMS.PAYS.TEXT',
-        icon: 'bx-calendar',
-        link: '/pays/list',
-    },
-    {
-        id: 11,
-        label: 'MENUITEMS.SOCIETE.TEXT',
-        icon: 'bx-chat',
-        link: '/societe/list',
-
-    },
-    {
-        id: 12,
-        label: 'MENUITEMS.CLIENT.TEXT',
-        icon: 'bx-file',
-        link: '/client/list',
-    },
-    {
-        id: 12,
-        label: 'MENUITEMS.FACTURE.TEXT',
-        icon: 'bx-file',
-        link: '/facture/list',
-    },
-    {
-        id: 12,
-        label: 'TRESORIE',
-        icon: 'bx-file',
-        link: '/tresorie',
-    },
+    ,
     {
         id: 13,
         label: 'MENUITEMS.ECOMMERCE.TEXT',
