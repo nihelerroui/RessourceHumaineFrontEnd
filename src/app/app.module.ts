@@ -28,11 +28,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 // Auth
-import {
-  HttpClientModule,
-  HTTP_INTERCEPTORS,
-  HttpClient,
-} from "@angular/common/http";
+import {HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from "@angular/common/http";
 import { ErrorInterceptor } from './core/helpers/error.interceptor';
 import { JwtInterceptor } from './core/helpers/jwt.interceptor';
 import { FakeBackendInterceptor } from './core/helpers/fake-backend';
@@ -67,8 +63,8 @@ export function createTranslateLoader(http: HttpClient): any {
       loader: {
         provide: TranslateLoader,
         useFactory: createTranslateLoader,
-        deps: [HttpClient],
-      },
+        deps: [HttpClient]
+      }
     }),
     LayoutsModule,
     AppRoutingModule,
@@ -98,4 +94,4 @@ export function createTranslateLoader(http: HttpClient): any {
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

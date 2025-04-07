@@ -115,31 +115,21 @@ export class ContratsClientListComponent implements OnInit {
     this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
       map(([contratsClients]) => {
         let filtered = contratsClients;
-
-        // Filtrer par statut
         if (this.selectedStatut) {
           filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
         }
-
-        // Filtrer par min TJM
         if (this.minTjm !== null) {
           filtered = filtered.filter(c => c.tjm >= this.minTjm!);
         }
-
-        // Filtrer par max TJM
         if (this.maxTjm !== null) {
           filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
         }
-
-        // Mettre à jour le total
         const total = filtered.length;
         this.total$ = new Observable(observer => observer.next(total));
-
-        // Appliquer la pagination
         const start = (this.page - 1) * this.contratsParPage;
         return filtered.slice(start, start + this.contratsParPage);
       })
     );
   }
-
+  
 }
