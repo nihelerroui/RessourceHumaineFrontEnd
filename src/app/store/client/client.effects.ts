@@ -16,7 +16,10 @@ import {
   updateClientFailure,
   deleteClient,
   deleteClientSuccess,
-  deleteClientFailure
+  deleteClientFailure,
+  sendImportEmailSuccess,
+  sendImportEmailFailure,
+  sendImportEmail
 } from './client.actions';
 import { Client } from 'src/app/models/client.model';
 
@@ -74,6 +77,21 @@ export class ClientEffects {
       )
     )
   );
+  // 🔹 Envoyer email d'import de contrat
+sendImportEmail$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(sendImportEmail),
+    mergeMap((action) =>
+      this.clientService.envoyerEmailImport(action.clientId).pipe(
+        map(() => sendImportEmailSuccess()),
+        catchError((error) =>
+          of(sendImportEmailFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
 
   constructor(
     private actions$: Actions,

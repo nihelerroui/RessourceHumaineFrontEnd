@@ -11,5 +11,8 @@ export class ClientService extends GenericService<Client> {
   constructor(protected http: HttpClient) {
     super(http, 'clients'); 
   }
-
+  envoyerEmailImport(clientId: number) {
+    return this.http.post(`${this.apiUrl}/envoyer-email/${clientId}`, {});
+  }
+  
 }
