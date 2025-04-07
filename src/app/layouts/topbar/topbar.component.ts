@@ -33,6 +33,12 @@ export class TopbarComponent implements OnInit {
   layout: string;
   dataLayout$: Observable<string>;
   // Define layoutMode as a property
+  //routes client
+  routesToHideBars: string[] = [
+    '/import-contrat',
+    '/contrats-client'
+  ];
+  showBars: boolean = true;
 
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private authService: AuthenticationService,
     private authFackservice: AuthfakeauthenticationService,
@@ -56,6 +62,13 @@ export class TopbarComponent implements OnInit {
   @Output() mobileMenuButtonClicked = new EventEmitter();
 
   ngOnInit() {
+    //détection de currentPath et le comparer
+    this.router.events.subscribe(() => {
+      const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
+      const currentPath = '/' + (urlSegments?.[0]?.path || '');
+  
+      this.showBars = !this.routesToHideBars.includes(currentPath);
+    });
     // this.initialAppState = initialState;
     this.store.select('layout').subscribe((data) => {
       this.theme = data.DATA_LAYOUT;

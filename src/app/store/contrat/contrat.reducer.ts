@@ -16,11 +16,9 @@ const initialState: ContratState = {
 export const contratReducer = createReducer(
   initialState,
   //charger les contrat
-  on(ContratActions.loadContractsSuccess, (state, { contrats }) => ({
-    ...state,
-    contrats,
-    error: null,
-  })),
+  on(ContratActions.loadContractsSuccess, (state, { contrats }) => {
+    return { ...state, contrats, loading: false };
+  }),
   on(ContratActions.loadContractsFailure, (state, { error }) => ({
     ...state,
     error,
@@ -47,10 +45,4 @@ export const contratReducer = createReducer(
     ...state,
     contrats: state.contrats.filter((contrat) => contrat.contratId !== id),
   })),
-  // Recherche avancée
-  on(ContratActions.searchContractsSuccess, (state, { contrats }) => ({
-    ...state,
-    contrats,
-    loading: false,
-  }))
 );

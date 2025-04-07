@@ -17,19 +17,32 @@ export class ContratEffects {
   loadContracts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ContratActions.loadContracts),
-      tap(() => console.log("Action loadContracts déclenchée")),
       switchMap(() =>
         this.contratService.getAll().pipe(
-          tap((contrats) => console.log("Contrats chargés :", contrats)),
           map((contrats) => ContratActions.loadContractsSuccess({ contrats })),
           catchError((error) => {
-            console.error("❌ Erreur lors du chargement des contrats :", error);
             return of(ContratActions.loadContractsFailure({ error: error.message || error }));
           })
         )
       )
     )
   );
+  //Charger la liste des contrats d'un sous-traitant
+  loadContractsByConsultant$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratActions.loadContractsByConsultant),
+      mergeMap(({ consultantId }) =>
+        this.contratService.getContratsByConsultant(consultantId).pipe(
+          map((contrats) => ContratActions.loadContractsSuccess({ contrats })),
+          catchError((error) =>
+            of(ContratActions.loadContractsFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+  
+  
   // Ajouter un contrat
   addContract$ = createEffect(() =>
     this.actions$.pipe(
@@ -73,19 +86,6 @@ export class ContratEffects {
               console.error("Erreur lors de la suppression du contrat :", error);
               return of(ContratActions.deleteContractFailure({ error: error.message || error }));
             })
-          )
-        )
-      )
-    );
-  
-    // Recherche avancée
-    searchContracts$ = createEffect(() =>
-      this.actions$.pipe(
-        ofType(ContratActions.searchContracts),
-        mergeMap((action) =>
-          this.contratService.searchContrats(action.filters).pipe(
-            map((contrats) => ContratActions.searchContractsSuccess({ contrats })),
-            catchError((error) => of(ContratActions.searchContractsFailure({ error: error.message })))
           )
         )
       )
