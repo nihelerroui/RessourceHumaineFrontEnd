@@ -20,6 +20,14 @@
     <div class="col-12">
       <div ngClass="card">
         <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a [routerLink]="['/import-contrat', token]" class="btn btn-primary">Add New Contrat</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
               <select class="form-select" [(ngModel)]="selectedStatut">
