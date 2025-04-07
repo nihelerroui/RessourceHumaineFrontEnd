@@ -90,17 +90,4 @@ export class ContratEffects {
         )
       )
     );
-  
-    // Recherche avancée
-    searchContracts$ = createEffect(() =>
-      this.actions$.pipe(
-        ofType(ContratActions.searchContracts),
-        mergeMap((action) =>
-          this.contratService.searchContrats(action.filters).pipe(
-            map((contrats) => ContratActions.searchContractsSuccess({ contrats })),
-            catchError((error) => of(ContratActions.searchContractsFailure({ error: error.message })))
-          )
-        )
-      )
-    );
 }

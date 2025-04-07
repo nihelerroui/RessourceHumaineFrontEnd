@@ -14,7 +14,6 @@ import {
 } from "../../../store/contratClient/contratClient-selector";
 import {
   loadContratsClient,
-  searchContracts,
   updateContratClient,
 } from "src/app/store/contratClient/contratClient.actions";
 import { SafeResourceUrl } from "@angular/platform-browser";
@@ -149,13 +148,23 @@ export class ContratClientAdminComponent implements OnInit {
     return statutClasses[statut] || "badge bg-secondary";
   }
   searchContrat() {
-      const filters = {
-        statutContrat: this.selectedStatut || null,
-        minTjm: this.minTjm !== null ? this.minTjm : null,
-        maxTjm: this.maxTjm !== null ? this.maxTjm : null
-      };
-    
-      this.store.dispatch(searchContracts({ filters }));
-      this.updatePagination();
-    }
+    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
+      map(([contratsClients]) => {
+        let filtered = contratsClients;
+        if (this.selectedStatut) {
+          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
+        }
+        if (this.minTjm !== null) {
+          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
+        }
+        if (this.maxTjm !== null) {
+          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
+        }
+        const total = filtered.length;
+        this.total$ = new Observable(observer => observer.next(total));
+        const start = (this.page - 1) * this.contratsParPage;
+        return filtered.slice(start, start + this.contratsParPage);
+      })
+    );
+  }
 }

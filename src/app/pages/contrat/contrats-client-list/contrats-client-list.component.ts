@@ -18,7 +18,7 @@ import { environment } from "src/environments/environment";
   templateUrl: "./contrats-client-list.component.html"
 })
 export class ContratsClientListComponent implements OnInit {
-  contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectContratsClientSearchResults));
+  contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectAllContratsClient));
   loading$: Observable<boolean> = this.store.select(selectContratsClientLoading);
 
   contratsPagination$: Observable<ContratClient[]> = new Observable();
@@ -44,7 +44,6 @@ export class ContratsClientListComponent implements OnInit {
     private store: Store,
     private modalService: BsModalService
   ) { }
-
   ngOnInit(): void {
     const idFromStorage = localStorage.getItem("clientId");
     if (idFromStorage) {
@@ -52,8 +51,8 @@ export class ContratsClientListComponent implements OnInit {
       this.store.dispatch(ContratActions.loadContratsClientByClientId({ clientId }));
       this.updatePagination();
     }
+    this.searchContrat();
   }
-
   //pagination
   updatePagination(): void {
     this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
@@ -74,10 +73,10 @@ export class ContratsClientListComponent implements OnInit {
       console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
       return;
     }
-  
+
     const fileName = contrat.filePath.split("\\").pop();
     const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
-  
+
     console.log("Ouverture du fichier :", fileUrl);
     window.open(fileUrl, "_blank");
   }
@@ -95,31 +94,52 @@ export class ContratsClientListComponent implements OnInit {
     });
   }
   getStatutLabel(statut: string): string {
-      const statutLabels: { [key: string]: string } = {
-        EN_ATTENTE: "En Attente",
-        CONFIRME_ADMIN: "Confirmé Admin",
-        CONFIRMATION_COMPLETE: "Confirmation Complète",
-        REJETE: "Rejeté",
-      };
-      return statutLabels[statut] || "Inconnu";
-    }
-    getStatutClass(statut: string): string {
-      const statutClasses: { [key: string]: string } = {
-        EN_ATTENTE: "badge bg-warning text-dark",
-        CONFIRME_ADMIN: "badge bg-primary",
-        CONFIRMATION_COMPLETE: "badge bg-success",
-        REJETE: "badge bg-danger",
-      };
-      return statutClasses[statut] || "badge bg-secondary";
-    }
-    searchContrat() {
-        const filters = {
-          statutContrat: this.selectedStatut || null,
-          minTjm: this.minTjm !== null ? this.minTjm : null,
-          maxTjm: this.maxTjm !== null ? this.maxTjm : null
-        };
-      
-        this.store.dispatch(ContratActions.searchContracts({ filters }));
-        this.updatePagination();
-      }
+    const statutLabels: { [key: string]: string } = {
+      EN_ATTENTE: "En Attente",
+      CONFIRME_ADMIN: "Confirmé Admin",
+      CONFIRMATION_COMPLETE: "Confirmation Complète",
+      REJETE: "Rejeté",
+    };
+    return statutLabels[statut] || "Inconnu";
+  }
+  getStatutClass(statut: string): string {
+    const statutClasses: { [key: string]: string } = {
+      EN_ATTENTE: "badge bg-warning text-dark",
+      CONFIRME_ADMIN: "badge bg-primary",
+      CONFIRMATION_COMPLETE: "badge bg-success",
+      REJETE: "badge bg-danger",
+    };
+    return statutClasses[statut] || "badge bg-secondary";
+  }
+  searchContrat() {
+    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
+      map(([contratsClients]) => {
+        let filtered = contratsClients;
+
+        // Filtrer par statut
+        if (this.selectedStatut) {
+          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
+        }
+
+        // Filtrer par min TJM
+        if (this.minTjm !== null) {
+          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
+        }
+
+        // Filtrer par max TJM
+        if (this.maxTjm !== null) {
+          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
+        }
+
+        // Mettre à jour le total
+        const total = filtered.length;
+        this.total$ = new Observable(observer => observer.next(total));
+
+        // Appliquer la pagination
+        const start = (this.page - 1) * this.contratsParPage;
+        return filtered.slice(start, start + this.contratsParPage);
+      })
+    );
+  }
+
 }

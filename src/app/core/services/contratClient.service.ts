@@ -4,12 +4,6 @@ import { catchError, Observable, tap, throwError } from "rxjs";
 import { ContratClient } from "../../models/contratClient.models";
 import { GenericService } from "../../core/services/generic.service";
 
-interface ContratFilters {
-  statutContrat?: string;
-  minTjm?: number;
-  maxTjm?: number;
-}
-
 @Injectable({
   providedIn: "root",
 })
@@ -37,17 +31,4 @@ export class ContratClientService extends GenericService<ContratClient> {
       })
     );
   }
-  // Rechercher un contrat client avec filtres
-searchContrats(filters: ContratFilters): Observable<ContratClient[]> {
-  let params = new HttpParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && value !== '') {
-      params = params.set(key, value.toString());
-    }
-  });
-
-  return this.http.get<ContratClient[]>(`${this.apiUrl}/search`, { params }).pipe(
-    tap(data => console.log("📦 Résultat de recherche (contrats):", data))
-  );
-}
 }

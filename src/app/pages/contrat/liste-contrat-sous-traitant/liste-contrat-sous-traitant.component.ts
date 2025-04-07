@@ -107,15 +107,37 @@ export class ListeContratSousTraitantComponent {
     );
   }
   searchContrat() {
-    const filters = {
-      statutContrat: this.selectedStatut || null,
-      dateDebut: this.dateDebut || null,
-      dateFin: this.dateFin || null,
-      minTjm: this.minTjm !== null ? this.minTjm : null,
-      maxTjm: this.maxTjm !== null ? this.maxTjm : null
-    };
-    this.store.dispatch(ContratActions.searchContracts({ filters }));
-    this.updatePagination();
+    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
+      map(([contrats]) => {
+        let filtered = contrats;
+  
+        if (this.selectedStatut) {
+          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
+        }
+  
+        if (this.dateDebut) {
+          filtered = filtered.filter(c => new Date(c.dateDebut) >= new Date(this.dateDebut));
+        }
+  
+        if (this.dateFin) {
+          filtered = filtered.filter(c => new Date(c.dateFin) <= new Date(this.dateFin));
+        }
+  
+        if (this.minTjm !== null) {
+          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
+        }
+  
+        if (this.maxTjm !== null) {
+          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
+        }
+  
+        const total = filtered.length;
+        this.total$ = new Observable(observer => observer.next(total));
+  
+        const start = (this.page - 1) * this.contratsParPage;
+        return filtered.slice(start, start + this.contratsParPage);
+      })
+    );
   }
   getStatutLabel(statut: string): string {
     const statutLabels: { [key: string]: string } = {

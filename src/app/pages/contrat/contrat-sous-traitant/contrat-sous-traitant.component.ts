@@ -66,6 +66,7 @@ export class ContratSousTraitantComponent implements OnInit {
   
     this.total$ = this.contrats$.pipe(map(contrats => contrats.length));
     this.updatePagination(); 
+    this.searchContrat(); 
   
     setTimeout(() => {
       this.checkFormValidity();
@@ -266,19 +267,40 @@ export class ContratSousTraitantComponent implements OnInit {
       }
     );
   }
-  // Recherche avancée des contrats
   searchContrat() {
-    const filters = {
-      statutContrat: this.selectedStatut || null,
-      dateDebut: this.dateDebut || null,
-      dateFin: this.dateFin || null,
-      minTjm: this.minTjm !== null ? this.minTjm : null,
-      maxTjm: this.maxTjm !== null ? this.maxTjm : null
-    };
+    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
+      map(([contrats]) => {
+        let filtered = contrats;
   
-    this.store.dispatch(ContratActions.searchContracts({ filters }));
-    this.updatePagination();
+        if (this.selectedStatut) {
+          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
+        }
+  
+        if (this.dateDebut) {
+          filtered = filtered.filter(c => new Date(c.dateDebut) >= new Date(this.dateDebut));
+        }
+  
+        if (this.dateFin) {
+          filtered = filtered.filter(c => new Date(c.dateFin) <= new Date(this.dateFin));
+        }
+  
+        if (this.minTjm !== null) {
+          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
+        }
+  
+        if (this.maxTjm !== null) {
+          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
+        }
+  
+        const total = filtered.length;
+        this.total$ = new Observable(observer => observer.next(total));
+  
+        const start = (this.page - 1) * this.contratsParPage;
+        return filtered.slice(start, start + this.contratsParPage);
+      })
+    );
   }
+  
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
     const emailSousTraitant = contrat.consultant?.user?.email || 'consultant@featway.com';
   

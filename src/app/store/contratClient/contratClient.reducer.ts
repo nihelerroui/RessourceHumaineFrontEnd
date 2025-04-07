@@ -79,16 +79,5 @@ export const contratClientReducer = createReducer(
     ...state,
     error,
   })),
-  // Recherche avancée
-  on(ContratClientActions.searchContractsSuccess, (state, { contrats }) => ({
-    ...state,
-    searchResults: contrats,
-    loading: false,
-  })),
-  on(ContratClientActions.searchContractsFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
   
 );
