@@ -1,11 +1,15 @@
+import { Consultant } from "./consultant.models";
+
 export interface ContratSousTraitant {
-  contratId?: number;
-  dateDebut: string; // format yyyy-MM-dd
-  dateFin: string;
-  tjm: number;
-  conditionsFac: string;
-  statutContrat: string;
-  filePath?: string; // Chemin du fichier
+  contratId: number;
+  dateDebut?: string;
+  dateFin?: string;
+  tjm?: number;
+  conditionsFac?: string;
+  statutContrat?: string;
+  filePath?: string;
+  designation?: string;
+  consultant: Consultant;
 }
 
   export enum StatutContrat {

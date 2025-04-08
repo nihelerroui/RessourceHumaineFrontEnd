@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { catchError, map, mergeMap, of, tap } from "rxjs";
+import { catchError, map, mergeMap, of, switchMap, tap } from "rxjs";
 import { ContratClientService } from "../../core/services/contratClient.service";
 import * as ContratClientActions from "../contratClient/contratClient.actions";
 
@@ -11,26 +11,63 @@ export class ContratClientEffects {
     private contratClientService: ContratClientService
   ) {}
 
-  // Importer un contrat client
-  importerContratClient$ = createEffect(() =>
+  loadContratsClients$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(ContratClientActions.importerContratClient),
-      tap((action) => console.log("🚀 Effet déclenché avec :", action)), 
-      mergeMap(({ file, token, designation, tjm }) =>
-        this.contratClientService.importerContrat(file, token, designation, tjm).pipe(
-          tap((response) => console.log("✅ Réponse du backend :", response)), 
-          map((contrat) => {
-            console.log("🎉 Contrat importé avec succès :", contrat);
-            return ContratClientActions.importerContratClientSuccess({ contrat });
-          }),
-          catchError((error) => {
-            console.error("❌ Erreur lors de l'importation :", error);
-            return of(ContratClientActions.importerContratClientFailure({ error: error.message }));
-          })
+      ofType(ContratClientActions.loadContratsClient),
+      switchMap(() =>
+        this.contratClientService.getAll().pipe(
+          map(contrats =>
+            ContratClientActions.loadContratsClientSuccess({ contrats })
+          ),
+          catchError(error =>
+            of(ContratClientActions.loadContratsClientFailure({ error: error.message || error }))
+          )
         )
       )
     )
   );
-  
-  
+
+  importerContratClient$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratClientActions.importerContratClient),
+      mergeMap(({ file, clientId, designation, tjm }) =>
+        this.contratClientService.importerContrat(file, clientId, designation, tjm).pipe(
+          map(response =>
+            ContratClientActions.importerContratClientSuccess({ contrat: response })
+          ),
+          catchError(error =>
+            of(ContratClientActions.importerContratClientFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+
+  loadContratsClientByClientId$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratClientActions.loadContratsClientByClientId),
+      switchMap(({ clientId }) =>
+        this.contratClientService.consulterContratsClientParId(clientId).pipe(
+          map(contrats =>
+            ContratClientActions.loadContratsClientByClientIdSuccess({ contrats })
+          ),
+          catchError(error =>
+            of(ContratClientActions.loadContratsClientByClientIdFailure({ error: error.message }))
+          )
+        )
+      )
+    )
+  );
+
+  updateContratClient$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratClientActions.updateContratClient),
+      mergeMap(({ contrat }) =>
+        this.contratClientService.update(contrat).pipe(
+          map(updated => ContratClientActions.updateContratClientSuccess({ contrat: updated })),
+          catchError(error => of(ContratClientActions.updateContratClientFailure({ error })))
+        )
+      )
+    )
+  );
 }

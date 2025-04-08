@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { addClient, deleteClient, loadClients, updateClient } from 'src/app/store/client/client.actions';
+import { addClient, deleteClient, loadClients, sendImportEmail, updateClient } from 'src/app/store/client/client.actions';
 import { Client } from '../../../models/client.model';
 import { selectClientError, selectClientList, selectClientLoading } from 'src/app/store/client/client.selectors';
 import { TypeClient } from 'src/app/models/type-client.enum';
@@ -201,6 +201,9 @@ openModalEdit(client: any, template: TemplateRef<any>) {
     console.log("Détails du client:", client);
     this.selectedClient = client;
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+  }
+  envoyerEmailImport(clientId: number) {
+    this.store.dispatch(sendImportEmail({ clientId }));
   }
 
 

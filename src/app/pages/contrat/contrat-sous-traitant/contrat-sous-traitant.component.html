@@ -68,8 +68,6 @@
             <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
               <thead>
                 <tr>
-                  <th scope="col">ID</th>
-
                   <th scope="col">Tarif Journalier Moyen (TJM)</th>
                   <th scope="col">Date de Début</th>
                   <th scope="col">Date de Fin</th>
@@ -79,15 +77,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let contrat of contrats$ | async">
-                  <td>{{ contrat.contratId }}</td>
+                <tr *ngFor="let contrat of contratsPagination$ | async">
                   <td>{{ contrat.tjm | currency : "EUR" }}</td>
                   <td>{{ contrat.dateDebut | date : "dd/MM/yyyy" }}</td>
                   <td>{{ contrat.dateFin | date : "dd/MM/yyyy" }}</td>
                   <td>{{ contrat.conditionsFac }}</td>
                   <td>
-                    <span [ngClass]="getStatutClass(contrat.statutContrat)">
-                      {{ getStatutLabel(contrat.statutContrat) }}
+                    <!-- Affichage du statut -->
+                    <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'" class="badge badge-soft-success me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'REJETE'" class="badge badge-soft-danger me-1">
+                      {{ contrat.statutContrat }}
                     </span>
                   </td>
 
@@ -99,7 +103,8 @@
                           <i class="mdi mdi-download"></i>
                         </a>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+                        *ngIf="contrat.statutContrat !== 'CONFIRME_ADMIN'">
                         <a href="javascript:void(0);" class="btn btn-sm btn-soft-info"
                           (click)="editContrat(contrat, content)"><i class="mdi mdi-pencil-outline"></i></a>
                       </li>
@@ -107,175 +112,107 @@
                         <a href="javascript:void(0);" data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"
                           (click)="deleteContrat(contrat.contratId)"><i class="mdi mdi-delete-outline"></i></a>
                       </li>
+                      <li data-bs-toggle="tooltip" title="Ajouter un commentaire">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-warning"
+                          (click)="ouvrirCommentaireContrat(contrat)">
+                          <i class="mdi mdi-comment-text-multiple-outline"></i>
+                        </a>
+                      </li>
                     </ul>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="row justify-content-between align-items-center">
-            <div class="col-auto me-auto">
-              <p class="text-muted mb-0">
-                Affichage de <b>{{ (contrats$ | async)?.length }}</b> contrats
-              </p>
-            </div>
-          </div>
 
-          <!--end col-->
+          <!-- Pagination -->
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="text-muted">
+              Affichage de {{ (page - 1) * contratsParPage + 1 }} à
+              {{
+              page * contratsParPage > (total$ | async)!
+              ? (total$ | async)
+              : page * contratsParPage
+              }}
+              sur {{ total$ | async }} contrats
+            </div>
+
+            <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="contratsParPage" [maxSize]="5"
+              [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹" nextText="›" firstText="«"
+              lastText="»" class="pagination pagination-rounded mb-0">
+            </pagination>
+            <!--end row-->
+          </div>
         </div>
-        <!--end row-->
       </div>
     </div>
+
+    <!-- Modal Ajout Contrat -->
+    <ng-template #content let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter un Contrat</h5>
+        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      </div>
+      <form [formGroup]="contratForm" (ngSubmit)="saveContrat()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tarif Journalier Moyen (TJM) *</label>
+            <input type="number" formControlName="tjm" class="form-control" required />
+            <small class="text-danger" *ngIf="form.tjm.invalid && form.tjm.touched">
+              Le TJM est obligatoire et doit être un nombre positif.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date de Début *</label>
+            <input type="date" formControlName="dateDebut" class="form-control" required />
+            <small class="text-danger" *ngIf="form.dateDebut.invalid && form.dateDebut.touched">
+              La date de début est obligatoire.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date de Fin *</label>
+            <input type="date" formControlName="dateFin" class="form-control" required />
+            <small class="text-danger" *ngIf="contratForm.errors?.invalidDateRange">
+              La date de fin doit être postérieure à la date de début.
+            </small>
+            <small class="text-danger" *ngIf="form.dateFin.invalid && form.dateFin.touched">
+              La date de fin est obligatoire.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Importer un fichier *</label>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName"
+                readonly />
+              <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+              <button type="button" class="btn btn-primary" (click)="fileInput.click()">
+                Importer un fichier
+              </button>
+            </div>
+            <small class="text-danger" *ngIf="!fileSelected">
+              Le fichier est obligatoire.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Conditions *</label>
+            <textarea formControlName="conditionsFac" class="form-control"></textarea>
+            <small class="text-danger" *ngIf="form.conditionsFac.invalid && form.conditionsFac.touched">
+              Les conditions sont obligatoires et doivent contenir au moins 10
+              caractères.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="contratForm.invalid || !fileSelected">
+            {{ selectedContratId ? "Modifier" : "Ajouter" }}
+          </button>
+        </div>
+      </form>
+    </ng-template>
+
+    <!--End Modal -->
   </div>
 </div>
-
-<!-- View Details Model -->
-<ng-template #ViewContent role="document" let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title mt-0">Order Details</h5>
-    <button type="button" class="btn-close" aria-hidden="true" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p class="mb-2">
-      Product id:
-      <span class="text-primary">#SK2540</span>
-    </p>
-    <p class="mb-4">
-      Billing Name:
-      <span class="text-primary">Neal Matthews</span>
-    </p>
-    <div class="table-responsive">
-      <table class="table table-centered table-nowrap">
-        <thead>
-          <tr>
-            <th scope="col">Product</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">
-              <div>
-                <img src="assets/images/product/img-7.png" alt class="avatar-sm" />
-              </div>
-            </th>
-            <td>
-              <div>
-                <h5 class="text-truncate font-size-14">
-                  Wireless Headphone (Black)
-                </h5>
-                <p class="text-muted mb-0">$ 225 x 1</p>
-              </div>
-            </td>
-            <td>$ 255</td>
-          </tr>
-          <tr>
-            <th scope="row">
-              <div>
-                <img src="assets/images/product/img-4.png" alt class="avatar-sm" />
-              </div>
-            </th>
-            <td>
-              <div>
-                <h5 class="text-truncate font-size-14">
-                  Phone patterned cases
-                </h5>
-                <p class="text-muted mb-0">$ 145 x 1</p>
-              </div>
-            </td>
-            <td>$ 145</td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <h6 class="m-0">Sub Total:</h6>
-            </td>
-            <td>$ 400</td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <h6 class="m-0">Shipping:</h6>
-            </td>
-            <td>Free</td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <h6 class="m-0">Total:</h6>
-            </td>
-            <td>$ 400</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" (click)="modal.close('Close click')">
-      Close
-    </button>
-  </div>
-</ng-template>
-
-<!-- Modal Ajout Contrat -->
-<ng-template #content let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Ajouter un Contrat</h5>
-    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-  </div>
-  <form [formGroup]="contratForm" (ngSubmit)="saveContrat()">
-    <div class="modal-body">
-      <div class="mb-3">
-        <label class="form-label">Tarif Journalier Moyen (TJM) *</label>
-        <input type="number" formControlName="tjm" class="form-control" required />
-        <small class="text-danger" *ngIf="form.tjm.invalid && form.tjm.touched">
-          Le TJM est obligatoire et doit être un nombre positif.
-        </small>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Date de Début *</label>
-        <input type="date" formControlName="dateDebut" class="form-control" required />
-        <small class="text-danger" *ngIf="form.dateDebut.invalid && form.dateDebut.touched">
-          La date de début est obligatoire.
-        </small>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Date de Fin *</label>
-        <input type="date" formControlName="dateFin" class="form-control" required />
-        <small class="text-danger" *ngIf="contratForm.errors?.invalidDateRange">
-          La date de fin doit être postérieure à la date de début.
-        </small>
-        <small class="text-danger" *ngIf="form.dateFin.invalid && form.dateFin.touched">
-          La date de fin est obligatoire.
-        </small>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Importer un fichier *</label>
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName" readonly />
-          <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
-          <button type="button" class="btn btn-primary" (click)="fileInput.click()">Importer un fichier</button>
-        </div>
-        <small class="text-danger" *ngIf="!fileSelected">
-          Le fichier est obligatoire.
-        </small>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Conditions *</label>
-        <textarea formControlName="conditionsFac" class="form-control"></textarea>
-        <small class="text-danger" *ngIf="form.conditionsFac.invalid && form.conditionsFac.touched">
-          Les conditions sont obligatoires et doivent contenir au moins 10 caractères.
-        </small>
-      </div>  
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
-        Annuler
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="contratForm.invalid || !fileSelected">
-        {{ selectedContratId ? "Modifier" : "Ajouter" }}
-      </button>
-           
-    </div>
-  </form>
-</ng-template>
-
-<!--End Modal -->

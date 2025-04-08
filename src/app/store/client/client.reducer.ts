@@ -12,7 +12,10 @@ import {
   updateClientFailure,
   deleteClient,
   deleteClientSuccess,
-  deleteClientFailure
+  deleteClientFailure,
+  sendImportEmail,
+  sendImportEmailSuccess,
+  sendImportEmailFailure
 } from './client.actions';
 
 // 🔹 Interface pour le state Client
@@ -96,10 +99,27 @@ export const clientReducer = createReducer(
     ...state,
     error,
     loading: false
-  }))
+  })),
+  on(sendImportEmail, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(sendImportEmailSuccess, (state) => ({
+    ...state,
+    loading: false
+  })),
+  on(sendImportEmailFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false
+  })),
+  
 );
+
 
 // 🔹 Exporter le reducer
 export function reducer(state: ClientState | undefined, action: Action) {
   return clientReducer(state, action);
 }
+

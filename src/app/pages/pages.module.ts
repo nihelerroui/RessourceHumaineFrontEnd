@@ -26,7 +26,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
-import { ClientModule } from './client/client.module';
 import { FactureListComponent } from './facture/facture-list/facture-list.component';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
@@ -39,7 +38,6 @@ import { TresorieModule } from './tresorie/tresorie.module';
     CommonModule,
     PaysModule,
     SocieteModule,
-    ClientModule,
     FactureModule,
     TresorieModule,
     FormsModule,

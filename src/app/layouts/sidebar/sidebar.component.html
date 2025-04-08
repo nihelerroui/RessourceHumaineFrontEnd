@@ -75,7 +75,7 @@
 </ng-template>
 <!-- Sidebar -->
 
-<div class="vertical-menu">
+<div class="vertical-menu" *ngIf="showBars">
   <ngx-simplebar class="h-100" #componentRef>
     @if(isCondensed){
     <div>

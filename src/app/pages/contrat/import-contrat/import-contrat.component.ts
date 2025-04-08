@@ -1,16 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import * as ContratActions from '../../../store/contratClient/contratClient.actions';
-import { Observable } from 'rxjs';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { ContratClient } from 'src/app/models/contratClient.models';
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Store } from "@ngrx/store";
+import * as ContratActions from "../../../store/contratClient/contratClient.actions";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import Swal from "sweetalert2";
+import { TokenUtilService } from "src/app/core/services/token-util.service";
 
 @Component({
-  selector: 'app-import-contrat',
-  templateUrl: './import-contrat.component.html',
-  styleUrls: ['./import-contrat.component.css'],
+  selector: "app-import-contrat",
+  templateUrl: "./import-contrat.component.html",
 })
 export class ImportContratComponent implements OnInit {
   contratForm!: FormGroup;
@@ -18,28 +16,39 @@ export class ImportContratComponent implements OnInit {
   fileName: string = "Aucun fichier sélectionné";
   fileError: boolean = false;
   fileSelected: boolean = false;
+  token: string | null = null;
 
-
-  constructor(private route: ActivatedRoute,private fb: FormBuilder, private store: Store) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private fb: FormBuilder,
+    private store: Store,
+    private tokenUtil: TokenUtilService
+  ) {}
 
   ngOnInit(): void {
+    this.token = this.route.snapshot.paramMap.get("token") || '';
+    const clientId = this.tokenUtil.extractClientId(this.token);
+    if (clientId) {
+      localStorage.setItem('clientId', clientId.toString());
+    }
     this.initForm();
-    
   }
-  //initialiser le formulaire
+  // Initialisation du formulaire
   initForm() {
     this.contratForm = this.fb.group({
       designation: ["", Validators.required],
-      tjm: ["", [Validators.required]] 
+      tjm: ["", [Validators.required]],
     });
   }
 
+  // Sélection d'un fichier
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-      
+      const allowedExtensions = ["pdf", "doc", "docx", "xls", "xlsx"];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         this.selectedFile = file;
         this.fileName = file.name;
@@ -53,25 +62,34 @@ export class ImportContratComponent implements OnInit {
       }
     }
   }
-
-  // Soumission du formulaire pour importer le contrat
   importerContrat() {
-    if (this.contratForm.valid && this.selectedFile) {
+    const clientId = localStorage.getItem('clientId');
+  
+    if (this.contratForm.valid && this.selectedFile && clientId) {
       const { designation, tjm } = this.contratForm.value;
-      const token = this.route.snapshot.paramMap.get("token");
+  
       this.store.dispatch(
         ContratActions.importerContratClient({
           file: this.selectedFile,
-          token,
+          clientId: +clientId,
           designation,
-          tjm,
+          tjm
         })
       );
-
-      // Réinitialiser le formulaire après soumission
-      this.contratForm.reset();
-      this.fileName = "Aucun fichier sélectionné";
-      this.selectedFile = null;
+  
+      Swal.fire({
+        icon: "success",
+        title: "Contrat importé avec succès !",
+        text: `Le contrat "${designation}" a été ajouté.`,
+        confirmButtonText: "Consulter mes contrats"
+      }).then(() => {
+        console.log("✅ Redirection vers les contrats du clientId :", clientId);
+        window.location.href = `/contrats-client/${clientId}`;
+      });
+  
+    } else {
+      console.error("❌ Formulaire invalide ou clientId manquant");
     }
   }
+           
 }

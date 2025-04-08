@@ -11,6 +11,12 @@ export const loadContractsFailure = createAction(
   "[Contrat] Load Contracts Failure",
   props<{ error: string }>()
 );
+//charger la liste des contrats par sous-traintant
+export const loadContractsByConsultant = createAction(
+  '[Contrat] Load Contracts By Consultant',
+  props<{ consultantId: number }>()
+);
+
 
 // Ajouter un contrat
 export const addContract = createAction(
@@ -63,20 +69,5 @@ export const updateContractSuccess = createAction(
 );
 export const updateContractFailure = createAction(
   "[Contrat] Update Contract Failure",
-  props<{ error: string }>()
-);
-// Recherche avancée avec filtres
-export const searchContracts = createAction(
-  "[Contrat] Search Contracts",
-  props<{ filters: any }>()
-);
-
-export const searchContractsSuccess = createAction(
-  "[Contrat] Search Contracts Success",
-  props<{ contrats: ContratSousTraitant[] }>()
-);
-
-export const searchContractsFailure = createAction(
-  "[Contrat] Search Contracts Failure",
   props<{ error: string }>()
 );

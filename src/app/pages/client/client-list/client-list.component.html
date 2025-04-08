@@ -10,7 +10,7 @@
             <h5 class="mb-0 card-title flex-grow-1">Liste des Clients</h5>
             <div class="flex-shrink-0 d-flex gap-2">
               <a href="javascript:void(0);" class="btn btn-primary"
-              (click)="openModalAdd(clientModal)"> Ajouter un Client</a>
+                (click)="openModalAdd(clientModal)"> Ajouter un Client</a>
               <a href="javascript:void(0);" class="btn btn-light"
                 (click)="refreshList()"><i class="mdi mdi-refresh"></i></a>
               <div class="dropdown d-inline-block" dropdown>
@@ -71,11 +71,10 @@
             </div>
             <div class="col-xxl-2 col-lg-4">
               <button type="button"
-                  class="btn btn-soft-secondary w-100"><i
-                      class="mdi mdi-filter-outline align-middle"></i>
-                  Filter</button>
-          </div>
-           
+                class="btn btn-soft-secondary w-100"><i
+                  class="mdi mdi-filter-outline align-middle"></i>
+                Filter</button>
+            </div>
 
           </div>
         </div>
@@ -134,7 +133,7 @@
                       <li data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Edit">
                         <button class="btn btn-sm btn-soft-info"
-                        (click)="openModalEdit(client, clientModal)">
+                          (click)="openModalEdit(client, clientModal)">
                           <i class="mdi mdi-pencil-outline"></i>
                         </button>
                       </li>
@@ -145,6 +144,15 @@
                           <i class="mdi mdi-delete-outline"></i>
                         </button>
                       </li>
+                      <!-- Bouton pour envoyer l'email d'import -->
+                      <li data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Envoyer email d'import">
+                        <button class="btn btn-sm btn-soft-warning"
+                          (click)="envoyerEmailImport(client.clientId)">
+                          <i class="mdi mdi-email-send-outline"></i>
+                        </button>
+                      </li>
+
                     </ul>
                   </td>
                 </tr>
@@ -181,171 +189,216 @@
   </div>
 
   <!-- ✅ Modal Ajout / Modification Client -->
-<ng-template #clientModal>
-  <div class="modal-header">
-      <h5 class="modal-title">{{ clientForm.value.clientId ? 'Modifier un Client' : 'Ajouter un Client' }}</h5>
-      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-  </div>
-  <form (ngSubmit)="saveClient()" [formGroup]="clientForm">
+  <ng-template #clientModal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ clientForm.value.clientId ?
+        'Modifier un Client' : 'Ajouter un Client' }}</h5>
+      <button type="button" class="btn-close"
+        (click)="modalRef?.hide()"></button>
+    </div>
+    <form (ngSubmit)="saveClient()" [formGroup]="clientForm">
       <div class="modal-body">
-          <!-- Nom -->
-          <div class="mb-3">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" formControlName="nom" placeholder="Nom">
-              <div *ngIf="clientForm.controls['nom'].invalid && clientForm.controls['nom'].touched" class="text-danger">
-                  <span *ngIf="clientForm.controls['nom'].errors?.['required']">Le nom est obligatoire.</span>
-                  <span *ngIf="clientForm.controls['nom'].errors?.['minlength']">Le nom doit avoir au moins 2 caractères.</span>
-              </div>
+        <!-- Nom -->
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="nom"
+            placeholder="Nom">
+          <div
+            *ngIf="clientForm.controls['nom'].invalid && clientForm.controls['nom'].touched"
+            class="text-danger">
+            <span *ngIf="clientForm.controls['nom'].errors?.['required']">Le nom
+              est obligatoire.</span>
+            <span *ngIf="clientForm.controls['nom'].errors?.['minlength']">Le
+              nom doit avoir au moins 2 caractères.</span>
           </div>
+        </div>
 
-          <!-- Email -->
-          <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" placeholder="Entrer l'email" formControlName="email">
-              <div *ngIf="clientForm.controls['email'].invalid && clientForm.controls['email'].touched" class="text-danger">
-                  <span *ngIf="clientForm.controls['email'].errors?.['required']">L'email est requis.</span>
-                  <span *ngIf="clientForm.controls['email'].errors?.['email']">L'email n'est pas valide.</span>
-              </div>
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" placeholder="Entrer l'email"
+            formControlName="email">
+          <div
+            *ngIf="clientForm.controls['email'].invalid && clientForm.controls['email'].touched"
+            class="text-danger">
+            <span
+              *ngIf="clientForm.controls['email'].errors?.['required']">L'email
+              est requis.</span>
+            <span *ngIf="clientForm.controls['email'].errors?.['email']">L'email
+              n'est pas valide.</span>
           </div>
+        </div>
 
-          <!-- Téléphone -->
-          <div class="mb-3">
-              <label class="form-label">Téléphone</label>
-              <input type="text" class="form-control" placeholder="Numéro de téléphone" formControlName="telephone">
-              <div *ngIf="clientForm.controls['telephone'].invalid && clientForm.controls['telephone'].touched" class="text-danger">
-                  <span *ngIf="clientForm.controls['telephone'].errors?.['required']">Le téléphone est requis.</span>
-              </div>
+        <!-- Téléphone -->
+        <div class="mb-3">
+          <label class="form-label">Téléphone</label>
+          <input type="text" class="form-control"
+            placeholder="Numéro de téléphone" formControlName="telephone">
+          <div
+            *ngIf="clientForm.controls['telephone'].invalid && clientForm.controls['telephone'].touched"
+            class="text-danger">
+            <span
+              *ngIf="clientForm.controls['telephone'].errors?.['required']">Le
+              téléphone est requis.</span>
           </div>
+        </div>
 
-          <!-- Adresse -->
-          <div class="mb-3">
-              <label class="form-label">Adresse</label>
-              <input type="text" class="form-control" placeholder="Adresse" formControlName="adresse">
-              <div *ngIf="clientForm.controls['adresse'].invalid && clientForm.controls['adresse'].touched" class="text-danger">
-                  L'adresse est requise.
-              </div>
+        <!-- Adresse -->
+        <div class="mb-3">
+          <label class="form-label">Adresse</label>
+          <input type="text" class="form-control" placeholder="Adresse"
+            formControlName="adresse">
+          <div
+            *ngIf="clientForm.controls['adresse'].invalid && clientForm.controls['adresse'].touched"
+            class="text-danger">
+            L'adresse est requise.
           </div>
+        </div>
 
-          <!-- Numéro SIRET -->
-          <div class="mb-3">
-              <label class="form-label">Numéro SIRET</label>
-              <input type="text" class="form-control" formControlName="numeroSiret" placeholder="SIRET">
-              <div *ngIf="clientForm.controls['numeroSiret'].invalid && clientForm.controls['numeroSiret'].touched" class="text-danger">
-                  <span *ngIf="clientForm.controls['numeroSiret'].errors?.['required']">Le numéro SIRET est requis.</span>
-                  <span *ngIf="clientForm.controls['numeroSiret'].errors?.['pattern']">Le numéro SIRET doit contenir exactement 14 chiffres.</span>
-              </div>
+        <!-- Numéro SIRET -->
+        <div class="mb-3">
+          <label class="form-label">Numéro SIRET</label>
+          <input type="text" class="form-control" formControlName="numeroSiret"
+            placeholder="SIRET">
+          <div
+            *ngIf="clientForm.controls['numeroSiret'].invalid && clientForm.controls['numeroSiret'].touched"
+            class="text-danger">
+            <span
+              *ngIf="clientForm.controls['numeroSiret'].errors?.['required']">Le
+              numéro SIRET est requis.</span>
+            <span
+              *ngIf="clientForm.controls['numeroSiret'].errors?.['pattern']">Le
+              numéro SIRET doit contenir exactement 14 chiffres.</span>
           </div>
+        </div>
 
-          <!-- Type de Client -->
-          <div class="mb-3">
-              <label class="form-label">Type de Client</label>
-              <select class="form-control" formControlName="typeClient">
-                  <option *ngFor="let type of typeClientOptions" [value]="type">{{ type }}</option>
-              </select>
-              <div *ngIf="clientForm.controls['typeClient'].invalid && clientForm.controls['typeClient'].touched" class="text-danger">
-                  Le type de client est requis.
-              </div>
+        <!-- Type de Client -->
+        <div class="mb-3">
+          <label class="form-label">Type de Client</label>
+          <select class="form-control" formControlName="typeClient">
+            <option *ngFor="let type of typeClientOptions" [value]="type">{{
+              type }}</option>
+          </select>
+          <div
+            *ngIf="clientForm.controls['typeClient'].invalid && clientForm.controls['typeClient'].touched"
+            class="text-danger">
+            Le type de client est requis.
           </div>
+        </div>
 
-          <!-- Pays -->
-          <div class="mb-3">
-              <label class="form-label">Pays</label>
-              <select class="form-control" formControlName="paysId">
-                  <option *ngFor="let pays of paysList$ | async" [value]="pays.paysId">{{ pays.nomFrFr }}</option>
-              </select>
-              <div *ngIf="clientForm.controls['paysId'].invalid && clientForm.controls['paysId'].touched" class="text-danger">
-                  Le pays est requis.
-              </div>
+        <!-- Pays -->
+        <div class="mb-3">
+          <label class="form-label">Pays</label>
+          <select class="form-control" formControlName="paysId">
+            <option *ngFor="let pays of paysList$ | async"
+              [value]="pays.paysId">{{ pays.nomFrFr }}</option>
+          </select>
+          <div
+            *ngIf="clientForm.controls['paysId'].invalid && clientForm.controls['paysId'].touched"
+            class="text-danger">
+            Le pays est requis.
           </div>
+        </div>
 
-          <!-- Société -->
-          <div class="mb-3">
-              <label class="form-label">Société</label>
-              <select class="form-control" formControlName="societeId">
-                  <option *ngFor="let societe of societeList$ | async" [value]="societe.societeId">{{ societe.nom }}</option>
-              </select>
-              <div *ngIf="clientForm.controls['societeId'].invalid && clientForm.controls['societeId'].touched" class="text-danger">
-                  La société est requise.
-              </div>
+        <!-- Société -->
+        <div class="mb-3">
+          <label class="form-label">Société</label>
+          <select class="form-control" formControlName="societeId">
+            <option *ngFor="let societe of societeList$ | async"
+              [value]="societe.societeId">{{ societe.nom }}</option>
+          </select>
+          <div
+            *ngIf="clientForm.controls['societeId'].invalid && clientForm.controls['societeId'].touched"
+            class="text-danger">
+            La société est requise.
           </div>
+        </div>
       </div>
 
       <div class="modal-footer">
-          <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Annuler</button>
-          <button type="submit" class="btn btn-success" [disabled]="clientForm.invalid">
-              {{ clientForm.value.clientId ? 'Mettre à Jour' : 'Ajouter' }}
-          </button>
+        <button type="button" class="btn btn-light"
+          (click)="modalRef?.hide()">Annuler</button>
+        <button type="submit" class="btn btn-success"
+          [disabled]="clientForm.invalid">
+          {{ clientForm.value.clientId ? 'Mettre à Jour' : 'Ajouter' }}
+        </button>
       </div>
-  </form>
-</ng-template>
-
+    </form>
+  </ng-template>
 
   <!-- ✅ Modal Détails Client -->
   <ng-template #detailsClientModal>
     <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-person-badge text-primary me-2"></i>Détails du Client</h5>
-        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      <h5 class="modal-title"><i
+          class="bi bi-person-badge text-primary me-2"></i>Détails du
+        Client</h5>
+      <button type="button" class="btn-close"
+        (click)="modalRef?.hide()"></button>
     </div>
     <div class="modal-body">
-        <div class="table-responsive">
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <th scope="row"><i class="bi bi-person-circle text-primary"></i> Nom :</th>
-                        <td>{{ selectedClient?.nom || 'Non défini' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-envelope text-danger"></i> Email :</th>
-                        <td>{{ selectedClient?.email || 'Non défini' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-telephone text-success"></i> Téléphone :</th>
-                        <td>{{ selectedClient?.telephone || 'Non défini' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-geo-alt text-warning"></i> Adresse :</th>
-                        <td>{{ selectedClient?.adresse || 'Non défini' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-hash text-secondary"></i> Numéro SIRET :</th>
-                        <td>{{ selectedClient?.numeroSiret || 'Non défini' }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-tags text-info"></i> Type de Client :</th>
-                        <td>
-                            <span class="badge badge-soft-primary">
-                                {{ selectedClient?.typeClient || 'Non défini' }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-globe text-primary"></i> Pays :</th>
-                        <td>
-                            <span class="badge badge-soft-success">
-                                {{ selectedClient?.pays?.nomFrFr || 'Non défini' }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><i class="bi bi-buildings text-primary me-2"></i> Société :</th>
-                        <td>
-                            <span class="badge badge-soft-info">
-                                {{ selectedClient?.societe?.nom || 'Non définie' }}
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="table-responsive">
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row"><i class="bi bi-person-circle text-primary"></i>
+                Nom :</th>
+              <td>{{ selectedClient?.nom || 'Non défini' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-envelope text-danger"></i> Email
+                :</th>
+              <td>{{ selectedClient?.email || 'Non défini' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-telephone text-success"></i>
+                Téléphone :</th>
+              <td>{{ selectedClient?.telephone || 'Non défini' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-geo-alt text-warning"></i> Adresse
+                :</th>
+              <td>{{ selectedClient?.adresse || 'Non défini' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-hash text-secondary"></i> Numéro
+                SIRET :</th>
+              <td>{{ selectedClient?.numeroSiret || 'Non défini' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-tags text-info"></i> Type de
+                Client :</th>
+              <td>
+                <span class="badge badge-soft-primary">
+                  {{ selectedClient?.typeClient || 'Non défini' }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-globe text-primary"></i> Pays
+                :</th>
+              <td>
+                <span class="badge badge-soft-success">
+                  {{ selectedClient?.pays?.nomFrFr || 'Non défini' }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><i class="bi bi-buildings text-primary me-2"></i>
+                Société :</th>
+              <td>
+                <span class="badge badge-soft-info">
+                  {{ selectedClient?.societe?.nom || 'Non définie' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+      <button type="button" class="btn btn-light"
+        (click)="modalRef?.hide()">Fermer</button>
     </div>
-</ng-template>
-
-
-
-
- 
+  </ng-template>
 
 </div>
