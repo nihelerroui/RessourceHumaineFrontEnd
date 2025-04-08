@@ -106,8 +106,6 @@ export class FactureListComponent implements OnInit {
       this.store.dispatch(loadFactures());
     });
     
-    
-
     // Charger les factures
     this.store.dispatch(loadFactures());
 

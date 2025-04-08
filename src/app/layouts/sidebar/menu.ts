@@ -84,6 +84,12 @@ export const MENU: MenuItem[] = [
         link: '/facture/list',
     },
     {
+        id: 59,
+        label: 'MENUITEMS.DEPENSES.TEXT',
+        icon: 'bx-briefcase-alt-2',
+        link: '/depenses'
+      },
+    {
         id: 12,
         label: 'TRESORIE',
         icon: 'bx-file',
