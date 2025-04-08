@@ -53,3 +53,17 @@ export const deleteClientFailure = createAction(
   '[Client] Delete Client Failure',
   props<{ error: string }>()
 );
+// 🔹 Envoyer un email d'import
+export const sendImportEmail = createAction(
+  '[Client] Send Import Email',
+  props<{ clientId: number }>()
+);
+
+export const sendImportEmailSuccess = createAction(
+  '[Client] Send Import Email Success'
+);
+
+export const sendImportEmailFailure = createAction(
+  '[Client] Send Import Email Failure',
+  props<{ error: string }>()
+);

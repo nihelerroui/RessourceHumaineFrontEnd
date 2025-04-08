@@ -11,6 +11,4 @@ export interface Tresorie {
   dateCreation: string; 
   dateModification: string; 
   motif?: string;
-
-
 }
