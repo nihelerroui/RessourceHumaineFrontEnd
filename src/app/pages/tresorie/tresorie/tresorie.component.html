@@ -76,7 +76,7 @@
 
                         <!-- Bouton Augmenter -->
                         <button class="btn btn-primary"
-                            *ngIf="(tresorie$ | async)?.soldeActuel > 0 && (tresorie$ | async)?.soldeActuel <= 1000"
+                            *ngIf="(tresorie$ | async)?.soldeActuel >= 0 && (tresorie$ | async)?.soldeActuel <= 1000"
                             (click)="openModal(tresorieModal, 'augmenter')">
                             Augmenter
                         </button>
