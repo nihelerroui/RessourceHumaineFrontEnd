@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import * as PrestationActions from './prestation.action';
-import { PrestationService } from '../../core/services/prestation.service'; // Updated path
+import { PrestationService } from '../../core/services/prestation.service';
 
 @Injectable()
 export class PrestationEffects {
