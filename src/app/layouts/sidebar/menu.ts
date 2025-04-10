@@ -96,6 +96,12 @@ export const MENU: MenuItem[] = [
     link: "/facture/list",
   },
   {
+    id: 59,
+    label: 'MENUITEMS.DEPENSES.TEXT',
+    icon: 'bx-briefcase-alt-2',
+    link: '/depenses'
+  },
+  {
     id: 12,
     label: "TRESORIE",
     icon: "bx-file",
@@ -222,103 +228,7 @@ export const MENU: MenuItem[] = [
         link: "/",
         parentId: 30,
       },
-      {
-        id: 33,
-        label: 'MENUITEMS.CONTRATSOUSTRAITANT.TEXT',
-        icon: 'bx bx-message-alt-dots',
-        link: '/contratsoustraitant'},
-    {
-        id: 10,
-        label: 'MENUITEMS.PAYS.TEXT',
-        icon: 'bx-calendar',
-        link: '/pays/list',
-    },
-    {
-        id: 11,
-        label: 'MENUITEMS.SOCIETE.TEXT',
-        icon: 'bx-chat',
-        link: '/societe/list',
-
-    },
-    {
-        id: 12,
-        label: 'MENUITEMS.CLIENT.TEXT',
-        icon: 'bx-file',
-        link: '/client/list',
-    },
-    {
-        id: 12,
-        label: 'MENUITEMS.FACTURE.TEXT',
-        icon: 'bx-file',
-        link: '/facture/list',
-    },
-    {
-        id: 59,
-        label: 'MENUITEMS.DEPENSES.TEXT',
-        icon: 'bx-briefcase-alt-2',
-        link: '/depenses'
-      },
-    {
-        id: 12,
-        label: 'TRESORIE',
-        icon: 'bx-file',
-        link: '/tresorie',
-    },
-    {
-        id: 13,
-        label: 'MENUITEMS.ECOMMERCE.TEXT',
-        icon: 'bx-store',
-        subItems: [
-            {
-                id: 14,
-                label: 'MENUITEMS.ECOMMERCE.LIST.PRODUCTS',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 15,
-                label: 'MENUITEMS.ECOMMERCE.LIST.PRODUCTDETAIL',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 16,
-                label: 'MENUITEMS.ECOMMERCE.LIST.ORDERS',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 17,
-                label: 'MENUITEMS.ECOMMERCE.LIST.CUSTOMERS',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 18,
-                label: 'MENUITEMS.ECOMMERCE.LIST.CART',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 19,
-                label: 'MENUITEMS.ECOMMERCE.LIST.CHECKOUT',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 20,
-                label: 'MENUITEMS.ECOMMERCE.LIST.SHOPS',
-                link: '/',
-                parentId: 13
-            },
-            {
-                id: 21,
-                label: 'MENUITEMS.ECOMMERCE.LIST.ADDPRODUCT',
-                link: '/',
-                parentId: 13
-            },
-        ]
-    },
+   
     {
         id: 22,
         label: 'MENUITEMS.CRYPTO.TEXT',
