@@ -3,7 +3,7 @@ import { Store } from "@ngrx/store";
 import { combineLatest, map, Observable } from "rxjs";
 import { loadPrestations, createPrestation, updatePrestation, deletePrestation } from "../../../store/Prestation/prestation.action";
 import { selectAllPrestations, selectLoading, selectError, selectTotalPrestations, selectAllContrats } from "../../../store/Prestation/prestation-selector";
-import { Prestation, PrestationDTO } from "src/app/models/prestation.model";
+import { Prestation } from "src/app/models/prestation.model";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
@@ -95,8 +95,8 @@ export class PrestationListComponent implements OnInit {
 
   savePrestation() {
     if (this.form.valid) {
-      const prestationDTO: PrestationDTO = this.form.value;
-      this.store.dispatch(createPrestation({ prestationDTO }));
+      const prestation: Prestation = this.form.value;
+      this.store.dispatch(createPrestation({ prestation }));
       this.modalRef?.hide();
       this.form.reset();
     }
@@ -118,8 +118,8 @@ export class PrestationListComponent implements OnInit {
     this.modalRef = this.modalService.show(template);
   }
   updatePrestation() {
-    const prestationDTO: PrestationDTO = this.form.value;
-    this.store.dispatch(updatePrestation({ prestationDTO }));
+    const prestation: Prestation = this.form.value;
+    this.store.dispatch(updatePrestation({ prestation }));
     this.modalRef?.hide();
   }
 

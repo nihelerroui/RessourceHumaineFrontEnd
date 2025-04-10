@@ -16,14 +16,5 @@ export interface Prestation {
     consultant?: Consultant;
   }
   
-  export interface PrestationDTO {
-    prestationId: number; 
-    consultantId?: number;
-    contratId?: number;
-    month?: number;
-    year?: number;
-    description?: string;
-  }
-  
   
   

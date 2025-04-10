@@ -28,7 +28,7 @@ export class PrestationEffects {
     this.actions$.pipe(
       ofType(PrestationActions.createPrestation),
       mergeMap(action =>
-        this.prestationService.createPrestation(action.prestationDTO).pipe(
+        this.prestationService.createPrestation(action.prestation).pipe(
           map(prestation => PrestationActions.createPrestationSuccess({ prestation })),
           catchError(error => of(PrestationActions.createPrestationFailure({ error })))
         )
@@ -40,7 +40,7 @@ export class PrestationEffects {
     this.actions$.pipe(
       ofType(PrestationActions.updatePrestation),
       mergeMap(action =>
-        this.prestationService.updatePrestation(action.prestationDTO).pipe(
+        this.prestationService.updatePrestation(action.prestation).pipe(
           map(prestation => PrestationActions.updatePrestationSuccess({ prestation })),
           catchError(error => of(PrestationActions.updatePrestationFailure({ error })))
         )
