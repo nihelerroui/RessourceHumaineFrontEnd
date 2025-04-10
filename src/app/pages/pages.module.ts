@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { TabsModule } from 'ngx-bootstrap/tabs';
@@ -29,6 +29,7 @@ import { SocieteModule } from './societe/societe.module';
 import { FactureListComponent } from './facture/facture-list/facture-list.component';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
+import { PrestationsModule } from './prestations/prestations.module';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { TresorieModule } from './tresorie/tresorie.module';
     SocieteModule,
     FactureModule,
     TresorieModule,
+    PrestationsModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
@@ -60,5 +62,6 @@ import { TresorieModule } from './tresorie/tresorie.module';
     PickerModule,
     ContratModule
   ],
+  providers: [DatePipe],
 })
 export class PagesModule { }

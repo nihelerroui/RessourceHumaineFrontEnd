@@ -78,6 +78,9 @@
     "CONTRATCLIENTADMIN": {
       "TEXT": "ContratClient"
     },
+    "PRESTATIONS": {
+      "TEXT": "PRESTATIONS"
+    },
 
     "PAYS": {
       "TEXT": "PAYS"
