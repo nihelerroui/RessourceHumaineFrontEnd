@@ -28,7 +28,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 // Auth
-import {HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from "@angular/common/http";
+import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { ErrorInterceptor } from './core/helpers/error.interceptor';
 import { JwtInterceptor } from './core/helpers/jwt.interceptor';
 import { FakeBackendInterceptor } from './core/helpers/fake-backend';
@@ -39,7 +39,7 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { UIModule } from './shared/ui/ui.module';
 import { SharedModule } from './cyptolanding/shared/shared.module';
 
-if (environment.defaultauth === "firebase") {
+if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
   // tslint:disable-next-line: no-unused-expression
@@ -53,7 +53,6 @@ export function createTranslateLoader(http: HttpClient): any {
 @NgModule({
   declarations: [AppComponent, CyptolandingComponent],
   imports: [
-    SharedModule,
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
@@ -72,6 +71,7 @@ export function createTranslateLoader(http: HttpClient): any {
     AccordionModule.forRoot(),
     TabsModule.forRoot(),
     TooltipModule.forRoot(),
+    SharedModule,
     ScrollToModule.forRoot(),
     SlickCarouselModule,
     ToastrModule.forRoot(),
@@ -87,11 +87,7 @@ export function createTranslateLoader(http: HttpClient): any {
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: FakeBackendInterceptor,
-      multi: true,
-    },
+    { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
   ],
 })
 export class AppModule { }
