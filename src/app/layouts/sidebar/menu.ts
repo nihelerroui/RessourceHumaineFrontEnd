@@ -54,6 +54,12 @@ export const MENU: MenuItem[] = [
     isTitle: true,
   },
   {
+    id: 1,
+    label: 'MENUITEMS.PRESTATIONS.TEXT',
+    icon: 'bx-file',
+    link: '/prestations'
+  },
+  {
     id: 18,
     label: "MENUITEMS.CONTRATSOUSTRAITANT.TEXT",
     icon: "bx bx-message-alt-dots",
