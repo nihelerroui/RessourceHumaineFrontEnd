@@ -97,6 +97,15 @@
     "FACTURE": {
       "TEXT": "FACTURE"
     },
+    "TRESORIE": {
+      "TEXT": "TRESORIE"
+    },
+    "MAINOEUVRE": {
+      "TEXT": "MAINOEUVRE"
+    },
+    "HISTORIQUEMAINOEUVRE": {
+      "TEXT": "HISTORIQUEMAINOEUVRE"
+    },
     "DASHBOARDS": {
       "TEXT": "Dashboards",
       "BADGE": "04",

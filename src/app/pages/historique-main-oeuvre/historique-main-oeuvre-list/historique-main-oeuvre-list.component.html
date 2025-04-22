@@ -1,0 +1,183 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Historique Main d’œuvre"
+    [breadcrumbItems]="breadCrumbItems"
+  >
+  </app-page-title>
+
+  <!-- ✅ Ligne Graphique + Total Mensuel -->
+  <div class="row d-flex align-items-stretch mt-4">
+    <div class="col-lg-12">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 card-title">Historique Main d'œuvre</h5>
+            <div class="d-flex gap-2 align-items-center">
+              <div class="input-group input-group-sm">
+                <label class="input-group-text" for="yearSelect">Année</label>
+                <select
+                  id="yearSelect"
+                  class="form-select form-select-sm"
+                  (change)="selectYear($event)"
+                >
+                  <option
+                    *ngFor="let year of years"
+                    [value]="year"
+                    [selected]="year === selectedYear"
+                  >
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row align-items-center">
+            <div class="col-md-3">
+              <div class="text-muted">
+                <p class="mb-2">Ce mois-ci</p>
+                <h4>{{ totalThisMonth | currency : 'EUR' }}</h4>
+                <div>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-soft-success': variationPourcentage >= 0,
+                      'badge-soft-danger': variationPourcentage < 0
+                    }"
+                  >
+                    {{ variationPourcentage > 0 ? '+' : '' }}{{ variationPourcentage | number: '1.1-1' }}%
+                  </span>
+                  par rapport au mois dernier
+                </div>
+
+                <div class="mt-4">
+                  <p class="mb-2">Mois dernier</p>
+                  <h5>{{ totalLastMonth | currency : 'EUR' }}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-9">
+              <apx-chart
+                class="apex-charts"
+                dir="ltr"
+                [series]="chartSeries"
+                [chart]="earningLineChart.chart"
+                [colors]="earningLineChart.colors"
+                [stroke]="earningLineChart.stroke"
+                [dataLabels]="earningLineChart.dataLabels"
+                [xaxis]="earningLineChart.xaxis"
+              >
+              </apx-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4 align-items-stretch">
+    <!-- 📅 Tableau des mois -->
+    <div class="col-lg-6 d-flex">
+      <div class="card flex-fill">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title mb-3">Détail par mois</h5>
+  
+          <div class="table-wrapper flex-grow-1">
+            <div class="table-responsive table-balanced">
+              <table class="table table-bordered mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mois</th>
+                    <th>Coût Main d’œuvre (€)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of paginatedHistorique">
+                    <td>{{ getMonthName(item.mois) }}</td>
+                    <td>{{ item.montantTotal | number : '1.2-2' }}</td>
+                  </tr>
+                  <tr *ngIf="historiqueData.length === 0">
+                    <td colspan="2" class="text-center text-muted">
+                      Aucune donnée pour l'année sélectionnée.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+  
+          <div class="row justify-content-between align-items-center mt-3">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">
+                Affichage de <b>{{ paginatedHistorique.length }}</b> sur
+                <b>{{ historiqueData.length }}</b> mois
+              </p>
+            </div>
+            <div class="col-auto">
+              <ul class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination
+                  [totalItems]="historiqueData.length"
+                  [itemsPerPage]="itemsPerPage"
+                  [(ngModel)]="currentPage"
+                  (pageChanged)="onPageChanged($event)"
+                >
+                </pagination>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- 📊 Cartes à droite -->
+    <div class="col-lg-6 d-flex">
+      <div class="card flex-fill">
+        <div class="card-body d-flex flex-column justify-content-between h-100">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card mini-stats-wid text-center">
+                <div class="card-body">
+                  <i class="mdi mdi-currency-eur text-primary mb-2 mdi-24px"></i>
+                  <p class="text-muted fw-medium mb-2">Revenu Annuel</p>
+                  <h4 class="mb-0">{{ getMontantAnnuel() | currency: 'EUR' }}</h4>
+                </div>
+              </div>
+            </div>
+  
+            <div class="col-md-6">
+              <div class="card mini-stats-wid text-center">
+                <div class="card-body">
+                  <i class="mdi mdi-chart-line text-success mb-2 mdi-24px"></i>
+                  <p class="text-muted fw-medium mb-2">Moyenne annuelle</p>
+                  <h4 class="mb-0">{{ getMoyenneAnnuelle() | number: '1.2-2' }}</h4>
+                </div>
+              </div>
+            </div>
+  
+            <div class="col-md-6">
+              <div class="card mini-stats-wid text-center">
+                <div class="card-body">
+                  <i class="mdi mdi-trophy text-warning mb-2 mdi-24px"></i>
+                  <p class="text-muted fw-medium mb-2">Mois le plus coûteux</p>
+                  <h4 class="mb-0">{{ getMoisPlusCouteuxLabel() }}</h4>
+                </div>
+              </div>
+            </div>
+  
+            <div class="col-md-6">
+              <div class="card mini-stats-wid text-center">
+                <div class="card-body">
+                  <i class="mdi mdi-calendar-remove-outline text-danger mb-2 mdi-24px"></i>
+                  <p class="text-muted fw-medium mb-2">Mois le moins coûteux</p>
+                  <h4 class="mb-0">{{ getMoisMoinsCouteuxLabel() }}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  

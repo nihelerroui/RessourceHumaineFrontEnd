@@ -26,10 +26,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
-import { FactureListComponent } from './facture/facture-list/facture-list.component';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
 import { PrestationsModule } from './prestations/prestations.module';
+import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
+import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
+
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import { PrestationsModule } from './prestations/prestations.module';
     SocieteModule,
     FactureModule,
     TresorieModule,
+    HistoriqueMainOeuvreModule,
     PrestationsModule,
+    MainOeuvreModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
