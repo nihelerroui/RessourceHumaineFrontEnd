@@ -1,0 +1,40 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { CommentModalComponent } from './factureclientcomment-modal-view/comment-modal.component';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { NgxSliderModule } from 'ngx-slider-v2';
+import { SharedModule } from '../../shared/shared.module';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { commentaireFactureClientReducer } from 'src/app/store/commentaire-facture/commentaire-facture.reducer';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { CommentaireFactureClientEffects } from 'src/app/store/commentaire-facture/commentaire-facture.effects';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: CommentModalComponent
+  }
+];
+
+@NgModule({
+  declarations: [
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(routes),
+    PaginationModule.forRoot(),
+    SharedModule,
+    BsDatepickerModule.forRoot(),
+    NgxSliderModule,
+    NgSelectModule,
+    StoreModule.forFeature('commentaireFactureClient', commentaireFactureClientReducer),
+    EffectsModule.forFeature([CommentaireFactureClientEffects]),
+  ]
+})
+export class CommentModalModule { }

@@ -60,6 +60,18 @@ export const MENU: MenuItem[] = [
     link: '/prestations'
   },
   {
+    id: 111,
+    label: 'MENUITEMS.FACTURE_CLIENT.TEXT',
+    icon: 'bx-receipt',
+    link: '/factureclient'
+  },
+  {
+    id: 112,
+    label: 'MENUITEMS.FACTURE_CLIENT_ADMIN.TEXT',
+    icon: 'bx-receipt',
+    link: '/factureclientadmin'
+  },
+  {
     id: 18,
     label: "MENUITEMS.CONTRATSOUSTRAITANT.TEXT",
     icon: "bx bx-message-alt-dots",

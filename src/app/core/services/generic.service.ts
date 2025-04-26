@@ -20,7 +20,7 @@ export class GenericService<T> {
   }
 
   // Generic method to get a single record by ID
-  getById(id: string): Observable<T> {
+  getById(id: number): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${id}`);
   }
 
@@ -35,7 +35,7 @@ export class GenericService<T> {
   }
 
   // Generic method to delete a record by ID
-  delete(id: string): Observable<void> {
+  delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

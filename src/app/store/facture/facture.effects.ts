@@ -68,7 +68,7 @@ export class FactureEffects {
     this.actions$.pipe(
       ofType(deleteFacture),
       mergeMap((action) =>
-        this.factureService.delete(String(action.factureId)).pipe(
+        this.factureService.delete(action.factureId).pipe(
           map(() => deleteFactureSuccess({ factureId: action.factureId })),
           catchError((error) => of(deleteFactureFailure({ error: error.message })))
         )

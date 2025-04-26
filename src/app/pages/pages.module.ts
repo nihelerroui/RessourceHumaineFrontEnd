@@ -26,14 +26,18 @@ import { HttpClientModule } from '@angular/common/http';
 import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
-import { FactureListComponent } from './facture/facture-list/facture-list.component';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
 import { PrestationsModule } from './prestations/prestations.module';
+import { FactureClientModule } from './factureclient/factureclient.module';
+import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
+import { FactureclientAdminModule } from './factureclient-admin/factureclient-admin.module';
+import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
+
 
 @NgModule({
   declarations: [
-  
+    CommentModalComponent,
   ],
   imports: [
     CommonModule,
@@ -41,8 +45,11 @@ import { PrestationsModule } from './prestations/prestations.module';
     SocieteModule,
     FactureModule,
     TresorieModule,
+    FactureClientModule,
+    FactureclientAdminModule,
     PrestationsModule,
     FormsModule,
+    CommentModalModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
     PagesRoutingModule,

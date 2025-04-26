@@ -1,0 +1,268 @@
+<div
+  class="container p-4 px-md-5 position-relative"
+  style="max-width: 900px"
+  [formGroup]="factureForm"
+>
+  <!-- Invoice Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold display-5">Créer Facture</h1>
+    <img
+      src="assets/images/featway.png"
+      alt="Company Logo"
+      style="height: 80px; width: 80px"
+    />
+  </div>
+
+  <hr class="my-3 my-md-4" />
+
+  <!-- Contract Selection -->
+  <div class="mb-3">
+    <select
+      class="form-select form-select-lg"
+      formControlName="contratId"
+      (change)="onContratSelected()"
+    >
+      <option value="" disabled selected>Sélectionner un contrat</option>
+      <option
+        *ngFor="let contrat of contratsClient"
+        [value]="contrat.contratClientId"
+      >
+        {{ contrat.designation }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Company Details -->
+  <table style="width: 100%; border-collapse: collapse; border: none">
+    <tr>
+      <td
+        style="
+          width: 60%;
+          vertical-align: top;
+          font-size: 1.2rem;
+          line-height: 1.5;
+          font-weight: bold;
+        "
+      >
+        <span>{{ selectedContrat?.client?.adresse || "" }}</span
+        ><br />
+        <span
+          >N° Siret:
+          <span style="background-color: yellow; padding: 2px 5px">
+            {{ selectedContrat?.client?.numeroSiret || "" }}
+          </span></span
+        >
+      </td>
+
+      <td
+        style="
+          width: 50%;
+          text-align: right;
+          font-size: 1.4rem;
+          font-weight: bold;
+        "
+      >
+        <span>{{ selectedContrat?.client?.pays?.nomFrFr || "Paris" }},</span
+        ><br />
+        le {{ today | date : "dd/MM/yyyy" }}
+      </td>
+    </tr>
+  </table>
+
+  <hr class="my-3 my-md-4 opacity-0" />
+
+  <!-- Client Details -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4 position-relative">
+      <label class="fw-bold">A l'attention de:</label>
+      <input
+        type="text"
+        class="form-control"
+        [value]="selectedContrat?.client?.nom || ''"
+        [disabled]="!selectedContrat"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label class="fw-bold">Objet:</label>
+      <input
+        type="text"
+        formControlName="objet"
+        class="form-control"
+        [disabled]="!selectedContrat"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label class="fw-bold">Bon de commande:</label>
+      <input
+        type="text"
+        formControlName="numBonCommande"
+        class="form-control"
+        [disabled]="!selectedContrat"
+      />
+    </div>
+
+    <!-- Payment Details -->
+    <div class="col-md-6 mt-3">
+      <label>Date d'échéance:</label>
+      <input
+        type="date"
+        formControlName="dateEcheance"
+        class="form-control"
+        [disabled]="!selectedContrat"
+      />
+    </div>
+    <div class="col-md-6 mt-3">
+      <label>Type de paiement:</label>
+      <select
+        class="form-select"
+        formControlName="typePaiement"
+        [disabled]="!selectedContrat"
+      >
+        <option value="VIREMENT_BANCAIRE">Virement Bancaire</option>
+        <option value="CHEQUE">Chèque</option>
+        <option value="ESPECES">Espèces</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Prestations Table -->
+  <div class="table-responsive position-relative">
+    <table class="table table-bordered border-dark" style="font-size: 1.1rem">
+      <thead class="text-center fw-bold">
+        <tr>
+          <th>Description</th>
+          <th style="width: 10%">Qté</th>
+          <th style="width: 15%">Prix Unitaire</th>
+          <th style="width: 15%">Montant HT</th>
+        </tr>
+      </thead>
+      <tbody formArrayName="prestationIds">
+        <tr
+          *ngFor="let prestation of prestationIds.controls; let i = index"
+          class="position-relative"
+        >
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="removePrestation(i)"
+                style="width: 32px"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+              <ng-select
+                [items]="availablePrestations"
+                bindLabel="description"
+                [clearable]="true"
+                [searchable]="true"
+                [formControlName]="i"
+                (change)="onPrestationSelected(i)"
+                style="width: 100%"
+              >
+              </ng-select>
+            </div>
+          </td>
+          <td>
+            {{ getSelectedPrestation(i)?.quantite || 0 }}
+          </td>
+          <td class="text-end">
+            {{
+              getSelectedPrestation(i)?.prixUnitaire | currency : "EUR" || "0 €"
+            }}
+          </td>
+          <td class="text-end">
+            {{
+              (getSelectedPrestation(i)?.prixUnitaire || 0) *
+                (getSelectedPrestation(i)?.quantite || 0) | currency : "EUR"
+            }}
+          </td>
+        </tr>
+      </tbody>
+
+      <!-- Totals Section -->
+      <tbody>
+        <tr class="fw-bold text-primary">
+          <td colspan="3" class="text-end">Total HT Brut</td>
+          <td class="text-end">
+            {{ facturePreview?.montantHtBrut ?? 0 | currency : "EUR" }}
+          </td>
+        </tr>
+
+        <tr class="fw-bold text-warning">
+          <td colspan="3" class="text-end">
+            Remise
+            <input
+              type="number"
+              formControlName="pourcentageRemise"
+              class="form-control d-inline-block text-end"
+              style="width: 60px"
+              min="0"
+              max="100"
+              [disabled]="!selectedContrat"
+            />
+            %
+          </td>
+          <td class="text-end">
+            -{{ facturePreview?.montantRemise || 0 | currency : "EUR" }}
+          </td>
+        </tr>
+
+        <tr class="fw-bold text-primary">
+          <td colspan="3" class="text-end">Total HT</td>
+          <td class="text-end">
+            {{ facturePreview?.montantHt || 0 | currency : "EUR" }}
+          </td>
+        </tr>
+
+        <tr class="fw-bold">
+          <td colspan="3" class="text-end">
+            Montant TVA ({{ facturePreview?.pourcentageTva || 0 }}%)
+          </td>
+          <td class="text-end">
+            {{ facturePreview?.montantTva || 0 | currency : "EUR" }}
+          </td>
+        </tr>
+
+        <tr class="fw-bold text-danger fs-4">
+          <td colspan="3" class="text-end">Total TTC</td>
+          <td class="text-end">
+            {{ facturePreview?.montantTtc || 0 | currency : "EUR" }}
+          </td>
+        </tr>
+
+        <!-- New payment due line -->
+        <tr class="fw-bold text-success fs-5">
+          <td colspan="3" class="text-end">
+            Montant total à payer avant le
+            {{ factureForm.get("dateEcheance")?.value | date : "dd/MM/yyyy" }}
+          </td>
+          <td class="text-end">
+            {{ facturePreview?.montantTtc || 0 | currency : "EUR" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Save Section (removed imprimer button) -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-danger" (click)="clearForm()">
+      <i class="fas fa-trash-alt"></i> Réinitialiser
+    </button>
+
+    <button
+      class="btn btn-primary mx-3"
+      (click)="addPrestation()"
+      [disabled]="!selectedContrat"
+    >
+      <i class="fas fa-plus"></i> Ajouter une prestation
+    </button>
+
+    <button class="btn btn-success fs-6" (click)="saveFacture()">
+      <i class="fas fa-save"></i>
+      {{ isEditMode ? "Modifier la facture" : "Enregistrer la facture" }}
+    </button>
+  </div>
+</div>

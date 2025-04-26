@@ -1,0 +1,270 @@
+<style>
+    body {
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .table-container {
+    width: 100%;
+    max-width: 1000px;
+  }
+</style>
+    <div class="container-fluid">
+    <div class="table-container">
+        <div class="col-12">
+            <div ngClass="card">
+                <div class="card-body border-bottom">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 card-title flex-grow-1">Liste des
+                            Factures Clients</h5>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+                    <div class="row g-3">
+                        <div class="col-xxl-3 col-lg-6">
+                            <input type="search" class="form-control" id="searchInput" placeholder="Rechercher ..."
+                                [(ngModel)]="term" (ngModelChange)="searchFactureClient()" />
+                        </div>
+                        <div class="col-xxl-3 col-lg-6">
+                            <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut"
+                                [(ngModel)]="statutFactureFilter" (ngModelChange)="applyFilters()">
+                                <option value>Sélectionner le statut</option>
+                                <option value="Confirmé_Admin">Confirmé
+                                    Admin</option>
+                                <option value="Confirmation_Complet">Confirmation
+                                    Complet</option>
+                                <option value="Rejete">Rejeté</option>
+                            </select>
+                        </div>
+
+                        <!-- Type Paiement Dropdown -->
+                        <div class="col-xxl-3 col-lg-6">
+                            <select class="form-select" id="idTypePaiement"
+                                aria-label="Sélectionner le type de paiement" [(ngModel)]="typePaiementFilter"
+                                (ngModelChange)="applyFilters()">
+                                <option value>Sélectionner le type de
+                                    paiement</option>
+                                <option value="ESPECES">Espèces</option>
+                                <option value="VIREMENT_BANCAIRE">Virement
+                                    Bancaire</option>
+                                <option value="CHEQUE">Chèque</option>
+                            </select>
+                        </div>
+
+                        <div class="col-xxl-3 col-lg-6">
+                            <select class="form-select" id="idStatutPaiement"
+                                aria-label="Sélectionner le statut de paiement" [(ngModel)]="statutPaiementFilter"
+                                (ngModelChange)="applyFilters()">
+                                <option value>Sélectionner le statut de
+                                    paiement</option>
+                                <option value="PAYÉE">Payée</option>
+                                <option value="NON_PAYÉE">Non Payée</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div *ngIf="loading$ | async" class="text-center p-5">
+                        <i class="mdi mdi-loading mdi-spin"></i> Chargement...
+                    </div>
+
+                    <div *ngIf="error$ | async as error" class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+
+                    <div class="table-responsive" *ngIf="(factureClients$ | async)?.length">
+                        <table class="table align-middle dt-responsive nowrap w-100 table-check" id="facture-list">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Date d'émission</th>
+                                    <th>Date d'écheance</th>
+                                    <th>Montant TTC</th>
+                                    <th>Montant TVA</th>
+                                    <th>Statut Facture</th>
+                                    <th>Statut Paiement</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let facture of filteredFactures$ | async; let i = index">
+                                    <td>{{ facture.refFacture }}</td>
+                                    <td>{{ facture.dateEmmission | date:
+                                        'dd/MM/yyyy' }}</td>
+                                    <td>{{ facture.dateEcheance | date:
+                                        'dd/MM/yyyy' }}</td>
+                                    <td>{{ facture.montantTtc | currency : 'EUR'
+                                        }}</td>
+                                    <td>{{ facture.montantTva | currency : 'EUR'
+                                        }}</td>
+                                    <td>
+                                        <span class="badge" [ngClass]="{
+                    'badge-soft-info': facture.statutFacture === 'Confirmé_Admin',
+                    'badge-soft-success' : facture.statutFacture === 'Confirmation_Complet',
+                    'badge-soft-danger' : facture.statutFacture === 'Rejete'
+                  }">
+                                            {{ facture.statutFacture }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" [ngClass]="{
+                    'badge-soft-success': facture.statutPaiement === 'PAYÉE',
+                    'badge-soft-danger': facture.statutPaiement === 'NON_PAYÉE'
+                  }">
+                                            {{ facture.statutPaiement }}</span>
+                                    </td>
+                                    <td>
+                                        <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                                                  (click)="downloadFacture(facture.factureClientId)">
+                                                  <i class="mdi mdi-download"></i>
+                                                </a>
+                                              </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Add Comment">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-soft-secondary"
+                                                    (click)="openCommentModal(facture)">
+                                                    <i class="mdi mdi-message-text-outline"></i>
+                                                </a>
+                                            </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                <button class="btn btn-soft-info btn-sm"
+                                                    (click)="openDetailsModal(facture, detailsFactureModal)">
+                                                    <i class="mdi mdi-eye"></i>
+                                                </button>
+                                            </li>
+                                            <li *ngIf="facture.statutFacture === 'Confirmé_Admin'"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Valider la facture">
+                                                <button class="btn btn-sm btn-soft-success"
+                                                    (click)="modifierStatutFacture(facture, 'Confirmation_Complet')">
+                                                    <i class="mdi mdi-check-circle-outline"></i>
+                                                </button>
+                                            </li>
+                                            <li *ngIf="facture.statutFacture === 'Confirmé_Admin'"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Rejeter la facture">
+                                                <button class="btn btn-sm btn-soft-danger"
+                                                    (click)="modifierStatutFacture(facture, 'Rejete')">
+                                                    <i class="mdi mdi-close-circle-outline"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div *ngIf="(factureClients$ | async)?.length === 0 && !(loading$ | async)" class="text-center p-5">
+                        Aucune facture n'a été trouvée
+                    </div>
+                    <!-- Pagination -->
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            Affichage de
+                            {{
+                            page * facturesParPage > (total$ | async)! ? (total$ | async) : page * facturesParPage
+                            }}
+                            sur {{ total$ | async }} factures
+                        </div>
+
+                        <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="facturesParPage"
+                            [maxSize]="5" [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹"
+                            nextText="›" firstText="«" lastText="»" class="pagination pagination-rounded mb-0">
+                        </pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-template #detailsFactureModal>
+        <div class="modal-header bg-soft-primary">
+            <h5 class="modal-title text-primary fw-bold">
+                <i class="mdi mdi-file-document-outline me-1"></i> Détails de la
+                facture
+            </h5>
+            <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+        </div>
+
+        <div class="modal-body px-4 py-3">
+            <div class="row gy-3">
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📄 Référence</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.refFacture
+                        }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📅 Date d’émission</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.dateEmmission |
+                        date:'dd/MM/yyyy' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">💰 Montant HT</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.montantHt |
+                        currency:'EUR' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">💶 Montant TTC</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.montantTtc |
+                        currency:'EUR' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📊 Montant TVA</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.montantTva |
+                        currency:'EUR' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📈 % TVA</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.pourcentageTva
+                        }}%</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">⏳ Date d’échéance</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.dateEcheance |
+                        date:'dd/MM/yyyy' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">🔻 % Remise</p>
+                    <h6 class="fw-semibold">{{
+                        selectedFacture?.pourcentageRemise || 0 }}%</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📦 Bon de commande</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.numBonCommande
+                        || 'N/A' }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📝 Objet</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.objet || 'N/A'
+                        }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">📌 Statut Facture</p>
+                    <span class="badge" [ngClass]="{
+            'badge-soft-success': selectedFacture?.statutFacture === 'Confirmation_Complet',
+            'badge-soft-info': selectedFacture?.statutFacture === 'Confirmé_Admin',
+            'badge-soft-danger': selectedFacture?.statutFacture === 'Rejete'
+          }">{{ selectedFacture?.statutFacture }}</span>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">💳 Type Paiement</p>
+                    <h6 class="fw-semibold">{{ selectedFacture?.typePaiement
+                        }}</h6>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">💼 Statut Paiement</p>
+                    <span class="badge" [ngClass]="{
+            'badge-soft-success': selectedFacture?.statutPaiement === 'PAYÉE',
+            'badge-soft-danger': selectedFacture?.statutPaiement === 'NON_PAYÉE'
+          }">{{ selectedFacture?.statutPaiement }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+        </div>
+    </ng-template>
+</div>
