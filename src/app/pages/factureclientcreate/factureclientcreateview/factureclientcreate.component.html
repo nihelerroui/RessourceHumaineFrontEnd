@@ -115,18 +115,12 @@
               </button>
               <ng-select
                 [items]="availablePrestations"
-                bindLabel="description"
+                bindLabel="titre"
                 [clearable]="true"
                 [searchable]="true"
                 [formControlName]="i"
                 (change)="onPrestationSelected(i)"
                 style="width: 100%;">
-                <ng-template ng-option-tmp let-item="item">
-                  {{ getTruncatedDescription(item) }}
-                </ng-template>
-                <ng-template ng-label-tmp let-item="item">
-                  {{ getTruncatedDescription(item) }}
-                </ng-template>
               </ng-select>
             </div>
           </td>

@@ -258,13 +258,6 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  } 
-  getTruncatedDescription = (prestation: any) => {
-    if (!prestation?.description) {
-      return '';
-    }
-    const words = prestation.description.split(' ');
-    return words.slice(0, 3).join(' ') + (words.length > 3 ? '...' : '');
-  };    
+  }    
   
 }
