@@ -52,7 +52,7 @@ export class SocieteEffects {
     this.actions$.pipe(
       ofType(SocieteActions.deleteSociete),
       mergeMap(action =>
-        this.societeService.delete(String(action.societeId)).pipe(
+        this.societeService.delete(action.societeId).pipe(
           map(() => SocieteActions.deleteSocieteSuccess({ societeId: action.societeId })),
           catchError(error => of(SocieteActions.deleteSocieteFailure({ error: error.message })))
         )

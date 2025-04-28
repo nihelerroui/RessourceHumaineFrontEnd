@@ -79,7 +79,7 @@ export class ContratEffects {
         ofType(ContratActions.deleteContract),
         tap(({ id }) => console.log("Suppression du contrat ID :", id)),
         mergeMap(({ id }) =>
-          this.contratService.delete(id.toString()).pipe(
+          this.contratService.delete(id).pipe(
             tap(() => console.log("Contrat supprimé avec succès, ID :", id)),
             map(() => ContratActions.deleteContractSuccess({ id })),
             catchError((error) => {

@@ -29,13 +29,17 @@ import { SocieteModule } from './societe/societe.module';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
 import { PrestationsModule } from './prestations/prestations.module';
+import { FactureClientModule } from './factureclient/factureclient.module';
+import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
+import { FactureclientAdminModule } from './factureclient-admin/factureclient-admin.module';
+import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
 import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
 
 
 @NgModule({
   declarations: [
-  
+    CommentModalComponent,
   ],
   imports: [
     CommonModule,
@@ -43,10 +47,13 @@ import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-
     SocieteModule,
     FactureModule,
     TresorieModule,
+    FactureClientModule,
+    FactureclientAdminModule,
     HistoriqueMainOeuvreModule,
     PrestationsModule,
     MainOeuvreModule,
     FormsModule,
+    CommentModalModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
     PagesRoutingModule,

@@ -70,7 +70,7 @@ export class ClientEffects {
     this.actions$.pipe(
       ofType(deleteClient),
       mergeMap((action) =>
-        this.clientService.delete(String(action.clientId)).pipe(
+        this.clientService.delete(action.clientId).pipe(
           map(() => deleteClientSuccess({ clientId: action.clientId })),
           catchError((error) => of(deleteClientFailure({ error: error.message })))
         )

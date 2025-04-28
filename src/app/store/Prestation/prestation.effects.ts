@@ -52,7 +52,7 @@ export class PrestationEffects {
     this.actions$.pipe(
       ofType(PrestationActions.deletePrestation),
       switchMap(({ id }) =>
-        this.prestationService.delete(id.toString()).pipe(
+        this.prestationService.delete(id).pipe(
           map(() => PrestationActions.deletePrestationSuccess({ id })),
           catchError(error =>
             of(

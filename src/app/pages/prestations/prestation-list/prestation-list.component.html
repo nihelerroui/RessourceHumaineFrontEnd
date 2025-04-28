@@ -50,7 +50,9 @@
               </thead>
               <tbody>
                 <tr *ngFor="let prestation of prestations; trackBy: trackById">
-                  <td>{{ prestation.description }}</td>
+                  <td>
+                    {{ prestation.description?.split(' ').slice(0, 3).join(' ') }}{{ prestation.description?.split(' ').length > 3 ? '...' : '' }}
+                  </td>                  
                   <td>
                     <span class="badge bg-primary fs-6 p-2 cursor-pointer" (click)="viewClientDetails(prestation.factureClients?.[0]?.contratClient?.client?.clientId, ClientDetailsModal)">
                       {{ prestation.contratClient?.client?.nom || "N/A" }}
