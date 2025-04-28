@@ -1,8 +1,9 @@
 import { createReducer, on } from '@ngrx/store';
 import * as DepenseActions from './depense.actions';
+import { Depense } from 'src/app/models/depense.model';
 
 export interface DepenseState {
-  depenses: any[];
+  depenses: Depense[];
   loading: boolean;
   error: string | null;
 }

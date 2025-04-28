@@ -23,6 +23,8 @@ const routes: Routes = [
   { path: 'facture', loadChildren: () => import('./facture/facture.module').then(m => m.FactureModule) },
   { path: 'tresorie', loadChildren: () => import('./tresorie/tresorie.module').then(m => m.TresorieModule) },
   { path: 'depenses', loadChildren: () => import('./depenses/depenses.module').then(m => m.DepensesModule) },
+  { path: 'mainOeuvre', loadChildren: () => import('./mainOeuvre/main-oeuvre.module').then(m => m.MainOeuvreModule) },
+  { path: 'historique-mainoeuvre', loadChildren: () => import('./historique-main-oeuvre/historique-main-oeuvre.module').then(m => m.HistoriqueMainOeuvreModule) },
 
 
 ];
