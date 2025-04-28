@@ -21,7 +21,7 @@ export class TresorieComponent implements OnInit {
   peutAugmenterSolde$: Observable<boolean>; // ✅ Vérifie si on peut augmenter le solde
   montantInitial: number = 0;
   montantAjout: number = 0; // ✅ Montant à ajouter
-  societeId: number = 1; // ✅ ID de la société
+  societeId: number = 3; // ✅ ID de la société
   modalAction: string = '';
   modalRef?: BsModalRef;
   submitted: boolean = false;

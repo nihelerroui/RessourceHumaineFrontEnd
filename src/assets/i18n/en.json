@@ -90,6 +90,9 @@
     "PAYS": {
       "TEXT": "PAYS"
     },
+    "DEPENSES": {
+      "TEXT": "DEPENSES"
+    },
     "SOCIETE": {
       "TEXT": "SOCIETE"
     },

@@ -1,0 +1,193 @@
+<div class="container-fluid">
+  <app-page-title title="Liste des Depenses"
+    [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des dépenses</h5>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <!-- Recherche -->
+            <div class="col-xxl-4 col-lg-6">
+              <input
+                type="search"
+                class="form-control"
+                placeholder="Rechercher une dépense ..."
+                [(ngModel)]="term"
+                (ngModelChange)="filtrerDepenses()" />
+            </div>
+
+            <!-- Mois -->
+            <div class="col-xxl-2 col-lg-3">
+              <select [(ngModel)]="moisSelectionne" class="form-select">
+                <option value>Tous les mois</option>
+                <option *ngFor="let mois of listeMois" [value]="mois">{{ mois
+                  }}</option>
+              </select>
+            </div>
+
+            <!-- Montant min -->
+            <div class="col-xxl-2 col-lg-3">
+              <input
+                type="number"
+                [(ngModel)]="montantMin"
+                class="form-control"
+                placeholder="Montant min" />
+            </div>
+
+            <!-- Montant max -->
+            <div class="col-xxl-2 col-lg-3">
+              <input
+                type="number"
+                [(ngModel)]="montantMax"
+                class="form-control"
+                placeholder="Montant max" />
+            </div>
+
+            <!-- Bouton filtrer -->
+            <div class="col-xxl-2 col-lg-3">
+              <button type="button" class="btn btn-soft-secondary w-100"
+                (click)="filtrerDepenses()">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading state -->
+
+          <!-- Error state -->
+          <div *ngIf="error$ | async as error" class="alert alert-danger"
+            role="alert">
+            {{ error }}
+          </div>
+
+          <!-- Data table -->
+          <div class="table-responsive" *ngIf="depensesFiltrees?.length">
+            <table class="table table-striped table-hover align-middle"
+              id="depense-list">
+              <thead>
+                <tr>
+                  <th>Mois</th>
+                  <th>Designation</th>
+                  <th>Motif</th>
+                  <th>Date de création</th>
+                  <th>Montant</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of lists">
+                  <td>{{ data.mois }}</td>
+                  <td>{{ data.designation }}</td>
+                  <td>{{ data.motif }}</td>
+                  <td>{{ data.dateCreation | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ data.montant }}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li>
+                        <a class="btn btn-sm btn-soft-primary" (click)="openDetailsModal(data, detailsDepenseModal)">
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No data message -->
+          <div *ngIf="!lists?.length && !(loading$ | async)"
+            class="text-center p-5">
+            Aucune dépense n'a été trouvée
+          </div>
+
+          <!-- Pagination -->
+          
+            <div class="row justify-content-between align-items-center" *ngIf="depensesFiltrees.length > 0">
+              <div class="col-auto me-auto">
+                <p class="text-muted mb-0">
+                  Affichage de <b>{{ lists.length }}</b> sur <b>{{ depensesFiltrees.length }}</b> dépenses
+                </p>
+              </div>
+              <div class="col-auto">
+                <ul class="pagination pagination-rounded justify-content-end mb-2">
+                  <pagination
+                    [totalItems]="depensesFiltrees.length"
+                    [itemsPerPage]="itemsPerPage"
+                    (pageChanged)="pageChanged($event)">
+                  </pagination>
+                </ul>
+              </div>
+            </div>
+            
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ✅ Modal Détails Dépense -->
+<ng-template #detailsDepenseModal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="bi bi-cash-stack text-primary"></i> Détails de la Dépense
+    </h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tbody>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-calendar-event text-warning"></i> Mois :
+            </th>
+            <td>{{ selectedDepense?.mois }}</td>
+          </tr>
+
+          <tr>
+            <th scope="row" style="white-space: nowrap;">
+              <i class="bi bi-card-text text-secondary"></i> Désignation :
+            </th>
+            <td>
+              {{ selectedDepense?.designation }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" style="white-space: nowrap;">
+              <i class="bi bi-calendar text-primary"></i> Date de création :
+            </th>
+            <td>{{ selectedDepense?.dateCreation | date:'dd/MM/yyyy' }}</td>
+          </tr>
+          
+          <tr>
+            <th scope="row">
+              <i class="bi bi-currency-euro text-success"></i> Montant :
+            </th>
+            <td>{{ selectedDepense?.montant }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-chat-left-dots text-info"></i> Motif :
+            </th>
+            <td>{{ selectedDepense?.motif }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light"
+      (click)="modalRef?.hide()">Fermer</button>
+  </div>
+</ng-template>

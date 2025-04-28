@@ -28,7 +28,9 @@ const routes: Routes = [
   { path: 'facture/client/view',
     loadChildren: () => import('./factureclient_client/clientfacture.module').then(m => m.ClientFactureModule)
   },
-  
+
+  { path: 'depenses', loadChildren: () => import('./depenses/depenses.module').then(m => m.DepensesModule) },
+
 ];
 
 @NgModule({
