@@ -193,7 +193,7 @@ export class FactureListComponent implements OnInit {
   saveFacture() {
     if (this.factureForm.valid) {
       let factureData = this.factureForm.value;
-      factureData.consultantId = 1;
+      factureData.consultantId = 141;
   
       if (!factureData.consultantId) {
         Swal.fire("Erreur", "Veuillez sélectionner un consultant.", "error");

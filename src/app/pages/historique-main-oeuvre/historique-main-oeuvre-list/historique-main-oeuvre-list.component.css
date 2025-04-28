@@ -1,0 +1,10 @@
+.table-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .table-balanced {
+    width: 80%;
+    max-width: 800px;
+  }
+  

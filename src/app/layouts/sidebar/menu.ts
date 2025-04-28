@@ -121,10 +121,23 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 12,
-    label: "TRESORIE",
+    label: "MENUITEMS.TRESORIE.TEXT",
     icon: "bx-file",
     link: "/tresorie",
   },
+  {
+    id: 12,
+    label: "MENUITEMS.MAINOEUVRE.TEXT",
+    icon: "bx-file",
+    link: "/mainOeuvre/list",
+  },
+  {
+    id: 12,
+    label: "MENUITEMS.HISTORIQUEMAINOEUVRE.TEXT",
+    icon: "bx-file",
+    link: "/historique-mainoeuvre/list",
+  },
+
   {
     id: 13,
     label: "MENUITEMS.ECOMMERCE.TEXT",

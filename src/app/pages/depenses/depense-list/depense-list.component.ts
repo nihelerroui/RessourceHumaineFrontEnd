@@ -1,14 +1,11 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, FormGroup, FormBuilder } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 import { fetchDepenseData } from '../../../store/Depense/depense.actions';
 import { selectData, selectError, selectLoading } from '../../../store/Depense/depense.selectors';
-import { DepenseService } from 'src/app/core/services/depense.service';
 import { Depense } from 'src/app/models/depense.model';
 
 @Component({
