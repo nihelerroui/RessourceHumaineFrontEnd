@@ -1,15 +1,14 @@
 import {
   Component,
   OnInit,
-  ChangeDetectorRef,
   TemplateRef,
 } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { UntypedFormBuilder, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormBuilder } from "@angular/forms";
 import Swal from "sweetalert2";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { combineLatest, filter, map, Observable, take } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 import {
   selectFactureClients,
   selectError,

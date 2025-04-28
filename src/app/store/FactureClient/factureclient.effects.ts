@@ -48,15 +48,15 @@ export class FactureClientEffects {
     this.actions$.pipe(
       ofType(FactureClientActions.updateFactureClient),
       mergeMap(({ facture }) => {
-        console.log('🟡 FACTURE À METTRE À JOUR:', facture); // LOG ici
+        console.log('🟡 FACTURE À METTRE À JOUR:', facture); 
   
         return this.factureClientService.updateFactureClient(facture).pipe(
           map((updated) => {
-            console.log('✅ FACTURE MISE À JOUR:', updated); // LOG ici
+            console.log('✅ FACTURE MISE À JOUR:', updated); 
             return FactureClientActions.updateFactureClientSuccess({ facture: updated });
           }),
           catchError((error) => {
-            console.error('❌ Erreur update:', error); // LOG ici
+            console.error('❌ Erreur update:', error); 
             return of(FactureClientActions.updateFactureClientFailure({ error }));
           })
         );
@@ -91,6 +91,17 @@ export class FactureClientEffects {
               })
             )
           )
+        )
+      )
+    )
+  );
+  deleteFactureClient$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FactureClientActions.deleteFactureClient),
+      mergeMap(({ factureClientId }) =>
+        this.factureClientService.delete(factureClientId).pipe(
+          map(() => FactureClientActions.deleteFactureClientSuccess({ factureClientId })),
+          catchError(error => of(FactureClientActions.deleteFactureClientFailure({ error })))
         )
       )
     )

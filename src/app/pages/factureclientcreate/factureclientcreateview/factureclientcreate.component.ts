@@ -220,7 +220,6 @@ export class FactureClientCreateComponent implements OnInit {
     this.isLoading = true;
   
     if (this.isEditMode) {
-      // 👉 Ne réagit que si "saveFacture" a été appelé via le bouton "Enregistrer"
       this.store.select(selectFactureSelected).subscribe((facture) => {
         if (facture && this.submitted) {
           factureData.statutFacture = facture.statutFacture;
@@ -239,7 +238,7 @@ export class FactureClientCreateComponent implements OnInit {
             this.modalRef.hide();
           });
   
-          this.submitted = false; // reset après exécution
+          this.submitted = false; 
         }
       });
     } else {
@@ -247,6 +246,7 @@ export class FactureClientCreateComponent implements OnInit {
       factureData.statutPaiement = 'NON_PAYÉE';
   
       this.store.dispatch(FactureClientActions.createFactureClient({ facture: factureData }));
+      this.store.dispatch(FactureClientActions.loadFacturesClient());
       Swal.fire({
         icon: 'success',
         title: 'Facture enregistrée !',
@@ -258,6 +258,13 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  }  
+  } 
+  getTruncatedDescription = (prestation: any) => {
+    if (!prestation?.description) {
+      return '';
+    }
+    const words = prestation.description.split(' ');
+    return words.slice(0, 3).join(' ') + (words.length > 3 ? '...' : '');
+  };    
   
 }

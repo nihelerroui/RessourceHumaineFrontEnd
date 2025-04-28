@@ -17,6 +17,21 @@ export const updateFactureClientFailure = createAction('[FactureClient] Update F
 export const loadFactureClientById = createAction('[FactureClient] Load By Id', props<{ id: number }>());
 export const loadFactureClientByIdSuccess = createAction('[FactureClient] Load By Id Success', props<{ facture: any }>() );
 export const loadFactureClientByIdFailure = createAction('[FactureClient] Load By Id Failure', props<{ error: any }>() );
+//delete facture
+export const deleteFactureClient = createAction(
+  '[FactureClient] Delete FactureClient',
+  props<{ factureClientId: number }>()
+);
+
+export const deleteFactureClientSuccess = createAction(
+  '[FactureClient] Delete FactureClient Success',
+  props<{ factureClientId: number }>()
+);
+
+export const deleteFactureClientFailure = createAction(
+  '[FactureClient] Delete FactureClient Failure',
+  props<{ error: any }>()
+);
 
 export const loadFacturesClientByClientId = createAction(
     '[FactureClient] Load Factures Client By ClientId',

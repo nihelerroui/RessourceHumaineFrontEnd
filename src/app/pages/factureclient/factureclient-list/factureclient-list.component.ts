@@ -1,24 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef, TemplateRef } from "@angular/core";
+import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import {
-  UntypedFormBuilder,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { UntypedFormBuilder, FormGroup, Validators } from "@angular/forms";
 import Swal from "sweetalert2";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { combineLatest, map, Observable } from "rxjs";
-import {
-  selectFactureClients,
-  selectError,
-  selectLoading,
-  selectTotalFactureClient,
-} from "../../../store/FactureClient/factureclient.selector";
+import { selectFactureClients, selectError, selectLoading, selectTotalFactureClient } from "../../../store/FactureClient/factureclient.selector";
 import { FactureClientService } from "../../../core/services/factureclient.service";
 import { FactureClientCreateComponent } from "../../factureclientcreate/factureclientcreateview/factureclientcreate.component";
 import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
-import { downloadFacture, envoyerEmailFacture, loadFacturesClient } from "src/app/store/FactureClient/factureclient.actions";
+import { deleteFactureClient, downloadFacture, envoyerEmailFacture, loadFacturesClient } from "src/app/store/FactureClient/factureclient.actions";
 import { StatutPaiement } from "src/app/models/statut-paiement.enum";
 import { FactureClient } from "src/app/models/factureClient.models";
 
@@ -212,20 +203,13 @@ export class FactureClientListComponent implements OnInit {
       cancelButtonText: "Annuler"
     }).then(result => {
       if (result.isConfirmed) {
-        this.factureClientService.delete(factureClientId).subscribe({
-          next: () => {
-            Swal.fire("Supprimé !", "La facture a été supprimée.", "success");
-            this.store.dispatch(loadFacturesClient());
-          },
-          error: error => {
-            Swal.fire("Erreur", "Une erreur est survenue.", "error");
-            console.error("Erreur suppression facture:", error);
-          }
-        });
+        this.store.dispatch(deleteFactureClient({ factureClientId }));
+  
+        Swal.fire("Supprimé !", "La facture a été supprimée.", "success");
       }
     });
   }
-
+  
   openCommentModal(facture: FactureClient | number): void {
     const factureId = typeof facture === 'number' ? facture : facture.factureClientId;
     this.modalRef = this.modalService.show(CommentModalComponent, {

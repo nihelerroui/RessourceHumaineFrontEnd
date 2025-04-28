@@ -55,6 +55,12 @@ export const factureClientReducer = createReducer(
     error,
     loading: false,
   })),
+  on(FactureClientActions.deleteFactureClientSuccess, (state, { factureClientId }) => ({
+    ...state,
+    factureClients: state.factureClients.filter(facture => facture.factureClientId !== factureClientId),
+    loading: false,
+    error: null
+  })),
   // récupérer par clientId
   on(FactureClientActions.loadFacturesClientByClientId, (state) => ({
     ...state,

@@ -1,5 +1,5 @@
 export enum StatutPaiement {
-    PAYEE = "PAYEE",
-    NON_PAYEE = "NON_PAYEE"
+    PAYEE = "PAYÉE",
+    NON_PAYEE = "NON_PAYÉE"
   }
   

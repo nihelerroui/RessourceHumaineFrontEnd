@@ -83,10 +83,11 @@
                                     <td>{{ facture.dateEmmission | date:
                                         'dd/MM/yyyy' }}</td>
                                     <td [ngClass]="{
-                                     'bg-soft-danger text-danger': (facture.dateEcheance | date:'yyyy-MM-dd') < today ,
-                                   }">
+                                        'bg-soft-danger text-danger': (facture.dateEcheance | date:'yyyy-MM-dd') < today && facture.statutPaiement !== 'PAYÉE'
+                                      }">
                                         {{ facture.dateEcheance | date:'dd/MM/yyyy' }}
                                     </td>
+
 
                                     <td>{{ facture.montantTtc | currency : 'EUR'
                                         }}</td>
@@ -110,12 +111,20 @@
                                     </td>
                                     <td>
                                         <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li *ngIf="facture.statutFacture !== 'Confirmé_Admin'&& facture.statutFacture !== 'Confirmation_Complet'"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Éditer la facture">
+                                                <button class="btn btn-sm btn-soft-info"
+                                                    (click)="openEditModal(facture.factureClientId)">
+                                                    <i class="mdi mdi-pencil-outline"></i>
+                                                </button>
+                                            </li>
                                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger">
                                                 <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
-                                                  (click)="downloadFacture(facture.factureClientId)">
-                                                  <i class="mdi mdi-download"></i>
+                                                    (click)="downloadFacture(facture.factureClientId)">
+                                                    <i class="mdi mdi-download"></i>
                                                 </a>
-                                              </li>
+                                            </li>
                                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Add Comment">
                                                 <a href="javascript:void(0);" class="btn btn-sm btn-soft-secondary"
                                                     (click)="openCommentModal(facture.factureClientId)">
@@ -126,6 +135,14 @@
                                                 <button class="btn btn-soft-info btn-sm"
                                                     (click)="openDetailsModal(facture, detailsFactureModal)">
                                                     <i class="mdi mdi-eye"></i>
+                                                </button>
+                                            </li>
+                                            <li *ngIf="facture.statutFacture !== 'Confirmé_Admin'&& facture.statutFacture !== 'Confirmation_Complet'"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Supprimer la facture">
+                                                <button class="btn btn-sm btn-soft-danger"
+                                                    (click)="deleteFacture(facture.factureClientId)">
+                                                    <i class="mdi mdi-delete-outline"></i>
                                                 </button>
                                             </li>
                                             <!-- Accepter -->

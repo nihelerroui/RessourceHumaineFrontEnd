@@ -1,25 +1,10 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-} from "@angular/core";
+import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
 import { CommentaireFactureClient } from "../../../models/CommentaireFactureClient.models";
-import {
-  addCommentaireFactureClient,
-  deleteCommentaireFactureClient,
-  loadCommentairesFactureClient,
-  updateCommentaireFactureClient,
-} from "src/app/store/commentaire-facture/commentaire-facture.actions";
-import {
-  selectCommentairesByFactureId,
-  selectCommentairesLoading,
-} from "src/app/store/commentaire-facture/commentaire-facture.selectors";
+import { addCommentaireFactureClient, deleteCommentaireFactureClient, loadCommentairesFactureClient, updateCommentaireFactureClient } from "src/app/store/commentaire-facture/commentaire-facture.actions";
+import { selectCommentairesByFactureId, selectCommentairesLoading } from "src/app/store/commentaire-facture/commentaire-facture.selectors";
 
 type CommentaireWithEdit = CommentaireFactureClient & {
   isEditing?: boolean;
@@ -49,7 +34,7 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   commentToDelete: { id: number; index: number } | null = null;
   facture: any = null;
 
-  constructor(public modalRef: BsModalRef, private store: Store) {}
+  constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
     this.isLoading$ = this.store.select(selectCommentairesLoading);

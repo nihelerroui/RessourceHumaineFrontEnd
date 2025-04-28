@@ -1,21 +1,18 @@
-import { Component, OnInit, ChangeDetectorRef, TemplateRef } from "@angular/core";
+import { Component, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import Swal from "sweetalert2";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { combineLatest, map, Observable } from "rxjs";
-import {
-  selectFactureClients,
-  selectError,
-  selectLoading,
-  selectTotalFactureClient,
-} from "../../../store/FactureClient/factureclient.selector";
+import { selectFactureClients, selectError, selectLoading, selectTotalFactureClient } from "../../../store/FactureClient/factureclient.selector";
 import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
-import { downloadFacture, envoyerEmailFacture, loadFacturesClient, updateFactureClient, updateFactureClientSuccess } from "src/app/store/FactureClient/factureclient.actions";
+import { deleteFactureClient, downloadFacture, envoyerEmailFacture, loadFactureClientById, loadFacturesClient, updateFactureClient, updateFactureClientSuccess } from "src/app/store/FactureClient/factureclient.actions";
 import { StatutFacture } from "src/app/models/statut-facture.enum";
 import { StatutPaiement } from "src/app/models/statut-paiement.enum";
 import { FactureClient } from "src/app/models/factureClient.models";
 import { Actions, ofType } from "@ngrx/effects";
+import { FormGroup, UntypedFormBuilder, Validators } from "@angular/forms";
+import { FactureClientCreateComponent } from "../../factureclientcreate/factureclientcreateview/factureclientcreate.component";
 
 @Component({
   selector: 'app-factureclient-admin',
@@ -23,6 +20,7 @@ import { Actions, ofType } from "@ngrx/effects";
 })
 export class FactureclientAdminComponent {
   term: string = "";
+  editForm: FormGroup;
   modalRef?: BsModalRef;
   factureClients$: Observable<any[]>;
   loading$ = this.store.select(selectLoading);
@@ -56,8 +54,18 @@ export class FactureclientAdminComponent {
   constructor(
     public store: Store,
     private modalService: BsModalService,
+    private formBuilder: UntypedFormBuilder,
     private actions$: Actions
   ) {
+    this.editForm = this.formBuilder.group({
+          factureClientId: ["", Validators.required],
+          prestationIds: [[], Validators.required],
+          consultantId: ["", Validators.required],
+          contratId: ["", Validators.required],
+          dateEcheance: ["", Validators.required],
+          typePaiement: ["", Validators.required],
+          pourcentageRemise: [""]
+        });
     this.factureClients$ = this.store.select(selectFactureClients);
   }
 
@@ -84,6 +92,34 @@ export class FactureclientAdminComponent {
     );
     this.filteredFactures$ = this.facturesPagination$;
   }
+  openEditModal(factureClientId: number): void {
+      this.modalRef = this.modalService.show(FactureClientCreateComponent, {
+        class: "modal-lg",
+        initialState: { factureClientId }
+      });
+      if (this.selectedFacture?.factureClientId === factureClientId) {
+        this.store.select(selectFactureClients).subscribe(factures => {
+          const updated = factures.find(f => f.factureClientId === factureClientId);
+          if (updated) this.selectedFacture = updated;
+        });
+      }
+    }
+    deleteFacture(factureClientId: number): void {
+        Swal.fire({
+          title: "Êtes-vous sûr ?",
+          text: "Cette action est irréversible !",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Oui, supprimer !",
+          cancelButtonText: "Annuler"
+        }).then(result => {
+          if (result.isConfirmed) {
+            this.store.dispatch(deleteFactureClient({ factureClientId }));
+      
+            Swal.fire("Supprimé !", "La facture a été supprimée.", "success");
+          }
+        });
+      }
 
   modifierStatutFacture(facture: any, nouveauStatut: StatutFacture): void {
     const factureDto = {
@@ -122,10 +158,16 @@ export class FactureclientAdminComponent {
   }
 
   modifierStatutPaiement(facture: any, nouveauStatut: StatutPaiement): void {
+    if (!facture.prestations || facture.prestations.length === 0) {
+      Swal.fire('Erreur', 'Impossible de modifier : aucune prestation associée.', 'error');
+      return;
+    }
+  
     const factureDto = {
       factureClientId: facture.factureClientId,
       consultantId: facture.consultant?.consultantId ?? facture.consultantId,
       contratId: facture.contratClient?.contratClientId ?? facture.contratId,
+      clientId: facture.contratClient?.client?.clientId ?? facture.clientId,
       dateEcheance: facture.dateEcheance,
       typePaiement: facture.typePaiement,
       pourcentageRemise: facture.pourcentageRemise,
@@ -139,25 +181,27 @@ export class FactureclientAdminComponent {
       dateEmmission: facture.dateEmmission,
       statutFacture: facture.statutFacture,
       statutPaiement: nouveauStatut,
-      prestations: (facture.prestations ?? []).map((p: any) => ({
+      prestations: facture.prestations.map((p: any) => ({
         prestationId: p.prestationId,
         quantite: p.quantite,
         prixUnitaire: p.prixUnitaire
       }))
     };
-
+  
     this.store.dispatch(updateFactureClient({ facture: factureDto }));
-    setTimeout(()=>{
+  
+    setTimeout(() => {
       Swal.fire({
         icon: 'success',
-        title: 'Statut mis à jour',
+        title: 'Statut modifié',
         text: 'La facture a bien été marquée comme payée.',
         timer: 1000,
         showConfirmButton: false
       });
-    },500)
+    }, 500);
   }
-
+  
+  
   searchFactureClient(): void {
     const lowerTerm = this.term.toLowerCase();
 
