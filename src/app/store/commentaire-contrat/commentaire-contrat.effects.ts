@@ -59,7 +59,7 @@ export class CommentaireContratEffects {
     this.actions$.pipe(
       ofType(CommentaireActions.deleteCommentaireContrat),
       mergeMap(({ commentaireId }) =>
-        this.commentaireService.delete(commentaireId.toString()).pipe(
+        this.commentaireService.delete(commentaireId).pipe(
           map(() => CommentaireActions.deleteCommentaireContratSuccess({ commentaireId })),
           catchError(error => of(CommentaireActions.deleteCommentaireContratFailure({ error: error.message })))
         )

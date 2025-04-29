@@ -67,7 +67,7 @@ export class PaysEffects {
     this.actions$.pipe(
       ofType(deletePays),
       mergeMap((action) =>
-        this.paysService.delete(String(action.paysId)).pipe(
+        this.paysService.delete(action.paysId).pipe(
           map(() => deletePaysSuccess({ paysId: action.paysId })),
           catchError((error) => of(deletePaysFailure({ error: error.message })))
         )
