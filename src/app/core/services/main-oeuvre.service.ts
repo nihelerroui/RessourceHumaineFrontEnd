@@ -16,7 +16,7 @@ export class MainOeuvreService extends GenericService<MainOeuvre> {
    verifierMiseAJour(adminId: number, mois: number, annee: number): Observable<any> {
     const payload = { adminId, mois, annee };
     return this.http.post(`${this.apiUrl}/verifier-mise-a-jour`, payload, {
-      responseType: 'text' // ← Important si tu renvoies juste "OK"
+      responseType: 'text'
     });
   }
   
