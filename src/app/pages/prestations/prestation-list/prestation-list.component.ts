@@ -1,21 +1,8 @@
 import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { combineLatest, map, Observable, take } from "rxjs";
-import {
-  loadPrestations,
-  createPrestation,
-  updatePrestation,
-  deletePrestation,
-  createPrestationSuccess,
-  updatePrestationSuccess,
-} from "../../../store/Prestation/prestation.action";
-import {
-  selectAllPrestations,
-  selectLoading,
-  selectError,
-  selectTotalPrestations,
-  selectAllContrats,
-} from "../../../store/Prestation/prestation-selector";
+import * as PrestationActions from "../../../store/Prestation/prestation.action";
+import * as PrestationSelector from "../../../store/Prestation/prestation-selector";
 import { Prestation } from "src/app/models/prestation.model";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -30,11 +17,11 @@ import { selectAllConsultants } from "src/app/store/consultant/consultant-select
   templateUrl: "./prestation-list.component.html",
 })
 export class PrestationListComponent implements OnInit {
-  prestations$: Observable<Prestation[]> = this.store.select(selectAllPrestations);
-  loading$: Observable<boolean> = this.store.select(selectLoading);
-  error$: Observable<any> = this.store.select(selectError);
-  total$: Observable<number> = this.store.select(selectTotalPrestations);
-  contracts$: Observable<any[]> = this.store.select(selectAllContrats);
+  prestations$: Observable<Prestation[]> = this.store.select(PrestationSelector.selectAllPrestations);
+  loading$: Observable<boolean> = this.store.select(PrestationSelector.selectLoading);
+  error$: Observable<any> = this.store.select(PrestationSelector.selectError);
+  total$: Observable<number> = this.store.select(PrestationSelector.selectTotalPrestations);
+  contracts$: Observable<any[]> = this.store.select(PrestationSelector.selectAllContrats);
   consultants$: Observable<any[]> = this.store.select(selectAllConsultants);
 
 
@@ -67,7 +54,7 @@ export class PrestationListComponent implements OnInit {
   ngOnInit(): void {
     const connectedConsultantId = 141; 
   this.store.dispatch(loadConsultantsBySociete({ consultantId: connectedConsultantId }));
-    this.store.dispatch(loadPrestations());
+    this.store.dispatch(PrestationActions.loadPrestations());
     this.store.dispatch(loadContratsClient());
     this.initForms();
 
@@ -126,9 +113,9 @@ export class PrestationListComponent implements OnInit {
         year
       };
   
-      this.store.dispatch(createPrestation({ prestation: prestationData }));
+      this.store.dispatch(PrestationActions.createPrestation({ prestation: prestationData }));
   
-      this.actions$.pipe(ofType(createPrestationSuccess), take(1)).subscribe(() => {
+      this.actions$.pipe(ofType(PrestationActions.createPrestationSuccess), take(1)).subscribe(() => {
         this.modalRef?.hide();
         Swal.fire({
           icon: 'success',
@@ -174,9 +161,9 @@ export class PrestationListComponent implements OnInit {
         year
       };
   
-      this.store.dispatch(updatePrestation({ prestation: prestationData }));
+      this.store.dispatch(PrestationActions.updatePrestation({ prestation: prestationData }));
   
-      this.actions$.pipe(ofType(updatePrestationSuccess), take(1)).subscribe(() => {
+      this.actions$.pipe(ofType(PrestationActions.updatePrestationSuccess), take(1)).subscribe(() => {
         this.modalRef?.hide();
         Swal.fire({
           icon: 'success',
@@ -203,7 +190,7 @@ export class PrestationListComponent implements OnInit {
       cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(deletePrestation({ id }));
+        this.store.dispatch(PrestationActions.deletePrestation({ id }));
         Swal.fire("Supprimé !", "La prestation a été supprimée avec succès.", "success");
       }
     });
@@ -212,7 +199,7 @@ export class PrestationListComponent implements OnInit {
   refreshPrestations() {
     this.term = "";
     this.selectedDate = null;
-    this.store.dispatch(loadPrestations());
+    this.store.dispatch(PrestationActions.loadPrestations());
   }
 
   filterByDate() {
