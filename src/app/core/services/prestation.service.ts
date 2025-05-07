@@ -18,4 +18,7 @@ export class PrestationService extends GenericService<Prestation> {
   updatePrestation(prestationDTO: any): Observable<Prestation> {
     return this.http.put<Prestation>(`${this.apiUrl}/update`, prestationDTO);
   }
+  deletePrestation(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
+  }
 }

@@ -34,7 +34,7 @@ export class PrestationEffects {
         )
       )
     )
-  );
+  );  
 
   updatePrestation$ = createEffect(() =>
     this.actions$.pipe(
@@ -52,7 +52,7 @@ export class PrestationEffects {
     this.actions$.pipe(
       ofType(PrestationActions.deletePrestation),
       switchMap(({ id }) =>
-        this.prestationService.delete(id).pipe(
+        this.prestationService.deletePrestation(id).pipe(
           map(() => PrestationActions.deletePrestationSuccess({ id })),
           catchError(error =>
             of(

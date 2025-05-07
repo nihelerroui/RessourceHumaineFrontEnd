@@ -1,13 +1,29 @@
 import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
-import { combineLatest, map, Observable } from "rxjs";
-import { loadPrestations, createPrestation, updatePrestation, deletePrestation } from "../../../store/Prestation/prestation.action";
-import { selectAllPrestations, selectLoading, selectError, selectTotalPrestations, selectAllContrats } from "../../../store/Prestation/prestation-selector";
+import { combineLatest, map, Observable, take } from "rxjs";
+import {
+  loadPrestations,
+  createPrestation,
+  updatePrestation,
+  deletePrestation,
+  createPrestationSuccess,
+  updatePrestationSuccess,
+} from "../../../store/Prestation/prestation.action";
+import {
+  selectAllPrestations,
+  selectLoading,
+  selectError,
+  selectTotalPrestations,
+  selectAllContrats,
+} from "../../../store/Prestation/prestation-selector";
 import { Prestation } from "src/app/models/prestation.model";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
 import Swal from "sweetalert2";
+import { Actions, ofType } from "@ngrx/effects";
+import { loadConsultantsBySociete } from "src/app/store/consultant/consultant.actions";
+import { selectAllConsultants } from "src/app/store/consultant/consultant-selector";
 
 @Component({
   selector: "app-prestation-list",
@@ -19,11 +35,12 @@ export class PrestationListComponent implements OnInit {
   error$: Observable<any> = this.store.select(selectError);
   total$: Observable<number> = this.store.select(selectTotalPrestations);
   contracts$: Observable<any[]> = this.store.select(selectAllContrats);
+  consultants$: Observable<any[]> = this.store.select(selectAllConsultants);
+
 
   prestations: Prestation[] = [];
   form!: FormGroup;
   selectedPrestation!: Prestation;
-
   term: string = "";
   selectedDate: Date | null = null;
   bsConfig = { dateInputFormat: "YYYY-MM-DD" };
@@ -35,45 +52,46 @@ export class PrestationListComponent implements OnInit {
   filteredPrestations$: Observable<Prestation[]> = new Observable();
 
   modalRef?: BsModalRef;
-  editMode = false;
   newContratSelected = false;
+
+  editMode = false;
   contracts: any[] = [];
 
   constructor(
     private store: Store,
     private modalService: BsModalService,
-    private fb: FormBuilder
-  ) {
-    this.prestations$ = this.store.select(selectAllPrestations);
-    this.loading$ = this.store.select(selectLoading);
-    this.error$ = this.store.select(selectError);
-  }
+    private fb: FormBuilder,
+    private actions$: Actions
+  ) {}
 
   ngOnInit(): void {
+    const connectedConsultantId = 141; 
+  this.store.dispatch(loadConsultantsBySociete({ consultantId: connectedConsultantId }));
     this.store.dispatch(loadPrestations());
     this.store.dispatch(loadContratsClient());
     this.initForms();
+
     this.prestations$.subscribe((data) => {
       this.prestations = data;
       this.updatePagination();
     });
 
-    this.store.select(selectAllContrats).subscribe((contracts) => {
-      console.log(contracts);
+    this.contracts$.subscribe((contracts) => {
       this.contracts = contracts;
     });
   }
+
   initForms() {
     this.form = this.fb.group({
       prestationId: [""],
+      titre: ["", Validators.required],
       description: ["", Validators.required],
       contratId: [""],
-      month: ["", Validators.required],
-      year: ["", Validators.required],
-      consultantId: [""],
+      externalConsultantId: [""],
+      monthYear: ["", Validators.required], 
     });
   }
-  //pagination
+
   updatePagination() {
     this.prestationsPagination$ = combineLatest([this.prestations$]).pipe(
       map(([prestations]) => {
@@ -83,45 +101,94 @@ export class PrestationListComponent implements OnInit {
     );
     this.filteredPrestations$ = this.prestationsPagination$;
   }
+
   openCreateModal(template: TemplateRef<any>) {
     this.editMode = false;
+    this.newContratSelected = false;
     this.form.reset();
     this.modalRef = this.modalService.show(template);
   }
+
   openDetailsModal(prestation: Prestation, template: TemplateRef<any>) {
     this.selectedPrestation = prestation;
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  savePrestation() {
+  savePrestation(): void {
     if (this.form.valid) {
-      const prestation: Prestation = this.form.value;
-      this.store.dispatch(createPrestation({ prestation }));
-      this.modalRef?.hide();
-      this.form.reset();
+      const formValue = this.form.value;
+      const [year, month] = formValue.monthYear.split("-").map(Number); // Extrait mois et année
+  
+      const prestationData = {
+        ...formValue,
+        consultantId: 141,
+        month,
+        year
+      };
+  
+      this.store.dispatch(createPrestation({ prestation: prestationData }));
+  
+      this.actions$.pipe(ofType(createPrestationSuccess), take(1)).subscribe(() => {
+        this.modalRef?.hide();
+        Swal.fire({
+          icon: 'success',
+          title: 'Prestation ajoutée',
+          text: 'La prestation a été ajoutée avec succès !',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => this.refreshPrestations());
+      });
     }
   }
+
   editDataGet(prestationId: number, template: TemplateRef<any>) {
     this.editMode = true;
     const prestation = this.prestations.find(p => p.prestationId === prestationId);
     if (!prestation) return;
-
+  
+    const paddedMonth = prestation.month?.toString().padStart(2, '0');
+    const monthYearFormatted = prestation.year && prestation.month ? `${prestation.year}-${paddedMonth}` : '';
+  
     this.form.patchValue({
       prestationId: prestation.prestationId,
+      titre: prestation.titre,
       description: prestation.description,
       contratId: prestation.contratClient?.contratClientId || '',
-      month: prestation.month || '',
-      year: prestation.year || '',
-      consultantId: prestation.consultant?.consultantId || ''
+      externalConsultantId: prestation.externalConsultantId || '',
+      monthYear: monthYearFormatted
     });
-
+  
     this.modalRef = this.modalService.show(template);
   }
-  updatePrestation() {
-    const prestation: Prestation = this.form.value;
-    this.store.dispatch(updatePrestation({ prestation }));
-    this.modalRef?.hide();
+  
+  updatePrestation(): void {
+    if (this.form.valid) {
+      const formValue = this.form.value;
+      const [year, month] = formValue.monthYear.split("-").map(Number); 
+  
+      const prestationData = {
+        ...formValue,
+        consultantId: 141, // l'admin connecté
+        externalConsultantId: formValue.externalConsultantId, 
+        month,
+        year
+      };
+  
+      this.store.dispatch(updatePrestation({ prestation: prestationData }));
+  
+      this.actions$.pipe(ofType(updatePrestationSuccess), take(1)).subscribe(() => {
+        this.modalRef?.hide();
+        Swal.fire({
+          icon: 'success',
+          title: 'Prestation modifiée',
+          text: 'La prestation a été mise à jour avec succès !',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => this.refreshPrestations());
+      });
+    }
   }
+  
 
   delete(event: Event, id: number) {
     event.preventDefault();
@@ -137,14 +204,11 @@ export class PrestationListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.store.dispatch(deletePrestation({ id }));
-        Swal.fire(
-          "Supprimé !",
-          "La prestation a été supprimée avec succès.",
-          "success"
-        );
+        Swal.fire("Supprimé !", "La prestation a été supprimée avec succès.", "success");
       }
     });
   }
+
   refreshPrestations() {
     this.term = "";
     this.selectedDate = null;

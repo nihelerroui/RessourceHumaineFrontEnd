@@ -193,6 +193,17 @@ export class FactureClientEffects {
       )
     )
   );
+  getWorkingDays$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FactureClientActions.getWorkingDays),
+      mergeMap(({ consultant_id, month, year, index }) =>
+        this.factureClientService.getWorkingDays(consultant_id, month, year).pipe(
+          map((workingDays) => FactureClientActions.getWorkingDaysSuccess({ workingDays, index })),
+          catchError((error) => of(FactureClientActions.getWorkingDaysFailure({ error, index })))
+        )
+      )
+    )
+  );
   
 
 }

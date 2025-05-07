@@ -13,6 +13,7 @@ import { loadPrestations } from "src/app/store/Prestation/prestation.action";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
 import { selectAllPrestations } from "src/app/store/Prestation/prestation-selector";
 import { selectAllContratsClient } from "src/app/store/contratClient/contratClient-selector";
+import { Actions, ofType } from "@ngrx/effects";
 
 @Component({
   selector: "app-factureclientcreate",
@@ -34,7 +35,7 @@ export class FactureClientCreateComponent implements OnInit {
   @Output() factureCreated = new EventEmitter<any>();
   @Input() factureClientId!: number;
 
-  constructor(private fb: FormBuilder, private store: Store, public modalRef: BsModalRef) {
+  constructor(private fb: FormBuilder, private store: Store, public modalRef: BsModalRef, private actions$: Actions) {
     this.bsConfig = {
       dateInputFormat: "DD/MM/YYYY",
       containerClass: "theme-default",
@@ -57,6 +58,16 @@ export class FactureClientCreateComponent implements OnInit {
     this.store.select(selectAllPrestations).subscribe((prestations) => {
       this.prestations = prestations;
       this.availablePrestations = [...prestations];
+      this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
+        const prestation = this.prestationIds.at(index).value;
+        const updated = {
+          ...prestation,
+          quantite: workingDays,
+          montantHt: (prestation.prixUnitaire || 0) * workingDays
+        };
+        this.prestationIds.at(index).setValue(updated);
+        this.updateFacturePreview();
+      });
       if (this.isEditMode && loadedFacture) this.patchFactureForm(loadedFacture);
     });
 
@@ -258,6 +269,23 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  }    
+  }   
+  onPrestationSelected(index: number): void {
+    const prestation = this.prestationIds.at(index).value;
+    const full = this.prestations.find(p => p.prestationId === prestation?.prestationId);
+  
+    if (!full) return;
+  
+    const consultant_id = full.consultant?.consultantId;
+    const month = full.month;
+    const year = full.year;
+  
+    this.prestationIds.at(index).setValue(full);
+  
+    if (consultant_id && month && year) {
+      this.store.dispatch(FactureClientActions.getWorkingDays({ consultant_id, month, year, index }));
+    }
+  }
+   
   
 }
