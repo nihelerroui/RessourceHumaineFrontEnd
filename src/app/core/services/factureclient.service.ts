@@ -63,5 +63,9 @@ export class FactureClientService extends GenericService<any> {
       responseType: 'blob'
     });
   }
+  getWorkingDays(consultant_id: number, month: number, year: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/working-days?consultant_id=${consultant_id}&month=${month}&year=${year}`);
+  }
+  
   
 }

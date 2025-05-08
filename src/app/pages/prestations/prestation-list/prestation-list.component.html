@@ -39,6 +39,7 @@
             <table class="table align-middle dt-responsive nowrap w-100 table-check" id="prestation-list">
               <thead>
                 <tr>
+                  <th>Titre</th>
                   <th>Description</th>
                   <th>Client</th>
                   <th>Prix Unitaire</th>
@@ -50,12 +51,19 @@
               </thead>
               <tbody>
                 <tr *ngFor="let prestation of prestations; trackBy: trackById">
+                  <td>{{prestation.titre}}</td>
                   <td>
                     {{ prestation.description?.split(' ').slice(0, 3).join(' ') }}{{ prestation.description?.split(' ').length > 3 ? '...' : '' }}
                   </td>                  
                   <td>
-                    <span class="badge bg-primary fs-6 p-2 cursor-pointer" (click)="viewClientDetails(prestation.factureClients?.[0]?.contratClient?.client?.clientId, ClientDetailsModal)">
-                      {{ prestation.contratClient?.client?.nom || "N/A" }}
+                    <span
+                      class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill"
+                      style="background-color: rgba(13, 110, 253, 0.08); color: #2974e6; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s;"
+                      (click)="viewClientDetails(prestation.contratClient?.client?.clientId, ClientDetailsModal)"
+                      [title]="prestation.contratClient?.client?.nom"
+                    >
+                      <i class="bi bi-person" style="font-size: 0.85rem;"></i>
+                      {{ prestation.contratClient?.client?.nom || 'Client inconnu' }}
                     </span>
                   </td>
                   <td>{{ prestation.prixUnitaire  }}</td>
@@ -137,6 +145,14 @@
             <th><i class="bi bi-calendar-event"></i> Date de création :</th>
             <td>{{ selectedPrestation?.createdAt | date:'dd MMMM yyyy' }}</td>
           </tr>
+          <tr>
+            <th><i class="bi bi-calendar-event"></i> Mois:</th>
+            <td>{{ selectedPrestation?.month  }}</td>
+          </tr>
+          <tr>
+            <th><i class="bi bi-calendar-event"></i> Year:</th>
+            <td>{{ selectedPrestation?.year  }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -156,6 +172,10 @@
   <form (ngSubmit)="editMode ? updatePrestation() : savePrestation()" [formGroup]="form">
     <div class="modal-body">
       <div class="mb-3">
+        <label class="form-label">Titre</label>
+        <input type="text" formControlName="titre" class="form-control" required />
+      </div>
+      <div class="mb-3">
         <label class="form-label">Description</label>
         <input type="text" formControlName="description" class="form-control" required />
       </div>
@@ -169,42 +189,21 @@
           </option>
         </select>
       </div>
+      <div class="mb-3">
+        <label class="form-label">Consultant</label>
+        <select formControlName="externalConsultantId" class="form-select" >
+          <option value="">-- Sélectionner un consultant --</option>
+          <option *ngFor="let consultant of consultants$ | async" [value]="consultant.consultantId">
+            {{ consultant.fullName }}
+          </option>          
+        </select>
+      </div>     
 
-      <div *ngIf="newContratSelected">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Mois</label>
-              <select formControlName="month" class="form-control" required>
-                <option value="1">Janvier</option>
-                <option value="2">Février</option>
-                <option value="3">Mars</option>
-                <option value="4">Avril</option>
-                <option value="5">Mai</option>
-                <option value="6">Juin</option>
-                <option value="7">Juillet</option>
-                <option value="8">Août</option>
-                <option value="9">Septembre</option>
-                <option value="10">Octobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Décembre</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Année</label>
-              <select formControlName="year" class="form-control" required>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="mb-3">
+        <label class="form-label">Mois et Année</label>
+        <input type="month" class="form-control" formControlName="monthYear" required>
+      </div>      
 
-      <input type="hidden" formControlName="consultantId" />
       <input type="hidden" formControlName="prestationId" />
     </div>
     <div class="modal-footer">

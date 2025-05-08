@@ -11,6 +11,8 @@ import { PrestationEffects } from 'src/app/store/Prestation/prestation.effects';
 import { prestationReducer } from 'src/app/store/Prestation/prestation.reducer';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { consultantReducer } from 'src/app/store/consultant/consultant.reducer';
+import { ConsultantEffects } from 'src/app/store/consultant/consultant.effects';
 
 const routes: Routes = [
   {
@@ -34,6 +36,8 @@ const routes: Routes = [
     NgxSliderModule,
     StoreModule.forFeature('prestations', prestationReducer),
     EffectsModule.forFeature([PrestationEffects]),
+    StoreModule.forFeature('consultants', consultantReducer),
+    EffectsModule.forFeature([ConsultantEffects]),
   ]
 })
 export class PrestationsModule { }

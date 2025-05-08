@@ -125,3 +125,18 @@ export const downloadFacture = createAction(
   '[FactureClient] Download Facture',
   props<{ factureClientId: number }>()
 );
+//récupérer le nombre de jours travaillé
+export const getWorkingDays = createAction(
+  '[WorkingDays] Get Working Days',
+  props<{ consultant_id: number; month: number; year: number; index: number }>()
+);
+
+export const getWorkingDaysSuccess = createAction(
+  '[WorkingDays] Get Working Days Success',
+  props<{ workingDays: number; index: number }>()
+);
+
+export const getWorkingDaysFailure = createAction(
+  '[WorkingDays] Get Working Days Failure',
+  props<{ error: any; index: number }>()
+);
