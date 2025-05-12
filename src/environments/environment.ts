@@ -2,7 +2,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8089/spring',
-  defaultauth: 'fakebackend', // Adding this to use the fake backend
+  defaultauth: 'realbackend',
   firebaseConfig: {
     apiKey: '',
     authDomain: '',

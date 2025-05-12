@@ -13,4 +13,6 @@ export class SocieteService extends GenericService<Societe>{
   }
 
   
+
+  
 }

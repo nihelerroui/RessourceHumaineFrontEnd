@@ -1,0 +1,294 @@
+<div class="modal-container">
+    <!-- Header with user info summary -->
+    <div class="modal-header">
+      <div class="d-flex align-items-center">
+        <div class="user-avatar me-3">
+          <i class="bi bi-person-circle"></i>
+        </div>
+        <div>
+          <h4 class="modal-title mb-0">{{ user?.consultant?.fullName || 'Détails de l\'utilisateur' }}</h4>
+          <p class="text-muted small mb-0">{{ user?.email || 'Aucun email' }} • {{ user?.role || 'Rôle non défini' }}</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+    </div>
+  
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Status banner -->
+      <div class="status-banner mb-4" [class.active]="user?.enabled" [class.inactive]="!user?.enabled">
+        <i class="bi" [class.bi-check-circle-fill]="user?.enabled" [class.bi-x-circle-fill]="!user?.enabled"></i>
+        <span>{{ user?.enabled ? 'Compte actif' : 'Compte inactif' }}</span>
+      </div>
+  
+      <div class="row g-4">
+        <!-- Account Information Card -->
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <i class="bi bi-shield-lock me-2"></i>Informations du compte
+            </div>
+            <div class="card-body">
+              <div class="info-item">
+                <span class="info-label">ID Utilisateur</span>
+                <span class="info-value">{{ user?.userId || user?.id || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user?.email || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Rôle</span>
+                <span class="info-value badge" [class.bg-primary]="user?.role === 'SOUS_TRAITANT'" 
+                                              [class.bg-success]="user?.role === 'ADMIN'" 
+                                              [class.bg-info]="user?.role !== 'SOUS_TRAITANT' && user?.role !== 'ADMIN'">
+                  {{ user?.role || 'Non spécifié' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Statut</span>
+                <span class="info-value" [class.text-success]="user?.enabled" [class.text-danger]="!user?.enabled">
+                  <i class="bi" [class.bi-check-circle-fill]="user?.enabled" [class.bi-x-circle-fill]="!user?.enabled"></i>
+                  {{ user?.enabled ? 'Activé' : 'Désactivé' }}
+                </span>
+              </div>
+              <div class="info-item" *ngIf="user?.tokenCreationDate">
+                <span class="info-label">Date de création du token</span>
+                <span class="info-value">{{ formatDate(user.tokenCreationDate) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Personal Information Card -->
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header bg-info text-white">
+              <i class="bi bi-person-vcard me-2"></i>Informations personnelles
+            </div>
+            <div class="card-body">
+              <div class="info-item">
+                <span class="info-label">Nom complet</span>
+                <span class="info-value">{{ user?.consultant?.fullName || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Prénom</span>
+                <span class="info-value">{{ user?.consultant?.prenom || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Nom</span>
+                <span class="info-value">{{ user?.consultant?.name || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Téléphone</span>
+                <span class="info-value">
+                  <i class="bi bi-telephone me-1"></i>
+                  {{ user?.consultant?.telephone || 'Non spécifié' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Type Libellé</span>
+                <span class="info-value">{{ user?.consultant?.typeLibelle || 'Non spécifié' }}</span>
+              </div>
+             
+            </div>
+          </div>
+        </div>
+  
+        <!-- Employment Details Card -->
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header bg-success text-white">
+              <i class="bi bi-briefcase me-2"></i>Détails professionnels
+            </div>
+            <div class="card-body">
+              <div class="info-item">
+                <span class="info-label">Fonction</span>
+                <span class="info-value">{{ user?.consultant?.fonction || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Matricule</span>
+                <span class="info-value badge ">{{ user?.consultant?.matricule || 'Non spécifié' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Date de recrutement</span>
+                <span class="info-value">
+                  <i class="bi bi-calendar-check me-1"></i>
+                  {{ user?.consultant?.dateRecrutement ? (formatDate(user.consultant.dateRecrutement)) : 'Non spécifié' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Date de sortie</span>
+                <span class="info-value">
+                  <i class="bi bi-calendar-x me-1"></i>
+                  {{ user?.consultant?.dateSortie ? (formatDate(user.consultant.dateSortie)) : 'Non spécifié' }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Commercial</span>
+                <span class="info-value" [class.text-success]="user?.consultant?.isCommercial" [class.text-secondary]="!user?.consultant?.commercial">
+                  <i class="bi" [class.bi-check-circle-fill]="user?.consultant?.isCommercial" [class.bi-dash-circle]="!user?.consultant?.commercial"></i>
+                  {{ user?.consultant?.isCommercial ? 'Oui' : 'Non' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Address & Banking Details Card -->
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+              <i class="bi bi-geo-alt me-2"></i>Adresse & Coordonnées bancaires
+            </div>
+            <div class="card-body">
+              <div>
+                <!-- Address Section -->
+                <div class="section-divider">
+                  <span>Adresse</span>
+                </div>
+                
+                <div class="info-item">
+                  <span class="info-label">Ville</span>
+                  <span class="info-value">
+                    <i class="bi bi-geo-alt me-1"></i>
+                    {{ user?.consultant?.personalDetails?.ville || 'Non spécifié' }}
+
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Code postal</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.codePostal || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Numéro de rue</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.numRue || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Nom de rue</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.nomRue || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Complément d'adresse</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.complementAdr || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Bis/Ter</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.bisTer || 'Non spécifié' }}</span>
+                </div>
+  
+                <!-- Banking Section -->
+                <div class="section-divider mt-3">
+                  <span>Coordonnées bancaires</span>
+                </div>
+                
+                <div class="info-item">
+                  <span class="info-label">BIC</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.bic || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">IBAN</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.iban || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Numéro MSS</span>
+                  <span class="info-value">{{ user?.consultant?.personalDetails?.nummss || 'Non spécifié' }}</span>
+                </div>
+              </div>
+              <ng-template #noPersonalDetails>
+                <div class="missing-data">
+                  <i class="bi bi-exclamation-circle text-muted"></i>
+                  <p>Aucune information d'adresse ou bancaire disponible</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Documents Card -->
+        <div class="col-md-12">
+          <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+              <i class="bi bi-file-earmark me-2"></i>Documents
+            </div>
+            <div class="card-body">
+              <div *ngIf="hasAnyDocument(); else noDocuments" class="row g-3">
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.cni">
+                  <div class="document-item">
+                    <i class="bi bi-person-vcard-fill document-icon"></i>
+                    <span>CNI</span>
+                    <small *ngIf="user.consultant.personalDetails.dateDebCni || user.consultant.personalDetails.dateFinCni">
+                      {{ formatDate(user.consultant.personalDetails.dateDebCni) }} - 
+                      {{ formatDate(user.consultant.personalDetails.dateFinCni) }}
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.rib">
+                  <div class="document-item">
+                    <i class="bi bi-bank document-icon"></i>
+                    <span>RIB</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.carteGrise">
+                  <div class="document-item">
+                    <i class="bi bi-car-front document-icon"></i>
+                    <span>Carte Grise</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.kbis">
+                  <div class="document-item">
+                    <i class="bi bi-building document-icon"></i>
+                    <span>KBIS</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.urssaf">
+                  <div class="document-item">
+                    <i class="bi bi-file-earmark-medical document-icon"></i>
+                    <span>URSSAF</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.attestations">
+                  <div class="document-item">
+                    <i class="bi bi-file-earmark-check document-icon"></i>
+                    <span>Attestations</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.contart">
+                  <div class="document-item">
+                    <i class="bi bi-file-earmark-text document-icon"></i>
+                    <span>Contrat</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.navigo">
+                  <div class="document-item">
+                    <i class="bi bi-credit-card document-icon"></i>
+                    <span>Navigo</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6" *ngIf="user?.consultant?.personalDetails?.photo">
+                  <div class="document-item">
+                    <i class="bi bi-image document-icon"></i>
+                    <span>Photo</span>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noDocuments>
+                <div class="missing-data">
+                  <i class="bi bi-exclamation-circle text-muted"></i>
+                  <p>Aucun document disponible</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary me-2" (click)="closeModal()">
+        <i class="bi bi-x-circle me-1"></i>Fermer
+      </button>
+      
+    </div>
+  </div>

@@ -5,26 +5,37 @@ import { HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http'
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { Observable } from 'rxjs';
 
-// const TOKEN_HEADER_KEY = 'Authorization';       // for Spring Boot back-end
-const TOKEN_HEADER_KEY = 'x-access-token';   // for Node.js Express back-end
+const TOKEN_HEADER_KEY = 'Authorization';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private token: TokenStorageService) { }
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let authReq = req;
+ intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.token.getToken();
-    if (token != null) {
-      // for Spring Boot back-end
-      // authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, 'Bearer ' + token) });
+    
+    const externalApis = [
+      'https://featway-serveur.fr:8181'
+    ];
 
-      // for Node.js Express back-end
-      authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, token) });
+    const isExternalApi = externalApis.some(api => req.url.startsWith(api));
+
+    if (isExternalApi) {
+      return next.handle(req);
     }
-    return next.handle(authReq);
+
+    if (token) {
+      const cloned = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return next.handle(cloned);
+    }
+    return next.handle(req);
   }
-}
+} 
 
 export const authInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

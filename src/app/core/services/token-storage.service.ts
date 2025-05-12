@@ -19,7 +19,7 @@ export class TokenStorageService {
   }
 
   public getToken(): string | null {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('auth-token');
   }
 
   public saveUser(user: any): void {
@@ -28,7 +28,7 @@ export class TokenStorageService {
   }
 
   public getUser(): any {
-    const user = window.localStorage.getItem(USER_KEY);
+    const user = window.sessionStorage.getItem(USER_KEY);
     if (user) {
       return JSON.parse(user);
     }

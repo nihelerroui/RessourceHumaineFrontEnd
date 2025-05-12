@@ -1,0 +1,670 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    {{ mode === "edit" ? "Modifier" : "Ajouter" }} un utilisateur
+  </h5>
+  <button type="button" class="close" (click)="bsModalRef.hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <div class="loading-overlay" *ngIf="isSubmitting">
+    <div class="spinner-container">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Création de l'utilisateur en cours...</p>
+    </div>
+  </div>
+  <div class="stepper-container">
+    <div class="stepper">
+      <div
+        class="step"
+        [ngClass]="{ active: currentStep >= 1, completed: currentStep > 1 }"
+      >
+        <div class="step-circle">1</div>
+        <div class="step-title">Informations de base</div>
+      </div>
+      <div class="step-line" [ngClass]="{ active: currentStep > 1 }"></div>
+      <div
+        class="step"
+        [ngClass]="{ active: currentStep >= 2, completed: currentStep > 2 }"
+      >
+        <div class="step-circle">2</div>
+        <div class="step-title">Détails du consultant</div>
+      </div>
+      <div class="step-line" [ngClass]="{ active: currentStep > 2 }"></div>
+      <div class="step" [ngClass]="{ active: currentStep >= 3 }">
+        <div class="step-circle">3</div>
+        <div class="step-title">Détails personnels</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="currentStep === 1" class="step-content">
+    <form [formGroup]="userForm">
+      <div class="form-container">
+        <div class="form-group">
+          <label for="email">Email <span class="required">*</span></label>
+          <input
+            type="email"
+            class="form-control custom-input"
+            id="email"
+            formControlName="email"
+            [ngClass]="{ 'is-invalid': isFieldInvalid(userForm, 'email') }"
+          />
+          <div
+            *ngIf="isFieldInvalid(userForm, 'email')"
+            class="invalid-feedback"
+          >
+            Email invalide
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password"
+            >Mot de passe <span class="required">*</span></label
+          >
+          <input
+            type="password"
+            class="form-control custom-input"
+            id="password"
+            formControlName="password"
+            [ngClass]="{ 'is-invalid': isFieldInvalid(userForm, 'password') }"
+          />
+          <div
+            *ngIf="isFieldInvalid(userForm, 'password')"
+            class="invalid-feedback"
+          >
+            Le mot de passe doit contenir au moins 8 caractères
+          </div>
+
+          <div
+            class="password-strength-container"
+            *ngIf="userForm.get('password').value"
+          >
+            <div class="progress">
+              <div
+                class="progress-bar bg-{{ getPasswordStrengthColor() }}"
+                [style.width.%]="passwordStrength"
+              ></div>
+            </div>
+            <small class="text-{{ getPasswordStrengthColor() }}">
+              Force du mot de passe: {{ getPasswordStrengthText() }}
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword"
+            >Confirmer le mot de passe <span class="required">*</span></label
+          >
+          <input
+            type="password"
+            class="form-control custom-input"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            [ngClass]="{
+              'is-invalid':
+                userForm.hasError('passwordMismatch') &&
+                userForm.get('confirmPassword').touched
+            }"
+          />
+          <div
+            *ngIf="
+              userForm.hasError('passwordMismatch') &&
+              userForm.get('confirmPassword').touched
+            "
+            class="invalid-feedback"
+          >
+            Les mots de passe ne correspondent pas
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="societe">Société <span class="required">*</span></label>
+        <select formControlName="societeId" class="form-control">
+          <option [ngValue]="null" disabled>Sélectionnez une société</option>
+          <option
+            *ngFor="let societe of societes"
+            [ngValue]="societe.societeId"
+          >
+            {{ societe.name }}
+          </option>
+        </select>
+        <div
+          *ngIf="isFieldInvalid(userForm, 'societeId')"
+          class="invalid-feedback"
+        >
+          Veuillez sélectionner une société
+        </div>
+      </div>
+
+      <div class="form-group role-section">
+        <label class="role-label">Rôle <span class="required">*</span></label>
+        <div class="role-cards">
+          <div
+            *ngFor="let role of roles"
+            class="role-card"
+            [ngClass]="{ selected: userForm.get('role').value === role }"
+            (click)="userForm.get('role').setValue(role)"
+          >
+            <div class="role-icon">
+              <i class="fas {{ roleIcons[role] }}"></i>
+            </div>
+            <div class="role-name">{{ formatRoleName(role) }}</div>
+            <div class="role-description">{{ roleDescriptions[role] }}</div>
+          </div>
+        </div>
+        <div *ngIf="isFieldInvalid(userForm, 'role')" class="text-danger mt-2">
+          Veuillez sélectionner un rôle
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="currentStep === 2" class="step-content">
+    <form [formGroup]="consultantForm">
+      <div class="form-container">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="fullName"
+                >Nom complet <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="fullName"
+                formControlName="fullName"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'fullName')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'fullName')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="matricule"
+                >Matricule <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="matricule"
+                formControlName="matricule"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'matricule')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'matricule')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="name">Nom <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="name"
+                formControlName="name"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'name')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'name')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="prenom">Prénom <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="prenom"
+                formControlName="prenom"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'prenom')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'prenom')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="telephone"
+                >Téléphone <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="telephone"
+                formControlName="telephone"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'telephone')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'telephone')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="typeLibelle"
+                >Type Libellé <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="typeLibelle"
+                formControlName="typeLibelle"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'typeLibelle')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'typeLibelle')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateRecrutement"
+                >Date de recrutement <span class="required">*</span></label
+              >
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateRecrutement"
+                formControlName="dateRecrutement"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(
+                    consultantForm,
+                    'dateRecrutement'
+                  )
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'dateRecrutement')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateSortie">Date de sortie</label>
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateSortie"
+                formControlName="dateSortie"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="fonction"
+                >Fonction <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="fonction"
+                formControlName="fonction"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid(consultantForm, 'fonction')
+                }"
+              />
+              <div
+                *ngIf="isFieldInvalid(consultantForm, 'fonction')"
+                class="invalid-feedback"
+              >
+                Ce champ est requis
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Commercial</label>
+              <div class="toggle-container" (click)="toggleCommercial()">
+                <div
+                  class="toggle-switch"
+                  [ngClass]="{ active: consultantForm.get('commercial').value }"
+                >
+                  <div class="toggle-button"></div>
+                </div>
+                <span class="toggle-label">{{
+                  consultantForm.get("commercial").value ? "Oui" : "Non"
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="currentStep === 3" class="step-content">
+    <div class="personal-details-info mb-3">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-2"></i>
+        Les champs ci-dessous sont optionnels. Vous pouvez les remplir
+        maintenant ou ultérieurement.
+      </div>
+    </div>
+
+    <form [formGroup]="personalDetailsForm">
+      <div class="form-container">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="bic">BIC</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="bic"
+                formControlName="bic"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="iban">IBAN</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="iban"
+                formControlName="iban"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="ville">Ville</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="ville"
+                formControlName="ville"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="codePostal">Code Postal</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="codePostal"
+                formControlName="codePostal"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="numRue">Numéro de rue</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="numRue"
+                formControlName="numRue"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="nomRue">Nom de rue</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="nomRue"
+                formControlName="nomRue"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="complementAdr">Complément d'adresse</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="complementAdr"
+                formControlName="complementAdr"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="bisTer">Bis/Ter</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="bisTer"
+                formControlName="bisTer"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="nummss">Numéro MSS</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="nummss"
+                formControlName="nummss"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="urssaf">URSSAF</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="urssaf"
+                formControlName="urssaf"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="cni">CNI</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="cni"
+                formControlName="cni"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="rib">RIB</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="rib"
+                formControlName="rib"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateDebCni">Date début CNI</label>
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateDebCni"
+                formControlName="dateDebCni"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateFinCni">Date fin CNI</label>
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateFinCni"
+                formControlName="dateFinCni"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="kbis">KBIS</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="kbis"
+                formControlName="kbis"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="navigo">Navigo</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="navigo"
+                formControlName="navigo"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="carteGrise">Carte Grise</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="carteGrise"
+                formControlName="carteGrise"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="contart">Contrat</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="contart"
+                formControlName="contart"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="attestations">Attestations</label>
+          <input
+            type="text"
+            class="form-control custom-input"
+            id="attestations"
+            formControlName="attestations"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      *ngIf="currentStep > 1"
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="prevStep()"
+    >
+      <i class="fas fa-arrow-left mr-1"></i> Précédent
+    </button>
+
+    <button
+      *ngIf="currentStep < totalSteps"
+      type="button"
+      class="btn btn-primary"
+      [disabled]="
+        (currentStep === 1 && userForm.invalid) ||
+        (currentStep === 2 && consultantForm.invalid)
+      "
+      (click)="nextStep()"
+    >
+      Suivant <i class="fas fa-arrow-right ml-1"></i>
+    </button>
+
+    <button
+      *ngIf="currentStep === totalSteps"
+      type="button"
+      class="btn btn-success"
+      [disabled]="userForm.invalid || consultantForm.invalid"
+      (click)="submitForm()"
+    >
+      <i class="fas fa-save mr-1"></i>
+      {{ mode === "edit" ? "Modifier" : "Créer" }} l'utilisateur
+    </button>
+  </div>
+</div>

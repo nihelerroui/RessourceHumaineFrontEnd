@@ -111,6 +111,9 @@
     "HISTORIQUEMAINOEUVRE": {
       "TEXT": "HISTORIQUEMAINOEUVRE"
     },
+    "UTILISATEURS": {
+      "TEXT": "UTILISATEURS"
+    },
     "DASHBOARDS": {
       "TEXT": "Dashboards",
       "BADGE": "04",
