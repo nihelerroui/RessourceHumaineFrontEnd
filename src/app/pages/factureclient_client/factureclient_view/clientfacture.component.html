@@ -1,17 +1,18 @@
 <style>
     body {
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
     }
+
     .table-container {
-    width: 100%;
-    max-width: 1000px;
-  }
+        width: 100%;
+        max-width: 1000px;
+    }
 </style>
-    <div class="container-fluid">
+<div class="container-fluid">
     <div class="table-container">
         <div class="col-12">
             <div ngClass="card">
@@ -19,13 +20,16 @@
                     <div class="d-flex align-items-center">
                         <h5 class="mb-0 card-title flex-grow-1">Liste des
                             Factures Clients</h5>
+                        <a href="javascript:void(0);" class="btn btn-light" (click)="resetFilters()">
+                            <i class="mdi mdi-refresh"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="card-body border-bottom">
                     <div class="row g-3">
                         <div class="col-xxl-3 col-lg-6">
                             <input type="search" class="form-control" id="searchInput" placeholder="Rechercher ..."
-                                [(ngModel)]="term" (ngModelChange)="searchFactureClient()" />
+                                [(ngModel)]="term" (ngModelChange)="applyFilters()" />
                         </div>
                         <div class="col-xxl-3 col-lg-6">
                             <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut"
@@ -119,10 +123,10 @@
                                         <ul class="list-unstyled hstack gap-1 mb-0">
                                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger">
                                                 <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
-                                                  (click)="downloadFacture(facture.factureClientId)">
-                                                  <i class="mdi mdi-download"></i>
+                                                    (click)="downloadFacture(facture.factureClientId)">
+                                                    <i class="mdi mdi-download"></i>
                                                 </a>
-                                              </li>
+                                            </li>
                                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Add Comment">
                                                 <a href="javascript:void(0);" class="btn btn-sm btn-soft-secondary"
                                                     (click)="openCommentModal(facture)">

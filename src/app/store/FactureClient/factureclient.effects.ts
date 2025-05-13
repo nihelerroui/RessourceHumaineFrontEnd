@@ -1,5 +1,3 @@
-// src/app/store/factureclient/factureclient.effects.ts
-
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 
@@ -9,14 +7,13 @@ import { mergeMap } from 'rxjs/operators';
 
 import * as FactureClientActions from './factureclient.actions';
 import { FactureClientService } from '../../core/services/factureclient.service';
-import { Store } from '@ngrx/store';
 
 @Injectable()
 export class FactureClientEffects {
   constructor(
     private actions$: Actions,
     private factureClientService: FactureClientService,
-  ) {}
+  ) { }
 
   //Load
   loadFactures$ = createEffect(() =>
@@ -30,7 +27,6 @@ export class FactureClientEffects {
       )
     )
   );
-
   //Create
   createFacture$ = createEffect(() =>
     this.actions$.pipe(
@@ -48,34 +44,50 @@ export class FactureClientEffects {
     this.actions$.pipe(
       ofType(FactureClientActions.updateFactureClient),
       mergeMap(({ facture }) => {
-        console.log('🟡 FACTURE À METTRE À JOUR:', facture); 
-  
+        console.log('🟡 FACTURE À METTRE À JOUR:', facture);
+
         return this.factureClientService.updateFactureClient(facture).pipe(
           map((updated) => {
-            console.log('✅ FACTURE MISE À JOUR:', updated); 
+            console.log('✅ FACTURE MISE À JOUR:', updated);
             return FactureClientActions.updateFactureClientSuccess({ facture: updated });
           }),
           catchError((error) => {
-            console.error('❌ Erreur update:', error); 
+            console.error('❌ Erreur update:', error);
             return of(FactureClientActions.updateFactureClientFailure({ error }));
           })
         );
       })
     )
   );
-  
   //loadFactureById
   loadFactureById$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.loadFactureClientById),
       mergeMap(({ id }) =>
-        this.factureClientService.getById(id).pipe( 
+        this.factureClientService.getById(id).pipe(
           map((facture) => FactureClientActions.loadFactureClientByIdSuccess({ facture })),
           catchError((error) => of(FactureClientActions.loadFactureClientByIdFailure({ error })))
         )
       )
     )
-  ); 
+  );
+  //loadPrestationsByClient
+  loadPrestationsByClient$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(FactureClientActions.loadPrestationsByClient),
+      mergeMap(({ clientId }) =>
+        this.factureClientService.getPrestationsByClient(clientId).pipe(
+          map((prestations) =>
+            FactureClientActions.loadPrestationsByClientSuccess({ prestations })
+          ),
+          catchError((error) =>
+            of(FactureClientActions.loadPrestationsByClientFailure({ error }))
+          )
+        )
+      )
+    )
+  );
+
   loadFacturesClientByClientId$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.loadFacturesClientByClientId),
@@ -95,6 +107,7 @@ export class FactureClientEffects {
       )
     )
   );
+
   deleteFactureClient$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.deleteFactureClient),
@@ -106,6 +119,7 @@ export class FactureClientEffects {
       )
     )
   );
+
   loadFacturesValideesByClientId$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.loadFacturesValideesByClientId),
@@ -113,7 +127,7 @@ export class FactureClientEffects {
         this.factureClientService.getFacturesByClientId(clientId).pipe(
           map((factures) => {
             const filtered = factures.filter(f =>
-              f.statutFacture === 'Confirmé_Admin' || f.statutFacture === 'Confirmation_Complet' 
+              f.statutFacture === 'Confirmé_Admin' || f.statutFacture === 'Confirmation_Complet'
             );
             return FactureClientActions.loadFacturesValideesByClientIdSuccess({ factures: filtered });
           }),
@@ -124,6 +138,7 @@ export class FactureClientEffects {
       )
     )
   );
+
   loadFacturesRejeteesByClientId$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.loadFacturesRejeteesByClientId),
@@ -138,7 +153,8 @@ export class FactureClientEffects {
         )
       )
     )
-  );  
+  );
+
   loadFacturesNonPayeesByClientId$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.loadFacturesNonPayeesByClientId),
@@ -153,7 +169,8 @@ export class FactureClientEffects {
         )
       )
     )
-  );  
+  );
+
   envoyerEmailFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.envoyerEmailFacture),
@@ -169,6 +186,7 @@ export class FactureClientEffects {
       )
     )
   );
+
   downloadFacture$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.downloadFacture),
@@ -183,7 +201,7 @@ export class FactureClientEffects {
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-            return { type: '[FactureClient] Download Facture Success' }; 
+            return { type: '[FactureClient] Download Facture Success' };
           }),
           catchError(error => {
             console.error('Erreur téléchargement facture', error);
@@ -193,6 +211,7 @@ export class FactureClientEffects {
       )
     )
   );
+
   getWorkingDays$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureClientActions.getWorkingDays),
@@ -204,6 +223,4 @@ export class FactureClientEffects {
       )
     )
   );
-  
-
 }

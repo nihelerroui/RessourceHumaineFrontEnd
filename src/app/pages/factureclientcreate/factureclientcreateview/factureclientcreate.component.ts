@@ -1,9 +1,6 @@
 import { Component, OnInit, EventEmitter, Output, Input } from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
-import { FactureClientService } from "../../../core/services/factureclient.service";
-import { Router } from "@angular/router";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { forkJoin } from "rxjs";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
 import { Store } from "@ngrx/store";
@@ -28,7 +25,6 @@ export class FactureClientCreateComponent implements OnInit {
   selectedContrat: any = null;
   facturePreview: any = null;
   bsConfig: Partial<BsDatepickerConfig>;
-  isLoading = false;
   today = new Date();
   isEditMode: boolean = false;
 
@@ -87,14 +83,13 @@ export class FactureClientCreateComponent implements OnInit {
   initForm() {
     this.factureForm = this.fb.group({
       contratId: [null, Validators.required],
-      refFacture: ["", Validators.required],
       dateEmmission: [new Date(), Validators.required],
-      dateEcheance: [new Date(new Date().setDate(new Date().getDate() + 30)), Validators.required],
-      pourcentageTva: [20, Validators.required],
+      dateEcheance: [new Date(), Validators.required],
+      pourcentageTva: [20],
       pourcentageRemise: [0],
       objet: ["", Validators.required],
       numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
-      typePaiement: ["VIREMENT", Validators.required],
+      typePaiement: ["", Validators.required],
       prestationIds: this.fb.array([]),
     });
   }
@@ -103,7 +98,6 @@ export class FactureClientCreateComponent implements OnInit {
     this.selectedContrat = this.contratsClient.find(c => c.contratClientId === facture.contratId);
     this.factureForm.patchValue({
       contratId: facture.contratId,
-      refFacture: facture.refFacture,
       dateEmmission: facture.dateEmmission,
       dateEcheance: facture.dateEcheance,
       pourcentageTva: facture.pourcentageTva,
@@ -114,9 +108,30 @@ export class FactureClientCreateComponent implements OnInit {
     });
     this.prestationIds.clear();
     facture.prestations?.forEach((p: any) => {
-      const fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
-      const merged = { ...fullPrestation, ...p };
-      this.prestationIds.push(this.fb.control(merged, Validators.required));
+      // Chercher la prestation complète avec le même ID
+      let fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
+
+      // Vérifier si la prestation complète existe et contient un titre
+      if (fullPrestation) {
+        fullPrestation = {
+          ...fullPrestation,
+          prestationId: p.prestationId,
+          titre: fullPrestation.titre || p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      } else {
+        // Si non trouvé, créer un objet minimal
+        fullPrestation = {
+          prestationId: p.prestationId,
+          titre: p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      }
+
+      // Ajouter la prestation corrigée au formulaire
+      this.prestationIds.push(this.fb.control(fullPrestation, Validators.required));
     });
     this.updateAvailablePrestations();
     this.updateFacturePreview();
@@ -168,7 +183,6 @@ export class FactureClientCreateComponent implements OnInit {
     const montantTtc = montantHt + montantTva;
 
     this.facturePreview = {
-      refFacture: formValues.refFacture,
       dateEmmission: formValues.dateEmmission,
       dateEcheance: formValues.dateEcheance,
       clientNom: this.selectedContrat.client.nom,
@@ -200,9 +214,8 @@ export class FactureClientCreateComponent implements OnInit {
   clearForm(): void {
     this.factureForm.reset({
       contratId: null,
-      refFacture: "",
       dateEmmission: new Date(),
-      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
+      dateEcheance: new Date(),
       pourcentageTva: 20,
       pourcentageRemise: 0,
       objet: "",
@@ -228,7 +241,6 @@ export class FactureClientCreateComponent implements OnInit {
     };
   
     this.submitted = true;
-    this.isLoading = true;
   
     if (this.isEditMode) {
       this.store.select(selectFactureSelected).subscribe((facture) => {

@@ -1,10 +1,15 @@
 import { createAction, props } from '@ngrx/store';
 import { FactureClient } from 'src/app/models/factureClient.models';
+import { Prestation } from 'src/app/models/prestation.model';
 
 // Load
 export const loadFacturesClient = createAction('[FactureClient] Load Factures');
 export const loadFacturesClientSuccess = createAction('[FactureClient] Load Success', props<{ factures: FactureClient[] }>());
 export const loadFacturesClientFailure = createAction('[FactureClient] Load Failure', props<{ error: any }>());
+//load prestation par client
+export const loadPrestationsByClient = createAction('[FactureClient] Load Prestations By Client', props<{ clientId: number }>());
+export const loadPrestationsByClientSuccess = createAction('[FactureClient] Load Prestations By Client Success', props<{ prestations: Prestation[] }>());
+export const loadPrestationsByClientFailure = createAction('[FactureClient] Load Prestations By Client Failure', props<{ error: any }>());
 // Create
 export const createFactureClient = createAction('[FactureClient] Create', props<{ facture: FactureClient }>());
 export const createFactureClientSuccess = createAction('[FactureClient] Create Success', props<{ facture: FactureClient }>());
@@ -15,8 +20,8 @@ export const updateFactureClientSuccess = createAction('[FactureClient] Update S
 export const updateFactureClientFailure = createAction('[FactureClient] Update Failure', props<{ error: any }>());
 //getFactureById
 export const loadFactureClientById = createAction('[FactureClient] Load By Id', props<{ id: number }>());
-export const loadFactureClientByIdSuccess = createAction('[FactureClient] Load By Id Success', props<{ facture: any }>() );
-export const loadFactureClientByIdFailure = createAction('[FactureClient] Load By Id Failure', props<{ error: any }>() );
+export const loadFactureClientByIdSuccess = createAction('[FactureClient] Load By Id Success', props<{ facture: any }>());
+export const loadFactureClientByIdFailure = createAction('[FactureClient] Load By Id Failure', props<{ error: any }>());
 //delete facture
 export const deleteFactureClient = createAction(
   '[FactureClient] Delete FactureClient',
@@ -34,45 +39,45 @@ export const deleteFactureClientFailure = createAction(
 );
 
 export const loadFacturesClientByClientId = createAction(
-    '[FactureClient] Load Factures Client By ClientId',
-    props<{ clientId: number }>()
-  );
-  
-  export const loadFacturesClientByClientIdSuccess = createAction(
-    '[FactureClient] Load Factures Client By ClientId Success',
-    props<{ factures: FactureClient[] }>()
-  );
-  
-  export const loadFacturesClientByClientIdFailure = createAction(
-    '[FactureClient] Load Factures Client By ClientId Failure',
-    props<{ error: any }>()
-  );
-  //factures avec token
-  export const loadFactureClientByToken = createAction(
-    '[FactureClient] Load By Token',
-    props<{ token: string }>()
-  );
-  
-  export const loadFactureClientByTokenSuccess = createAction(
-    '[FactureClient] Load By Token Success',
-    props<{ factures: FactureClient[] }>()
-  );
-  
-  export const loadFactureClientByTokenFailure = createAction(
-    '[FactureClient] Load By Token Failure',
-    props<{ error: any }>()
-  );
-  // statut Confirmé_Admin ou Confirmation_Complet 
+  '[FactureClient] Load Factures Client By ClientId',
+  props<{ clientId: number }>()
+);
+
+export const loadFacturesClientByClientIdSuccess = createAction(
+  '[FactureClient] Load Factures Client By ClientId Success',
+  props<{ factures: FactureClient[] }>()
+);
+
+export const loadFacturesClientByClientIdFailure = createAction(
+  '[FactureClient] Load Factures Client By ClientId Failure',
+  props<{ error: any }>()
+);
+//factures avec token
+export const loadFactureClientByToken = createAction(
+  '[FactureClient] Load By Token',
+  props<{ token: string }>()
+);
+
+export const loadFactureClientByTokenSuccess = createAction(
+  '[FactureClient] Load By Token Success',
+  props<{ factures: FactureClient[] }>()
+);
+
+export const loadFactureClientByTokenFailure = createAction(
+  '[FactureClient] Load By Token Failure',
+  props<{ error: any }>()
+);
+// statut Confirmé_Admin ou Confirmation_Complet 
 export const loadFacturesValideesByClientId = createAction(
-  '[FactureClient] Load Validated By Client ID', 
+  '[FactureClient] Load Validated By Client ID',
   props<{ clientId: number }>()
 );
 export const loadFacturesValideesByClientIdSuccess = createAction(
-  '[FactureClient] Load Validated By Client ID Success', 
+  '[FactureClient] Load Validated By Client ID Success',
   props<{ factures: FactureClient[] }>()
 );
 export const loadFacturesValideesByClientIdFailure = createAction(
-  '[FactureClient] Load Validated By Client ID Failure', 
+  '[FactureClient] Load Validated By Client ID Failure',
   props<{ error: any }>()
 );
 // statut rejetee

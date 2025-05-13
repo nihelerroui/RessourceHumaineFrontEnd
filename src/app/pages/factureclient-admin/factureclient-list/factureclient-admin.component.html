@@ -1,4 +1,8 @@
 <div class="container-fluid">
+    <app-page-title title="Facture Client" [breadcrumbItems]="[
+      { label: 'Dashboard', path: '/' },
+      { label: 'facture client', active: true }
+    ]"></app-page-title>
     <div class="row">
         <div class="col-12">
             <div ngClass="card">
@@ -6,13 +10,21 @@
                     <div class="d-flex align-items-center">
                         <h5 class="mb-0 card-title flex-grow-1">Liste des
                             Factures Clients</h5>
+                        <div class="flex-shrink-0 d-flex gap-1">
+                            <button class="btn btn-primary" (click)="openCreateModal()">
+                                Ajouter une nouvelle facture
+                            </button>
+                            <a href="javascript:void(0);" class="btn btn-light" (click)="resetFilters()">
+                                <i class="mdi mdi-refresh"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body border-bottom">
                     <div class="row g-3">
                         <div class="col-xxl-3 col-lg-6">
                             <input type="search" class="form-control" id="searchInput" placeholder="Rechercher ..."
-                                [(ngModel)]="term" (ngModelChange)="searchFactureClient()" />
+                                [(ngModel)]="term" (ngModelChange)="applyFilters()" />
                         </div>
                         <div class="col-xxl-3 col-lg-6">
                             <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut"
@@ -169,7 +181,7 @@
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Marquer comme payée">
                                                 <button class="btn btn-sm btn-info"
-                                                    (click)="modifierStatutPaiement(facture, StatutPaiement.PAYEE)">
+                                                    (click)="updateFactureStatus(facture, facture.statutFacture, 'PAYÉE')">
                                                     <i class="mdi mdi-cash-check"></i>
                                                 </button>
                                             </li>

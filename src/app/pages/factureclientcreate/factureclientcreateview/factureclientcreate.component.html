@@ -10,7 +10,7 @@
   <!-- Sélection de Contrat -->
   <div class="mb-4">
     <select class="form-select" formControlName="contratId" (change)="onContratSelected()">
-      <option value="" disabled selected>Sélectionner un contrat</option>
+      <option [ngValue]="null" disabled>Sélectionner un contrat</option>
       <option *ngFor="let contrat of contratsClient" [value]="contrat.contratClientId">
         {{ contrat.designation }}
       </option>
@@ -191,10 +191,10 @@
       <i class="fas fa-trash-alt"></i> Réinitialiser
     </button>
 
-    <button class="btn btn-primary" (click)="saveFacture()">
-      <i class="fas fa-save"></i>
-      {{ isEditMode ? "Modifier la facture" : "Enregistrer la facture" }}
-    </button>
+    <button class="btn btn-primary" [disabled]="factureForm.invalid" (click)="saveFacture()">
+    <i class="fas fa-save"></i>
+    {{ isEditMode ? "Modifier la facture" : "Enregistrer la facture" }}
+</button>
   </div>
 
 </div>
