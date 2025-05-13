@@ -183,7 +183,6 @@ export class FactureClientCreateComponent implements OnInit {
     const montantTtc = montantHt + montantTva;
 
     this.facturePreview = {
-      //refFacture: formValues.refFacture,
       dateEmmission: formValues.dateEmmission,
       dateEcheance: formValues.dateEcheance,
       clientNom: this.selectedContrat.client.nom,
