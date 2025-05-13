@@ -214,7 +214,6 @@ export class FactureClientCreateComponent implements OnInit {
   clearForm(): void {
     this.factureForm.reset({
       contratId: null,
-      refFacture: "",
       dateEmmission: new Date(),
       dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
       pourcentageTva: 20,
