@@ -1,13 +1,9 @@
 import { Component, OnInit, EventEmitter, Output, Input } from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
-import { FactureClientService } from "../../../core/services/factureclient.service";
-import { Router } from "@angular/router";
-import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { forkJoin } from "rxjs";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
 import { Store } from "@ngrx/store";
-import { selectFactureSelected } from "src/app/store/FactureClient/factureclient.selector";
+import { selectFactureSelected, selectPrestationsByClient } from "src/app/store/FactureClient/factureclient.selector";
 import * as FactureClientActions from '../../../store/FactureClient/factureclient.actions';
 import { loadPrestations } from "src/app/store/Prestation/prestation.action";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
@@ -27,8 +23,6 @@ export class FactureClientCreateComponent implements OnInit {
   contratsClient: any[] = [];
   selectedContrat: any = null;
   facturePreview: any = null;
-  bsConfig: Partial<BsDatepickerConfig>;
-  isLoading = false;
   today = new Date();
   isEditMode: boolean = false;
 
@@ -36,10 +30,6 @@ export class FactureClientCreateComponent implements OnInit {
   @Input() factureClientId!: number;
 
   constructor(private fb: FormBuilder, private store: Store, public modalRef: BsModalRef, private actions$: Actions) {
-    this.bsConfig = {
-      dateInputFormat: "DD/MM/YYYY",
-      containerClass: "theme-default",
-    };
     this.initForm();
   }
 
@@ -49,61 +39,65 @@ export class FactureClientCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.isEditMode = !!this.factureClientId;
-    this.store.dispatch(loadPrestations());
+
     this.store.dispatch(loadContratsClient());
 
-    let loadedFacture: any = null;
-
-    this.store.select(selectAllContratsClient).subscribe((contrats) => this.contratsClient = contrats);
-    this.store.select(selectAllPrestations).subscribe((prestations) => {
-      this.prestations = prestations;
-      this.availablePrestations = [...prestations];
-      this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
-        const prestation = this.prestationIds.at(index).value;
-        const updated = {
-          ...prestation,
-          quantite: workingDays,
-          montantHt: (prestation.prixUnitaire || 0) * workingDays
-        };
-        this.prestationIds.at(index).setValue(updated);
-        this.updateFacturePreview();
-      });
-      if (this.isEditMode && loadedFacture) this.patchFactureForm(loadedFacture);
+    // Récupération des contrats
+    this.store.select(selectAllContratsClient).subscribe((contrats) => {
+      this.contratsClient = contrats;
     });
 
+    // Récupération des prestations
+    this.store.select(selectPrestationsByClient).subscribe((prestations) => {
+      this.prestations = prestations;
+      this.updateAvailablePrestations();
+    });
+
+    // Écoute de l'effet pour mettre à jour les jours travaillés
+    this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
+      const prestation = this.prestationIds.at(index).value;
+      const updated = {
+        ...prestation,
+        quantite: workingDays,
+        montantHt: (prestation.prixUnitaire || 0) * workingDays,
+      };
+      this.prestationIds.at(index).setValue(updated);
+      this.updateFacturePreview();
+    });
+
+    // Chargement et application de la facture en mode édition
     if (this.isEditMode) {
       this.store.dispatch(FactureClientActions.loadFactureClientById({ id: this.factureClientId }));
       this.store.select(selectFactureSelected).subscribe((facture) => {
-        if (facture) {
-          loadedFacture = facture;
-          if (this.prestations.length > 0) this.patchFactureForm(facture);
+        if (facture && this.prestations.length > 0) {
+          this.patchFactureForm(facture);
         }
       });
     }
 
+    // Mise à jour de la preview en fonction des changements de formulaire
     this.factureForm.valueChanges.subscribe(() => this.updateFacturePreview());
   }
 
   initForm() {
     this.factureForm = this.fb.group({
       contratId: [null, Validators.required],
-      refFacture: ["", Validators.required],
       dateEmmission: [new Date(), Validators.required],
-      dateEcheance: [new Date(new Date().setDate(new Date().getDate() + 30)), Validators.required],
-      pourcentageTva: [20, Validators.required],
+      dateEcheance: [new Date(), Validators.required],
+      pourcentageTva: [0],
       pourcentageRemise: [0],
       objet: ["", Validators.required],
       numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
-      typePaiement: ["VIREMENT", Validators.required],
+      typePaiement: ["", Validators.required],
       prestationIds: this.fb.array([]),
     });
   }
 
   patchFactureForm(facture: any): void {
     this.selectedContrat = this.contratsClient.find(c => c.contratClientId === facture.contratId);
+
     this.factureForm.patchValue({
       contratId: facture.contratId,
-      refFacture: facture.refFacture,
       dateEmmission: facture.dateEmmission,
       dateEcheance: facture.dateEcheance,
       pourcentageTva: facture.pourcentageTva,
@@ -112,20 +106,45 @@ export class FactureClientCreateComponent implements OnInit {
       numBonCommande: facture.numBonCommande,
       typePaiement: facture.typePaiement,
     });
+
     this.prestationIds.clear();
+
     facture.prestations?.forEach((p: any) => {
-      const fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
-      const merged = { ...fullPrestation, ...p };
-      this.prestationIds.push(this.fb.control(merged, Validators.required));
+      // Chercher la prestation complète avec le même ID
+      let fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
+
+      // Vérifier si la prestation complète existe et contient un titre
+      if (fullPrestation) {
+        fullPrestation = {
+          ...fullPrestation,
+          prestationId: p.prestationId,
+          titre: fullPrestation.titre || p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      } else {
+        // Si non trouvé, créer un objet minimal
+        fullPrestation = {
+          prestationId: p.prestationId,
+          titre: p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      }
+
+      // Ajouter la prestation corrigée au formulaire
+      this.prestationIds.push(this.fb.control(fullPrestation, Validators.required));
     });
+
     this.updateAvailablePrestations();
     this.updateFacturePreview();
   }
 
+
   addPrestation(): void {
     this.prestationIds.push(this.fb.control(null, Validators.required));
     this.updateAvailablePrestations();
-    setTimeout(() => this.updateFacturePreview(), 0);
+    this.updateFacturePreview();
   }
 
   removePrestation(index: number): void {
@@ -143,6 +162,12 @@ export class FactureClientCreateComponent implements OnInit {
     const contratId = Number(this.factureForm.get("contratId")?.value);
     if (contratId) {
       this.selectedContrat = this.contratsClient.find(c => c.contratClientId === contratId);
+
+      if (this.selectedContrat?.client?.clientId) {
+        const clientId = this.selectedContrat.client.clientId;
+        this.store.dispatch(FactureClientActions.loadPrestationsByClient({ clientId }));
+      }
+
       const isTunisie = this.selectedContrat?.client?.pays?.nomFrFr?.toLowerCase() === "tunisie";
       this.factureForm.patchValue({
         pourcentageTva: isTunisie ? 19 : 20,
@@ -151,6 +176,7 @@ export class FactureClientCreateComponent implements OnInit {
       this.updateFacturePreview();
     }
   }
+
   updateFacturePreview(): void {
     if (!this.selectedContrat) return;
     const formValues = this.factureForm.value;
@@ -168,7 +194,6 @@ export class FactureClientCreateComponent implements OnInit {
     const montantTtc = montantHt + montantTva;
 
     this.facturePreview = {
-      refFacture: formValues.refFacture,
       dateEmmission: formValues.dateEmmission,
       dateEcheance: formValues.dateEcheance,
       clientNom: this.selectedContrat.client.nom,
@@ -196,18 +221,17 @@ export class FactureClientCreateComponent implements OnInit {
     const prestation = this.prestationIds.at(index).value;
     return prestation ? { ...prestation, quantite: prestation.quantite ?? 1, description: prestation.description ?? '' } : null;
   }
-  
+
   clearForm(): void {
     this.factureForm.reset({
       contratId: null,
-      refFacture: "",
       dateEmmission: new Date(),
-      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
-      pourcentageTva: 20,
+      dateEcheance: new Date(),
+      pourcentageTva: 0,
       pourcentageRemise: 0,
       objet: "",
       numBonCommande: "",
-      typePaiement: "VIREMENT",
+      typePaiement: "",
       prestationIds: this.fb.array([]),
     });
 
@@ -226,18 +250,17 @@ export class FactureClientCreateComponent implements OnInit {
       objet: this.factureForm.value.objet,
       numBonCommande: this.factureForm.value.numBonCommande,
     };
-  
+
     this.submitted = true;
-    this.isLoading = true;
-  
+
     if (this.isEditMode) {
       this.store.select(selectFactureSelected).subscribe((facture) => {
         if (facture && this.submitted) {
           factureData.statutFacture = facture.statutFacture;
           factureData.statutPaiement = facture.statutPaiement;
-  
+
           this.store.dispatch(FactureClientActions.updateFactureClient({ facture: factureData }));
-  
+
           Swal.fire({
             icon: 'success',
             title: 'Facture modifiée !',
@@ -248,14 +271,14 @@ export class FactureClientCreateComponent implements OnInit {
             this.factureCreated.emit();
             this.modalRef.hide();
           });
-  
-          this.submitted = false; 
+
+          this.submitted = false;
         }
       });
     } else {
       factureData.statutFacture = 'En_Attente';
       factureData.statutPaiement = 'NON_PAYÉE';
-  
+
       this.store.dispatch(FactureClientActions.createFactureClient({ facture: factureData }));
       this.store.dispatch(FactureClientActions.loadFacturesClient());
       Swal.fire({
@@ -269,23 +292,19 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  }   
+  }
   onPrestationSelected(index: number): void {
     const prestation = this.prestationIds.at(index).value;
     const full = this.prestations.find(p => p.prestationId === prestation?.prestationId);
-  
+
     if (!full) return;
-  
-    const consultant_id = full.consultant?.consultantId;
-    const month = full.month;
-    const year = full.year;
-  
-    this.prestationIds.at(index).setValue(full);
-  
-    if (consultant_id && month && year) {
-      this.store.dispatch(FactureClientActions.getWorkingDays({ consultant_id, month, year, index }));
+
+    const { consultantId, month, year } = full;
+
+    if (consultantId && month && year) {
+      this.store.dispatch(FactureClientActions.getWorkingDays({ consultant_id: consultantId, month, year, index }));
     }
+
+    this.prestationIds.at(index).setValue(full);
   }
-   
-  
 }

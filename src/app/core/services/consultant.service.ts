@@ -1,14 +1,18 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConsultantService {
-  private baseUrl = 'https://featway-serveur.fr:8181/portail-backend-dev/api/consultant';
 
-  constructor(private http: HttpClient) {}
+  protected baseUrl: string;
+
+  constructor(private http: HttpClient) {
+    this.baseUrl = `${environment.baseUrl}`;
+  }
 
   getBySocieteByConsultant(id: number): Observable<any[]> {
     const headers = new HttpHeaders();

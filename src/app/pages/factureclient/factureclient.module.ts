@@ -12,6 +12,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { FactureClientEffects } from 'src/app/store/FactureClient/factureclient.effects';
 import { factureClientReducer } from 'src/app/store/FactureClient/factureclient.reducer';
+import { UIModule } from 'src/app/shared/ui/ui.module';
 
 const routes: Routes = [
   {
@@ -27,6 +28,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     FormsModule,
+    UIModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     PaginationModule.forRoot(),

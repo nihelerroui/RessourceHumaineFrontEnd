@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { GenericService } from './generic.service';
 import { environment } from '../../../environments/environment';
 import { FactureClient } from 'src/app/models/factureClient.models';
+import { Prestation } from 'src/app/models/prestation.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,15 +32,12 @@ export class FactureClientService extends GenericService<any> {
       responseType: 'text',
     });
   }
-
   getFacturesByClientId(clientId: number): Observable<FactureClient[]> {
     return this.http.get<FactureClient[]>(`${this.apiUrl}/client/${clientId}`);
   }
-
-  getPrestations(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/prestations`);
-  }
-
+  getPrestationsByClient(clientId: number): Observable<Prestation[]> {
+  return this.http.get<Prestation[]>(`${this.apiUrl}/prestationClient/${clientId}`);
+}
   getContratsClient(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/contratsClient`); 
   }
