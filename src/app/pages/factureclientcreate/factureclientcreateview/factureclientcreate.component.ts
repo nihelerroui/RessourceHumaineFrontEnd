@@ -84,7 +84,7 @@ export class FactureClientCreateComponent implements OnInit {
     this.factureForm = this.fb.group({
       contratId: [null, Validators.required],
       dateEmmission: [new Date(), Validators.required],
-      dateEcheance: [new Date(new Date().setDate(new Date().getDate() + 30)), Validators.required],
+      dateEcheance: [new Date(), Validators.required],
       pourcentageTva: [20],
       pourcentageRemise: [0],
       objet: ["", Validators.required],
@@ -215,7 +215,7 @@ export class FactureClientCreateComponent implements OnInit {
     this.factureForm.reset({
       contratId: null,
       dateEmmission: new Date(),
-      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
+      dateEcheance: new Date(),
       pourcentageTva: 20,
       pourcentageRemise: 0,
       objet: "",
