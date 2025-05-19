@@ -46,6 +46,7 @@ export class ContratsClientListComponent implements OnInit {
   ) { }
   ngOnInit(): void {
     const idFromStorage = localStorage.getItem("clientId");
+    this.token = localStorage.getItem("clientToken");
     if (idFromStorage) {
       const clientId = Number(idFromStorage);
       this.store.dispatch(ContratActions.loadContratsClientByClientId({ clientId }));

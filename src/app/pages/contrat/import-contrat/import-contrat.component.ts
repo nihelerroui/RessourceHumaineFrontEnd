@@ -28,10 +28,14 @@ export class ImportContratComponent implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.paramMap.get("token") || '';
+    console.log("📦 Token reçu depuis l'URL :", this.token);
     const clientId = this.tokenUtil.extractClientId(this.token);
-    if (clientId) {
-      localStorage.setItem('clientId', clientId.toString());
-    }
+  if (clientId) {
+    localStorage.setItem('clientId', clientId.toString());
+    localStorage.setItem('clientToken', this.token);
+  } else {
+    console.warn("⚠️ Token invalide ou clientId introuvable");
+  }
     this.initForm();
   }
   // Initialisation du formulaire

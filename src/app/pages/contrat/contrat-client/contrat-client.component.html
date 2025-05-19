@@ -47,7 +47,6 @@
               </thead>
               <tbody>
                 <tr *ngFor="let contrat of contratsPagination$ | async;">
-                  {{ logContrat(contrat) }}
                   <td>{{ contrat.client?.nom || "N/A" }}</td>
                   <td>{{ contrat.designation }}</td>
                   <td>{{ contrat.tjm }}</td>
