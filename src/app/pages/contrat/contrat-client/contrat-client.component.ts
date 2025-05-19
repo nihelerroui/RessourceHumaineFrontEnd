@@ -31,9 +31,6 @@ export class ContratClientAdminComponent implements OnInit {
   StatutContrat = StatutContrat;
   modalRef?: BsModalRef;
   contratForm!: FormGroup;
-  submitted: boolean = false;
-  fileName: string = "Aucun fichier sélectionné";
-  fileSelected: boolean = false;
   contratFileUrl: SafeResourceUrl | null = null;
   // Critères de recherche
   searchTerm: string = "";
@@ -50,7 +47,7 @@ export class ContratClientAdminComponent implements OnInit {
 
 
   constructor(private modalService: BsModalService, private store: Store) {
-    this.contratsClients$ = this.store.select(selectContratsClientSearchResults);
+    this.contratsClients$ = this.store.select(selectAllContratsClient);
     this.loading$ = this.store.select(selectContratsClientLoading);
   }
 
@@ -63,9 +60,10 @@ export class ContratClientAdminComponent implements OnInit {
     });
     this.total$ = this.contratsClients$.pipe(map(contrats => contrats.length));
     this.updatePagination();
-  }
-  logContrat(contrat: ContratClient): void {
-    console.log('📝 Contrat affiché :', contrat);
+    this.store.select(selectAllContratsClient).subscribe(() => {
+  this.updatePagination();
+});
+
   }
   
   //pagination
@@ -76,11 +74,6 @@ export class ContratClientAdminComponent implements OnInit {
         return contratsClients.slice(start, start + this.contratsParPage);
       })
     );
-  }
-
-  openModal(template: any) {
-    this.submitted = false;
-    this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
   modifierStatutContrat(
