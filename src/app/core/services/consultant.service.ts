@@ -21,4 +21,5 @@ export class ConsultantService extends GenericService<Consultant> {
     const headers = new HttpHeaders();
     return this.http.get<any[]>(`${this.baseUrl}/getbysocietebyconsultantPFE/${id}`, { headers });
   }
+  
 }

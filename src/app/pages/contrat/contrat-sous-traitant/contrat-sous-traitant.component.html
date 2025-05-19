@@ -206,9 +206,11 @@
           <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
             Annuler
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="contratForm.invalid || !fileSelected">
+          <button type="submit" class="btn btn-primary"
+            [disabled]="contratForm.invalid || (!fileSelected && !selectedContratId)">
             {{ selectedContratId ? "Modifier" : "Ajouter" }}
           </button>
+
         </div>
       </form>
     </ng-template>

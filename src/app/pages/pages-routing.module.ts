@@ -32,6 +32,8 @@ const routes: Routes = [
   { path: 'depenses', loadChildren: () => import('./depenses/depenses.module').then(m => m.DepensesModule) },
   { path: 'mainOeuvre', loadChildren: () => import('./mainOeuvre/main-oeuvre.module').then(m => m.MainOeuvreModule) },
   { path: 'historique-mainoeuvre', loadChildren: () => import('./historique-main-oeuvre/historique-main-oeuvre.module').then(m => m.HistoriqueMainOeuvreModule) },
+  //{ path: 'historique-chiffreAffaire', loadChildren: () => import('./historiqueChiffreAffaire/historiqueChiffreAffaire.module').then(m => m.HistoriqueChiffreAffaireModule) },
+  //{ path: 'chiffreAffaire', loadChildren: () => import('./chiffreAffaire/chiffreaffaire.module').then(m => m.ChiffreAffaireModule) },
 ];
 
 @NgModule({

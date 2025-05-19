@@ -30,7 +30,10 @@ export class FooterComponent implements OnInit {
       const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
       const currentPath = '/' + urlSegments?.map(s => s.path).join('/') || '';
     
-      this.showBars = !this.routesToHideBars.includes(currentPath);
+      this.showBars = !this.routesToHideBars.some(route =>
+      currentPath.startsWith(route)
+);
+
     });
     
   }
