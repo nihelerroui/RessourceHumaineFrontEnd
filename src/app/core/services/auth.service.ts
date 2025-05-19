@@ -1,39 +1,57 @@
 import { Injectable } from "@angular/core";
-import {
-  User,
-} from "src/app/models/auth.models";
-import { BehaviorSubject, Observable } from "rxjs";
+import { ProfileUpdateRequest, User } from "src/app/models/auth.models";
+import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 import { environment } from "src/environments/environment";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { GenericService } from "./generic.service";
 import { LoginRequest } from "src/app/models/loginRequest.model";
-import { AdminRegisterRequest } from "src/app/models/adminRegisterRequest.models";
+import { Consultant } from "src/app/models/consultant.models";
+import { PersonalDetails } from "src/app/models/PersonalDetails.model";
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService extends GenericService<User> {
-
   private authUrl = `${environment.apiUrl}/auth`;
   private baseUrl = `${environment.apiUrl}`;
 
-  private userCreatedSubject = new BehaviorSubject<boolean>(false);
-  private userUpdatedSubject = new BehaviorSubject<boolean>(false);
-
-  userCreated$ = this.userCreatedSubject.asObservable();
-  userUpdated$ = this.userUpdatedSubject.asObservable();
-
   constructor(protected http: HttpClient) {
-    super(http,''); 
+    super(http, "");
   }
 
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post(`${this.baseUrl}/auth/login`, credentials);
   }
 
-  register(registerData: AdminRegisterRequest): Observable<any> {
-    return this.http.post<any>(
-      `${this.authUrl}/admin/register-user`,
-      registerData
+  createUser(userDTO: any): Observable<User> {
+    return this.http.post<User>(`${this.authUrl}/createUser`, userDTO);
+  }
+
+  createPersonalDetails(personalDetails: any): Observable<PersonalDetails> {
+    return this.http.post<PersonalDetails>(
+      `${this.authUrl}/createPersonalDetails`,
+      personalDetails
     );
+  }
+
+  createConsultant(consultant: any): Observable<Consultant> {
+    return this.http.post<Consultant>(
+      `${this.authUrl}/createConsultant`,
+      consultant
+    );
+  }
+
+  updateUser(userId: number, request: any): Observable<User> {
+    return this.http.put<User>(`${this.authUrl}/updateUser/${userId}`, request);
+  }
+
+  updateConsultant(consultantId: number, request: any): Observable<Consultant> {
+    return this.http.put<Consultant>(
+      `${this.authUrl}/updateConsultant/${consultantId}`,
+      request
+    );
+  }
+
+  loadConsultants(): Observable<Consultant[]> {
+    return this.http.get<Consultant[]>(`${this.baseUrl}/consultants`);
   }
 
   logout() {
@@ -50,38 +68,32 @@ export class AuthenticationService extends GenericService<User> {
     return this.http.get<any>(`${this.authUrl}/me`, { headers });
   }
 
-  modifyUser(userId: number, data: AdminRegisterRequest): Observable<any> {
-    return this.http.put(`${this.authUrl}/admin/modify-user/${userId}`, data);
-  }
-  
-  getAllUser(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/users`);
-  }
-
   toggleUserStatus(userId: number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/users/toggle-status/${userId}`, {});
+    return this.http.put<any>(
+      `${this.baseUrl}/users/toggle-status/${userId}`,
+      {}
+    );
   }
 
+  getAdminSocietes(): Observable<any[]> {
+    const url = `https://featway-serveur.fr:8181/portail-backend-prod_v2/api/adminsociete/admin/141`;
+    const token =
+      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDcyOTk1NTMsImV4cCI6MTc0NzU1ODc1M30.W0hy6_0mS_oNNH8o7mF8W1iybghVdebnGr0y1PNI2tg";
 
+    const headers = new HttpHeaders()
+      .set("Authorization", `Bearer ${token}`)
+      .set("Content-Type", "application/json");
 
-getAdminSocietes(): Observable<any[]> {
-  const url = `https://featway-serveur.fr:8181/portail-backend-prod_v2/api/adminsociete/admin/141`;
-  const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDcwMzgxMjIsImV4cCI6MTc0NzI5NzMyMn0.5xP8ZQn4y6ux12Mw3uodDEWtrfK7Kq-pZSzkfBLS7pw';
+    return this.http.get<any[]>(url, { headers });
+  }
 
-  const headers = new HttpHeaders()
-    .set('Authorization', `Bearer ${token}`)
-    .set('Content-Type', 'application/json');
-
-  console.log('Headers envoyés:', headers.keys(), headers.get('Authorization'));
-
-
-  return this.http.get<any[]>(url, { headers });
-}
-
-
-
-
-  
-
- 
+  updateUserProfile(
+    userId: number,
+    profileData: ProfileUpdateRequest
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/users/update/${userId}`,
+      profileData
+    );
+  }
 }

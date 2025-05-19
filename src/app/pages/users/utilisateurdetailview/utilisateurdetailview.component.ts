@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Consultant } from 'src/app/models/consultant.models';
 
 @Component({
   selector: 'app-utilisateurdetailview',
@@ -6,40 +7,29 @@ import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef } fro
   styleUrls: ['./utilisateurdetailview.component.scss']
 })
 export class UtilisateurdetailviewComponent implements OnInit {
-  @Input() user: any;
+  @Input() consultant!: Consultant;
   @Output() close = new EventEmitter<void>();
 
 
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    console.log('Personal Details:', this.user?.consultant?.personalDetails);
+    console.log('Consultant reçu dans le modal:', this.consultant);
 
-   console.log("User received in modal:", this.user);
-
-  // Vérification si l'utilisateur est bien chargé
-  if (!this.user) {
-    console.warn("Aucun utilisateur reçu !");
-    return;
-  }
-
-  const raw = this.user?.consultant as any;
-
-  // Vérification de l'existence de `personalDetails` ou `personaldetails`
-  if (raw) {
-    if (raw.personalDetails) {
-      console.log("✅ Personal Details found:", raw.personalDetails);
-    } else if (raw.personaldetails) {
-      console.log("✅ Found `personaldetails`, correcting...");
-      raw.personalDetails = raw.personaldetails;
-      console.log("🔁 Corrected Personal Details:", raw.personalDetails);
-    } else {
-      console.warn("❌ Aucune donnée `personalDetails` trouvée !");
+    if (!this.consultant) {
+      console.warn('Aucun consultant fourni !');
+      return;
     }
-  }
 
-  // Forcer la mise à jour pour afficher les données corrigées
-  setTimeout(() => this.cdr.detectChanges(), 100);
+    const raw = this.consultant as any;
+
+    // Correction si les noms sont mal typés
+    if (raw && raw.personaldetails && !raw.personalDetails) {
+      console.log("Correction: renommage de personaldetails → personalDetails");
+      raw.personalDetails = raw.personaldetails;
+    }
+
+    setTimeout(() => this.cdr.detectChanges(), 100);
 
   }
 
@@ -65,19 +55,11 @@ export class UtilisateurdetailviewComponent implements OnInit {
     }
   }
 
-  hasAnyDocument(): boolean {
-    const personalDetails = this.user?.consultant?.personalDetails;
-    if (!personalDetails) return false;
-    
-    return !!(
-      personalDetails.cni ||
-      personalDetails.rib ||
-      personalDetails.carteGrise ||
-      personalDetails.kbis ||
-      personalDetails.urssaf ||
-      personalDetails.attestations ||
-      personalDetails.contart
-    );
+ hasAnyDocument(): boolean {
+    const pd = this.consultant?.personalDetails;
+    if (!pd) return false;
+
+    return !!(pd.cni || pd.rib || pd.kbis || pd.urssaf || pd.attestations || pd.contart || pd.navigo || pd.photo || pd.carteGrise);
   }
 
   

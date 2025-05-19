@@ -39,6 +39,9 @@ export class TopbarComponent implements OnInit {
   ];
   showBars: boolean = true;
 
+  userName: string = '';
+  userInitial: string = '';
+
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private authService: AuthenticationService,
     public languageService: LanguageService,
     public translate: TranslateService,
@@ -60,13 +63,16 @@ export class TopbarComponent implements OnInit {
   @Output() mobileMenuButtonClicked = new EventEmitter();
 
   ngOnInit() {
+
+    this.loadUserData();
+
     //détection de currentPath et le comparer
     this.router.events.subscribe(() => {
       const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
       const currentPath = '/' + urlSegments?.map(s => s.path).join('/') || '';
     
       this.showBars = !this.routesToHideBars.includes(currentPath);
-    });    
+    });   
     
     // this.initialAppState = initialState;
     this.store.select('layout').subscribe((data) => {
@@ -91,6 +97,16 @@ export class TopbarComponent implements OnInit {
     this.cookieValue = lang;
     this.languageService.setLanguage(lang);
   }
+
+loadUserData() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (currentUser && currentUser.consultant && currentUser.consultant.fullName) {
+      this.userName = currentUser.consultant.fullName;
+      this.userInitial = currentUser.consultant.fullName.charAt(0).toUpperCase();
+    }
+  }
+
+
 
   /**
    * Toggles the right sidebar

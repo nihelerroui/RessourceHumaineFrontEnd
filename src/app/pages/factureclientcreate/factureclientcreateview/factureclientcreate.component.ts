@@ -1,9 +1,6 @@
 import { Component, OnInit, EventEmitter, Output, Input } from "@angular/core";
 import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
-import { FactureClientService } from "../../../core/services/factureclient.service";
-import { Router } from "@angular/router";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { forkJoin } from "rxjs";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
 import { Store } from "@ngrx/store";
