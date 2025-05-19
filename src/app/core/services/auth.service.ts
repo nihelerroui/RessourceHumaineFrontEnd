@@ -78,7 +78,7 @@ export class AuthenticationService extends GenericService<User> {
   getAdminSocietes(): Observable<any[]> {
     const url = `https://featway-serveur.fr:8181/portail-backend-prod_v2/api/adminsociete/admin/141`;
     const token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDcyOTk1NTMsImV4cCI6MTc0NzU1ODc1M30.W0hy6_0mS_oNNH8o7mF8W1iybghVdebnGr0y1PNI2tg";
+      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDc2NTgzMzgsImV4cCI6MTc0NzkxNzUzOH0.0kPVREnhSRYgQQhxAworvHKFaHf8AlKfIaIxINdQMHA";
 
     const headers = new HttpHeaders()
       .set("Authorization", `Bearer ${token}`)

@@ -212,10 +212,10 @@
               </div>
           </div>
 
-          <!-- RRT (Case à cocher) -->
+          <!-- RTT (Case à cocher) -->
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input"
-              formControlName="rrt">
+              formControlName="rtt">
             <label class="form-check-label">RTT</label>
           </div>
 
@@ -309,7 +309,7 @@
                 <th scope="row"><i class="bi bi-graph-up-arrow text-danger"></i> Ratio Coût :</th>
                 <td>{{ selectedSociete?.ratioCout }}</td>
               </tr>
-              <tr *ngIf="selectedSociete?.rrt">
+              <tr *ngIf="selectedSociete?.rtt">
                 <th scope="row"><i class="bi bi-award text-warning"></i> RTT:</th>
                 <td>
                   <span class="badge badge-soft-success ms-2">RTT</span>
