@@ -26,18 +26,19 @@ export const prestationReducer = createReducer(
   on(PrestationActions.loadPrestationsFailure, (state, { error }) => ({
     ...state, error, loading: false
   })),
-
+  
   // Create
-  on(PrestationActions.createPrestation, state => ({
-    ...state, loading: true
+  on(PrestationActions.createPrestation, (state) => ({
+    ...state, loading: true 
   })),
   on(PrestationActions.createPrestationSuccess, (state, { prestation }) => ({
     ...state,
     prestations: [...state.prestations, prestation],
-    loading: false
+    loading: false,
+    error: null
   })),
   on(PrestationActions.createPrestationFailure, (state, { error }) => ({
-    ...state, error, loading: false
+    ...state, loading: false, error
   })),
 
   // Update

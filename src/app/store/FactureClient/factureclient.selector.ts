@@ -6,12 +6,15 @@ export const selectFactureClientState = createFeatureSelector<FactureClientState
 
 export const selectTotalFactureClient = createSelector(
   selectFactureClientState,
-    (state: FactureClientState) => state.factureClients.length 
-  );
-
+  (state: FactureClientState) => state.factureClients.length
+);
+export const selectPrestationsByClient = createSelector(
+  selectFactureClientState,
+  (state) => state.prestationsByClient
+);
 export const selectFactureClients = createSelector(
   selectFactureClientState,
-  (state: FactureClientState) => state?.factureClients ?? [] 
+  (state: FactureClientState) => state?.factureClients ?? []
 );
 
 export const selectLoading = createSelector(

@@ -23,8 +23,6 @@ import { ClientListComponent } from './client-list/client-list.component';
     ClientRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    StoreModule.forFeature('client', clientReducer),
-    EffectsModule.forFeature([ClientEffects]) ,
     PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
     CollapseModule.forRoot(),

@@ -10,6 +10,7 @@ import { loadPrestations } from "src/app/store/Prestation/prestation.action";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
 import { selectAllPrestations } from "src/app/store/Prestation/prestation-selector";
 import { selectAllContratsClient } from "src/app/store/contratClient/contratClient-selector";
+import { Actions, ofType } from "@ngrx/effects";
 
 @Component({
   selector: "app-factureclientcreate",
@@ -24,14 +25,13 @@ export class FactureClientCreateComponent implements OnInit {
   selectedContrat: any = null;
   facturePreview: any = null;
   bsConfig: Partial<BsDatepickerConfig>;
-  isLoading = false;
   today = new Date();
   isEditMode: boolean = false;
 
   @Output() factureCreated = new EventEmitter<any>();
   @Input() factureClientId!: number;
 
-  constructor(private fb: FormBuilder, private store: Store, public modalRef: BsModalRef) {
+  constructor(private fb: FormBuilder, private store: Store, public modalRef: BsModalRef, private actions$: Actions) {
     this.bsConfig = {
       dateInputFormat: "DD/MM/YYYY",
       containerClass: "theme-default",
@@ -54,6 +54,16 @@ export class FactureClientCreateComponent implements OnInit {
     this.store.select(selectAllPrestations).subscribe((prestations) => {
       this.prestations = prestations;
       this.availablePrestations = [...prestations];
+      this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
+        const prestation = this.prestationIds.at(index).value;
+        const updated = {
+          ...prestation,
+          quantite: workingDays,
+          montantHt: (prestation.prixUnitaire || 0) * workingDays
+        };
+        this.prestationIds.at(index).setValue(updated);
+        this.updateFacturePreview();
+      });
       if (this.isEditMode && loadedFacture) this.patchFactureForm(loadedFacture);
     });
 
@@ -73,14 +83,13 @@ export class FactureClientCreateComponent implements OnInit {
   initForm() {
     this.factureForm = this.fb.group({
       contratId: [null, Validators.required],
-      refFacture: ["", Validators.required],
       dateEmmission: [new Date(), Validators.required],
-      dateEcheance: [new Date(new Date().setDate(new Date().getDate() + 30)), Validators.required],
-      pourcentageTva: [20, Validators.required],
+      dateEcheance: [new Date(), Validators.required],
+      pourcentageTva: [20],
       pourcentageRemise: [0],
       objet: ["", Validators.required],
       numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
-      typePaiement: ["VIREMENT", Validators.required],
+      typePaiement: ["", Validators.required],
       prestationIds: this.fb.array([]),
     });
   }
@@ -89,7 +98,6 @@ export class FactureClientCreateComponent implements OnInit {
     this.selectedContrat = this.contratsClient.find(c => c.contratClientId === facture.contratId);
     this.factureForm.patchValue({
       contratId: facture.contratId,
-      refFacture: facture.refFacture,
       dateEmmission: facture.dateEmmission,
       dateEcheance: facture.dateEcheance,
       pourcentageTva: facture.pourcentageTva,
@@ -100,9 +108,30 @@ export class FactureClientCreateComponent implements OnInit {
     });
     this.prestationIds.clear();
     facture.prestations?.forEach((p: any) => {
-      const fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
-      const merged = { ...fullPrestation, ...p };
-      this.prestationIds.push(this.fb.control(merged, Validators.required));
+      // Chercher la prestation complète avec le même ID
+      let fullPrestation = this.prestations.find(pr => pr.prestationId === p.prestationId);
+
+      // Vérifier si la prestation complète existe et contient un titre
+      if (fullPrestation) {
+        fullPrestation = {
+          ...fullPrestation,
+          prestationId: p.prestationId,
+          titre: fullPrestation.titre || p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      } else {
+        // Si non trouvé, créer un objet minimal
+        fullPrestation = {
+          prestationId: p.prestationId,
+          titre: p.titre || "Prestation sans titre",
+          quantite: p.quantite || 1,
+          prixUnitaire: p.prixUnitaire || 0
+        };
+      }
+
+      // Ajouter la prestation corrigée au formulaire
+      this.prestationIds.push(this.fb.control(fullPrestation, Validators.required));
     });
     this.updateAvailablePrestations();
     this.updateFacturePreview();
@@ -154,7 +183,6 @@ export class FactureClientCreateComponent implements OnInit {
     const montantTtc = montantHt + montantTva;
 
     this.facturePreview = {
-      refFacture: formValues.refFacture,
       dateEmmission: formValues.dateEmmission,
       dateEcheance: formValues.dateEcheance,
       clientNom: this.selectedContrat.client.nom,
@@ -186,9 +214,8 @@ export class FactureClientCreateComponent implements OnInit {
   clearForm(): void {
     this.factureForm.reset({
       contratId: null,
-      refFacture: "",
       dateEmmission: new Date(),
-      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)),
+      dateEcheance: new Date(),
       pourcentageTva: 20,
       pourcentageRemise: 0,
       objet: "",
@@ -214,7 +241,6 @@ export class FactureClientCreateComponent implements OnInit {
     };
   
     this.submitted = true;
-    this.isLoading = true;
   
     if (this.isEditMode) {
       this.store.select(selectFactureSelected).subscribe((facture) => {
@@ -255,6 +281,23 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  }    
+  }   
+  onPrestationSelected(index: number): void {
+    const prestation = this.prestationIds.at(index).value;
+    const full = this.prestations.find(p => p.prestationId === prestation?.prestationId);
+  
+    if (!full) return;
+  
+    const consultant_id = full.consultant?.consultantId;
+    const month = full.month;
+    const year = full.year;
+  
+    this.prestationIds.at(index).setValue(full);
+  
+    if (consultant_id && month && year) {
+      this.store.dispatch(FactureClientActions.getWorkingDays({ consultant_id, month, year, index }));
+    }
+  }
+   
   
 }

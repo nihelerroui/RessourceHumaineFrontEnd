@@ -43,6 +43,9 @@ import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { UIModule } from "./shared/ui/ui.module";
 import { SharedModule } from "./cyptolanding/shared/shared.module";
 import { AuthInterceptor } from "./core/helpers/auth.interceptor";
+import { clientReducer } from './store/client/client.reducer';
+import { ClientEffects } from './store/client/client.effects';
+
 
 if (environment.defaultauth === "firebase") {
   initFirebaseBackend(environment.firebaseConfig);
@@ -87,6 +90,8 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     EffectsModule.forRoot([AuthenticationEffects]),
     UIModule,
+    StoreModule.forFeature('client', clientReducer),
+    EffectsModule.forFeature([ClientEffects]) ,
   ],
   bootstrap: [AppComponent],
   providers: [

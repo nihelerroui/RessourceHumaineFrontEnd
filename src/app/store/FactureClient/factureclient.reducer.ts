@@ -1,8 +1,10 @@
 import { createReducer, on } from '@ngrx/store';
 import * as FactureClientActions from './factureclient.actions';
+import { Prestation } from 'src/app/models/prestation.model';
 
 export interface FactureClientState {
   factureClients: any[];
+  prestationsByClient: Prestation[];
   facturePreview: any | null;
   loading: boolean;
   error: string | null;
@@ -11,6 +13,7 @@ export interface FactureClientState {
 
 export const initialState: FactureClientState = {
   factureClients: [],
+  prestationsByClient: [],
   facturePreview: null,
   loading: false,
   error: null,
@@ -31,7 +34,21 @@ export const factureClientReducer = createReducer(
     error,
     loading: false
   })),
-
+  on(FactureClientActions.loadPrestationsByClient, (state) => ({
+    ...state,
+    loadingPrestations: true,
+    error: null
+  })),
+  on(FactureClientActions.loadPrestationsByClientSuccess, (state, { prestations }) => ({
+    ...state,
+    prestationsByClient: prestations,
+    loadingPrestations: false
+  })),
+  on(FactureClientActions.loadPrestationsByClientFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loadingPrestations: false
+  })),
   // Create
   on(FactureClientActions.createFactureClientSuccess, (state, { facture }) => ({
     ...state,
@@ -80,8 +97,8 @@ export const factureClientReducer = createReducer(
     error
   })),
 
-   // statut Confirmé_Admin & Confirmation_Complet
-   on(FactureClientActions.loadFacturesValideesByClientId, (state) => ({
+  // statut Confirmé_Admin & Confirmation_Complet
+  on(FactureClientActions.loadFacturesValideesByClientId, (state) => ({
     ...state,
     loading: true,
   })),
@@ -118,13 +135,12 @@ export const factureClientReducer = createReducer(
     loading: false,
     factureClients: factures,
     error: null,
-    total: factures.length 
+    total: factures.length
   })),
-  
+
   on(FactureClientActions.loadFacturesNonPayeesByClientIdFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,
-  })),
-  
+  }))
 );

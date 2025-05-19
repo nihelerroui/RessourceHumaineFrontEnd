@@ -6,12 +6,11 @@ import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { combineLatest, map, Observable } from "rxjs";
 import { selectFactureClients, selectError, selectLoading, selectTotalFactureClient } from "../../../store/FactureClient/factureclient.selector";
 import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
-import { deleteFactureClient, downloadFacture, envoyerEmailFacture, loadFactureClientById, loadFacturesClient, updateFactureClient, updateFactureClientSuccess } from "src/app/store/FactureClient/factureclient.actions";
+import * as FactureClientActions from "src/app/store/FactureClient/factureclient.actions";
 import { StatutFacture } from "src/app/models/statut-facture.enum";
 import { StatutPaiement } from "src/app/models/statut-paiement.enum";
 import { FactureClient } from "src/app/models/factureClient.models";
 import { Actions, ofType } from "@ngrx/effects";
-import { FormGroup, UntypedFormBuilder, Validators } from "@angular/forms";
 import { FactureClientCreateComponent } from "../../factureclientcreate/factureclientcreateview/factureclientcreate.component";
 
 @Component({
@@ -20,7 +19,6 @@ import { FactureClientCreateComponent } from "../../factureclientcreate/facturec
 })
 export class FactureclientAdminComponent {
   term: string = "";
-  editForm: FormGroup;
   modalRef?: BsModalRef;
   factureClients$: Observable<any[]>;
   loading$ = this.store.select(selectLoading);
@@ -33,8 +31,6 @@ export class FactureclientAdminComponent {
 
   prestations: any[] = [];
   contratsClient: any[] = [];
-  factures: any[] = [];
-  originalFactures: any[] = [];
   selectedFacture: any;
   StatutPaiement = StatutPaiement;
 
@@ -47,81 +43,66 @@ export class FactureclientAdminComponent {
   total$: Observable<number> = this.store.select(selectTotalFactureClient);
   facturesPagination$: Observable<FactureClient[]> = new Observable();
   filteredFactures$: Observable<FactureClient[]> = new Observable();
-  lists: any[] = [];
-  today: string = new Date().toISOString().split('T')[0]; 
+  today: string = new Date().toISOString().split('T')[0];
 
 
   constructor(
     public store: Store,
     private modalService: BsModalService,
-    private formBuilder: UntypedFormBuilder,
     private actions$: Actions
   ) {
-    this.editForm = this.formBuilder.group({
-          factureClientId: ["", Validators.required],
-          prestationIds: [[], Validators.required],
-          consultantId: ["", Validators.required],
-          contratId: ["", Validators.required],
-          dateEcheance: ["", Validators.required],
-          typePaiement: ["", Validators.required],
-          pourcentageRemise: [""]
-        });
     this.factureClients$ = this.store.select(selectFactureClients);
   }
 
   ngOnInit(): void {
-    this.store.dispatch(loadFacturesClient());
+    this.store.dispatch(FactureClientActions.loadFacturesClient());
     this.updatePagination();
     this.error$.subscribe(error => {
       if (error) console.error("Erreur du store:", error);
     });
     this.actions$
-    .pipe(ofType(updateFactureClientSuccess))
-    .subscribe(() => {
-      this.store.dispatch(loadFacturesClient());
-      this.updatePagination(); 
-    });
+      .pipe(ofType(FactureClientActions.updateFactureClientSuccess))
+      .subscribe(() => {
+        this.store.dispatch(FactureClientActions.loadFacturesClient());
+        this.updatePagination();
+      });
   }
   //pagination
   updatePagination() {
-    this.facturesPagination$ = combineLatest([this.factureClients$]).pipe(
-      map(([factures]) => {
-        const start = (this.page - 1) * this.facturesParPage;
-        return factures.slice(start, start + this.facturesParPage);
-      })
-    );
-    this.filteredFactures$ = this.facturesPagination$;
+  this.filteredFactures$ = this.factureClients$.pipe(
+    map(factures => {
+      const start = (this.page - 1) * this.facturesParPage;
+      return factures.slice(start, start + this.facturesParPage);
+    })
+  );
+}
+  openCreateModal(): void {
+    this.modalRef = this.modalService.show(FactureClientCreateComponent, { class: "modal-lg" });
   }
   openEditModal(factureClientId: number): void {
-      this.modalRef = this.modalService.show(FactureClientCreateComponent, {
-        class: "modal-lg",
-        initialState: { factureClientId }
-      });
-      if (this.selectedFacture?.factureClientId === factureClientId) {
-        this.store.select(selectFactureClients).subscribe(factures => {
-          const updated = factures.find(f => f.factureClientId === factureClientId);
-          if (updated) this.selectedFacture = updated;
-        });
-      }
-    }
-    deleteFacture(factureClientId: number): void {
-        Swal.fire({
-          title: "Êtes-vous sûr ?",
-          text: "Cette action est irréversible !",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Oui, supprimer !",
-          cancelButtonText: "Annuler"
-        }).then(result => {
-          if (result.isConfirmed) {
-            this.store.dispatch(deleteFactureClient({ factureClientId }));
-      
-            Swal.fire("Supprimé !", "La facture a été supprimée.", "success");
-          }
-        });
-      }
+    this.modalRef = this.modalService.show(FactureClientCreateComponent, {
+      class: "modal-lg",
+      initialState: { factureClientId }
+    });
+  }
 
-  modifierStatutFacture(facture: any, nouveauStatut: StatutFacture): void {
+  deleteFacture(factureClientId: number): void {
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Cette action est irréversible !",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, supprimer !",
+      cancelButtonText: "Annuler"
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.store.dispatch(FactureClientActions.deleteFactureClient({ factureClientId }));
+
+        Swal.fire("Supprimé !", "La facture a été supprimée.", "success");
+      }
+    });
+  }
+  updateFactureStatus(facture: any, statutFacture: string, statutPaiement?: string): void {
     const factureDto = {
       factureClientId: facture.factureClientId,
       consultantId: facture.consultant?.consultantId ?? facture.consultantId,
@@ -137,8 +118,8 @@ export class FactureclientAdminComponent {
       montantTva: facture.montantTva,
       pourcentageTva: facture.pourcentageTva,
       dateEmmission: facture.dateEmmission,
-      statutPaiement: facture.statutPaiement,
-      statutFacture: nouveauStatut,
+      statutFacture: statutFacture as StatutFacture,
+      statutPaiement: statutPaiement ? statutPaiement as StatutPaiement : facture.statutPaiement,
       prestations: (facture.prestations ?? []).map((p: any) => ({
         prestationId: p.prestationId,
         quantite: p.quantite,
@@ -146,120 +127,39 @@ export class FactureclientAdminComponent {
       }))
     };
 
-    this.store.dispatch(updateFactureClient({ facture: factureDto }));
-    setTimeout(() => {
-    Swal.fire({
-      icon: 'success',
-      title: 'Statut mis à jour',
-      text: 'La facture a bien été mise à jour.',
-      timer: 1000,
-      showConfirmButton: false});
-    },500);
-  }
-
-  modifierStatutPaiement(facture: any, nouveauStatut: StatutPaiement): void {
-    if (!facture.prestations || facture.prestations.length === 0) {
-      Swal.fire('Erreur', 'Impossible de modifier : aucune prestation associée.', 'error');
-      return;
-    }
-  
-    const factureDto = {
-      factureClientId: facture.factureClientId,
-      consultantId: facture.consultant?.consultantId ?? facture.consultantId,
-      contratId: facture.contratClient?.contratClientId ?? facture.contratId,
-      clientId: facture.contratClient?.client?.clientId ?? facture.clientId,
-      dateEcheance: facture.dateEcheance,
-      typePaiement: facture.typePaiement,
-      pourcentageRemise: facture.pourcentageRemise,
-      objet: facture.objet,
-      numBonCommande: facture.numBonCommande,
-      refFacture: facture.refFacture,
-      montantHt: facture.montantHt,
-      montantTtc: facture.montantTtc,
-      montantTva: facture.montantTva,
-      pourcentageTva: facture.pourcentageTva,
-      dateEmmission: facture.dateEmmission,
-      statutFacture: facture.statutFacture,
-      statutPaiement: nouveauStatut,
-      prestations: facture.prestations.map((p: any) => ({
-        prestationId: p.prestationId,
-        quantite: p.quantite,
-        prixUnitaire: p.prixUnitaire
-      }))
-    };
-  
-    this.store.dispatch(updateFactureClient({ facture: factureDto }));
-  
+    this.store.dispatch(FactureClientActions.updateFactureClient({ facture: factureDto }));
     setTimeout(() => {
       Swal.fire({
         icon: 'success',
-        title: 'Statut modifié',
-        text: 'La facture a bien été marquée comme payée.',
+        title: 'Statut mis à jour',
+        text: 'La facture a bien été mise à jour.',
         timer: 1000,
         showConfirmButton: false
       });
     }, 500);
   }
-  
-  
-  searchFactureClient(): void {
-    const lowerTerm = this.term.toLowerCase();
 
-    this.factureClients$.subscribe(data => {
-      const filtered = data.filter(facture =>
-        Object.values(facture).some(value =>
-          value?.toString().toLowerCase().includes(lowerTerm)
-        )
-      );
-
-      this.originalFactures = data;
-      this.factures = filtered;
-      this.applyFilters();
-    });
+  modifierStatutFacture(facture: any, statut: StatutFacture): void {
+    const statutPaiement = (statut === 'Confirmation_Complet') ? 'PAYÉE' : facture.statutPaiement;
+    this.updateFactureStatus(facture, statut, statutPaiement);
   }
+
 
   applyFilters(): void {
-    this.factureClients$.subscribe((factures) => {
-      let filtered = [...factures];
-
-      const term = this.term.toLowerCase().trim();
-      const statutFacture = this.statutFactureFilter.toUpperCase().trim();
-      const typePaiement = this.typePaiementFilter.toUpperCase().trim();
-      const statutPaiement = this.statutPaiementFilter.toUpperCase().trim();
-
-      if (term) {
-        filtered = filtered.filter((f) =>
-          Object.values(f).some((value) =>
-            value?.toString().toLowerCase().includes(term)
-          )
-        );
-      }
-
-      if (statutFacture) {
-        filtered = filtered.filter(
-          (f) => f.statutFacture?.toUpperCase() === statutFacture
-        );
-      }
-
-      if (typePaiement) {
-        filtered = filtered.filter(
-          (f) => f.typePaiement?.toUpperCase() === typePaiement
-        );
-      }
-
-      if (statutPaiement) {
-        filtered = filtered.filter(
-          (f) => f.statutPaiement?.toUpperCase() === statutPaiement
-        );
-      }
-
-      this.factures = filtered;
-      this.filteredFactures$ = new Observable((observer) => {
-        observer.next(filtered);
-        observer.complete();
-      });
-    });
-  }
+  this.filteredFactures$ = this.factureClients$.pipe(
+    map(factures => {
+      const lowerTerm = this.term.toLowerCase().trim();
+      return factures
+        .filter(f =>
+          (!lowerTerm || Object.values(f).some(value => value?.toString().toLowerCase().includes(lowerTerm))) &&
+          (!this.statutFactureFilter || f.statutFacture?.toUpperCase() === this.statutFactureFilter.toUpperCase().trim()) &&
+          (!this.typePaiementFilter || f.typePaiement?.toUpperCase() === this.typePaiementFilter.toUpperCase().trim()) &&
+          (!this.statutPaiementFilter || f.statutPaiement?.toUpperCase() === this.statutPaiementFilter.toUpperCase().trim())
+        )
+        .slice((this.page - 1) * this.facturesParPage, this.page * this.facturesParPage);
+    })
+  );
+}
 
   resetFilters(): void {
     this.term = this.statutPaiementFilter = this.statutFactureFilter = this.typePaiementFilter = "";
@@ -278,7 +178,7 @@ export class FactureclientAdminComponent {
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
   envoyerEmailRappelClient(factureId: number): void {
-    this.store.dispatch(envoyerEmailFacture({ factureId }));
+    this.store.dispatch(FactureClientActions.envoyerEmailFacture({ factureId }));
     Swal.fire({
       icon: 'info',
       title: 'Envoi en cours',
@@ -288,6 +188,6 @@ export class FactureclientAdminComponent {
     });
   }
   downloadFacture(factureId: number): void {
-    this.store.dispatch(downloadFacture({ factureClientId: factureId }));
+    this.store.dispatch(FactureClientActions.downloadFacture({ factureClientId: factureId }));
   }
 }

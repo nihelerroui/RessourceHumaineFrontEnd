@@ -7,6 +7,7 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { NgxSliderModule } from 'ngx-slider-v2';
+import { UIModule } from 'src/app/shared/ui/ui.module';
 
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     FormsModule,
+    UIModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     PaginationModule.forRoot(),

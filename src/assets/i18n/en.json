@@ -78,6 +78,12 @@
     "CONTRATCLIENTADMIN": {
       "TEXT": "ContratClient"
     },
+    "CHIFFREAFFAIRE": {
+      "TEXT": "Chiffre Affaire"
+    },
+    "HISTORIQUECHIFFREAFFAIRE": {
+      "TEXT": "Historique Chiffre Affaire"
+    },
     "PRESTATIONS": {
       "TEXT": "PRESTATIONS"
     },
