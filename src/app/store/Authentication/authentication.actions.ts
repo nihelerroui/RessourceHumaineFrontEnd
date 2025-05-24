@@ -80,6 +80,22 @@ export const updateConsultantFailure = createAction(
   props<{ error: any }>()
 );
 
+export const updatePersonalDetails = createAction(
+  '[Auth] Update Personal Details',
+  props<{ personalDetailsId: number; request: any }>()
+);
+
+export const updatePersonalDetailsSuccess = createAction(
+  '[Auth] Update Personal Details Success',
+  props<{ personalDetails: any }>()
+);
+
+export const updatePersonalDetailsFailure = createAction(
+  '[Auth] Update Personal Details Failure',
+  props<{ error: any }>()
+);
+
+
 export const login = createAction(
   '[Authentication] Login', 
   props<{ email: string, password: string }>()
@@ -123,5 +139,34 @@ export const loadAdminSocietesSuccess = createAction(
 
 export const loadAdminSocietesFailure = createAction(
   '[Societe] Load Admin Societes Failure',
+  props<{ error: any }>()
+);
+
+export const updatePersonalDetailsWithFiles = createAction(
+  '[Auth] Update Personal Details With Files',
+  props<{
+    personalDetailsId: number;
+    dto: any;
+    files: {
+      cniFile?: File;
+      carteGriseFile?: File;
+      navigoFile?: File;
+      attestationsFiles?: File[];
+      contratFile?: File;
+      kbisFile?: File;
+      urssafFile?: File;
+      photoFile?: File;
+      ribFile?: File;
+    };
+  }>()
+);
+
+export const updatePersonalDetailsWithFilesSuccess = createAction(
+  '[Auth] Update Personal Details With Files Success',
+  props<{ personalDetails: PersonalDetails }>()
+);
+
+export const updatePersonalDetailsWithFilesFailure = createAction(
+  '[Auth] Update Personal Details With Files Failure',
   props<{ error: any }>()
 );

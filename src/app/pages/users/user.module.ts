@@ -12,6 +12,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { UIModule } from 'src/app/shared/ui/ui.module';
 import { UsersListComponent } from './users-list/users-list.component';
 import { UtilisateurregisterviewComponent } from './utilisateurregisterview/utilisateurregisterview.component';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { UtilisateurregisterviewComponent } from './utilisateurregisterview/util
     FormsModule,
     ReactiveFormsModule,
     UserRoutingModule,
+    PaginationModule.forRoot(),
     StoreModule.forFeature('users', userReducer),
     EffectsModule.forFeature([UserEffects]) ,
     BsDropdownModule.forRoot(),

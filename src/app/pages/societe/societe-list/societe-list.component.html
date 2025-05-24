@@ -60,13 +60,7 @@
               <thead>
                 <tr>
                   <th>Nom</th>
-                  <th>Adresse</th>
-                  <th>Contact</th>
-                  <th>Email</th>
-                  <th>Numéro SIRET</th>
-                  <th>Numéro TVA</th>
-                  <th>Téléphone</th>
-                  <th>Responsable</th>
+                  
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -74,13 +68,7 @@
                 <tr
                   *ngFor="let societe of paginatedSocieteList; trackBy: trackById">
                   <td>{{ societe.nom }}</td>
-                  <td>{{ societe.adresse }}</td>
-                  <td>{{ societe.contact }}</td>
-                  <td>{{ societe.email }}</td>
-                  <td>{{ societe.numSiret }}</td>
-                  <td>{{ societe.numTva }}</td>
-                  <td>{{ societe.telephone }}</td>
-                  <td>{{ societe.responsable }}</td>
+                  
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
                       <li data-bs-toggle="tooltip" data-bs-placement="top"

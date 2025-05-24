@@ -41,8 +41,12 @@ export class AuthenticationEffects {
       ofType(AuthActions.createConsultant),
       mergeMap(({ request }) =>
         this.AuthenticationService.createConsultant(request).pipe(
-          map((consultant) => AuthActions.createConsultantSuccess({ consultant })),
-          catchError((error) => of(AuthActions.createConsultantFailure({ error })))
+          map((consultant) =>
+            AuthActions.createConsultantSuccess({ consultant })
+          ),
+          catchError((error) =>
+            of(AuthActions.createConsultantFailure({ error }))
+          )
         )
       )
     )
@@ -56,7 +60,9 @@ export class AuthenticationEffects {
           map((personalDetails) =>
             AuthActions.createPersonalDetailsSuccess({ personalDetails })
           ),
-          catchError((error) => of(AuthActions.createPersonalDetailsFailure({ error })))
+          catchError((error) =>
+            of(AuthActions.createPersonalDetailsFailure({ error }))
+          )
         )
       )
     )
@@ -79,8 +85,31 @@ export class AuthenticationEffects {
       ofType(AuthActions.updateConsultant),
       switchMap(({ consultantId, request }) =>
         this.AuthenticationService.updateConsultant(consultantId, request).pipe(
-          map((consultant) => AuthActions.updateConsultantSuccess({ consultant })),
-          catchError((error) => of(AuthActions.updateConsultantFailure({ error })))
+          map((consultant) =>
+            AuthActions.updateConsultantSuccess({ consultant })
+          ),
+          catchError((error) =>
+            of(AuthActions.updateConsultantFailure({ error }))
+          )
+        )
+      )
+    )
+  );
+
+  updatePersonalDetails$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updatePersonalDetails),
+      switchMap(({ personalDetailsId, request }) =>
+        this.AuthenticationService.updatePersonalDetails(
+          personalDetailsId,
+          request
+        ).pipe(
+          map((personalDetails) =>
+            AuthActions.updatePersonalDetailsSuccess({ personalDetails })
+          ),
+          catchError((error) =>
+            of(AuthActions.updatePersonalDetailsFailure({ error }))
+          )
         )
       )
     )
@@ -94,40 +123,45 @@ export class AuthenticationEffects {
           map((consultants: Consultant[]) =>
             AuthActions.loadConsultantsSuccess({ consultants })
           ),
-          catchError((error) => of(AuthActions.loadConsultantsFailure({ error })))
-        )
-      )
-    )
-  );
-
-  login$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.login),
-      exhaustMap(({ email, password }) =>
-        this.AuthenticationService.login({ email, password }).pipe(
-          tap((response) => {
-            const token = response.accessToken;
-            const user = response.user;
-
-            this.tokenStorage.saveToken(token);
-            this.tokenStorage.saveUser(user);
-
-            const returnUrl = sessionStorage.getItem("returnUrl") || "/";
-            this.router.navigateByUrl(returnUrl);
-            sessionStorage.removeItem("returnUrl");
-          }),
-          map((response) => AuthActions.loginSuccess({ user: response.user })),
           catchError((error) =>
-            of(
-              AuthActions.loginFailure({
-                error: error.message || "Erreur lors de la connexion",
-              })
-            )
+            of(AuthActions.loadConsultantsFailure({ error }))
           )
         )
       )
     )
   );
+
+ login$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.login),
+    exhaustMap(({ email, password }) =>
+      this.AuthenticationService.login({ email, password }).pipe(
+        tap((response) => {
+          const token = response.accessToken;
+          const consultant = response.consultant;
+
+          this.tokenStorage.saveToken(token);
+          this.tokenStorage.saveUser(consultant); 
+
+          const returnUrl = sessionStorage.getItem("returnUrl") || "/";
+          this.router.navigateByUrl(returnUrl);
+          sessionStorage.removeItem("returnUrl");
+        }),
+        map((response) =>
+          AuthActions.loginSuccess({ user: response.consultant.user }) 
+        ),
+        catchError((error) =>
+          of(
+            AuthActions.loginFailure({
+              error: error.message || "Erreur lors de la connexion",
+            })
+          )
+        )
+      )
+    )
+  )
+);
+
 
   logout$ = createEffect(() =>
     this.actions$.pipe(
@@ -137,16 +171,35 @@ export class AuthenticationEffects {
     )
   );
 
- loadAdminSocietes$ = createEffect(() =>
+  loadAdminSocietes$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loadAdminSocietes),
+      switchMap(() =>
+        this.AuthenticationService.getAdminSocietes().pipe(
+          map((societes) => AuthActions.loadAdminSocietesSuccess({ societes })),
+          catchError((error) =>
+            of(AuthActions.loadAdminSocietesFailure({ error }))
+          )
+        )
+      )
+    )
+  );
+
+
+updatePersonalDetailsWithFiles$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(AuthActions.loadAdminSocietes),
-    switchMap(() =>
-      this.AuthenticationService.getAdminSocietes().pipe(
-        map((societes) => AuthActions.loadAdminSocietesSuccess({ societes })),
-        catchError((error) => of(AuthActions.loadAdminSocietesFailure({ error })))
+    ofType(AuthActions.updatePersonalDetailsWithFiles),
+    exhaustMap(({ personalDetailsId, dto, files }) =>
+      this.AuthenticationService.updatePersonalDetailsWithFiles(personalDetailsId, dto, files).pipe(
+        map((personalDetails) =>
+          AuthActions.updatePersonalDetailsWithFilesSuccess({ personalDetails })
+        ),
+        catchError((error) =>
+          of(AuthActions.updatePersonalDetailsWithFilesFailure({ error }))
+        )
       )
     )
   )
 );
-
 }
+

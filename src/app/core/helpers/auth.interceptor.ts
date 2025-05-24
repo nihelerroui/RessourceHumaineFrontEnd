@@ -10,7 +10,6 @@ import { TokenStorageService } from "../../core/services/token-storage.service";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 
-const TOKEN_HEADER_KEY = "Authorization";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -20,20 +19,27 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const token = this.token.getToken();
+    const excludedRoutes = [
+      "/contratsClient/",
+      "/contrats-client/",
+      "/import-contrat/",
+      "facture/client/view",
+    ];
+    const isExcludedRoute = excludedRoutes.some((path) =>
+      req.url.includes(path)
+    );
+    const isSecuredApi = req.url.startsWith(`${environment.apiUrl}`);
+    const token = this.token.getToken(isExcludedRoute);
 
-    const securedApis = [`${environment.apiUrl}`];
-    const needsAuth = securedApis.some((api) => req.url.startsWith(api));
-
-    if (needsAuth && token) {
+    if (isSecuredApi && token && token !== "null") {
       const cloned = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       });
       return next.handle(cloned);
     }
+
     return next.handle(req);
   }
 }

@@ -14,6 +14,8 @@
       <p>Création de l'utilisateur en cours...</p>
     </div>
   </div>
+
+  <!-- Stepper navigation -->
   <div class="stepper-container">
     <div class="stepper">
       <div
@@ -24,6 +26,7 @@
         <div class="step-title">Informations de base</div>
       </div>
       <div class="step-line" [ngClass]="{ active: currentStep > 1 }"></div>
+
       <div
         class="step"
         [ngClass]="{ active: currentStep >= 2, completed: currentStep > 2 }"
@@ -32,10 +35,20 @@
         <div class="step-title">Détails du consultant</div>
       </div>
       <div class="step-line" [ngClass]="{ active: currentStep > 2 }"></div>
+
+      <div
+        class="step"
+        *ngIf="mode === 'edit'"
+        [ngClass]="{ active: currentStep >= 3 }"
+      >
+        <div class="step-circle">3</div>
+        <div class="step-title">Détails personnels</div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="currentStep === 1" class="step-content">
+  <!-- Step contents -->
+  <div *ngIf="currentStep === 1">
     <form [formGroup]="userForm">
       <div class="form-container">
         <div class="form-group">
@@ -139,7 +152,7 @@
     </form>
   </div>
 
-  <div *ngIf="currentStep === 2" class="step-content">
+  <div *ngIf="currentStep === 2">
     <form [formGroup]="consultantForm">
       <div class="form-container">
         <div class="row">
@@ -347,7 +360,9 @@
               <div class="toggle-container" (click)="toggleCommercial()">
                 <div
                   class="toggle-switch"
-                  [ngClass]="{ active: consultantForm.get('commercial').value }"
+                  [ngClass]="{
+                    active: consultantForm.get('commercial').value
+                  }"
                 >
                   <div class="toggle-button"></div>
                 </div>
@@ -388,6 +403,373 @@
     </form>
   </div>
 
+  <div *ngIf="currentStep === 3">
+    <div class="personal-details-info mb-3">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-2"></i>
+        Les champs ci-dessous sont optionnels. Vous pouvez les remplir
+        maintenant ou ultérieurement.
+      </div>
+    </div>
+
+    <form [formGroup]="personalDetailsForm">
+      <div class="form-container">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="bic">BIC</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="bic"
+                formControlName="bic"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="iban">IBAN</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="iban"
+                formControlName="iban"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="ville">Ville</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="ville"
+                formControlName="ville"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="codePostal">Code Postal</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="codePostal"
+                formControlName="codePostal"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="numRue">Numéro de rue</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="numRue"
+                formControlName="numRue"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="nomRue">Nom de rue</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="nomRue"
+                formControlName="nomRue"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="complementAdr">Complément d'adresse</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="complementAdr"
+                formControlName="complementAdr"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="bisTer">Bis/Ter</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="bisTer"
+                formControlName="bisTer"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="nummss">Numéro MSS</label>
+              <input
+                type="text"
+                class="form-control custom-input"
+                id="nummss"
+                formControlName="nummss"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="urssaf">URSSAF</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'urssafFile')"
+              />
+
+              <div class="mt-2 text-success" *ngIf="urssafFile">
+                Fichier sélectionné : {{ urssafFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !urssafFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('urssaf')?.value
+                "
+              >
+                Fichier existant :
+                {{ extractFileName(personalDetailsForm.get("urssaf")?.value) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="cni">CNI</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'cniFile')"
+              />
+              <div class="mt-2 text-success" *ngIf="cniFile">
+                Fichier sélectionné : {{ cniFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !cniFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('cni')?.value
+                "
+              >
+                Fichier existant :
+                {{ extractFileName(personalDetailsForm.get("cni")?.value) }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="rib">RIB</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'ribFile')"
+              />
+              <div class="mt-2 text-success" *ngIf="ribFile">
+                Fichier sélectionné : {{ ribFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !ribFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('rib')?.value
+                "
+              >
+                Fichier existant :
+                {{ extractFileName(personalDetailsForm.get("rib")?.value) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateDebCni">Date début CNI</label>
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateDebCni"
+                formControlName="dateDebCni"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="dateFinCni">Date fin CNI</label>
+              <input
+                type="date"
+                class="form-control custom-input"
+                id="dateFinCni"
+                formControlName="dateFinCni"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="kbis">KBIS</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'kbisFile')"
+              />
+              <div class="mt-2 text-success" *ngIf="kbisFile">
+                Fichier sélectionné : {{ kbisFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !kbisFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('kbis')?.value
+                "
+              >
+                Fichier existant :
+                {{ extractFileName(personalDetailsForm.get("kbis")?.value) }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="navigo">Navigo</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'navigoFile')"
+              />
+              <div class="mt-2 text-success" *ngIf="navigoFile">
+                Fichier sélectionné : {{ navigoFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !navigoFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('navigo')?.value
+                "
+              >
+                Fichier existant :
+                {{ extractFileName(personalDetailsForm.get("navigo")?.value) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="carteGrise">Carte Grise</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'carteGriseFile')"
+              />
+              <div class="mt-2 text-success" *ngIf="carteGriseFile">
+                Fichier sélectionné : {{ carteGriseFile.name }}
+              </div>
+              <div
+                class="mt-2 text-info"
+                *ngIf="
+                  !carteGriseFile &&
+                  mode === 'edit' &&
+                  personalDetailsForm.get('carteGrise')?.value
+                "
+              >
+                Fichier existant :
+                {{
+                  extractFileName(personalDetailsForm.get("carteGrise")?.value)
+                }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="contart">Contrat</label>
+              <input
+                type="file"
+                class="form-control custom-input"
+                (change)="onFileChange($event, 'contratFile')"
+              />
+            </div>
+            <div class="mt-2 text-success" *ngIf="contratFile">
+              Fichier sélectionné : {{ contratFile.name }}
+            </div>
+            <div
+              class="mt-2 text-info"
+              *ngIf="
+                !contratFile &&
+                mode === 'edit' &&
+                personalDetailsForm.get('contart')?.value
+              "
+            >
+              Fichier existant :
+              {{ extractFileName(personalDetailsForm.get("contart")?.value) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="attestations">Attestations</label>
+          <input
+            type="file"
+            class="form-control custom-input"
+            multiple
+            (change)="onFileChange($event, 'attestationsFiles')"
+          />
+          <div class="mt-2 text-success" *ngIf="attestationsFiles?.length > 0">
+            <div *ngFor="let file of attestationsFiles">
+              Fichier sélectionné : {{ file.name }}
+            </div>
+          </div>
+          <div
+            class="mt-2 text-info"
+            *ngIf="
+              attestationsFiles?.length === 0 &&
+              mode === 'edit' &&
+              personalDetailsForm.get('attestations')?.value
+            "
+          >
+            <div
+              *ngFor="
+                let path of personalDetailsForm
+                  .get('attestations')
+                  ?.value.split(',')
+              "
+            >
+              Fichier existant : {{ extractFileName(path) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Footer navigation -->
   <div class="modal-footer">
     <button
       *ngIf="currentStep > 1"

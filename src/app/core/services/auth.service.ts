@@ -50,6 +50,63 @@ export class AuthenticationService extends GenericService<User> {
     );
   }
 
+  updatePersonalDetails(
+    personalDetailsId: number,
+    request: any
+  ): Observable<PersonalDetails> {
+    return this.http.put<PersonalDetails>(
+      `${this.authUrl}/updatePersonalDetails/${personalDetailsId}`,
+      request
+    );
+  }
+
+  updatePersonalDetailsWithFiles(
+    personalDetailsId: number,
+    dto: any,
+    files: {
+      cniFile?: File;
+      carteGriseFile?: File;
+      navigoFile?: File;
+      attestationsFiles?: File[];
+      contratFile?: File;
+      kbisFile?: File;
+      urssafFile?: File;
+      photoFile?: File;
+      ribFile?: File;
+    }
+  ): Observable<PersonalDetails> {
+    const formData = new FormData();
+
+    // JSON des données
+    const jsonBlob = new Blob([JSON.stringify(dto)], { type: 'application/json' });
+    formData.append('data', jsonBlob);
+
+    // Fichiers individuels
+    if (files.cniFile) formData.append('cniFile', files.cniFile);
+    if (files.carteGriseFile) formData.append('carteGriseFile', files.carteGriseFile);
+    if (files.navigoFile) formData.append('navigoFile', files.navigoFile);
+    if (files.contratFile) formData.append('contratFile', files.contratFile);
+    if (files.kbisFile) formData.append('kbisFile', files.kbisFile);
+    if (files.urssafFile) formData.append('urssafFile', files.urssafFile);
+    if (files.photoFile) formData.append('photoFile', files.photoFile);
+    if (files.ribFile) formData.append('ribFile', files.ribFile);
+
+    // Fichiers multiples
+    if (files.attestationsFiles) {
+      files.attestationsFiles.forEach((file) => {
+        formData.append('attestationsFiles', file);
+      });
+    }
+
+    return this.http.put<PersonalDetails>(
+  `${this.authUrl}/updatePersonalDetailsWithFiles/${personalDetailsId}`,
+  formData
+);
+
+  }
+
+
+
   loadConsultants(): Observable<Consultant[]> {
     return this.http.get<Consultant[]>(`${this.baseUrl}/consultants`);
   }
@@ -78,7 +135,7 @@ export class AuthenticationService extends GenericService<User> {
   getAdminSocietes(): Observable<any[]> {
     const url = `https://featway-serveur.fr:8181/portail-backend-prod_v2/api/adminsociete/admin/141`;
     const token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDc2NTgzMzgsImV4cCI6MTc0NzkxNzUzOH0.0kPVREnhSRYgQQhxAworvHKFaHf8AlKfIaIxINdQMHA";
+      "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDc5ODkyNjQsImV4cCI6MTc0ODI0ODQ2NH0.DygzaM5SOnnN31N_eZo6ySOheCDg2jXRNEF1yqqSNY0";
 
     const headers = new HttpHeaders()
       .set("Authorization", `Bearer ${token}`)

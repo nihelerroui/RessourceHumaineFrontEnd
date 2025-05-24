@@ -36,6 +36,16 @@ export class UtilisateurregisterviewComponent implements OnInit {
   userIdCreated: number | null = null;
   personalDetailsIdCreated: number | null = null;
 
+  cniFile: File | null = null;
+  carteGriseFile: File | null = null;
+  navigoFile: File | null = null;
+  attestationsFiles: File[] = [];
+  contratFile: File | null = null;
+  kbisFile: File | null = null;
+  urssafFile: File | null = null;
+  photoFile: File | null = null;
+  ribFile: File | null = null;
+
   roleDescriptions = {
     [UserRole.ADMINISTRATEUR]:
       "Accès complet au système avec tous les privilèges administratifs",
@@ -56,8 +66,8 @@ export class UtilisateurregisterviewComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private store: Store,
-    private actions$: Actions,
-    private authService: AuthenticationService
+    private actions$: Actions ,
+    private auth : AuthenticationService
   ) {}
 
   ngOnInit(): void {
@@ -69,30 +79,36 @@ export class UtilisateurregisterviewComponent implements OnInit {
     });
 
     if (this.mode === "edit" && this.consultant) {
+      this.totalSteps = 3;
       this.patchFormWithUser(this.consultant.user);
       this.patchFormWithConsultant(this.consultant);
+      this.personalDetailsForm.patchValue(this.consultant.personalDetails);
       this.userIdCreated = this.consultant.user.userId;
       this.personalDetailsIdCreated =
         this.consultant.personalDetails?.personalDetailsId;
     }
 
-    this.actions$.pipe(ofType(AuthActions.createConsultantSuccess)).subscribe(() => {
-      Swal.fire({
-        icon: "success",
-        title: "Consultant ajouté avec succès",
+    this.actions$
+      .pipe(ofType(AuthActions.createConsultantSuccess))
+      .subscribe(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Consultant ajouté avec succès",
+        });
+        this.store.dispatch(AuthActions.loadConsultants());
+        this.bsModalRef.hide();
       });
-      this.store.dispatch(AuthActions.loadConsultants());
-      this.bsModalRef.hide();
-    });
 
-    this.actions$.pipe(ofType(AuthActions.updateConsultantSuccess)).subscribe(() => {
-      Swal.fire({
-        icon: "success",
-        title: "Consultant modifé avec succès",
+    this.actions$
+      .pipe(ofType(AuthActions.updateConsultantSuccess))
+      .subscribe(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Consultant modifé avec succès",
+        });
+        this.store.dispatch(AuthActions.loadConsultants());
+        this.bsModalRef.hide();
       });
-      this.store.dispatch(AuthActions.loadConsultants());
-      this.bsModalRef.hide();
-    });
   }
 
   initForms(): void {
@@ -122,6 +138,28 @@ export class UtilisateurregisterviewComponent implements OnInit {
 
     this.userForm.get("password").valueChanges.subscribe((password) => {
       this.calculatePasswordStrength(password);
+    });
+
+    this.personalDetailsForm = this.fb.group({
+      bic: [""],
+      iban: [""],
+      ville: [""],
+      codePostal: [""],
+      numRue: [""],
+      nomRue: [""],
+      complementAdr: [""],
+      bisTer: [""],
+      nummss: [""],
+      urssaf: [""],
+      cni: [""],
+      rib: [""],
+      dateDebCni: [""],
+      dateFinCni: [""],
+      kbis: [""],
+      navigo: [""],
+      carteGrise: [""],
+      contart: [""],
+      attestations: [""],
     });
   }
 
@@ -212,21 +250,38 @@ export class UtilisateurregisterviewComponent implements OnInit {
 
       if (this.mode === "edit" && this.consultant) {
         const userId = this.consultant.user.userId;
-        this.store.dispatch(AuthActions.updateUser({ userId, request: userRequest }));
+        this.store.dispatch(
+          AuthActions.updateUser({ userId, request: userRequest })
+        );
         this.currentStep++;
       } else {
         this.store.dispatch(AuthActions.createUser({ request: userRequest }));
 
-        this.actions$.pipe(ofType(AuthActions.createUserSuccess)).subscribe(({ user }) => {
-          this.userIdCreated = user.userId;
-          this.store.dispatch(AuthActions.createPersonalDetails({ request: {} }));
-          this.actions$
-            .pipe(ofType(AuthActions.createPersonalDetailsSuccess))
-            .subscribe(({ personalDetails }) => {
-              this.personalDetailsIdCreated = personalDetails.personalDetailsId;
-              this.currentStep++;
-            });
-        });
+        this.actions$
+          .pipe(ofType(AuthActions.createUserSuccess))
+          .subscribe(({ user }) => {
+            this.userIdCreated = user.userId;
+
+            this.store.dispatch(
+              AuthActions.createPersonalDetails({ request: {} })
+            );
+
+            this.actions$
+              .pipe(ofType(AuthActions.createPersonalDetailsSuccess))
+              .subscribe(({ personalDetails }) => {
+                this.personalDetailsIdCreated =
+                  personalDetails.personalDetailsId;
+                this.currentStep++;
+              });
+          });
+      }
+    }
+
+    else if (this.currentStep === 2 && this.consultantForm.valid) {
+      if (this.mode === "edit") {
+        this.currentStep = 3;
+      } else {
+        this.currentStep++;
       }
     }
   }
@@ -238,42 +293,64 @@ export class UtilisateurregisterviewComponent implements OnInit {
   }
 
   submitForm(): void {
-    if (this.consultantForm.invalid || !this.userIdCreated) return;
+  if (this.consultantForm.invalid || !this.userIdCreated) return;
 
-    const userRequest = {
-      ...this.userForm.value,
-      enabled: true,
-    };
+  const userRequest = {
+    ...this.userForm.value,
+    enabled: true,
+  };
 
-    if (this.mode === "edit") {
-      delete userRequest.password;
-      delete userRequest.confirmPassword;
-    }
-
-    const consultantRequest = {
-      ...this.consultantForm.value,
-      userId: this.userIdCreated,
-      personalDetailsId: this.personalDetailsIdCreated,
-      societeId: this.consultantForm.value.societeId,
-    };
-
-    if (this.mode === "edit") {
-      this.store.dispatch(
-        AuthActions.updateUser({
-          userId: this.consultant.user.userId,
-          request: userRequest,
-        })
-      );
-      this.store.dispatch(
-        AuthActions.updateConsultant({
-          consultantId: this.consultant.consultantId,
-          request: consultantRequest,
-        })
-      );
-    } else {
-      this.store.dispatch(AuthActions.createConsultant({ request: consultantRequest }));
-    }
+  if (this.mode === 'edit') {
+    delete userRequest.password;
+    delete userRequest.confirmPassword;
   }
+
+  const consultantRequest = {
+    ...this.consultantForm.value,
+    userId: this.userIdCreated,
+    personalDetailsId: this.personalDetailsIdCreated,
+    societeId: this.consultantForm.value.societeId,
+  };
+
+  if (this.mode === 'edit') {
+    this.store.dispatch(
+      AuthActions.updateUser({
+        userId: this.consultant.user.userId,
+        request: userRequest,
+      })
+    );
+    this.store.dispatch(
+      AuthActions.updateConsultant({
+        consultantId: this.consultant.consultantId,
+        request: consultantRequest,
+      })
+    );
+
+    this.store.dispatch(
+      AuthActions.updatePersonalDetailsWithFiles({
+        personalDetailsId: this.personalDetailsIdCreated,
+        dto: this.personalDetailsForm.value,
+        files: {
+          cniFile: this.cniFile,
+          carteGriseFile: this.carteGriseFile,
+          navigoFile: this.navigoFile,
+          attestationsFiles: this.attestationsFiles,
+          contratFile: this.contratFile,
+          kbisFile: this.kbisFile,
+          urssafFile: this.urssafFile,
+          photoFile: this.photoFile,
+          ribFile: this.ribFile,
+        },
+      })
+    );
+
+  } else {
+    this.store.dispatch(
+      AuthActions.createConsultant({ request: consultantRequest })
+    );
+  }
+}
+
 
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
@@ -284,4 +361,24 @@ export class UtilisateurregisterviewComponent implements OnInit {
     const currentValue = this.consultantForm.get("commercial").value;
     this.consultantForm.get("commercial").setValue(!currentValue);
   }
+
+
+  onFileChange(event: Event, field: string): void {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+
+  if (field === 'attestationsFiles') {
+    this.attestationsFiles = Array.from(target.files);
+  } else {
+    this[field] = target.files[0];
+  }
+}
+
+extractFileName(fullPath: string): string {
+  if (!fullPath) return '';
+  return fullPath.split('/').pop();
+}
+
+
+
 }

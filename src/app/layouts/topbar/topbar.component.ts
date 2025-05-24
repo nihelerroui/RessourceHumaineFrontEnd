@@ -102,12 +102,12 @@ export class TopbarComponent implements OnInit {
   }
 
 loadUserData() {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    if (currentUser && currentUser.consultant && currentUser.consultant.fullName) {
-      this.userName = currentUser.consultant.fullName;
-      this.userInitial = currentUser.consultant.fullName.charAt(0).toUpperCase();
-    }
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  if (currentUser && currentUser.fullName) {
+    this.userName = currentUser.fullName;
+    this.userInitial = currentUser.fullName.charAt(0).toUpperCase();
   }
+}
 
 
 

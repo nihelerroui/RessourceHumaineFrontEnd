@@ -12,13 +12,16 @@ export class AuthGuard implements CanActivate {
     ) { }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-        const token = this.tokenStorage.getToken();
         
-        if (token) {
-          return true;
-        }
-    
-        this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
-        return false;
-      }
+    const excludedRoutes = ['/contratsClient/', '/contrats-client/', '/import-contrat/','facture/client/view'];
+
+    const isExcluded = excludedRoutes.some(path => state.url.includes(path));
+    const token = this.tokenStorage.getToken(isExcluded);
+    if (token || isExcluded) {
+      return true; 
+    }
+
+    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
 }
