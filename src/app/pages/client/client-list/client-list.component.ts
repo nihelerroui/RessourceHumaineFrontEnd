@@ -198,7 +198,6 @@ openModalEdit(client: any, template: TemplateRef<any>) {
 
   /** ✅ Ouvrir le modal des détails */
   openDetailsModal(client: any, template: TemplateRef<any>) {
-    console.log("Détails du client:", client);
     this.selectedClient = client;
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }

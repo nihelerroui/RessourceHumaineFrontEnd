@@ -21,7 +21,7 @@ export class TresorieComponent implements OnInit {
   peutAugmenterSolde$: Observable<boolean>; // ✅ Vérifie si on peut augmenter le solde
   montantInitial: number = 0;
   montantAjout: number = 0; // ✅ Montant à ajouter
-  societeId: number = 6; // ✅ ID de la société
+  societeId!: number;
   modalAction: string = '';
   modalRef?: BsModalRef;
   submitted: boolean = false;
@@ -39,10 +39,19 @@ export class TresorieComponent implements OnInit {
       { label: 'Dashboard', path: '/' },
       { label: 'Trésorie', active: true }
     ];
-    this.store.dispatch(loadTresorie({ societeId: this.societeId }));
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  const societeId = currentUser.societe.societeId;
 
-
+  if (!societeId) {
+    alert("Impossible de récupérer la société de l'utilisateur connecté.");
+    return;
   }
+  this.societeId = societeId;
+  this.store.dispatch(loadTresorie({ societeId: this.societeId }));
+}
+
+
+  
 
   openModal(template: TemplateRef<any>, action: string) {
     this.modalAction = action;

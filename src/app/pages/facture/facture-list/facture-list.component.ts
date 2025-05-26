@@ -190,50 +190,55 @@ export class FactureListComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
-  saveFacture() {
-    if (this.factureForm.valid) {
-      let factureData = this.factureForm.value;
-      factureData.consultantId = 141;
-  
-      if (!factureData.consultantId) {
-        Swal.fire("Erreur", "Veuillez sélectionner un consultant.", "error");
-        return;
-      }
-  
-      if (!this.selectedFile && !factureData.factureId) {
-        Swal.fire("Erreur", "Veuillez importer un fichier (PDF).", "error");
-        return;
-      }
-  
-      if (!factureData.statutPaiement) {
-        factureData.statutPaiement = 'NON_PAYÉE';
-      }
-  
-      if (!this.isRefFactureUnique(factureData.refFacture, factureData.factureId)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erreur',
-          text: 'La référence de la facture existe déjà !',
-          confirmButtonText: 'OK'
-        });
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append('facture', JSON.stringify(factureData));
-  
-      if (this.selectedFile) {
-        formData.append('file', this.selectedFile);
-      }
-  
-      if (factureData.factureId) {
-        this.store.dispatch(updateFacture({ facture: formData }));
-      } else {
-        this.store.dispatch(addFacture({ facture: formData }));
-      }
+ saveFacture() {
+  if (this.factureForm.valid) {
+    let factureData = this.factureForm.value;
+
+    
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const consultantId = currentUser.consultantId;
+
+    if (!consultantId) {
+      Swal.fire("Erreur", "Consultant connecté non trouvé.", "error");
+      return;
+    }
+
+    factureData.consultantId = consultantId;
+
+    if (!this.selectedFile && !factureData.factureId) {
+      Swal.fire("Erreur", "Veuillez importer un fichier (PDF).", "error");
+      return;
+    }
+
+    if (!factureData.statutPaiement) {
+      factureData.statutPaiement = 'NON_PAYÉE';
+    }
+
+    if (!this.isRefFactureUnique(factureData.refFacture, factureData.factureId)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: 'La référence de la facture existe déjà !',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('facture', JSON.stringify(factureData));
+
+    if (this.selectedFile) {
+      formData.append('file', this.selectedFile);
+    }
+
+    if (factureData.factureId) {
+      this.store.dispatch(updateFacture({ facture: formData }));
+    } else {
+      this.store.dispatch(addFacture({ facture: formData }));
     }
   }
-  
+}
+
   
 
   onDeleteFacture(factureId: number) {

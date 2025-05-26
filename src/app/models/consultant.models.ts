@@ -1,4 +1,4 @@
-import { User } from "../store/Authentication/auth.models";
+import { User } from "./auth.models";
 import { PersonalDetails } from "./PersonalDetails.model";
 import { Societe } from "./societe.model";
 
@@ -15,8 +15,8 @@ export interface Consultant {
   fonction?: string;
   matricule?: string;
   isCommercial?: boolean;
-
   user?: User;
   societe?:Societe;
-  personaldetails?: PersonalDetails;
+  personalDetails?: PersonalDetails;
 }
+

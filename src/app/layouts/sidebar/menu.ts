@@ -55,6 +55,12 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 1,
+    label: 'MENUITEMS.UTILISATEURS.TEXT',
+    icon: 'bx-file',
+    link: '/users/list'
+  },
+  {
+    id: 1,
     label: 'MENUITEMS.PRESTATIONS.TEXT',
     icon: 'bx-file',
     link: '/prestations'

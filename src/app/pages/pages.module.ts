@@ -35,11 +35,15 @@ import { FactureclientAdminModule } from './factureclient-admin/factureclient-ad
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
 import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
+import { UserModule } from './users/user.module';
+import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
+
 
 
 @NgModule({
   declarations: [
     CommentModalComponent,
+    UtilisateurregisterviewComponent
   ],
   imports: [
     CommonModule,
@@ -52,6 +56,7 @@ import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-
     HistoriqueMainOeuvreModule,
     PrestationsModule,
     MainOeuvreModule,
+    UserModule,
     FormsModule,
     CommentModalModule,
     BsDropdownModule.forRoot(),

@@ -1,7 +1,7 @@
 export interface Societe {
     societeId: number;
     nom: string;
-    rrt: boolean;
+    rtt: boolean;
     adresse: string;
     contact: string;
     email: string;

@@ -22,7 +22,5 @@ export interface PersonalDetails {
     rib?: string;
     urssaf?: string;
     ville?: string;
-  
-    consultant?: Consultant; 
   }
   

@@ -51,7 +51,6 @@ export class SocieteListComponent implements OnInit {
     this.store.select(selectSocieteList).subscribe(societe => {
       this.filteredSocieteList = societe;
       this.pageChanged({ page: 1 });
-      console.log("Données des sociétés récupérées :", this.filteredSocieteList);
     });
 
     this.loading$ = this.store.select(selectSocieteLoading);
@@ -61,7 +60,7 @@ export class SocieteListComponent implements OnInit {
     this.societeForm = this.formBuilder.group({
       societeId: [''],
       nom: ['', [Validators.required, Validators.minLength(2)]],
-      rrt: [false],
+      rtt: [false],
       adresse: ['', Validators.required],
       contact: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],

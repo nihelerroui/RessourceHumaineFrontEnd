@@ -1,0 +1,162 @@
+<div class="container-fluid">
+  <app-page-title title="Liste des Utilisateurs" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <!-- Header -->
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des Utilisateurs</h5>
+            <div class="flex-shrink-0 d-flex gap-2">
+              <a href="javascript:void(0);" class="btn btn-primary" (click)="openModalAdd()">
+                Ajouter un utilisateur
+              </a>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
+                <i class="mdi mdi-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <input type="search" class="form-control" placeholder="Rechercher un utilisateur..." [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()" />
+            </div>
+            <div class="col-lg-3">
+              <select class="form-select" [(ngModel)]="selectedRole" (ngModelChange)="filterUsers()">
+                <option value>Sélectionner un rôle</option>
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+              </select>
+            </div>
+            <div class="col-lg-3">
+              <select class="form-select" [(ngModel)]="selectedStatus" (ngModelChange)="filterUsers()">
+                <option value>Sélectionner une Status</option>
+                <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <div *ngIf="paginatedUserList.length === 0 && !(loading$ | async)" class="text-center text-muted">
+              Aucun utilisateur trouvé.
+            </div>
+
+            <table *ngIf="paginatedUserList.length > 0" class="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Nom Complet</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let consultant of paginatedUserList; trackBy: trackByUserId">
+                  <td>{{ consultant.user?.email || 'Non spécifié' }}</td>
+                  <td>{{ consultant.fullName || 'Non spécifié' }}</td>
+                  <td>
+                    <span class="badge"
+                      [ngClass]="{
+                        'badge-soft-primary': consultant.user?.role === 'ADMINISTRATEUR',
+                        'badge-soft-warning': consultant.user?.role === 'RESPONSABLE_FINANCIER',
+                        'badge-soft-info': consultant.user?.role === 'SOUS_TRAITANT',
+                        'badge-soft-secondary': !consultant.user?.role
+                      }">
+                      {{ consultant.user?.role || 'Non spécifié' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge"
+                      [ngClass]="{
+                        'badge-soft-success': consultant.user?.enabled,
+                        'badge-soft-danger': !consultant.user?.enabled
+                      }">
+                      {{ consultant.user?.enabled ? 'Activé' : 'Désactivé' }}
+                    </span>
+                  </td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li>
+                        <button class="btn btn-sm btn-soft-primary" (click)="openDetailsModal(consultant)">
+                          <i class="mdi mdi-eye-outline"></i>
+                        </button>
+                      </li>
+                      <li>
+                        <button class="btn btn-sm btn-soft-info" (click)="openModalEdit(consultant)">
+                          <i class="mdi mdi-pencil-outline"></i>
+                        </button>
+                      </li>
+                      <li *ngIf="consultant?.dateSortie">
+                        <button
+                          class="btn btn-sm"
+                          [ngClass]="{
+                            'btn-soft-success': !consultant.user?.enabled,
+                            'btn-soft-warning': consultant.user?.enabled
+                          }"
+                          (click)="toggleStatus(consultant)"
+                        >
+                          <i
+                            [class.fas]="true"
+                            [class.fa-lock-open]="!consultant.user?.enabled"
+                            [class.fa-lock]="consultant.user?.enabled"
+                          ></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredUserList.length > 0">
+              <div class="col-auto me-auto">
+                <p class="text-muted mb-0">
+                  Affichage de <b>{{ paginatedUserList.length }}</b> sur
+                  <b>{{ filteredUserList.length }}</b> utilisateurs
+                </p>
+              </div>
+              <div class="col-auto">
+                <ul class="pagination pagination-rounded justify-content-end mb-2">
+                  <pagination
+                    [totalItems]="filteredUserList.length"
+                    [itemsPerPage]="itemsPerPage"
+                    (pageChanged)="pageChanged($event)"
+                  ></pagination>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Template modal (inutile ici si tu utilises des composants pour l'édition) -->
+  <ng-template #userModal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{ selectedUser ? "Modifier Utilisateur" : "Ajouter Utilisateur" }}
+      </h5>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <p>Formulaire utilisateur ici...</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Annuler</button>
+      <button type="button" class="btn btn-success">Valider</button>
+    </div>
+  </ng-template>
+</div>
