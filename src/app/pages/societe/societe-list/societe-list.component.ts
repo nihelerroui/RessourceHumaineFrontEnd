@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { addSociete, deleteSociete, loadSocietes, updateSociete } from 'src/app/store/societe/societe.actions';
+import * as SocieteActions from 'src/app/store/societe/societe.actions';
 import { Societe } from 'src/app/models/societe.model';
 import { selectSocieteError, selectSocieteList, selectSocieteLoading } from 'src/app/store/societe/societe.selectors';
 import Swal from 'sweetalert2';
@@ -44,7 +44,7 @@ export class SocieteListComponent implements OnInit {
     ];
 
     // Déclencher l'action NgRx pour charger les societes
-    this.store.dispatch(loadSocietes());
+    this.store.dispatch(SocieteActions.loadSocietes());
 
     // Sélectionner les données depuis le store
 
@@ -60,21 +60,18 @@ export class SocieteListComponent implements OnInit {
     this.societeForm = this.formBuilder.group({
       societeId: [''],
       nom: ['', [Validators.required, Validators.minLength(2)]],
-      rtt: [false],
       adresse: ['', Validators.required],
       contact: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      numSiret: ['', [Validators.required, Validators.pattern(/^\d{14}$/)]], // 14 chiffres
-      numTva: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}\d{8,12}$/)]], // 2 lettres + 8 à 12 chiffres
+      numSiret: ['', [Validators.required]],
+      numTva: ['', [Validators.required]], 
       telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-      nbJours: [0, [Validators.required, Validators.min(1)]], // Minimum 1 jour
-      ratioCout: [0, [Validators.required, Validators.min(0)]], // Coût positif
-      responsable: ['', Validators.required]
+      responsable: ['', Validators.required],
+      seuilTresorerie :[0, [Validators.required , Validators.min(0)]]
     });
 
   }
 
-  /** ✅ Filtrer la liste des pays */
   filterSociete() {
     this.store.select(selectSocieteList).subscribe(societe => {
       this.filteredSocieteList = societe.filter(s =>
@@ -86,40 +83,38 @@ export class SocieteListComponent implements OnInit {
     });
   }
 
-  /** ✅ Pagination */
   pageChanged(event: any) {
     this.currentPage = event.page;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     this.paginatedSocieteList = this.filteredSocieteList.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
-  /** ✅ Rafraîchir la liste */
+  
   refreshList() {
-    this.store.dispatch(loadSocietes());
+    this.store.dispatch(SocieteActions.loadSocietes());
   }
 
-  /** ✅ Ouvrir le modal en mode ajout */
-  openModalAdd(template: TemplateRef<any>) {
-    this.societeForm.reset(); // Réinitialiser le formulaire
-    this.societeForm.patchValue({ societeId: null }); // S'assurer que societeId est null
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
+ 
+ openModalAdd(template: TemplateRef<any>) {
+  this.societeForm.reset();
+  this.societeForm.patchValue({ societeId: null });
+  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+}
 
-  /** ✅ Ouvrir le modal en mode modification */
+
   openModalEdit(societe: any, template: TemplateRef<any>) {
-    this.societeForm.patchValue(societe); // Remplir le formulaire avec les données existantes
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
+  this.societeForm.patchValue(societe);
+  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+}
 
 
-  /** ✅ Ajouter ou modifier une societe */
+
   saveSociete() {
     if (this.societeForm.valid) {
       const societeData = this.societeForm.value;
 
       if (societeData.societeId) {
-        // 🛠 Mise à jour
-        this.store.dispatch(updateSociete({ societe: societeData }));
+        this.store.dispatch(SocieteActions.updateSociete({ societe: societeData }));
         Swal.fire({
           icon: 'success',
           title: 'Sociéte mis à jour avec succès !',
@@ -127,8 +122,7 @@ export class SocieteListComponent implements OnInit {
           timer: 1500
         });
       } else {
-        // 🛠 Ajout
-        this.store.dispatch(addSociete({ societe: societeData }));
+        this.store.dispatch(SocieteActions.addSociete({ societe: societeData }));
         Swal.fire({
           icon: 'success',
           title: 'Nouveau societe ajouté avec succès !',
@@ -142,7 +136,7 @@ export class SocieteListComponent implements OnInit {
     }
   }
 
-  /** ✅ Supprimer une societe avec confirmation */
+ 
   onDeleteSociete(societeId: number) {
     Swal.fire({
       title: 'Êtes-vous sûr ?',
@@ -155,7 +149,7 @@ export class SocieteListComponent implements OnInit {
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(deleteSociete({ societeId }));
+        this.store.dispatch(SocieteActions.deleteSociete({ societeId }));
         Swal.fire({
           icon: 'success',
           title: 'Societe supprimé avec succès !',

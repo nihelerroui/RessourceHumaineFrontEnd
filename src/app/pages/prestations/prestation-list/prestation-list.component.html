@@ -6,8 +6,18 @@
           <div class="d-flex align-items-center">
             <h5 class="mb-0 card-title flex-grow-1">Liste des prestations</h5>
             <div class="flex-shrink-0 d-flex gap-1">
-              <a href="javascript:void(0);" class="btn btn-primary" (click)="openCreateModal(prestationFormModal)">Ajouter une nouvelle Prestation</a>
-              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshPrestations()"><i class="mdi mdi-refresh"></i></a>
+              <a
+                href="javascript:void(0);"
+                class="btn btn-primary"
+                (click)="openCreateModal(prestationFormModal)"
+                >Ajouter une nouvelle Prestation</a
+              >
+              <a
+                href="javascript:void(0);"
+                class="btn btn-light"
+                (click)="refreshPrestations()"
+                ><i class="mdi mdi-refresh"></i
+              ></a>
             </div>
           </div>
         </div>
@@ -15,28 +25,67 @@
           <div class="row g-3 align-items-center">
             <!-- Search Input -->
             <div class="col">
-              <input type="search" class="form-control" id="searchInput" placeholder="Recherche" [(ngModel)]="term" />
+              <input
+                type="search"
+                class="form-control"
+                id="searchInput"
+                placeholder="Recherche"
+                [(ngModel)]="term"
+              />
             </div>
 
             <!-- Date Picker -->
-            <div class="col">
-              <input type="text" class="form-control" placeholder="Filtrer par date" id="datePicker" bsDatepicker [(ngModel)]="selectedDate" [bsConfig]="bsConfig" name="datepicker" />
+            <div class="col-lg-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Filtrer par date"
+                id="datePicker"
+                bsDatepicker
+                [(ngModel)]="selectedDate"
+                [bsConfig]="bsConfig"
+                name="datepicker"
+              />
+            </div>
+            <div class="col-lg-3">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSocieteId"
+                 (change)="updatePagination()"
+              >
+                <option [ngValue]="''">Toutes les sociétés</option>
+                <option
+                  *ngFor="let s of adminSocietes$ | async"
+                  [ngValue]="s.societeId"
+                >
+                  {{ s.name }}
+                </option>
+              </select>
             </div>
 
             <!-- Filter Button -->
             <div class="col-auto">
-              <button type="button" class="btn btn-soft-secondary w-100" (click)="filterByDate()">
+              <button
+                type="button"
+                class="btn btn-soft-secondary w-100"
+                (click)="filterByDate()"
+              >
                 <i class="mdi mdi-filter-outline align-middle"></i> Filtrer
               </button>
             </div>
-
           </div>
         </div>
 
         <div class="card-body">
           <!-- Loading state -->
-          <div class="table-responsive" *ngIf="filteredPrestations$ | async as prestations" >
-            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="prestation-list">
+          <div
+            class="table-responsive"
+            *ngIf="filteredPrestations$ | async as prestations"
+          >
+            <table
+              class="table align-middle dt-responsive nowrap w-100 table-check"
+              id="prestation-list"
+            >
               <thead>
                 <tr>
                   <th>Titre</th>
@@ -51,35 +100,89 @@
               </thead>
               <tbody>
                 <tr *ngFor="let prestation of prestations; trackBy: trackById">
-                  <td>{{prestation.titre}}</td>
+                  <td>{{ prestation.titre }}</td>
                   <td>
-                    {{ prestation.description?.split(' ').slice(0, 3).join(' ') }}{{ prestation.description?.split(' ').length > 3 ? '...' : '' }}
-                  </td>                  
+                    {{ prestation.description?.split(" ").slice(0, 3).join(" ")
+                    }}{{
+                      prestation.description?.split(" ").length > 3 ? "..." : ""
+                    }}
+                  </td>
                   <td>
                     <span
                       class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill"
-                      style="background-color: rgba(13, 110, 253, 0.08); color: #2974e6; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s;"
-                      (click)="viewClientDetails(prestation.contratClient?.client?.clientId, ClientDetailsModal)"
+                      style="
+                        background-color: rgba(13, 110, 253, 0.08);
+                        color: #2974e6;
+                        font-weight: 500;
+                        font-size: 0.85rem;
+                        cursor: pointer;
+                        transition: 0.2s;
+                      "
+                      (click)="
+                        viewClientDetails(
+                          prestation.contratClient?.client?.clientId,
+                          ClientDetailsModal
+                        )
+                      "
                       [title]="prestation.contratClient?.client?.nom"
                     >
-                      <i class="bi bi-person" style="font-size: 0.85rem;"></i>
-                      {{ prestation.contratClient?.client?.nom || 'Client inconnu' }}
+                      <i class="bi bi-person" style="font-size: 0.85rem"></i>
+                      {{
+                        prestation.contratClient?.client?.nom ||
+                          "Client inconnu"
+                      }}
                     </span>
                   </td>
-                  <td>{{ prestation.prixUnitaire  }}</td>
+                  <td>{{ prestation.prixUnitaire }}</td>
                   <td>{{ prestation.quantite }}</td>
                   <td>{{ prestation.montantHt }}</td>
-                  <td>{{ prestation.createdAt | date : "dd/MM/yyyy" || "N/A" }}</td>
+                  <td>
+                    {{ prestation.createdAt | date : "dd/MM/yyyy" || "N/A" }}
+                  </td>
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
-                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                        <button class="btn btn-sm btn-soft-primary" (click)="openDetailsModal(prestation, detailsPrestationModal)"><i class="mdi mdi-eye-outline"></i></button>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="View"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="
+                            openDetailsModal(prestation, detailsPrestationModal)
+                          "
+                        >
+                          <i class="mdi mdi-eye-outline"></i>
+                        </button>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info" (click)="editDataGet(prestation.prestationId, prestationFormModal)"><i class="mdi mdi-pencil-outline"></i></a>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-info"
+                          (click)="
+                            editDataGet(
+                              prestation.prestationId,
+                              prestationFormModal
+                            )
+                          "
+                          ><i class="mdi mdi-pencil-outline"></i
+                        ></a>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger" (click)="delete($event, prestation.prestationId)"><i class="mdi mdi-delete-outline"></i></a>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Delete"
+                      >
+                        <a
+                          href="javascript:void(0);"
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="delete($event, prestation.prestationId)"
+                          ><i class="mdi mdi-delete-outline"></i
+                        ></a>
                       </li>
                     </ul>
                   </td>
@@ -93,17 +196,32 @@
             </div>
           </div>
 
-          <div class="card-footer d-flex justify-content-between align-items-center">
+          <div
+            class="card-footer d-flex justify-content-between align-items-center"
+          >
             <div class="text-muted">
               Affichage de {{ (page - 1) * prestationsParPage + 1 }} à
               {{
-              page * prestationsParPage > (total$ | async)! ? (total$ | async) : page * prestationsParPage
+                page * prestationsParPage > (total$ | async)!
+                  ? (total$ | async)
+                  : page * prestationsParPage
               }}
               sur {{ total$ | async }} prestation
             </div>
 
-            <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="prestationsParPage" [maxSize]="5" [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹"
-              nextText="›" firstText="«" lastText="»" class="pagination pagination-rounded mb-0">
+            <pagination
+              [(ngModel)]="page"
+              [totalItems]="total$ | async"
+              [itemsPerPage]="prestationsParPage"
+              [maxSize]="5"
+              [boundaryLinks]="true"
+              (ngModelChange)="updatePagination()"
+              previousText="‹"
+              nextText="›"
+              firstText="«"
+              lastText="»"
+              class="pagination pagination-rounded mb-0"
+            >
             </pagination>
           </div>
         </div>
@@ -114,7 +232,10 @@
 <!-- ✅ Modal Détails Prestation -->
 <ng-template #detailsPrestationModal>
   <div class="modal-header">
-    <h5 class="modal-title"><i class="bi bi-clipboard-check text-primary"></i> Détails de la Prestation</h5>
+    <h5 class="modal-title">
+      <i class="bi bi-clipboard-check text-primary"></i> Détails de la
+      Prestation
+    </h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <div class="modal-body">
@@ -127,7 +248,9 @@
           </tr>
           <tr>
             <th><i class="bi bi-people"></i> Client :</th>
-            <td>{{ selectedPrestation?.contratClient?.client?.nom || 'N/A' }}</td>
+            <td>
+              {{ selectedPrestation?.contratClient?.client?.nom || "N/A" }}
+            </td>
           </tr>
           <tr>
             <th><i class="bi bi-cash"></i> Prix Unitaire :</th>
@@ -143,73 +266,106 @@
           </tr>
           <tr>
             <th><i class="bi bi-calendar-event"></i> Date de création :</th>
-            <td>{{ selectedPrestation?.createdAt | date:'dd MMMM yyyy' }}</td>
+            <td>{{ selectedPrestation?.createdAt | date : "dd MMMM yyyy" }}</td>
           </tr>
           <tr>
             <th><i class="bi bi-calendar-event"></i> Mois:</th>
-            <td>{{ selectedPrestation?.month  }}</td>
+            <td>{{ selectedPrestation?.month }}</td>
           </tr>
           <tr>
             <th><i class="bi bi-calendar-event"></i> Year:</th>
-            <td>{{ selectedPrestation?.year  }}</td>
+            <td>{{ selectedPrestation?.year }}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+    <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+      Fermer
+    </button>
   </div>
 </ng-template>
 
 <ng-template #prestationFormModal let-modal>
   <div class="modal-header">
     <h5 class="modal-title">
-      {{ editMode ? 'Modifier Prestation' : 'Ajouter Prestation' }}
+      {{ editMode ? "Modifier Prestation" : "Ajouter Prestation" }}
     </h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
-  <form (ngSubmit)="editMode ? updatePrestation() : savePrestation()" [formGroup]="form">
+  <form
+    (ngSubmit)="editMode ? updatePrestation() : savePrestation()"
+    [formGroup]="form"
+  >
     <div class="modal-body">
       <div class="mb-3">
         <label class="form-label">Titre</label>
-        <input type="text" formControlName="titre" class="form-control" required />
+        <input
+          type="text"
+          formControlName="titre"
+          class="form-control"
+          required
+        />
       </div>
       <div class="mb-3">
         <label class="form-label">Description</label>
-        <input type="text" formControlName="description" class="form-control" required />
+        <input
+          type="text"
+          formControlName="description"
+          class="form-control"
+          required
+        />
       </div>
 
       <div class="mb-3">
         <label class="form-label">Contrat</label>
-        <select formControlName="contratId" class="form-select" (change)="onContratChange($event.target.value)" required>
+        <select
+          formControlName="contratId"
+          class="form-select"
+          (change)="onContratChange($event.target.value)"
+          required
+        >
           <option value="">-- Sélectionner un contrat --</option>
-          <option *ngFor="let contract of contracts" [value]="contract.contratClientId">
+          <option
+            *ngFor="let contract of contracts"
+            [value]="contract.contratClientId"
+          >
             {{ contract.designation }}
           </option>
         </select>
       </div>
       <div class="mb-3">
         <label class="form-label">Consultant</label>
-        <select formControlName="externalConsultantId" class="form-select" >
+        <select formControlName="externalConsultantId" class="form-select">
           <option value="">-- Sélectionner un consultant --</option>
-          <option *ngFor="let consultant of consultants$ | async" [value]="consultant.consultantId">
+          <option
+            *ngFor="let consultant of consultants$ | async"
+            [value]="consultant.consultantId"
+          >
             {{ consultant.fullName }}
-          </option>          
+          </option>
         </select>
-      </div>     
+      </div>
 
       <div class="mb-3">
         <label class="form-label">Mois et Année</label>
-        <input type="month" class="form-control" formControlName="monthYear" required>
-      </div>      
+        <input
+          type="month"
+          class="form-control"
+          formControlName="monthYear"
+          required
+        />
+      </div>
 
       <input type="hidden" formControlName="prestationId" />
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Fermer
+      </button>
       <button type="submit" class="btn btn-success">
-        {{ editMode ? 'Modifier' : 'Ajouter' }}
+        {{ editMode ? "Modifier" : "Ajouter" }}
       </button>
     </div>
   </form>

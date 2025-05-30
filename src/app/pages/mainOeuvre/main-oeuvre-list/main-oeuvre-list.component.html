@@ -39,6 +39,21 @@
             (ngModelChange)="filtrerMainOeuvre()"
           />
         </div>
+        <div class="col-md-4">
+          <select
+            class="form-select"
+            [(ngModel)]="selectedSocieteId"
+            (change)="filtrerMainOeuvre()"
+          >
+            <option [ngValue]="''">Toutes les sociétés</option>
+            <option
+              *ngFor="let s of adminSocietes$ | async"
+              [ngValue]="s.societeId"
+            >
+              {{ s.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 

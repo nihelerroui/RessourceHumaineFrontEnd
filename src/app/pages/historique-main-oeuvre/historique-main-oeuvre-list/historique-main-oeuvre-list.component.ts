@@ -23,7 +23,7 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
 
   selectedYear: number;
   years: number[] = [];
-  consultantId: number = 141;
+  consultantId!: number;
 
   paginatedHistorique: HistoriqueMainOeuvre[] = [];
   itemsPerPage: number = 4;
@@ -36,6 +36,12 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
       { label: "Dashboard" },
       { label: "Historique Main d'œuvre", active: true },
     ];
+
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantId = currentUser.consultantId;
+    
     this.earningLineChart = {
       chart: {
         height: 288,

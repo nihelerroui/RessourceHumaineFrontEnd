@@ -3,6 +3,8 @@ import { Store } from '@ngrx/store';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { Tresorie } from 'src/app/models/tresorie.model';
+import { selectAllSocietes } from 'src/app/store/Authentication/authentication-selector';
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 import { augmenterSoldeActuel, loadTresorie, setSoldeInitial } from 'src/app/store/tresorie/tresorie.actions';
 import { TresorieState } from 'src/app/store/tresorie/tresorie.reducer';
 import { selectPeutAugmenterSolde, selectTresorie, selectTresorieError, selectTresorieLoading } from 'src/app/store/tresorie/tresorie.selectors';
@@ -18,13 +20,17 @@ export class TresorieComponent implements OnInit {
   tresorie$: Observable<Tresorie | null>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
-  peutAugmenterSolde$: Observable<boolean>; // ✅ Vérifie si on peut augmenter le solde
+  peutAugmenterSolde$: Observable<boolean>; 
   montantInitial: number = 0;
-  montantAjout: number = 0; // ✅ Montant à ajouter
+  montantAjout: number = 0; 
   societeId!: number;
   modalAction: string = '';
   modalRef?: BsModalRef;
   submitted: boolean = false;
+
+  adminSocietes: any[] = [];
+selectedSocieteId!: number;
+
 
 
   constructor(private modalService: BsModalService, private store: Store<{ tresorie: TresorieState }>) {
@@ -34,28 +40,52 @@ export class TresorieComponent implements OnInit {
     this.peutAugmenterSolde$ = this.store.select(selectPeutAugmenterSolde);
   }
 
-  ngOnInit(): void {
-    this.breadCrumbItems = [
-      { label: 'Dashboard', path: '/' },
-      { label: 'Trésorie', active: true }
-    ];
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-  const societeId = currentUser.societe.societeId;
+ngOnInit(): void {
+  this.breadCrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Trésorie', active: true }
+  ];
 
-  if (!societeId) {
-    alert("Impossible de récupérer la société de l'utilisateur connecté.");
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  const societe = currentUser?.societe;
+
+  if (!societe || !societe.societeId) {
+    alert("Impossible de récupérer la société.");
     return;
   }
-  this.societeId = societeId;
+
+  this.societeId = societe.societeId;
+  
+
+  this.store.dispatch(AuthActions.loadAdminSocietes());
+
+  this.store.select(selectAllSocietes).subscribe(societes => {
+    this.adminSocietes = societes;
+    if (!this.selectedSocieteId) {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const societe = currentUser?.societe;
+    if (societe?.societeId) {
+      this.selectedSocieteId = societe.societeId;
+      this.onSocieteChange(); 
+    }
+  }
+  });
+
+  
+}
+
+onSocieteChange() {
+  this.societeId = this.selectedSocieteId;
   this.store.dispatch(loadTresorie({ societeId: this.societeId }));
 }
+
 
 
   
 
   openModal(template: TemplateRef<any>, action: string) {
     this.modalAction = action;
-    this.montantAjout = 0; // Réinitialiser le montant
+    this.montantAjout = 0;
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
@@ -67,8 +97,6 @@ export class TresorieComponent implements OnInit {
     }
   }
 
-
-  // ✅ Exécuter l'action correcte selon l'état du modal
   validerAction() {
     if (this.montantAjout <= 0) {
       alert("Veuillez entrer un montant valide !");
@@ -85,12 +113,12 @@ export class TresorieComponent implements OnInit {
 
 
   initialiserSolde() {
-    if (this.montantAjout <= 0) {  // ✅ Vérifie la bonne variable
+    if (this.montantAjout <= 0) { 
       alert("Le montant doit être supérieur à 0 !");
       return;
     }
     this.store.dispatch(setSoldeInitial({ societeId: this.societeId, montant: this.montantAjout }));
-    this.closeModal();  // ✅ Fermer le modal après action
+    this.closeModal();  
   }
   
 
@@ -100,19 +128,17 @@ export class TresorieComponent implements OnInit {
       return;
     }
 
-    // 🛠 Déclencher l'action pour augmenter le solde
     this.store.dispatch(augmenterSoldeActuel({ societeId: this.societeId, montant: this.montantAjout }));
 
-    // ✅ Attendre la mise à jour et rafraîchir la trésorerie après augmentation
     this.store.select(selectTresorie).subscribe({
       next: (tresorie) => {
         if (tresorie) {
-          this.store.dispatch(loadTresorie({ societeId: this.societeId })); // Rafraîchir les données
+          this.store.dispatch(loadTresorie({ societeId: this.societeId })); 
         }
       }
     });
 
-    // ✅ Réinitialiser le champ après mise à jour
+
     this.montantAjout = 0;
 
 

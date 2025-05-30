@@ -1,113 +1,178 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Suivi Trésorerie"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
 
-<div class="container-fluid ">
-    <app-page-title title="Suivi Trésorerie"
-        [breadcrumbItems]="breadCrumbItems"></app-page-title>
-
-    <!-- ✅ Section plein écran -->
-    <div class="card mb-3">
-        <div
-            class="card-body border-bottom d-flex align-items-center justify-content-between">
-            <h5 class="mb-0 card-title">Suivi Trésorerie</h5>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Trésorerie des Sociétés</h5>
+          </div>
         </div>
-    </div>
-
-    <!-- ✅ Conteneur Trésorerie étendu -->
-    <div class="row d-flex align-items-stretch">
-        <!-- ✅ Colonne de gauche : Informations Société -->
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="mdi mdi-domain text-primary h1 me-2"></i>
-                        <h4 class="fw-bold mb-0">{{ (tresorie$ |
-                            async)?.societe?.nom }}</h4>
-                    </div>
-                    <p class="text-muted"><strong>Contact :</strong> {{
-                        (tresorie$ | async)?.societe?.contact }}</p>
-                    <p class="text-muted"><strong>Adresse :</strong> {{
-                        (tresorie$ | async)?.societe?.adresse }}</p>
-                    <p class="text-muted"><strong>Email :</strong> {{ (tresorie$
-                        | async)?.societe?.email }}</p>
-                </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSocieteId"
+                (change)="onSocieteChange()"
+              >
+                <option *ngFor="let s of adminSocietes" [value]="s.societeId">
+                  {{ s.name }}
+                </option>
+              </select>
             </div>
+          </div>
         </div>
 
-        <!-- ✅ Colonne de droite : Détails Trésorerie -->
-        <div class="col-lg-8">
-            <div class="card h-100">
+        <div class="card-body">
+          <div *ngIf="loading$ | async" class="text-center text-primary mb-3">
+            <i class="mdi mdi-loading mdi-spin"></i> Chargement en cours...
+          </div>
+
+          <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
+            <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+          </div>
+
+          <div class="row">
+            <!-- Infos Société -->
+            <div class="col-lg-4">
+              <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="text-muted">Montant Initial : {{ (tresorie$ |
-                        async)?.soldeInitial | currency }}</h5>
-                    <h4 class="fw-bold">Solde Actuel</h4>
-                    <h3 class="text-primary">
-                        {{ (tresorie$ | async)?.soldeActuel | currency }}
-                    </h3>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <p class="text-muted"><strong>Entrées :</strong></p>
-                            <h5 class="text-success">{{ (tresorie$ |
-                                async)?.entreesTotales | currency }}</h5>
-                        </div>
-                        <div class="col-6">
-                            <p class="text-muted"><strong>Sorties :</strong></p>
-                            <h5 class="text-danger">{{ (tresorie$ |
-                                async)?.sortiesTotales | currency }}</h5>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <p class="text-muted"><strong>Date de Création :</strong> {{
-                        (tresorie$ | async)?.dateCreation | date:'dd/MM/yyyy'
-                        }}</p>
-                    <p class="text-muted"><strong>Dernière Modification
-                            :</strong> {{ (tresorie$ | async)?.dateModification
-                        | date:'dd/MM/yyyy' }}</p>
-
-                    <!-- ✅ Boutons -->
-                    <div class="text-end">
-                        <!-- Bouton Initialiser -->
-                        <button class="btn btn-warning"
-                            *ngIf="!(tresorie$ | async)?.soldeInitial || (tresorie$ | async)?.soldeInitial <= 0"
-                            (click)="openModal(tresorieModal, 'initialiser')">
-                            Initialiser
-                        </button>
-
-                        <!-- Bouton Augmenter -->
-                        <button class="btn btn-primary"
-                            *ngIf="(tresorie$ | async)?.soldeActuel >= 0 && (tresorie$ | async)?.soldeActuel <= 1000"
-                            (click)="openModal(tresorieModal, 'augmenter')">
-                            Augmenter
-                        </button>
-                    </div>
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="mdi mdi-domain text-primary h1 me-2"></i>
+                    <h4 class="fw-bold mb-0">
+                      {{ (tresorie$ | async)?.societe?.nom }}
+                    </h4>
+                  </div>
+                  <p class="text-muted">
+                    <strong>Contact :</strong>
+                    {{ (tresorie$ | async)?.societe?.contact }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Adresse :</strong>
+                    {{ (tresorie$ | async)?.societe?.adresse }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Email :</strong>
+                    {{ (tresorie$ | async)?.societe?.email }}
+                  </p>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ✅ Modal pour Initialisation / Augmentation du solde -->
-    <ng-template #tresorieModal let-modal>
-        <div class="modal-header">
-            <h5 class="modal-title">{{ modalAction === 'initialiser' ?
-                'Initialiser le solde' : 'Augmenter le solde' }}</h5>
-            <button type="button" class="btn-close"
-                (click)="closeModal()"></button>
+            <!-- Détails Trésorerie -->
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="text-muted">
+                    Montant Initial :
+                    {{ (tresorie$ | async)?.soldeInitial | currency }}
+                  </h5>
+                  <h4 class="fw-bold">Solde Actuel</h4>
+                  <h3 class="text-primary">
+                    {{ (tresorie$ | async)?.soldeActuel | currency }}
+                  </h3>
+
+                  <div class="row">
+                    <div class="col-6">
+                      <p class="text-muted"><strong>Entrées :</strong></p>
+                      <h5 class="text-success">
+                        {{ (tresorie$ | async)?.entreesTotales | currency }}
+                      </h5>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-muted"><strong>Sorties :</strong></p>
+                      <h5 class="text-danger">
+                        {{ (tresorie$ | async)?.sortiesTotales | currency }}
+                      </h5>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <p class="text-muted">
+                    <strong>Date de Création :</strong>
+                    {{
+                      (tresorie$ | async)?.dateCreation | date : "dd/MM/yyyy"
+                    }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Dernière Modification :</strong>
+                    {{
+                      (tresorie$ | async)?.dateModification
+                        | date : "dd/MM/yyyy"
+                    }}
+                  </p>
+
+                  <div class="text-end">
+                    <button
+                      class="btn btn-warning"
+                      *ngIf="
+                        !(tresorie$ | async)?.soldeInitial ||
+                        (tresorie$ | async)?.soldeInitial < 0
+                      "
+                      (click)="openModal(tresorieModal, 'initialiser')"
+                    >
+                      Initialiser
+                    </button>
+
+                    <button
+                      class="btn btn-primary"
+                      *ngIf="
+                        (tresorie$ | async)?.soldeActuel >= 0 &&
+                        (tresorie$ | async)?.soldeInitial &&
+                        (tresorie$ | async)?.soldeActuel <= (tresorie$ | async)?.societe?.seuilTresorerie 
+                      "
+                      (click)="openModal(tresorieModal, 'augmenter')"
+                    >
+                      Augmenter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- .row -->
         </div>
-        <div class="modal-body">
-            <label for="montantInput">Montant à {{ modalAction === 'initialiser'
-                ? 'initialiser' : 'ajouter' }} :</label>
-            <input type="number" class="form-control" [(ngModel)]="montantAjout"
-                min="1">
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary"
-                (click)="closeModal()">Annuler</button>
-            <button type="button" class="btn btn-primary"
-                (click)="validerAction()">
-                {{ modalAction === 'initialiser' ? 'Initialiser' : 'Confirmer'
-                }}
-            </button>
-        </div>
-    </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Modal -->
+  <ng-template #tresorieModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{
+          modalAction === "initialiser"
+            ? "Initialiser le solde"
+            : "Augmenter le solde"
+        }}
+      </h5>
+      <button type="button" class="btn-close" (click)="closeModal()"></button>
+    </div>
+    <div class="modal-body">
+      <label for="montantInput"
+        >Montant à
+        {{ modalAction === "initialiser" ? "initialiser" : "ajouter" }} :</label
+      >
+      <input
+        type="number"
+        class="form-control"
+        [(ngModel)]="montantAjout"
+        min="1"
+      />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="closeModal()">
+        Annuler
+      </button>
+      <button type="button" class="btn btn-success" (click)="validerAction()">
+        {{ modalAction === "initialiser" ? "Initialiser" : "Confirmer" }}
+      </button>
+    </div>
+  </ng-template>
 </div>
