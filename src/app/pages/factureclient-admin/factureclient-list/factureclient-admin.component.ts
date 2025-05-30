@@ -1,9 +1,9 @@
-import { Component, TemplateRef } from "@angular/core";
+import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import Swal from "sweetalert2";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { combineLatest, map, Observable } from "rxjs";
+import { Observable } from "rxjs";
 import { selectFactureClients, selectError, selectLoading, selectTotalFactureClient } from "../../../store/FactureClient/factureclient.selector";
 import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
 import * as FactureClientActions from "src/app/store/FactureClient/factureclient.actions";
@@ -19,10 +19,11 @@ import { selectSocietesAdministrees } from "src/app/store/societe/societe.select
   selector: 'app-factureclient-admin',
   templateUrl: './factureclient-admin.component.html'
 })
-export class FactureclientAdminComponent {
+export class FactureclientAdminComponent implements OnInit {
   term: string = "";
   modalRef?: BsModalRef;
-  factureClients$: Observable<any[]>;
+  factureClients$: Observable<FactureClient[]>;
+  allFactures: FactureClient[] = [];
   loading$ = this.store.select(selectLoading);
   error$ = this.store.select(selectError);
   bsConfig: Partial<BsDatepickerConfig> = { showWeekNumbers: false, dateInputFormat: "DD/MM/YYYY" };
@@ -31,8 +32,6 @@ export class FactureclientAdminComponent {
     { label: "Factures Clients List", active: true },
   ];
 
-  prestations: any[] = [];
-  contratsClient: any[] = [];
   selectedFacture: any;
   StatutPaiement = StatutPaiement;
 
@@ -46,7 +45,6 @@ export class FactureclientAdminComponent {
   filteredTotal: number = 0;
   facturesParPage = 5;
   total$: Observable<number> = this.store.select(selectTotalFactureClient);
-  facturesPagination$: Observable<FactureClient[]> = new Observable();
   filteredFactures: FactureClient[] = [];
   paginatedFactures: FactureClient[] = [];
   today: string = new Date().toISOString().split('T')[0];
@@ -65,6 +63,7 @@ export class FactureclientAdminComponent {
     //Récupérer la liste des sociétées administrés
     this.store.dispatch(loadSocietesAdministrees());
     this.factureClients$.subscribe(factures => {
+      this.allFactures = factures;
       this.filterFactures(); // applique la pagination avec les données réelles
     });
     this.store.select(selectSocietesAdministrees)
@@ -150,9 +149,8 @@ export class FactureclientAdminComponent {
 
 
   filterFactures() {
-    this.factureClients$.subscribe(factures => {
       const termLower = this.term.toLowerCase().trim();
-      this.filteredFactures = factures.filter(f =>
+      this.filteredFactures = this.allFactures.filter(f =>
         (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
         (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
         (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
@@ -160,7 +158,6 @@ export class FactureclientAdminComponent {
         (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
       );
       this.pageChanged({ page: 1 });
-    });
   }
   
     pageChanged(event: any) {

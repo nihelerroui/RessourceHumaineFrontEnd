@@ -8,6 +8,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { NgxSliderModule } from 'ngx-slider-v2';
 import { UIModule } from 'src/app/shared/ui/ui.module';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
+import { factureClientReducer } from 'src/app/store/FactureClient/factureclient.reducer';
+import { FactureClientEffects } from 'src/app/store/FactureClient/factureclient.effects';
 
 
 const routes: Routes = [
@@ -29,7 +33,9 @@ const routes: Routes = [
     PaginationModule.forRoot(),
     SharedModule,
     BsDatepickerModule.forRoot(),
-    NgxSliderModule
+    NgxSliderModule,
+    StoreModule.forFeature('factureClient', factureClientReducer),
+    EffectsModule.forFeature([FactureClientEffects]),
   ]
 })
 export class FactureclientAdminModule { }

@@ -22,8 +22,6 @@ const routes: Routes = [
   { path: 'client', loadChildren: () => import('./client/client.module').then(m => m.ClientModule) },
   { path: 'facture', loadChildren: () => import('./facture/facture.module').then(m => m.FactureModule) },
   { path: 'tresorie', loadChildren: () => import('./tresorie/tresorie.module').then(m => m.TresorieModule) },
-
-  { path: 'factureclient', loadChildren: () => import('./factureclient/factureclient.module').then(m => m.FactureClientModule) },
   { path: 'factureclientadmin', loadChildren: () => import('./factureclient-admin/factureclient-admin.module').then(m => m.FactureclientAdminModule) },
   { path: 'facture/client/create', loadChildren: () => import('../pages/factureclientcreate/factureclientcreate.module').then(m => m.FactureClientCreateModule) },
   { path: 'facture/client/view',
