@@ -4,6 +4,8 @@ import { combineLatest, map, Observable, take } from "rxjs";
 import * as PrestationActions from "../../../store/Prestation/prestation.action";
 import * as PrestationSelector from "../../../store/Prestation/prestation-selector";
 import { Prestation } from "src/app/models/prestation.model";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
@@ -17,13 +19,20 @@ import { selectAllConsultants } from "src/app/store/consultant/consultant-select
   templateUrl: "./prestation-list.component.html",
 })
 export class PrestationListComponent implements OnInit {
-  prestations$: Observable<Prestation[]> = this.store.select(PrestationSelector.selectAllPrestations);
-  loading$: Observable<boolean> = this.store.select(PrestationSelector.selectLoading);
+  prestations$: Observable<Prestation[]> = this.store.select(
+    PrestationSelector.selectAllPrestations
+  );
+  loading$: Observable<boolean> = this.store.select(
+    PrestationSelector.selectLoading
+  );
   error$: Observable<any> = this.store.select(PrestationSelector.selectError);
-  total$: Observable<number> = this.store.select(PrestationSelector.selectTotalPrestations);
-  contracts$: Observable<any[]> = this.store.select(PrestationSelector.selectAllContrats);
+  total$: Observable<number> = this.store.select(
+    PrestationSelector.selectTotalPrestations
+  );
+  contracts$: Observable<any[]> = this.store.select(
+    PrestationSelector.selectAllContrats
+  );
   consultants$: Observable<any[]> = this.store.select(selectAllConsultants);
-
 
   prestations: Prestation[] = [];
   form!: FormGroup;
@@ -44,6 +53,12 @@ export class PrestationListComponent implements OnInit {
   editMode = false;
   contracts: any[] = [];
 
+  connectedConsultantId: number = 0;
+
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
+  consultantSocieteId: number = 0;
+  selectedSocieteId: number | "" = "";
+
   constructor(
     private store: Store,
     private modalService: BsModalService,
@@ -52,19 +67,37 @@ export class PrestationListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const connectedConsultantId = 141; 
-  this.store.dispatch(loadConsultantsBySociete({ consultantId: connectedConsultantId }));
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.connectedConsultantId = currentUser.consultantId;
+    this.consultantSocieteId = currentUser.societe?.societeId;
+    this.selectedSocieteId = this.consultantSocieteId;
+
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+
+    if (this.connectedConsultantId) {
+      this.store.dispatch(
+        loadConsultantsBySociete({ consultantId: this.connectedConsultantId })
+      );
+    }
     this.store.dispatch(PrestationActions.loadPrestations());
     this.store.dispatch(loadContratsClient());
     this.initForms();
 
-    this.prestations$.subscribe((data) => {
-      this.prestations = data;
-      this.updatePagination();
-    });
+   this.prestations$.subscribe((allPrestations) => {
+  this.prestations = allPrestations.filter((p) =>
+    this.selectedSocieteId
+      ? p.consultant?.societe?.societeId === +this.selectedSocieteId
+      : p.consultant?.societe?.societeId === this.consultantSocieteId
+  );
+  this.updatePagination();
+});
+
 
     this.contracts$.subscribe((contracts) => {
       this.contracts = contracts;
+      this.updatePagination();
     });
   }
 
@@ -75,19 +108,31 @@ export class PrestationListComponent implements OnInit {
       description: ["", Validators.required],
       contratId: [""],
       externalConsultantId: [""],
-      monthYear: ["", Validators.required], 
+      monthYear: ["", Validators.required],
     });
   }
 
-  updatePagination() {
-    this.prestationsPagination$ = combineLatest([this.prestations$]).pipe(
-      map(([prestations]) => {
-        const start = (this.page - 1) * this.prestationsParPage;
-        return prestations.slice(start, start + this.prestationsParPage);
-      })
-    );
-    this.filteredPrestations$ = this.prestationsPagination$;
-  }
+  
+
+
+ updatePagination() {
+  this.filteredPrestations$ = combineLatest([
+    this.prestations$,
+    this.adminSocietes$
+  ]).pipe(
+    map(([prestations]) =>
+      prestations.filter((p) =>
+        this.selectedSocieteId
+          ? p.consultant?.societe?.societeId === +this.selectedSocieteId
+          : p.consultant?.societe?.societeId === this.consultantSocieteId
+      )
+    ),
+    map((filtered) => {
+      const start = (this.page - 1) * this.prestationsParPage;
+      return filtered.slice(start, start + this.prestationsParPage);
+    })
+  );
+}
 
   openCreateModal(template: TemplateRef<any>) {
     this.editMode = false;
@@ -104,78 +149,90 @@ export class PrestationListComponent implements OnInit {
   savePrestation(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
-      const [year, month] = formValue.monthYear.split("-").map(Number); // Extrait mois et année
-  
+      const [year, month] = formValue.monthYear.split("-").map(Number);
+
       const prestationData = {
         ...formValue,
-        consultantId: 141,
+        consultantId: this.connectedConsultantId,
         month,
-        year
+        year,
       };
-  
-      this.store.dispatch(PrestationActions.createPrestation({ prestation: prestationData }));
-  
-      this.actions$.pipe(ofType(PrestationActions.createPrestationSuccess), take(1)).subscribe(() => {
-        this.modalRef?.hide();
-        Swal.fire({
-          icon: 'success',
-          title: 'Prestation ajoutée',
-          text: 'La prestation a été ajoutée avec succès !',
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => this.refreshPrestations());
-      });
+
+      this.store.dispatch(
+        PrestationActions.createPrestation({ prestation: prestationData })
+      );
+
+      this.actions$
+        .pipe(ofType(PrestationActions.createPrestationSuccess), take(1))
+        .subscribe(() => {
+          this.modalRef?.hide();
+          Swal.fire({
+            icon: "success",
+            title: "Prestation ajoutée",
+            text: "La prestation a été ajoutée avec succès !",
+            timer: 1500,
+            showConfirmButton: false,
+          }).then(() => this.refreshPrestations());
+        });
     }
   }
 
   editDataGet(prestationId: number, template: TemplateRef<any>) {
     this.editMode = true;
-    const prestation = this.prestations.find(p => p.prestationId === prestationId);
+    const prestation = this.prestations.find(
+      (p) => p.prestationId === prestationId
+    );
     if (!prestation) return;
-  
-    const paddedMonth = prestation.month?.toString().padStart(2, '0');
-    const monthYearFormatted = prestation.year && prestation.month ? `${prestation.year}-${paddedMonth}` : '';
-  
+
+    const paddedMonth = prestation.month?.toString().padStart(2, "0");
+    const monthYearFormatted =
+      prestation.year && prestation.month
+        ? `${prestation.year}-${paddedMonth}`
+        : "";
+
     this.form.patchValue({
       prestationId: prestation.prestationId,
       titre: prestation.titre,
       description: prestation.description,
-      contratId: prestation.contratClient?.contratClientId || '',
-      externalConsultantId: prestation.externalConsultantId || '',
-      monthYear: monthYearFormatted
+      contratId: prestation.contratClient?.contratClientId || "",
+      externalConsultantId: prestation.externalConsultantId || "",
+      monthYear: monthYearFormatted,
     });
-  
+
     this.modalRef = this.modalService.show(template);
   }
-  
+
   updatePrestation(): void {
     if (this.form.valid) {
       const formValue = this.form.value;
-      const [year, month] = formValue.monthYear.split("-").map(Number); 
-  
+      const [year, month] = formValue.monthYear.split("-").map(Number);
+
       const prestationData = {
         ...formValue,
-        consultantId: 141, // l'admin connecté
-        externalConsultantId: formValue.externalConsultantId, 
+        consultantId: this.connectedConsultantId,
+        externalConsultantId: formValue.externalConsultantId,
         month,
-        year
+        year,
       };
-  
-      this.store.dispatch(PrestationActions.updatePrestation({ prestation: prestationData }));
-  
-      this.actions$.pipe(ofType(PrestationActions.updatePrestationSuccess), take(1)).subscribe(() => {
-        this.modalRef?.hide();
-        Swal.fire({
-          icon: 'success',
-          title: 'Prestation modifiée',
-          text: 'La prestation a été mise à jour avec succès !',
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => this.refreshPrestations());
-      });
+
+      this.store.dispatch(
+        PrestationActions.updatePrestation({ prestation: prestationData })
+      );
+
+      this.actions$
+        .pipe(ofType(PrestationActions.updatePrestationSuccess), take(1))
+        .subscribe(() => {
+          this.modalRef?.hide();
+          Swal.fire({
+            icon: "success",
+            title: "Prestation modifiée",
+            text: "La prestation a été mise à jour avec succès !",
+            timer: 1500,
+            showConfirmButton: false,
+          }).then(() => this.refreshPrestations());
+        });
     }
   }
-  
 
   delete(event: Event, id: number) {
     event.preventDefault();
@@ -191,7 +248,11 @@ export class PrestationListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.store.dispatch(PrestationActions.deletePrestation({ id }));
-        Swal.fire("Supprimé !", "La prestation a été supprimée avec succès.", "success");
+        Swal.fire(
+          "Supprimé !",
+          "La prestation a été supprimée avec succès.",
+          "success"
+        );
       }
     });
   }

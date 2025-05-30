@@ -1,6 +1,8 @@
 <div class="container-fluid">
-  <app-page-title title="Liste des Clients"
-    [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  <app-page-title
+    title="Liste des Clients"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
 
   <div class="row">
     <div class="col-12">
@@ -9,40 +11,73 @@
           <div class="d-flex align-items-center">
             <h5 class="mb-0 card-title flex-grow-1">Liste des Clients</h5>
             <div class="flex-shrink-0 d-flex gap-2">
-              <a href="javascript:void(0);" class="btn btn-primary"
-                (click)="openModalAdd(clientModal)"> Ajouter un Client</a>
-              <a href="javascript:void(0);" class="btn btn-light"
-                (click)="refreshList()"><i class="mdi mdi-refresh"></i></a>
+              <a
+                href="javascript:void(0);"
+                class="btn btn-primary"
+                (click)="openModalAdd(clientModal)"
+              >
+                Ajouter un Client</a
+              >
+              <a
+                href="javascript:void(0);"
+                class="btn btn-light"
+                (click)="refreshList()"
+                ><i class="mdi mdi-refresh"></i
+              ></a>
               <div class="dropdown d-inline-block" dropdown>
-                <button type="menu" class="btn btn-success"
-                  id="*dropdownMenuButton1" data-bs-toggle="dropdown"
-                  aria-expanded="false" dropdownToggle><i
-                    class="mdi mdi-dots-vertical"></i></button>
-                <ul class="dropdown-menu dropdown-menu dropdown-menu-end show"
-                  aria-labelledby="*dropdownMenuButton1" *dropdownMenu>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Action</a></li>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Another action</a></li>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Something else here</a></li>
+                <button
+                  type="menu"
+                  class="btn btn-success"
+                  id="*dropdownMenuButton1"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  dropdownToggle
+                >
+                  <i class="mdi mdi-dots-vertical"></i>
+                </button>
+                <ul
+                  class="dropdown-menu dropdown-menu dropdown-menu-end show"
+                  aria-labelledby="*dropdownMenuButton1"
+                  *dropdownMenu
+                >
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);"
+                      >Action</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);"
+                      >Another action</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="javascript:void(0);"
+                      >Something else here</a
+                    >
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 🔍 Recherche & Filtres -->
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-lg-4">
-              <input type="search" class="form-control"
-                placeholder="Rechercher un client..." [(ngModel)]="searchTerm"
-                (ngModelChange)="filterClients()">
+              <input
+                type="search"
+                class="form-control"
+                placeholder="Rechercher un client..."
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="filterClients()"
+              />
             </div>
             <div class="col-lg-2">
-              <select class="form-select" [(ngModel)]="selectedTypeClient"
-                (change)="filterClients()">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedTypeClient"
+                (change)="filterClients()"
+              >
                 <option value>Sélectionner un Type Client</option>
                 <option *ngFor="let type of typeClientOptions" [value]="type">
                   {{ type }}
@@ -50,51 +85,59 @@
               </select>
             </div>
             <div class="col-lg-2">
-              <select class="form-select" [(ngModel)]="selectedPays"
-                (change)="filterClients()">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedPays"
+                (change)="filterClients()"
+              >
                 <option value>Sélectionner un Pays</option>
-                <option *ngFor="let pays of paysList$ | async"
-                  [value]="pays.paysId">
+                <option
+                  *ngFor="let pays of paysList$ | async"
+                  [value]="pays.paysId"
+                >
                   {{ pays.nomFrFr }}
                 </option>
               </select>
             </div>
             <div class="col-lg-2">
-              <select class="form-select" [(ngModel)]="selectedSociete"
-                (change)="filterClients()">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSociete"
+                (change)="filterClients()"
+              >
                 <option value>Sélectionner une Société</option>
-                <option *ngFor="let societe of societeList$ | async"
-                  [value]="societe.societeId">
-                  {{ societe.nom }}
+                <option
+                  *ngFor="let societe of adminSocietes$ | async"
+                  [value]="societe.societeId"
+                >
+                  {{ societe.name }}
                 </option>
               </select>
             </div>
             <div class="col-xxl-2 col-lg-4">
-              <button type="button"
-                class="btn btn-soft-secondary w-100"><i
-                  class="mdi mdi-filter-outline align-middle"></i>
-                Filter</button>
+              <button type="button" class="btn btn-soft-secondary w-100">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+              </button>
             </div>
-
           </div>
         </div>
 
         <div class="card-body">
           <div class="table-responsive">
-            <!-- ⏳ Affichage du chargement -->
             <div *ngIf="loading$ | async" class="text-center text-primary">
-              <p><i class="mdi mdi-loading mdi-spin"></i> Chargement en
-                cours...</p>
+              <p>
+                <i class="mdi mdi-loading mdi-spin"></i> Chargement en cours...
+              </p>
             </div>
 
-            <!-- ❌ Affichage des erreurs -->
             <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
               <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
             </div>
 
-            <!-- 📊 Tableau -->
-            <table *ngIf="paginatedClientList.length > 0"
-              class="table table-striped table-hover align-middle">
+            <table
+              *ngIf="paginatedClientList.length > 0"
+              class="table table-striped table-hover align-middle"
+            >
               <thead>
                 <tr>
                   <th>Nom</th>
@@ -108,13 +151,18 @@
               </thead>
               <tbody>
                 <tr
-                  *ngFor="let client of paginatedClientList; trackBy: trackById">
+                  *ngFor="let client of paginatedClientList; trackBy: trackById"
+                >
                   <td>{{ client.nom }}</td>
                   <td>{{ client.email }}</td>
                   <td>
-                    <span class="badge"
-                      [ngClass]="{'badge-soft-primary': client.typeClient === 'NONEDF',
-                                                        'badge-soft-success': client.typeClient === 'EDF'}">
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-primary': client.typeClient === 'NONEDF',
+                        'badge-soft-success': client.typeClient === 'EDF'
+                      }"
+                    >
                       {{ client.typeClient }}
                     </span>
                   </td>
@@ -123,63 +171,88 @@
                   <td>{{ client.adresse }}</td>
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="View">
-                        <button class="btn btn-sm btn-soft-primary"
-                          (click)="openDetailsModal(client, detailsClientModal)">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="View"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="openDetailsModal(client, detailsClientModal)"
+                        >
                           <i class="mdi mdi-eye-outline"></i>
                         </button>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Edit">
-                        <button class="btn btn-sm btn-soft-info"
-                          (click)="openModalEdit(client, clientModal)">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-info"
+                          (click)="openModalEdit(client, clientModal)"
+                        >
                           <i class="mdi mdi-pencil-outline"></i>
                         </button>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Delete">
-                        <button class="btn btn-sm btn-soft-danger"
-                          (click)="onDeleteClient(client.clientId)">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Delete"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="onDeleteClient(client.clientId)"
+                        >
                           <i class="mdi mdi-delete-outline"></i>
                         </button>
                       </li>
-                      <!-- Bouton pour envoyer l'email d'import -->
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Envoyer email d'import">
-                        <button class="btn btn-sm btn-soft-warning"
-                          (click)="envoyerEmailImport(client.clientId)">
+                      
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Envoyer email d'import"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-warning"
+                          (click)="envoyerEmailImport(client.clientId)"
+                        >
                           <i class="mdi mdi-email-send-outline"></i>
                         </button>
                       </li>
-
                     </ul>
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            <!-- ❗ Aucun Résultat -->
-            <div *ngIf="paginatedClientList.length === 0 && !(loading$ | async)"
-              class="text-center text-muted">
+            <div
+              *ngIf="paginatedClientList.length === 0 && !(loading$ | async)"
+              class="text-center text-muted"
+            >
               <p>Aucun client trouvé.</p>
             </div>
           </div>
 
-          <!-- ✅ Pagination -->
-          <div class="row justify-content-between align-items-center mt-3"
-            *ngIf="filteredClientList.length > 0">
+          <div
+            class="row justify-content-between align-items-center mt-3"
+            *ngIf="filteredClientList.length > 0"
+          >
             <div class="col-auto me-auto">
-              <p class="text-muted mb-0">Affichage de <b>{{
-                  paginatedClientList.length }}</b> sur <b>{{
-                  filteredClientList.length }}</b> clients</p>
+              <p class="text-muted mb-0">
+                Affichage de <b>{{ paginatedClientList.length }}</b> sur
+                <b>{{ filteredClientList.length }}</b> clients
+              </p>
             </div>
             <div class="col-auto">
               <ul
-                class="pagination pagination-rounded justify-content-end mb-2">
-                <pagination [totalItems]="filteredClientList.length"
+                class="pagination pagination-rounded justify-content-end mb-2"
+              >
+                <pagination
+                  [totalItems]="filteredClientList.length"
                   [itemsPerPage]="itemsPerPage"
-                  (pageChanged)="pageChanged($event)"></pagination>
+                  (pageChanged)="pageChanged($event)"
+                ></pagination>
               </ul>
             </div>
           </div>
@@ -188,206 +261,282 @@
     </div>
   </div>
 
-  <!-- ✅ Modal Ajout / Modification Client -->
   <ng-template #clientModal>
     <div class="modal-header">
-      <h5 class="modal-title">{{ clientForm.value.clientId ?
-        'Modifier un Client' : 'Ajouter un Client' }}</h5>
-      <button type="button" class="btn-close"
-        (click)="modalRef?.hide()"></button>
+      <h5 class="modal-title">
+        {{
+          clientForm.value.clientId ? "Modifier un Client" : "Ajouter un Client"
+        }}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="modalRef?.hide()"
+      ></button>
     </div>
     <form (ngSubmit)="saveClient()" [formGroup]="clientForm">
       <div class="modal-body">
-        <!-- Nom -->
         <div class="mb-3">
           <label class="form-label">Nom</label>
-          <input type="text" class="form-control" formControlName="nom"
-            placeholder="Nom">
+          <input
+            type="text"
+            class="form-control"
+            formControlName="nom"
+            placeholder="Nom"
+          />
           <div
-            *ngIf="clientForm.controls['nom'].invalid && clientForm.controls['nom'].touched"
-            class="text-danger">
-            <span *ngIf="clientForm.controls['nom'].errors?.['required']">Le nom
-              est obligatoire.</span>
-            <span *ngIf="clientForm.controls['nom'].errors?.['minlength']">Le
-              nom doit avoir au moins 2 caractères.</span>
+            *ngIf="
+              clientForm.controls['nom'].invalid &&
+              clientForm.controls['nom'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['nom'].errors?.['required']"
+              >Le nom est obligatoire.</span
+            >
+            <span *ngIf="clientForm.controls['nom'].errors?.['minlength']"
+              >Le nom doit avoir au moins 2 caractères.</span
+            >
           </div>
         </div>
 
-        <!-- Email -->
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input type="email" class="form-control" placeholder="Entrer l'email"
-            formControlName="email">
+          <input
+            type="email"
+            class="form-control"
+            placeholder="Entrer l'email"
+            formControlName="email"
+          />
           <div
-            *ngIf="clientForm.controls['email'].invalid && clientForm.controls['email'].touched"
-            class="text-danger">
-            <span
-              *ngIf="clientForm.controls['email'].errors?.['required']">L'email
-              est requis.</span>
-            <span *ngIf="clientForm.controls['email'].errors?.['email']">L'email
-              n'est pas valide.</span>
+            *ngIf="
+              clientForm.controls['email'].invalid &&
+              clientForm.controls['email'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['email'].errors?.['required']"
+              >L'email est requis.</span
+            >
+            <span *ngIf="clientForm.controls['email'].errors?.['email']"
+              >L'email n'est pas valide.</span
+            >
           </div>
         </div>
 
-        <!-- Téléphone -->
         <div class="mb-3">
           <label class="form-label">Téléphone</label>
-          <input type="text" class="form-control"
-            placeholder="Numéro de téléphone" formControlName="telephone">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Numéro de téléphone"
+            formControlName="telephone"
+          />
           <div
-            *ngIf="clientForm.controls['telephone'].invalid && clientForm.controls['telephone'].touched"
-            class="text-danger">
-            <span
-              *ngIf="clientForm.controls['telephone'].errors?.['required']">Le
-              téléphone est requis.</span>
+            *ngIf="
+              clientForm.controls['telephone'].invalid &&
+              clientForm.controls['telephone'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['telephone'].errors?.['required']"
+              >Le téléphone est requis.</span
+            >
           </div>
         </div>
 
-        <!-- Adresse -->
         <div class="mb-3">
           <label class="form-label">Adresse</label>
-          <input type="text" class="form-control" placeholder="Adresse"
-            formControlName="adresse">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Adresse"
+            formControlName="adresse"
+          />
           <div
-            *ngIf="clientForm.controls['adresse'].invalid && clientForm.controls['adresse'].touched"
-            class="text-danger">
+            *ngIf="
+              clientForm.controls['adresse'].invalid &&
+              clientForm.controls['adresse'].touched
+            "
+            class="text-danger"
+          >
             L'adresse est requise.
           </div>
         </div>
 
-        <!-- Numéro SIRET -->
         <div class="mb-3">
           <label class="form-label">Numéro SIRET</label>
-          <input type="text" class="form-control" formControlName="numeroSiret"
-            placeholder="SIRET">
+          <input
+            type="text"
+            class="form-control"
+            formControlName="numeroSiret"
+            placeholder="SIRET"
+          />
           <div
-            *ngIf="clientForm.controls['numeroSiret'].invalid && clientForm.controls['numeroSiret'].touched"
-            class="text-danger">
+            *ngIf="
+              clientForm.controls['numeroSiret'].invalid &&
+              clientForm.controls['numeroSiret'].touched
+            "
+            class="text-danger"
+          >
             <span
-              *ngIf="clientForm.controls['numeroSiret'].errors?.['required']">Le
-              numéro SIRET est requis.</span>
-            <span
-              *ngIf="clientForm.controls['numeroSiret'].errors?.['pattern']">Le
-              numéro SIRET doit contenir exactement 14 chiffres.</span>
+              *ngIf="clientForm.controls['numeroSiret'].errors?.['required']"
+              >Le numéro SIRET est requis.</span
+            >
+            <span *ngIf="clientForm.controls['numeroSiret'].errors?.['pattern']"
+              >Le numéro SIRET doit contenir exactement 14 chiffres.</span
+            >
           </div>
         </div>
 
-        <!-- Type de Client -->
         <div class="mb-3">
           <label class="form-label">Type de Client</label>
           <select class="form-control" formControlName="typeClient">
-            <option *ngFor="let type of typeClientOptions" [value]="type">{{
-              type }}</option>
+            <option *ngFor="let type of typeClientOptions" [value]="type">
+              {{ type }}
+            </option>
           </select>
           <div
-            *ngIf="clientForm.controls['typeClient'].invalid && clientForm.controls['typeClient'].touched"
-            class="text-danger">
+            *ngIf="
+              clientForm.controls['typeClient'].invalid &&
+              clientForm.controls['typeClient'].touched
+            "
+            class="text-danger"
+          >
             Le type de client est requis.
           </div>
         </div>
 
-        <!-- Pays -->
         <div class="mb-3">
           <label class="form-label">Pays</label>
           <select class="form-control" formControlName="paysId">
-            <option *ngFor="let pays of paysList$ | async"
-              [value]="pays.paysId">{{ pays.nomFrFr }}</option>
+            <option
+              *ngFor="let pays of paysList$ | async"
+              [value]="pays.paysId"
+            >
+              {{ pays.nomFrFr }}
+            </option>
           </select>
           <div
-            *ngIf="clientForm.controls['paysId'].invalid && clientForm.controls['paysId'].touched"
-            class="text-danger">
+            *ngIf="
+              clientForm.controls['paysId'].invalid &&
+              clientForm.controls['paysId'].touched
+            "
+            class="text-danger"
+          >
             Le pays est requis.
           </div>
         </div>
 
-        <!-- Société -->
         <div class="mb-3">
           <label class="form-label">Société</label>
           <select class="form-control" formControlName="societeId">
-            <option *ngFor="let societe of societeList$ | async"
-              [value]="societe.societeId">{{ societe.nom }}</option>
+            <option
+              *ngFor="let societe of adminSocietes$ | async"
+              [value]="societe.societeId"
+            >
+              {{ societe.name }}
+            </option>
           </select>
           <div
-            *ngIf="clientForm.controls['societeId'].invalid && clientForm.controls['societeId'].touched"
-            class="text-danger">
+            *ngIf="
+              clientForm.controls['societeId'].invalid &&
+              clientForm.controls['societeId'].touched
+            "
+            class="text-danger"
+          >
             La société est requise.
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-light"
-          (click)="modalRef?.hide()">Annuler</button>
-        <button type="submit" class="btn btn-success"
-          [disabled]="clientForm.invalid">
-          {{ clientForm.value.clientId ? 'Mettre à Jour' : 'Ajouter' }}
+        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="clientForm.invalid"
+        >
+          {{ clientForm.value.clientId ? "Mettre à Jour" : "Ajouter" }}
         </button>
       </div>
     </form>
   </ng-template>
 
-  <!-- ✅ Modal Détails Client -->
   <ng-template #detailsClientModal>
     <div class="modal-header">
-      <h5 class="modal-title"><i
-          class="bi bi-person-badge text-primary me-2"></i>Détails du
-        Client</h5>
-      <button type="button" class="btn-close"
-        (click)="modalRef?.hide()"></button>
+      <h5 class="modal-title">
+        <i class="bi bi-person-badge text-primary me-2"></i>Détails du Client
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="modalRef?.hide()"
+      ></button>
     </div>
     <div class="modal-body">
       <div class="table-responsive">
         <table class="table">
           <tbody>
             <tr>
-              <th scope="row"><i class="bi bi-person-circle text-primary"></i>
-                Nom :</th>
-              <td>{{ selectedClient?.nom || 'Non défini' }}</td>
+              <th scope="row">
+                <i class="bi bi-person-circle text-primary"></i> Nom :
+              </th>
+              <td>{{ selectedClient?.nom || "Non défini" }}</td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-envelope text-danger"></i> Email
-                :</th>
-              <td>{{ selectedClient?.email || 'Non défini' }}</td>
+              <th scope="row">
+                <i class="bi bi-envelope text-danger"></i> Email :
+              </th>
+              <td>{{ selectedClient?.email || "Non défini" }}</td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-telephone text-success"></i>
-                Téléphone :</th>
-              <td>{{ selectedClient?.telephone || 'Non défini' }}</td>
+              <th scope="row">
+                <i class="bi bi-telephone text-success"></i> Téléphone :
+              </th>
+              <td>{{ selectedClient?.telephone || "Non défini" }}</td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-geo-alt text-warning"></i> Adresse
-                :</th>
-              <td>{{ selectedClient?.adresse || 'Non défini' }}</td>
+              <th scope="row">
+                <i class="bi bi-geo-alt text-warning"></i> Adresse :
+              </th>
+              <td>{{ selectedClient?.adresse || "Non défini" }}</td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-hash text-secondary"></i> Numéro
-                SIRET :</th>
-              <td>{{ selectedClient?.numeroSiret || 'Non défini' }}</td>
+              <th scope="row">
+                <i class="bi bi-hash text-secondary"></i> Numéro SIRET :
+              </th>
+              <td>{{ selectedClient?.numeroSiret || "Non défini" }}</td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-tags text-info"></i> Type de
-                Client :</th>
+              <th scope="row">
+                <i class="bi bi-tags text-info"></i> Type de Client :
+              </th>
               <td>
                 <span class="badge badge-soft-primary">
-                  {{ selectedClient?.typeClient || 'Non défini' }}
+                  {{ selectedClient?.typeClient || "Non défini" }}
                 </span>
               </td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-globe text-primary"></i> Pays
-                :</th>
+              <th scope="row">
+                <i class="bi bi-globe text-primary"></i> Pays :
+              </th>
               <td>
                 <span class="badge badge-soft-success">
-                  {{ selectedClient?.pays?.nomFrFr || 'Non défini' }}
+                  {{ selectedClient?.pays?.nomFrFr || "Non défini" }}
                 </span>
               </td>
             </tr>
             <tr>
-              <th scope="row"><i class="bi bi-buildings text-primary me-2"></i>
-                Société :</th>
+              <th scope="row">
+                <i class="bi bi-buildings text-primary me-2"></i> Société :
+              </th>
               <td>
                 <span class="badge badge-soft-info">
-                  {{ selectedClient?.societe?.nom || 'Non définie' }}
+                  {{ selectedClient?.societe?.nom || "Non définie" }}
                 </span>
               </td>
             </tr>
@@ -396,9 +545,9 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-light"
-        (click)="modalRef?.hide()">Fermer</button>
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Fermer
+      </button>
     </div>
   </ng-template>
-
 </div>

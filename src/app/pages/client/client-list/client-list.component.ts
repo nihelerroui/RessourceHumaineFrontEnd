@@ -1,29 +1,27 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Observable } from 'rxjs';
-import { addClient, deleteClient, loadClients, sendImportEmail, updateClient } from 'src/app/store/client/client.actions';
-import { Client } from '../../../models/client.model';
-import { selectClientError, selectClientList, selectClientLoading } from 'src/app/store/client/client.selectors';
-import { TypeClient } from 'src/app/models/type-client.enum';
-import { loadPays } from 'src/app/store/pays/pays.actions';
-import { Pays } from 'src/app/models/pays.model';
-import { selectPaysList } from 'src/app/store/pays/pays.selectors';
-import { loadSocietes } from 'src/app/store/societe/societe.actions';
-import { Societe } from 'src/app/models/societe.model';
-import { selectSocieteList } from 'src/app/store/societe/societe.selectors';
-import Swal from 'sweetalert2';
+import { Component, OnInit, TemplateRef } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Store } from "@ngrx/store";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { Observable } from "rxjs";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import * as ClientActions  from "src/app/store/client/client.actions";
+import { Client } from "../../../models/client.model";
+import * as ClientSelectors from "src/app/store/client/client.selectors";
+import { TypeClient } from "src/app/models/type-client.enum";
+import { loadPays } from "src/app/store/pays/pays.actions";
+import { Pays } from "src/app/models/pays.model";
+import { selectPaysList } from "src/app/store/pays/pays.selectors";
+import Swal from "sweetalert2";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 
 @Component({
-  selector: 'app-client-list',
-  templateUrl: './client-list.component.html',
-  styleUrls: ['./client-list.component.css']
+  selector: "app-client-list",
+  templateUrl: "./client-list.component.html",
+  styleUrls: ["./client-list.component.css"],
 })
 export class ClientListComponent implements OnInit {
   breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
   clientList$: Observable<Client[]>;
-  societeList$: Observable<Societe[]>;
   paysList$: Observable<Pays[]>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
@@ -34,112 +32,135 @@ export class ClientListComponent implements OnInit {
 
   filteredClientList: Client[] = [];
   paginatedClientList: Client[] = [];
-  searchTerm: string = '';
-  selectedPays: number | '' = '';
-  selectedSociete: number | '' = '';
-  selectedTypeClient: string = '';
+  searchTerm: string = "";
+  selectedPays: number | "" = "";
+  selectedSociete: number | "" = "";
+  selectedTypeClient: string = "";
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
   selectedClient!: Client | null;
 
+  adminSocietes$: Observable<any[]>;
+  consultantSocieteId!: number;
+
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
     public store: Store
-  ) { }
+  ) {}
 
   ngOnInit(): void {
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantSocieteId = currentUser.societe.societeId;
+    this.selectedSociete = this.consultantSocieteId;
+
     this.breadCrumbItems = [
-      { label: 'Dashboard', path: '/' },
-      { label: 'Liste des Clients', active: true }
+      { label: "Dashboard", path: "/" },
+      { label: "Liste des Clients", active: true },
     ];
 
-    // Déclencher l'action NgRx pour charger les clients
-    this.store.dispatch(loadClients());
+    this.store.dispatch(ClientActions.loadClients());
     this.store.dispatch(loadPays());
-    this.store.dispatch(loadSocietes());
 
-    // Sélectionner les données depuis le store
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+    this.adminSocietes$ = this.store.select(selectAllSocietes);
+
     this.paysList$ = this.store.select(selectPaysList);
-    this.societeList$ = this.store.select(selectSocieteList);
-    this.store.select(selectClientList).subscribe(clients => {
-      this.filteredClientList = clients;
-      this.pageChanged({ page: 1 }); // Initialisation pagination
-    });
-    this.loading$ = this.store.select(selectClientLoading);
-    this.error$ = this.store.select(selectClientError);
 
-    // Initialisation du formulaire
+    this.store.select(ClientSelectors.selectClientList).subscribe((clients) => {
+      this.filteredClientList = clients.filter(
+        (client) => client.societe?.societeId === this.consultantSocieteId
+      );
+      this.selectedSociete = this.consultantSocieteId;
+      this.pageChanged({ page: 1 });
+    });
+
+    this.loading$ = this.store.select(ClientSelectors.selectClientLoading);
+    this.error$ = this.store.select(ClientSelectors.selectClientError);
+
     this.clientForm = this.formBuilder.group({
-      clientId: [''],
-      nom: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/)]],
-      email: ['', [Validators.required, Validators.email]],
-      telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-      adresse: ['', [Validators.required]],
-      numeroSiret: ['', [Validators.required, Validators.pattern(/^\d{14}$/)]],
-      typeClient: ['', [Validators.required]],
-      paysId: ['', [Validators.required]],
-      societeId: ['', [Validators.required]]
+      nom: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/),
+        ],
+      ],
+      email: ["", [Validators.required, Validators.email]],
+      telephone: ["", [Validators.required, Validators.pattern("^[0-9]+$")]],
+      adresse: ["", [Validators.required]],
+      numeroSiret: ["", Validators.required],
+      typeClient: ["", [Validators.required]],
+      paysId: ["", [Validators.required]],
+      societeId: ["", [Validators.required]],
     });
   }
 
-  /** 🔍 Filtrer la liste des clients */
   filterClients() {
-    this.store.select(selectClientList).subscribe(clients => {
-      this.filteredClientList = clients.filter(client =>
-        (client.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          client.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          client.telephone.includes(this.searchTerm)) &&
-        (this.selectedPays === '' || client.pays?.paysId == this.selectedPays) &&
-        (this.selectedSociete === '' || client.societe.societeId == this.selectedSociete) &&
-        (this.selectedTypeClient === '' || client.typeClient === this.selectedTypeClient)
+    this.store.select(ClientSelectors.selectClientList).subscribe((clients) => {
+      this.filteredClientList = clients.filter(
+        (client) =>
+          (client.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            client.email
+              .toLowerCase()
+              .includes(this.searchTerm.toLowerCase()) ||
+            client.telephone.includes(this.searchTerm)) &&
+          (this.selectedPays === "" ||
+            client.pays?.paysId == this.selectedPays) &&
+          ((this.selectedSociete !== "" &&
+            client.societe.societeId == this.selectedSociete) ||
+            (this.selectedSociete === "" &&
+              client.societe.societeId === this.consultantSocieteId)) &&
+          (this.selectedTypeClient === "" ||
+            client.typeClient === this.selectedTypeClient)
       );
       this.pageChanged({ page: 1 });
     });
   }
 
-  /** 📌 Pagination */
   pageChanged(event: any) {
     this.currentPage = event.page;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedClientList = this.filteredClientList.slice(startIndex, startIndex + this.itemsPerPage);
+    this.paginatedClientList = this.filteredClientList.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
   }
 
-  /** 🔄 Rafraîchir la liste */
   refreshList() {
-    this.store.dispatch(loadClients());
+    this.store.dispatch(ClientActions.loadClients());
   }
 
-  /** ✅ Ouvrir le modal en mode ajout */
-openModalAdd(template: TemplateRef<any>) {
-  this.clientForm.reset(); // Réinitialiser le formulaire
-  this.clientForm.patchValue({ clientId: null }); // S'assurer que clientId est null
-  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-}
-
-/** ✅ Ouvrir le modal en mode modification */
-openModalEdit(client: any, template: TemplateRef<any>) {
-  this.clientForm.patchValue({
-    clientId: client.clientId,
-    nom: client.nom,
-    email: client.email,
-    telephone: client.telephone,
-    adresse: client.adresse,
-    numeroSiret: client.numeroSiret,
-    typeClient: client.typeClient,
-    paysId: client.pays?.paysId || '',
-    societeId: client.societe?.societeId || ''
-  });
-  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-}
+  openModalAdd(template: TemplateRef<any>) {
+    this.clientForm.reset();
+    this.clientForm.patchValue({ clientId: null }); 
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
+  }
 
 
-  /** ✅ Ajouter ou modifier un client */
+  openModalEdit(client: any, template: TemplateRef<any>) {
+    this.clientForm.patchValue({
+      clientId: client.clientId,
+      nom: client.nom,
+      email: client.email,
+      telephone: client.telephone,
+      adresse: client.adresse,
+      numeroSiret: client.numeroSiret,
+      typeClient: client.typeClient,
+      paysId: client.pays?.paysId || "",
+      societeId: client.societe?.societeId || "",
+    });
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
+  }
+
+  
   saveClient() {
     if (this.clientForm.valid) {
       let clientData = this.clientForm.value;
-
 
       clientData.pays = { paysId: clientData.paysId };
       clientData.societe = { societeId: clientData.societeId };
@@ -147,22 +168,21 @@ openModalEdit(client: any, template: TemplateRef<any>) {
       delete clientData.paysId;
       delete clientData.societeId;
 
-
       if (clientData.clientId) {
-        this.store.dispatch(updateClient({ client: clientData }));
+        this.store.dispatch(ClientActions.updateClient({ client: clientData }));
         Swal.fire({
-          icon: 'success',
-          title: 'Client mis à jour avec succès !',
+          icon: "success",
+          title: "Client mis à jour avec succès !",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       } else {
-        this.store.dispatch(addClient({ client: clientData }));
+        this.store.dispatch(ClientActions.addClient({ client: clientData }));
         Swal.fire({
-          icon: 'success',
-          title: 'Nouveau client ajouté avec succès !',
+          icon: "success",
+          title: "Nouveau client ajouté avec succès !",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       }
 
@@ -171,41 +191,35 @@ openModalEdit(client: any, template: TemplateRef<any>) {
     }
   }
 
-
-  /** ✅ Supprimer un client avec confirmation */
+  
   onDeleteClient(clientId: number) {
     Swal.fire({
-      title: 'Êtes-vous sûr ?',
-      text: 'Cette action est irréversible !',
-      icon: 'warning',
+      title: "Êtes-vous sûr ?",
+      text: "Cette action est irréversible !",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Oui, supprimer !',
-      cancelButtonText: 'Annuler'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Oui, supprimer !",
+      cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(deleteClient({ clientId }));
+        this.store.dispatch(ClientActions.deleteClient({ clientId }));
         Swal.fire({
-          icon: 'success',
-          title: 'Client supprimé avec succès !',
+          icon: "success",
+          title: "Client supprimé avec succès !",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       }
     });
   }
 
-  /** ✅ Ouvrir le modal des détails */
   openDetailsModal(client: any, template: TemplateRef<any>) {
     this.selectedClient = client;
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
   envoyerEmailImport(clientId: number) {
-    this.store.dispatch(sendImportEmail({ clientId }));
+    this.store.dispatch(ClientActions.sendImportEmail({ clientId }));
   }
-
-
 }
-
-

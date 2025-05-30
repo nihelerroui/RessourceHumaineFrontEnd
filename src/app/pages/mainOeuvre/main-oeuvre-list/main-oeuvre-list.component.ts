@@ -13,6 +13,8 @@ import {
 } from "src/app/store/mainOeuvre/mainOeuvre.selectors";
 import Swal from "sweetalert2";
 import * as MainOeuvreActions from "src/app/store/mainOeuvre/mainOeuvre.actions";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 
 @Component({
   selector: "app-main-oeuvre-list",
@@ -35,8 +37,11 @@ export class MainOeuvreListComponent implements OnInit {
   filteredMainOeuvre: MainOeuvre[] = [];
   paginatedMainOeuvre: MainOeuvre[] = [];
 
-  consultantId: number = 141; 
+  consultantId!: number;
   societeId: number | undefined;
+
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
+  selectedSocieteId: number | "" = "";
 
   constructor(private store: Store, private actions$: Actions) {
     this.mainOeuvreList$ = this.store.select(selectMainOeuvreData);
@@ -44,18 +49,32 @@ export class MainOeuvreListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantId = currentUser.consultantId;
+    this.societeId = currentUser.societe?.societeId;
+    this.selectedSocieteId = this.societeId;
+
     this.store.dispatch(loadMainOeuvre());
 
-    this.mainOeuvreList$.subscribe(list => {
+    this.mainOeuvreList$.subscribe((list) => {
       this.mainOeuvre = list;
-  
+
       if (!this.societeId) {
-        const consultant = list.find(m => m.consultant?.consultantId === this.consultantId);
+        const consultant = list.find(
+          (m) => m.consultant?.consultantId === this.consultantId
+        );
         this.societeId = consultant?.consultant?.societe?.societeId;
       }
-  
+
       this.filtrerMainOeuvre();
-      this.montantTotal = this.filteredMainOeuvre.reduce((acc, item) => acc + item.coutGlobale, 0);
+      this.montantTotal = this.filteredMainOeuvre.reduce(
+        (acc, item) => acc + item.coutGlobale,
+        0
+      );
     });
   }
 
@@ -70,14 +89,22 @@ export class MainOeuvreListComponent implements OnInit {
   }
 
   filtrerMainOeuvre() {
-    this.filteredMainOeuvre = this.mainOeuvre.filter(m =>
-      (!this.searchTerm || m.consultant?.fullName?.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (!this.societeId || m.consultant?.societe?.societeId === this.societeId)
+    this.filteredMainOeuvre = this.mainOeuvre.filter(
+      (m) =>
+        (!this.searchTerm ||
+          m.consultant?.fullName
+            ?.toLowerCase()
+            .includes(this.searchTerm.toLowerCase())) &&
+        (!this.selectedSocieteId ||
+          m.consultant?.societe?.societeId === +this.selectedSocieteId)
     );
-  
+
     this.pageChanged({ page: 1 });
+    this.montantTotal = this.filteredMainOeuvre.reduce(
+      (acc, item) => acc + item.coutGlobale,
+      0
+    );
   }
-  
 
   verifierMiseAJour() {
     const adminId = 141;

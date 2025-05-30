@@ -3,13 +3,22 @@ import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable, of } from "rxjs";
 import { User } from "src/app/models/auth.models";
-import { toggleUserStatus, toggleUserStatusSuccess } from "src/app/store/user/user.actions";
+import {
+  toggleUserStatus,
+  toggleUserStatusSuccess,
+} from "src/app/store/user/user.actions";
 import Swal from "sweetalert2";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 import { UtilisateurregisterviewComponent } from "../utilisateurregisterview/utilisateurregisterview.component";
 import { UtilisateurdetailviewComponent } from "../utilisateurdetailview/utilisateurdetailview.component";
 import { UserRole } from "src/app/models/userRole.enum";
 import { loadConsultants } from "src/app/store/Authentication/authentication.actions";
-import { selectAllConsultants, selectConsultantsError, selectConsultantsLoading } from "src/app/store/Authentication/authentication-selector";
+import {
+  selectAllConsultants,
+  selectAllSocietes,
+  selectConsultantsError,
+  selectConsultantsLoading,
+} from "src/app/store/Authentication/authentication-selector";
 import { Consultant } from "src/app/models/consultant.models";
 import { Actions, ofType } from "@ngrx/effects";
 
@@ -40,45 +49,70 @@ export class UsersListComponent implements OnInit {
   roles: string[] = Object.values(UserRole);
   statuses: string[] = ["Activé", "Désactivé"];
 
-  constructor(private store: Store, private modalService: BsModalService , private actions$: Actions,) {}
+  selectedSocieteId: number | null = null;
+  adminSocietes: any[] = [];
+  consultantSocieteId: number | null = null;
+
+  constructor(
+    private store: Store,
+    private modalService: BsModalService,
+    private actions$: Actions
+  ) {}
 
   ngOnInit(): void {
     this.breadCrumbItems = [
       { label: "Dashboard", path: "/" },
       { label: "Liste des Utilisateurs", active: true },
     ];
+
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantSocieteId = currentUser?.societe?.societeId || null;
+    this.selectedSocieteId = this.consultantSocieteId;
+
     this.store.dispatch(loadConsultants());
 
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+    this.store.select(selectAllSocietes).subscribe((societes) => {
+      this.adminSocietes = societes;
+    });
+
     this.store.select(selectAllConsultants).subscribe((consultants) => {
-  this.filteredUserList = [...consultants];
-  if (this.filteredUserList.length > 0) {
-    this.pageChanged({ page: 1 });
-  }
-});
+      this.applyUserFilters(consultants);
+    });
 
     this.loading$ = this.store.select(selectConsultantsLoading);
     this.error$ = this.store.select(selectConsultantsError);
 
-    this.actions$.pipe(
-  ofType(toggleUserStatusSuccess)
-).subscribe(() => {
-  this.store.dispatch(loadConsultants()); // ou loadUsers() selon ta logique
-});
-
+    this.actions$.pipe(ofType(toggleUserStatusSuccess)).subscribe(() => {
+      this.store.dispatch(loadConsultants());
+    });
   }
 
- filterUsers() {
-  this.store.select(selectAllConsultants).subscribe((consultants) => {
-    this.filteredUserList = consultants.filter((consultant) =>
-      (this.selectedRole === "" || consultant.user?.role === this.selectedRole) &&
-      (this.selectedStatus === "" ||
-        (this.selectedStatus === "Activé" && consultant.user?.enabled) ||
-        (this.selectedStatus === "Désactivé" && !consultant.user?.enabled))
-    );
-    this.pageChanged({ page: 1 });
-  });
-}
+  filterUsers() {
+    this.store.select(selectAllConsultants).subscribe((consultants) => {
+      this.applyUserFilters(consultants);
+    });
+  }
 
+  applyUserFilters(consultants: Consultant[]) {
+    this.filteredUserList = consultants.filter((consultant) => {
+      const roleMatch =
+        !this.selectedRole || consultant.user?.role === this.selectedRole;
+      const statusMatch =
+        !this.selectedStatus ||
+        (this.selectedStatus === "Activé" && consultant.user?.enabled) ||
+        (this.selectedStatus === "Désactivé" && !consultant.user?.enabled);
+      const societeMatch =
+        !this.selectedSocieteId ||
+        consultant.societe?.societeId === this.selectedSocieteId;
+
+      return roleMatch && statusMatch && societeMatch;
+    });
+
+    this.pageChanged({ page: 1 });
+  }
 
   pageChanged(event: any) {
     this.currentPage = event?.page || 1;
@@ -90,8 +124,8 @@ export class UsersListComponent implements OnInit {
   }
 
   trackByUserId(index: number, consultant: Consultant): number {
-  return consultant.consultantId;
-}
+    return consultant.consultantId;
+  }
 
   refreshList() {
     this.store.dispatch(loadConsultants());
@@ -107,48 +141,45 @@ export class UsersListComponent implements OnInit {
   }
 
   openModalEdit(consultant: Consultant) {
-  this.modalRef = this.modalService.show(UtilisateurregisterviewComponent, {
-    initialState: {
-      mode: "edit",
+    this.modalRef = this.modalService.show(UtilisateurregisterviewComponent, {
+      initialState: {
+        mode: "edit",
+        consultant: consultant,
+      },
+      class: "modal-lg modal-dialog-centered",
+    });
+  }
+
+  openDetailsModal(consultant: Consultant): void {
+    const initialState = {
       consultant: consultant,
-    },
-    class: "modal-lg modal-dialog-centered",
-  });
-}
+    };
 
-openDetailsModal(consultant: Consultant): void {
-  const initialState = {
-    consultant: consultant, 
-  };
+    this.modalRef = this.modalService.show(UtilisateurdetailviewComponent, {
+      initialState,
+      class: "modal-lg modal-dialog-centered",
+    });
+  }
 
-  this.modalRef = this.modalService.show(UtilisateurdetailviewComponent, {
-    initialState,
-    class: "modal-lg modal-dialog-centered",
-  });
-}
+  toggleStatus(consultant: Consultant): void {
+    const user = consultant.user;
+    const action = user.enabled ? "désactiver" : "activer";
 
-
-
- toggleStatus(consultant: Consultant): void {
-  const user = consultant.user;
-  const action = user.enabled ? "désactiver" : "activer";
-
-  Swal.fire({
-    title: `Voulez-vous ${action} cet utilisateur ?`,
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Oui",
-    cancelButtonText: "Annuler",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.store.dispatch(toggleUserStatus({ userId: user.userId }));
-      Swal.fire({
-        icon: "success",
-        title: "Succès",
-        text: `Utilisateur ${action} avec succès`,
-      });
-    }
-  });
-}
-
+    Swal.fire({
+      title: `Voulez-vous ${action} cet utilisateur ?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Oui",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.store.dispatch(toggleUserStatus({ userId: user.userId }));
+        Swal.fire({
+          icon: "success",
+          title: "Succès",
+          text: `Utilisateur ${action} avec succès`,
+        });
+      }
+    });
+  }
 }
