@@ -20,3 +20,8 @@ export const updateSocieteFailure = createAction('[Societe] Update Societe Failu
 export const deleteSociete = createAction('[Societe] Delete Societe', props<{ societeId: number }>());
 export const deleteSocieteSuccess = createAction('[Societe] Delete Societe Success', props<{ societeId: number }>());
 export const deleteSocieteFailure = createAction('[Societe] Delete Societe Failure', props<{ error: string }>());
+
+// Récupérer la liste des sociétés administrées
+export const loadSocietesAdministrees = createAction('[Societe] Load Societes Administrees');
+export const loadSocietesAdministreesSuccess = createAction('[Societe] Load Societes Administrees Success', props<{ societes: Societe[] }>());
+export const loadSocietesAdministreesFailure = createAction('[Societe] Load Societes Administrees Failure', props<{ error: any }>());

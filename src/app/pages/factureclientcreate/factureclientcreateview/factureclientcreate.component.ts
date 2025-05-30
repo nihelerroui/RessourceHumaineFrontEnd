@@ -4,12 +4,10 @@ import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
 import { Store } from "@ngrx/store";
-import { selectFactureSelected } from "src/app/store/FactureClient/factureclient.selector";
+import { selectFactureSelected, selectPrestationsByContrat } from "src/app/store/FactureClient/factureclient.selector";
 import * as FactureClientActions from '../../../store/FactureClient/factureclient.actions';
-import { loadPrestations } from "src/app/store/Prestation/prestation.action";
-import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
-import { selectAllPrestations } from "src/app/store/Prestation/prestation-selector";
-import { selectAllContratsClient } from "src/app/store/contratClient/contratClient-selector";
+import { loadContratsBySocieteAdmin, loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
+import { selectAllContratsClient, selectContratsBySocieteAdmin } from "src/app/store/contratClient/contratClient-selector";
 import { Actions, ofType } from "@ngrx/effects";
 
 @Component({
@@ -44,41 +42,65 @@ export class FactureClientCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isEditMode = !!this.factureClientId;
-    this.store.dispatch(loadPrestations());
-    this.store.dispatch(loadContratsClient());
+  this.isEditMode = !!this.factureClientId;
 
-    let loadedFacture: any = null;
+  // Charger les contrats clients dès le départ
+  this.store.dispatch(loadContratsBySocieteAdmin());
 
-    this.store.select(selectAllContratsClient).subscribe((contrats) => this.contratsClient = contrats);
-    this.store.select(selectAllPrestations).subscribe((prestations) => {
-      this.prestations = prestations;
-      this.availablePrestations = [...prestations];
-      this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
-        const prestation = this.prestationIds.at(index).value;
-        const updated = {
-          ...prestation,
-          quantite: workingDays,
-          montantHt: (prestation.prixUnitaire || 0) * workingDays
-        };
-        this.prestationIds.at(index).setValue(updated);
-        this.updateFacturePreview();
-      });
-      if (this.isEditMode && loadedFacture) this.patchFactureForm(loadedFacture);
-    });
+  let loadedFacture: any = null;
 
-    if (this.isEditMode) {
-      this.store.dispatch(FactureClientActions.loadFactureClientById({ id: this.factureClientId }));
-      this.store.select(selectFactureSelected).subscribe((facture) => {
-        if (facture) {
-          loadedFacture = facture;
-          if (this.prestations.length > 0) this.patchFactureForm(facture);
-        }
-      });
+  // Souscription aux contrats
+  this.store.select(selectContratsBySocieteAdmin).subscribe((contrats) => {
+  this.contratsClient = contrats;
+});
+
+
+  // Souscription aux prestations chargées par contrat
+  this.store.select(selectPrestationsByContrat).subscribe((prestations) => {
+    this.prestations = prestations;
+    this.availablePrestations = [...prestations];
+
+    // Re-patch du formulaire si en mode édition et la facture est chargée
+    if (this.isEditMode && loadedFacture) {
+      this.patchFactureForm(loadedFacture);
     }
+  });
 
-    this.factureForm.valueChanges.subscribe(() => this.updateFacturePreview());
+  // Écoute des working days à chaque prestation sélectionnée
+  this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
+    const prestation = this.prestationIds.at(index).value;
+    const updated = {
+      ...prestation,
+      quantite: workingDays,
+      montantHt: (prestation.prixUnitaire || 0) * workingDays
+    };
+    this.prestationIds.at(index).setValue(updated);
+    this.updateFacturePreview();
+  });
+
+  // Si modification : charger la facture et la patcher
+  if (this.isEditMode) {
+    this.store.dispatch(FactureClientActions.loadFactureClientById({ id: this.factureClientId }));
+    
+    this.store.select(selectFactureSelected).subscribe((facture) => {
+      if (facture) {
+        loadedFacture = facture;
+
+        // Charger les prestations liées au contrat de cette facture
+        this.store.dispatch(FactureClientActions.loadPrestationsByContrat({ contratId: facture.contratId }));
+
+        // Si les prestations sont déjà chargées, patcher le formulaire
+        if (this.prestations.length > 0) {
+          this.patchFactureForm(facture);
+        }
+      }
+    });
   }
+
+  // Mise à jour du preview à chaque changement dans le formulaire
+  this.factureForm.valueChanges.subscribe(() => this.updateFacturePreview());
+}
+
 
   initForm() {
     this.factureForm = this.fb.group({
@@ -163,6 +185,7 @@ export class FactureClientCreateComponent implements OnInit {
         pourcentageTva: isTunisie ? 19 : 20,
         objet: `Facture ${new Date().toLocaleString('fr-FR', { month: 'long' })}`
       });
+      this.store.dispatch(FactureClientActions.loadPrestationsByContrat({ contratId }));
       this.updateFacturePreview();
     }
   }

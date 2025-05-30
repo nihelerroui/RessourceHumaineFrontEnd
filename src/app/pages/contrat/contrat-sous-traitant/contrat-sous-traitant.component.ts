@@ -97,7 +97,7 @@ export class ContratSousTraitantComponent implements OnInit {
       tjm: ['', [Validators.required, Validators.min(1)]], 
       dateDebut: ['', Validators.required], 
       dateFin: ['', Validators.required],
-      conditionsFac: ['', [Validators.required, Validators.minLength(10)]]
+      conditionsFac: ['', [Validators.minLength(10)]]
     }, {
       validator: this.validateDates
     });

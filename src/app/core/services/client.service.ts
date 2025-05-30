@@ -14,4 +14,7 @@ export class ClientService extends GenericService<Client> {
   envoyerEmailImport(clientId: number) {
     return this.http.post(`${this.apiUrl}/envoyer-email/${clientId}`, {});
   }
+  getClientsBySocietesAdmin() {
+  return this.http.get<Client[]>(`${this.apiUrl}/admin/clients-societes`);
+}
 }

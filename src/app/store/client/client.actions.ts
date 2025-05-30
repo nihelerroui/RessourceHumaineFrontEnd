@@ -67,3 +67,14 @@ export const sendImportEmailFailure = createAction(
   '[Client] Send Import Email Failure',
   props<{ error: string }>()
 );
+export const loadClientsBySocieteAdmin = createAction('[Client] Load Clients By Societe Admin');
+
+export const loadClientsBySocieteAdminSuccess = createAction(
+  '[Client] Load Clients By Societe Admin Success',
+  props<{ clients: Client[] }>()
+);
+
+export const loadClientsBySocieteAdminFailure = createAction(
+  '[Client] Load Clients By Societe Admin Failure',
+  props<{ error: any }>()
+);

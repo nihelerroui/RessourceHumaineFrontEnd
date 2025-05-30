@@ -59,4 +59,20 @@ export class SocieteEffects {
       )
     )
   );
+  // Sociétés administrées par l'admin connecté
+  loadAdministrees$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SocieteActions.loadSocietesAdministrees),
+      mergeMap(() =>
+        this.societeService.getSocietesAdministrees().pipe(
+          map(societes =>
+            SocieteActions.loadSocietesAdministreesSuccess({ societes })
+          ),
+          catchError(error =>
+            of(SocieteActions.loadSocietesAdministreesFailure({ error }))
+          )
+        )
+      )
+    )
+  );
 }

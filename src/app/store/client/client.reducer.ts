@@ -1,33 +1,17 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { Client } from 'src/app/models/client.model';
-import {
-  loadClients,
-  loadClientsSuccess,
-  loadClientsFailure,
-  addClient,
-  addClientSuccess,
-  addClientFailure,
-  updateClient,
-  updateClientSuccess,
-  updateClientFailure,
-  deleteClient,
-  deleteClientSuccess,
-  deleteClientFailure,
-  sendImportEmail,
-  sendImportEmailSuccess,
-  sendImportEmailFailure
-} from './client.actions';
+import * as ClientActions from './client.actions';
 
 // 🔹 Interface pour le state Client
 export interface ClientState {
-  clients: Client[];  // 🔥 Assure-toi que c'est bien "clients" et non "clientList"
+  clients: Client[];
   loading: boolean;
   error: string | null;
 }
 
 // 🔹 État initial
 export const initialState: ClientState = {
-  clients: [],  // 🔥 Assure-toi d'utiliser "clients" ici aussi
+  clients: [],  
   loading: false,
   error: null
 };
@@ -37,88 +21,95 @@ export const clientReducer = createReducer(
   initialState,
 
   // 🚀 Charger les clients
-  on(loadClients, (state) => ({
+  on(ClientActions.loadClients, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
-  on(loadClientsSuccess, (state, { clients }) => ({
+  on(ClientActions.loadClientsSuccess, (state, { clients }) => ({
     ...state,
     clients,  // 🔥 Vérifie que tu utilises "clients"
     loading: false
   })),
-  on(loadClientsFailure, (state, { error }) => ({
+  on(ClientActions.loadClientsFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
 
   // 🚀 Ajouter un client
-  on(addClient, (state) => ({
+  on(ClientActions.addClient, (state) => ({
     ...state,
     loading: true
   })),
-  on(addClientSuccess, (state, { client }) => ({
+  on(ClientActions.addClientSuccess, (state, { client }) => ({
     ...state,
     clients: [...state.clients, client],  // 🔥 Vérifie "clients"
     loading: false
   })),
-  on(addClientFailure, (state, { error }) => ({
+  on(ClientActions.addClientFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
 
   // 🚀 Mettre à jour un client
-  on(updateClient, (state) => ({
+  on(ClientActions.updateClient, (state) => ({
     ...state,
     loading: true
   })),
-  on(updateClientSuccess, (state, { client }) => ({
+  on(ClientActions.updateClientSuccess, (state, { client }) => ({
     ...state,
     clients: state.clients.map((c) => (c.clientId === client.clientId ? client : c)),
     loading: false
   })),
-  on(updateClientFailure, (state, { error }) => ({
+  on(ClientActions.updateClientFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
 
   // 🚀 Supprimer un client
-  on(deleteClient, (state) => ({
+  on(ClientActions.deleteClient, (state) => ({
     ...state,
     loading: true
   })),
-  on(deleteClientSuccess, (state, { clientId }) => ({
+  on(ClientActions.deleteClientSuccess, (state, { clientId }) => ({
     ...state,
     clients: state.clients.filter((c) => c.clientId !== clientId),
     loading: false
   })),
-  on(deleteClientFailure, (state, { error }) => ({
+  on(ClientActions.deleteClientFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
-  on(sendImportEmail, (state) => ({
+  on(ClientActions.sendImportEmail, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
-  on(sendImportEmailSuccess, (state) => ({
+  on(ClientActions.sendImportEmailSuccess, (state) => ({
     ...state,
     loading: false
   })),
-  on(sendImportEmailFailure, (state, { error }) => ({
+  on(ClientActions.sendImportEmailFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
-  
+  on(ClientActions.loadClientsBySocieteAdminSuccess, (state, { clients }) => ({
+  ...state,
+  clients,
+  loading: false
+})),
+on(ClientActions.loadClientsBySocieteAdminFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false
+}))
 );
 
-
-// 🔹 Exporter le reducer
 export function reducer(state: ClientState | undefined, action: Action) {
   return clientReducer(state, action);
 }

@@ -28,4 +28,9 @@ export const selectContratsClientSearchResults = createSelector(
   selectContratClientState,
   (state) => state.searchResults
 );
+export const selectContratsBySocieteAdmin = createSelector(
+  selectContratClientState,
+  (state) => state.contrats  
+);
+
 

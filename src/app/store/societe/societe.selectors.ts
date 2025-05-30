@@ -26,3 +26,9 @@ export const selectSocieteError = createSelector(
   selectSocieteState,
   (state) => state.error
 );
+
+// Sociétés administrées par l'admin connecté
+export const selectSocietesAdministrees = createSelector(
+  selectSocieteState,
+  (state) => state.societesAdministrees
+);

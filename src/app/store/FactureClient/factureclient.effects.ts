@@ -27,6 +27,19 @@ export class FactureClientEffects {
       )
     )
   );
+  //loadFacturesBySocieteAdmin
+  loadFacturesBySocieteAdmin$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadFacturesBySocieteAdmin),
+    mergeMap(() =>
+      this.factureClientService.getFacturesBySocietesAdmin().pipe(
+        map(factures => FactureClientActions.loadFacturesBySocieteAdminSuccess({ factures })),
+        catchError(error => of(FactureClientActions.loadFacturesBySocieteAdminFailure({ error })))
+      )
+    )
+  )
+);
+
   //Create
   createFacture$ = createEffect(() =>
     this.actions$.pipe(
@@ -71,22 +84,21 @@ export class FactureClientEffects {
       )
     )
   );
-  //loadPrestationsByClient
-  loadPrestationsByClient$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(FactureClientActions.loadPrestationsByClient),
-      mergeMap(({ clientId }) =>
-        this.factureClientService.getPrestationsByClient(clientId).pipe(
-          map((prestations) =>
-            FactureClientActions.loadPrestationsByClientSuccess({ prestations })
-          ),
-          catchError((error) =>
-            of(FactureClientActions.loadPrestationsByClientFailure({ error }))
-          )
+  loadPrestationsByContrat$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadPrestationsByContrat),
+    mergeMap(({ contratId }) =>
+      this.factureClientService.getPrestationsByContratId(contratId).pipe(
+        map((prestations) =>
+          FactureClientActions.loadPrestationsByContratSuccess({ prestations })
+        ),
+        catchError((error) =>
+          of(FactureClientActions.loadPrestationsByContratFailure({ error }))
         )
       )
     )
-  );
+  )
+);
 
   loadFacturesClientByClientId$ = createEffect(() =>
     this.actions$.pipe(
@@ -223,4 +235,5 @@ export class FactureClientEffects {
       )
     )
   );
+  
 }

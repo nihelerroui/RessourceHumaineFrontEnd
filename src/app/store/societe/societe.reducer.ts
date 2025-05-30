@@ -4,12 +4,14 @@ import { Societe } from '../../models/societe.model';
 
 export interface SocieteState {
   societes: Societe[];
+  societesAdministrees: Societe[];
   loading: boolean;
   error: string | null;
 }
 
 export const initialState: SocieteState = {
   societes: [],
+  societesAdministrees: [],
   loading: false,
   error: null
 };
@@ -61,6 +63,25 @@ export const societeReducer = createReducer(
   })),
   on(SocieteActions.deleteSocieteFailure, (state, { error }) => ({
     ...state,
+    error
+  })),
+  
+  //loadSocietesAdministrees
+  on(SocieteActions.loadSocietesAdministrees, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(SocieteActions.loadSocietesAdministreesSuccess, (state, { societes }) => ({
+    ...state,
+    societesAdministrees: societes,
+    loading: false
+  })),
+
+  on(SocieteActions.loadSocietesAdministreesFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
     error
   }))
 );
