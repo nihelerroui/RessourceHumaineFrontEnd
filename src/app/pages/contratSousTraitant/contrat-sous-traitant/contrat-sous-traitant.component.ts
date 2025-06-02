@@ -1,18 +1,18 @@
 import { Component, OnInit } from "@angular/core";
 import { Store } from "@ngrx/store";
-import { combineLatest, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
   ContratSousTraitant,
   StatutContrat,
 } from "../../../models/contrat.models";
-import * as ContratActions from "../../../store/contrat/contrat.actions";
-import { selectAllContracts } from "../../../store/contrat/contrat-selector";
+import * as ContratActions from "../../../store/contratSousTraitant/contrat.actions";
+import { selectAllContracts } from "../../../store/contratSousTraitant/contrat-selector";
 
 import Swal from "sweetalert2";
 import { ContratService } from "../../../core/services/contrat.service";
-import { CommentContratModalComponent } from "../comment-contrat-modal/comment-contrat-modal.component";
+import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 
 @Component({
   selector: "app-contrat-sous-traitant",
@@ -20,8 +20,7 @@ import { CommentContratModalComponent } from "../comment-contrat-modal/comment-c
 })
 export class ContratSousTraitantComponent implements OnInit {
   modalRef?: BsModalRef;
-  contratsParPage = 5;
-  page = 1;
+  
   contratsPagination$: Observable<ContratSousTraitant[]> = new Observable();
   total$: Observable<number> = new Observable();
   selectedFile: File | null = null;
@@ -30,13 +29,17 @@ export class ContratSousTraitantComponent implements OnInit {
   contratForm!: FormGroup;
   submitted: boolean = false;
   contrats: any[] = [];
-  filteredContrats: any[] = [];
   contrats$: Observable<ContratSousTraitant[]>;
   selectedContratId: number | null = null;
   fileError: boolean = false;
   fileSelected: boolean = false;
-  // Critères de recherche
-  searchTerm: string = "";
+  
+  page = 1;
+  contratsParPage = 5;
+  filteredContrats: ContratSousTraitant[] = [];
+  paginatedContrats: ContratSousTraitant[] = [];
+  allContrats: ContratSousTraitant[] = [];
+
   selectedStatut: string = "";
   dateDebut: string = "";
   dateFin: string = "";
@@ -62,24 +65,20 @@ export class ContratSousTraitantComponent implements OnInit {
   
     this.initForm();
     this.loadContrats();
+    this.contrats$.subscribe(contrats => {
+  console.log("📦 Données reçues par le store :", contrats);
+  this.allContrats = contrats;
+  this.filterContrats();
+});
+
     this.statutContrats = Object.values(StatutContrat);
   
-    this.total$ = this.contrats$.pipe(map(contrats => contrats.length));
-    this.updatePagination(); 
-    this.searchContrat(); 
+    this.total$ = this.contrats$.pipe(map(contrats => contrats.length)); 
+    
   
     setTimeout(() => {
       this.checkFormValidity();
     }, 500);
-  }
-  //pagination
-  updatePagination() {
-    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
-      map(([contrats]) => {
-        const start = (this.page - 1) * this.contratsParPage;
-        return contrats.slice(start, start + this.contratsParPage);
-      })
-    );
   }
   
   //Charger la liste des contrats
@@ -267,44 +266,35 @@ export class ContratSousTraitantComponent implements OnInit {
       }
     );
   }
-  searchContrat() {
-    this.contratsPagination$ = combineLatest([this.contrats$]).pipe(
-      map(([contrats]) => {
-        let filtered = contrats;
-  
-        if (this.selectedStatut) {
-          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
-        }
-  
-        if (this.dateDebut) {
-          filtered = filtered.filter(c => new Date(c.dateDebut) >= new Date(this.dateDebut));
-        }
-  
-        if (this.dateFin) {
-          filtered = filtered.filter(c => new Date(c.dateFin) <= new Date(this.dateFin));
-        }
-  
-        if (this.minTjm !== null) {
-          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
-        }
-  
-        if (this.maxTjm !== null) {
-          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
-        }
-  
-        const total = filtered.length;
-        this.total$ = new Observable(observer => observer.next(total));
-  
-        const start = (this.page - 1) * this.contratsParPage;
-        return filtered.slice(start, start + this.contratsParPage);
-      })
-    );
+  filterContrats() {
+    this.filteredContrats = this.allContrats.filter(c =>
+        (!this.selectedStatut || c.statutContrat === this.selectedStatut) &&
+        (!this.dateDebut || c.dateDebut === this.dateDebut) &&
+        (!this.dateFin || c.dateFin === this.dateFin) &&
+        (!this.minTjm || c.tjm >= this.minTjm) &&
+        (!this.maxTjm || c.tjm <= this.maxTjm)
+      );
+      this.pageChanged({ page: 1 });
   }
+  pageChanged(event: any) {
+      this.page = event.page;
+      const start = (this.page - 1) * this.contratsParPage;
+      this.paginatedContrats = this.filteredContrats.slice(start, start + this.contratsParPage);
+  }
+  refreshList() {
+        this.selectedStatut = '';
+        this.dateDebut = '';
+        this.dateFin = '';
+        this.minTjm = 0;
+        this.maxTjm = 0;
+        this.page = 1;
+        this.loadContrats();
+      }
   
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
     const emailSousTraitant = contrat.consultant?.user?.email || 'consultant@featway.com';
   
-    this.modalRef = this.modalService.show(CommentContratModalComponent, {
+    this.modalRef = this.modalService.show(CommentContratComponent, {
       initialState: {
         contratId: contrat.contratId,
         contrat: contrat,
@@ -313,5 +303,35 @@ export class ContratSousTraitantComponent implements OnInit {
       class: "modal-lg",
     });
   }
+  modifierStatutContrat(
+      contrat: ContratSousTraitant,
+      nouveauStatut: StatutContrat
+    ): void {
+      const contratModifie: ContratSousTraitant = {
+        ...contrat,
+        statutContrat: nouveauStatut,
+        consultant: {
+          consultantId: contrat.consultant?.consultantId!,
+        },
+      };
+      this.contratService.update(contratModifie).subscribe({
+        next: () => {
+          Swal.fire(
+            "Succès",
+            "Le statut du contrat a été mis à jour.",
+            "success"
+          );
+          this.loadContrats();
+        },
+        error: () => {
+          Swal.fire(
+            "Erreur",
+            "Erreur lors de la mise à jour du contrat.",
+            "error"
+          );
+        },
+      });
+      
+    }
   
 }

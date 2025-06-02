@@ -20,7 +20,7 @@ import { selectSocietesAdministrees } from "src/app/store/societe/societe.select
   templateUrl: './factureclient-admin.component.html'
 })
 export class FactureclientAdminComponent implements OnInit {
-  term: string = "";
+  
   modalRef?: BsModalRef;
   factureClients$: Observable<FactureClient[]>;
   allFactures: FactureClient[] = [];
@@ -33,8 +33,9 @@ export class FactureclientAdminComponent implements OnInit {
   ];
 
   selectedFacture: any;
+  
   StatutPaiement = StatutPaiement;
-
+  term: string = "";
   statutPaiementFilter: string = "";
   statutFactureFilter: string = "";
   typePaiementFilter: string = "";
@@ -64,7 +65,7 @@ export class FactureclientAdminComponent implements OnInit {
     this.store.dispatch(loadSocietesAdministrees());
     this.factureClients$.subscribe(factures => {
       this.allFactures = factures;
-      this.filterFactures(); // applique la pagination avec les données réelles
+      this.filterFactures(); 
     });
     this.store.select(selectSocietesAdministrees)
       .subscribe(list => this.societesAdministrees = list);

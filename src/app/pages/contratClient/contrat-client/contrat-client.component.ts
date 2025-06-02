@@ -17,7 +17,7 @@ import {
   updateContratClient,
 } from "src/app/store/contratClient/contratClient.actions";
 import { SafeResourceUrl } from "@angular/platform-browser";
-import { CommentContratModalComponent } from "../../contrat/comment-contrat-modal/comment-contrat-modal.component";
+//import { CommentContratClientComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { environment } from "src/environments/environment";
 
 @Component({
@@ -110,9 +110,9 @@ export class ContratClientAdminComponent implements OnInit {
     window.open(fileUrl, "_blank");
   }
 
-  ouvrirCommentaireContrat(contrat: ContratClient): void {
+  /*ouvrirCommentaireContrat(contrat: ContratClient): void {
     const emailAdmin = 'admin@featway.com';
-    this.modalRef = this.modalService.show(CommentContratModalComponent, {
+    this.modalRef = this.modalService.show(CommentContratClientComponent, {
       initialState: {
         contratClientId: contrat.contratClientId,
         contrat: contrat,
@@ -121,7 +121,7 @@ export class ContratClientAdminComponent implements OnInit {
       },
       class: "modal-lg",
     });
-  }
+  }*/
   getStatutLabel(statut: string): string {
     const statutLabels: { [key: string]: string } = {
       EN_ATTENTE: "En Attente",

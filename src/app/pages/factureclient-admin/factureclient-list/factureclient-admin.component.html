@@ -216,111 +216,109 @@
                         Aucune facture n'a été trouvée
                     </div>
                     <!-- Pagination -->
-          <div class="row justify-content-between align-items-center mt-3"
-            *ngIf="filteredFactures.length > 0">
-            <div class="col-auto me-auto">
-              <p class="text-muted mb-0">Affichage de <b>{{ paginatedFactures.length }}
-              </b> sur <b>
-                  {{ filteredFactures.length }}</b> factures</p>
+                    <div class="row justify-content-between align-items-center mt-3"
+                        *ngIf="filteredFactures.length > 0">
+                        <div class="col-auto me-auto">
+                            <p class="text-muted mb-0">Affichage de <b>{{ paginatedFactures.length }}
+                                </b> sur <b>
+                                    {{ filteredFactures.length }}</b> factures</p>
+                        </div>
+                        <div class="col-auto">
+                            <ul class="pagination pagination-rounded justify-content-end mb-2">
+                                <pagination [totalItems]="filteredFactures.length" [itemsPerPage]="facturesParPage"
+                                    (pageChanged)="pageChanged($event)"></pagination>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-auto">
-              <ul
-                class="pagination pagination-rounded justify-content-end mb-2">
-                <pagination [totalItems]="filteredFactures.length"
-                  [itemsPerPage]="facturesParPage"
-                  (pageChanged)="pageChanged($event)"></pagination>
-              </ul>
-            </div>
-          </div>
-        </div>
-    </div>
-    <ng-template #detailsFactureModal>
-        <div class="modal-header bg-soft-primary">
-            <h5 class="modal-title text-primary fw-bold">
-                <i class="mdi mdi-file-document-outline me-1"></i> Détails de la
-                facture
-            </h5>
-            <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-        </div>
+            <ng-template #detailsFactureModal>
+                <div class="modal-header bg-soft-primary">
+                    <h5 class="modal-title text-primary fw-bold">
+                        <i class="mdi mdi-file-document-outline me-1"></i> Détails de la
+                        facture
+                    </h5>
+                    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+                </div>
 
-        <div class="modal-body px-4 py-3">
-            <div class="row gy-3">
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📄 Référence</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.refFacture
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📅 Date d’émission</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.dateEmmission |
-                        date:'dd/MM/yyyy' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💰 Montant HT</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantHt |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💶 Montant TTC</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantTtc |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📊 Montant TVA</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantTva |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📈 % TVA</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.pourcentageTva
-                        }}%</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">⏳ Date d’échéance</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.dateEcheance |
-                        date:'dd/MM/yyyy' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">🔻 % Remise</p>
-                    <h6 class="fw-semibold">{{
-                        selectedFacture?.pourcentageRemise || 0 }}%</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📦 Bon de commande</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.numBonCommande
-                        || 'N/A' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📝 Objet</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.objet || 'N/A'
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📌 Statut Facture</p>
-                    <span class="badge" [ngClass]="{
+                <div class="modal-body px-4 py-3">
+                    <div class="row gy-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📄 Référence</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.refFacture
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📅 Date d’émission</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.dateEmmission |
+                                date:'dd/MM/yyyy' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💰 Montant HT</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantHt |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💶 Montant TTC</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantTtc |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📊 Montant TVA</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantTva |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📈 % TVA</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.pourcentageTva
+                                }}%</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">⏳ Date d’échéance</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.dateEcheance |
+                                date:'dd/MM/yyyy' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">🔻 % Remise</p>
+                            <h6 class="fw-semibold">{{
+                                selectedFacture?.pourcentageRemise || 0 }}%</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📦 Bon de commande</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.numBonCommande
+                                || 'N/A' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📝 Objet</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.objet || 'N/A'
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📌 Statut Facture</p>
+                            <span class="badge" [ngClass]="{
               'badge-soft-success': selectedFacture?.statutFacture === 'Confirmation_Complet',
               'badge-soft-warning': selectedFacture?.statutFacture === 'En_Attente',
               'badge-soft-info': selectedFacture?.statutFacture === 'Confirmé_Admin',
               'badge-soft-danger': selectedFacture?.statutFacture === 'Rejete'
             }">{{ selectedFacture?.statutFacture }}</span>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💳 Type Paiement</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.typePaiement
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💼 Statut Paiement</p>
-                    <span class="badge" [ngClass]="{
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💳 Type Paiement</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.typePaiement
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💼 Statut Paiement</p>
+                            <span class="badge" [ngClass]="{
               'badge-soft-success': selectedFacture?.statutPaiement === 'PAYÉE',
               'badge-soft-danger': selectedFacture?.statutPaiement === 'NON_PAYÉE'
             }">{{ selectedFacture?.statutPaiement }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+                </div>
+            </ng-template>
         </div>
-    </ng-template>
-</div>

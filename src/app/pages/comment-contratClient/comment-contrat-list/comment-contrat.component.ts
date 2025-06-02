@@ -9,32 +9,35 @@ import {
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
-import { CommentaireContrat } from "../../../models/commentaire-contrat.model";
-import { ContratClient } from "src/app/models/contratClient.models";
+import { CommentaireContratSousTraitant } from "../../../models/commentaire-contratSousTraitant.model";
 import { ContratSousTraitant } from "src/app/models/contrat.models";
 import {
-  addCommentaireContrat,
-  deleteCommentaireContrat,
-  loadCommentairesContrat,
-  updateCommentaireContrat,
-} from "src/app/store/commentaire-contrat/commentaire-contrat.actions";
-import { selectCommentairesLoading } from "src/app/store/commentaire-contrat/commentaire-contrat.selectors";
-import { selectCommentairesByContratId } from "src/app/store/contratClient/contratClient-selector";
-import { selectCommentairesByContratSousTraitantId } from "src/app/store/commentaire-contrat/commentaire-contrat.selectors";
+  addCommentaireContratSousTraitant,
+  deleteCommentaireContratSousTraitant,
+  loadCommentairesContratSousTraitant,
+  updateCommentaireContratSousTraitant,
+} from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.actions";
 
-type CommentaireContratWithEdit = CommentaireContrat & {
+import {
+  selectLoadingCommentairesContratSousTraitant,
+  selectCommentairesByContratSousTraitantId,
+} from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.selectors";
+
+
+
+type CommentaireContratWithEdit = CommentaireContratSousTraitant  & {
   isEditing?: boolean;
   editContent?: string;
 };
 
 @Component({
   selector: "app-comment-contrat-modal",
-  templateUrl: "./comment-contrat-modal.component.html",
-  styleUrls: ["./comment-contrat-modal.component.scss"],
+  templateUrl: "./comment-contrat.component.html",
+  styleUrls: ["./comment-contrat.component.scss"],
 })
-export class CommentContratModalComponent implements OnInit, AfterViewInit {
-  @Input() contrat!: ContratClient | ContratSousTraitant;
-  @Input() contratClientId: number | null = null;
+export class CommentContratComponent implements OnInit, AfterViewInit {
+  @Input() contrat!:ContratSousTraitant;
+  //@Input() contratClientId: number | null = null;
   @Input() token: string | null = null;
   @Input() isClientMode: boolean = false;
   @Input() contratId: number | null = null;
@@ -57,25 +60,11 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
   constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
-    this.isLoading$ = this.store.select(selectCommentairesLoading);
+    this.isLoading$ = this.store.select(selectLoadingCommentairesContratSousTraitant);
 
-    if (this.contratClientId !== null) {
-      this.store.dispatch(
-        loadCommentairesContrat({ contratId: this.contratClientId })
-      );
-      this.comments$ = this.store.select(
-        selectCommentairesByContratId(this.contratClientId)
-      );
-    } else if (this.contratId !== null) {
-      this.store.dispatch(
-        loadCommentairesContrat({
-          contratId: this.contratId,
-          isSousTraitant: true,
-        })
-      );
-      this.comments$ = this.store.select(
-        selectCommentairesByContratSousTraitantId(this.contratId)
-      );
+    if (this.contratId !== null) {
+      this.store.dispatch(loadCommentairesContratSousTraitant({ contratSTId: this.contratId }));
+      this.comments$ = this.store.select(selectCommentairesByContratSousTraitantId(this.contratId));
     }
   }
 
@@ -90,19 +79,15 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
     const auteur = this.currentUserEmail || "Utilisateur inconnu";
 
-    const commentaire: CommentaireContrat = {
+    const commentaire: CommentaireContratSousTraitant = {
       contenu: this.newComment,
       auteurCommentaire: auteur,
       dateCommentaire: new Date().toISOString(),
+      contratSousTraitant: this.contrat as ContratSousTraitant
     };
 
-    if ('contratClientId' in (this.contrat as ContratClient)) {
-      commentaire.contratClient = this.contrat as ContratClient;
-    } else if ('contratId' in (this.contrat as ContratSousTraitant)) {
-      commentaire.contratSousTraitant = this.contrat as ContratSousTraitant;
-    }
+    this.store.dispatch(addCommentaireContratSousTraitant({ commentaire }));
 
-    this.store.dispatch(addCommentaireContrat({ commentaire }));
     this.newComment = "";
     this.isSubmitting = false;
     setTimeout(() => this.scrollToBottom(), 300);
@@ -121,20 +106,15 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
   saveEdit(comment: CommentaireContratWithEdit): void {
     if (!comment.editContent?.trim()) return;
 
-    const updatedComment: CommentaireContrat = {
+    const updatedComment: CommentaireContratSousTraitant = {
       commentaireId: comment.commentaireId,
       contenu: comment.editContent,
       auteurCommentaire: comment.auteurCommentaire,
       dateCommentaire: comment.dateCommentaire,
-      ...(this.contrat && 'contratClientId' in this.contrat && {
-        contratClient: this.contrat as ContratClient,
-      }),
-      ...(this.contrat && 'contratId' in this.contrat && {
-        contratSousTraitant: this.contrat as ContratSousTraitant,
-      }),
+      contratSousTraitant: this.contrat as ContratSousTraitant,
     };
 
-    this.store.dispatch(updateCommentaireContrat({ commentaire: updatedComment }));
+    this.store.dispatch(updateCommentaireContratSousTraitant({ commentaire: updatedComment }));
     comment.isEditing = false;
   }
 
@@ -150,9 +130,7 @@ export class CommentContratModalComponent implements OnInit, AfterViewInit {
 
   confirmDeleteAction(): void {
     if (!this.commentToDelete) return;
-    this.store.dispatch(
-      deleteCommentaireContrat({ commentaireId: this.commentToDelete.id })
-    );
+    this.store.dispatch(deleteCommentaireContratSousTraitant({ commentaireId: this.commentToDelete.id }));
     this.cancelDelete();
   }
 

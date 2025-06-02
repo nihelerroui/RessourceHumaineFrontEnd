@@ -1,6 +1,6 @@
 import { createReducer, on } from "@ngrx/store";
 import { ContratSousTraitant } from "../../models/contrat.models";
-import * as ContratActions from "../contrat/contrat.actions";
+import * as ContratActions from "../contratSousTraitant/contrat.actions";
 
 // État initial
 export interface ContratState {

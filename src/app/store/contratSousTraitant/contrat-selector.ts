@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ContratState } from '../contrat/contrat.reducer';
+import { ContratState } from '../contratSousTraitant/contrat.reducer';
 
 // Sélecteur pour récupérer l'état global des contrats
 export const selectContratState = createFeatureSelector<ContratState>('contrats');

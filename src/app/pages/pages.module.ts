@@ -23,7 +23,6 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
-import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
 import { FactureModule } from './facture/facture.module';
@@ -34,6 +33,11 @@ import { FactureclientAdminModule } from './factureclient-admin/factureclient-ad
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
 import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
+import { ImporterContratModule } from './ImportationContrat/importerContrat.module';
+import { ContratSousTraitantModule } from './contratSousTraitant/contrat-sous-traitant.module';
+import { ContratClient_ClientModule } from './contratClient_Client/contrat-client_Client.module';
+import { ContratClientModule } from './contratClient/contrat-client.module';
+import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
 
 
 @NgModule({
@@ -69,7 +73,12 @@ import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
-    ContratModule
+    ImporterContratModule,
+    ContratSousTraitantModule,
+    ContratClient_ClientModule,
+    ContratClientModule,
+    CommentaireContratModule,
+
   ],
   providers: [DatePipe],
 })

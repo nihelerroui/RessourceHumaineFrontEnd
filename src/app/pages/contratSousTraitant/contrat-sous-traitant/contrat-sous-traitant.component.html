@@ -9,32 +9,14 @@
             <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
             <div class="flex-shrink-0 d-flex gap-1">
               <a href="javascript:void(0);" class="btn btn-primary" (click)="openModal(content)">Add New Contrat</a>
-              <a href="javascript:void(0);" class="btn btn-light"><i class="mdi mdi-refresh"></i></a>
-              <div class="dropdown d-inline-block" dropdown>
-                <button type="menu" class="btn btn-success" id="*dropdownMenuButton1" data-bs-toggle="dropdown"
-                  aria-expanded="false" dropdownToggle>
-                  <i class="mdi mdi-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu dropdown-menu-end show" aria-labelledby="*dropdownMenuButton1"
-                  *dropdownMenu>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Action</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Another action</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);">Something else here</a>
-                  </li>
-                </ul>
-              </div>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()"><i class="mdi mdi-refresh"></i></a>
             </div>
           </div>
         </div>
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
-              <select class="form-select" [(ngModel)]="selectedStatut">
+              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats()">
                 <option value>Tous les statuts</option>
                 <option *ngFor="let statut of statutContrats" [value]="statut">
                   {{ getStatutLabel(statut) }}
@@ -42,23 +24,19 @@
               </select>
             </div>
             <div class="col-xxl-2 col-lg-4">
-              <input type="date" class="form-control" [(ngModel)]="dateDebut" />
+              <input type="date" class="form-control" [(ngModel)]="dateDebut" (ngModelChange)="filterContrats()" />
             </div>
             <div class="col-xxl-2 col-lg-4">
-              <input type="date" class="form-control" [(ngModel)]="dateFin" />
+              <input type="date" class="form-control" [(ngModel)]="dateFin" (ngModelChange)="filterContrats()" />
             </div>
             <div class="col-xxl-3 col-lg-4">
               <div class="input-group">
-                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm" />
+                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm"
+                  (ngModelChange)="filterContrats()" />
                 <span class="input-group-text">-</span>
-                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm" />
+                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm"
+                  (ngModelChange)="filterContrats()" />
               </div>
-            </div>
-            <div class="col-xxl-2 col-lg-4 d-flex align-items-center">
-              <button type="button" class="btn btn-primary w-100" (click)="searchContrat()">
-                <i class="mdi mdi-filter-outline align-middle"></i> Appliquer le
-                filtre
-              </button>
             </div>
           </div>
         </div>
@@ -68,20 +46,20 @@
             <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
               <thead>
                 <tr>
+                  <th>Nom de consultant</th>
                   <th scope="col">Tarif Journalier Moyen (TJM)</th>
                   <th scope="col">Date de Début</th>
                   <th scope="col">Date de Fin</th>
-                  <th scope="col">Condition</th>
                   <th scope="col">Statut</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let contrat of contratsPagination$ | async">
+                <tr *ngFor="let contrat of paginatedContrats">
+                  <td>{{ contrat.consultant?.name || "N/A" }}</td>
                   <td>{{ contrat.tjm | currency : "EUR" }}</td>
                   <td>{{ contrat.dateDebut | date : "dd/MM/yyyy" }}</td>
                   <td>{{ contrat.dateFin | date : "dd/MM/yyyy" }}</td>
-                  <td>{{ contrat.conditionsFac }}</td>
                   <td>
                     <!-- Affichage du statut -->
                     <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
@@ -118,6 +96,22 @@
                           <i class="mdi mdi-comment-text-multiple-outline"></i>
                         </a>
                       </li>
+                      <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
+                        <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Valider">
+                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="
+                              modifierStatutContrat(contrat, 'CONFIRME_ADMIN')
+                            ">
+                            <i class="mdi mdi-check-circle-outline"></i>
+                          </a>
+                        </li>
+
+                        <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
+                        <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Rejeter">
+                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
+                            (click)="modifierStatutContrat(contrat, 'REJETE')">
+                            <i class="mdi mdi-close-circle-outline"></i>
+                          </a>
+                        </li>
                     </ul>
                   </td>
                 </tr>
@@ -125,23 +119,18 @@
             </table>
           </div>
 
-          <!-- Pagination -->
-          <div class="card-footer d-flex justify-content-between align-items-center">
-            <div class="text-muted">
-              Affichage de {{ (page - 1) * contratsParPage + 1 }} à
-              {{
-              page * contratsParPage > (total$ | async)!
-              ? (total$ | async)
-              : page * contratsParPage
-              }}
-              sur {{ total$ | async }} contrats
+          <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredContrats.length > 0">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">Affichage de <b>{{ paginatedContrats.length }}
+                </b> sur <b>
+                  {{ filteredContrats.length }}</b> contrats </p>
             </div>
-
-            <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="contratsParPage" [maxSize]="5"
-              [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹" nextText="›" firstText="«"
-              lastText="»" class="pagination pagination-rounded mb-0">
-            </pagination>
-            <!--end row-->
+            <div class="col-auto">
+              <ul class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination [totalItems]="filteredContrats.length" [itemsPerPage]="contratsParPage"
+                  (pageChanged)="pageChanged($event)"></pagination>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -191,14 +180,6 @@
             </div>
             <small class="text-danger" *ngIf="!fileSelected">
               Le fichier est obligatoire.
-            </small>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Conditions *</label>
-            <textarea formControlName="conditionsFac" class="form-control"></textarea>
-            <small class="text-danger" *ngIf="form.conditionsFac.invalid && form.conditionsFac.touched">
-              Les conditions sont obligatoires et doivent contenir au moins 10
-              caractères.
             </small>
           </div>
         </div>

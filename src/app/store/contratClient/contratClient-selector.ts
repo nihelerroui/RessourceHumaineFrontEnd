@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from "@ngrx/store";
 import { ContratClientState } from "../contratClient/contratClient.reducer";
-import { selectCommentaireContratState } from "../commentaire-contrat/commentaire-contrat.selectors";
+//import { selectCommentaireContratState } from "../commentaire-contratClient/commentaire-contratClient.selectors";
 
 export const selectContratClientState = createFeatureSelector<ContratClientState>("contratsClient");
 
@@ -9,11 +9,11 @@ export const selectAllContratsClient = createSelector(
   selectContratClientState,
   (state) => state.contrats
 );
-export const selectCommentairesByContratId = (contratId: number) =>
+/*export const selectCommentairesByContratId = (contratId: number) =>
   createSelector(
     selectCommentaireContratState,
     (state) => state.commentaires.filter(comment => comment.contratClient?.contratClientId === contratId)
-  );
+  );*/
 
 export const selectContratsClientLoading = createSelector(
   selectContratClientState,
