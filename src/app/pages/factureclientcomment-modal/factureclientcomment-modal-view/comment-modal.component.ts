@@ -50,8 +50,15 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
     if (!this.newComment.trim() || this.isSubmitting) return;
 
     this.isSubmitting = true;
-    const emailAdmin = 'admin@featway.com';
-    const auteur = this.isClientMode ? (this.currentUserEmail ?? 'Client inconnu') : emailAdmin;
+    let auteur = 'Utilisateur inconnu';
+
+    if (this.isClientMode && this.currentUserEmail) {
+      auteur = this.currentUserEmail;
+    } else {
+      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      auteur = currentUser?.user?.email || 'Admin inconnu';
+
+    }
 
     const commentaire: CommentaireFactureClient = {
       contenu: this.newComment.trim(),

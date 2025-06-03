@@ -1,9 +1,9 @@
-import { Component, TemplateRef } from "@angular/core";
+import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import Swal from "sweetalert2";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
-import { combineLatest, map, Observable } from "rxjs";
+import { Observable } from "rxjs";
 import { selectFactureClients, selectError, selectLoading, selectTotalFactureClient } from "../../../store/FactureClient/factureclient.selector";
 import { CommentModalComponent } from "../../factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component";
 import * as FactureClientActions from "src/app/store/FactureClient/factureclient.actions";
@@ -12,15 +12,18 @@ import { StatutPaiement } from "src/app/models/statut-paiement.enum";
 import { FactureClient } from "src/app/models/factureClient.models";
 import { Actions, ofType } from "@ngrx/effects";
 import { FactureClientCreateComponent } from "../../factureclientcreate/factureclientcreateview/factureclientcreate.component";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 
 @Component({
   selector: 'app-factureclient-admin',
   templateUrl: './factureclient-admin.component.html'
 })
-export class FactureclientAdminComponent {
-  term: string = "";
+export class FactureclientAdminComponent implements OnInit {
+  
   modalRef?: BsModalRef;
-  factureClients$: Observable<any[]>;
+  factureClients$: Observable<FactureClient[]>;
+  allFactures: FactureClient[] = [];
   loading$ = this.store.select(selectLoading);
   error$ = this.store.select(selectError);
   bsConfig: Partial<BsDatepickerConfig> = { showWeekNumbers: false, dateInputFormat: "DD/MM/YYYY" };
@@ -29,20 +32,23 @@ export class FactureclientAdminComponent {
     { label: "Factures Clients List", active: true },
   ];
 
-  prestations: any[] = [];
-  contratsClient: any[] = [];
   selectedFacture: any;
+  
   StatutPaiement = StatutPaiement;
-
+  term: string = "";
   statutPaiementFilter: string = "";
   statutFactureFilter: string = "";
   typePaiementFilter: string = "";
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
+  consultantSocieteId: number = 0;
+  selectedSocieteId: number | "" = "";
 
   page = 1;
+  filteredTotal: number = 0;
   facturesParPage = 5;
+  filteredFactures: FactureClient[] = [];
+  paginatedFactures: FactureClient[] = [];
   total$: Observable<number> = this.store.select(selectTotalFactureClient);
-  facturesPagination$: Observable<FactureClient[]> = new Observable();
-  filteredFactures$: Observable<FactureClient[]> = new Observable();
   today: string = new Date().toISOString().split('T')[0];
 
 
@@ -55,27 +61,29 @@ export class FactureclientAdminComponent {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(FactureClientActions.loadFacturesClient());
-    this.updatePagination();
+    this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
+    this.factureClients$.subscribe(factures => {
+      this.allFactures = factures;
+      this.filterFactures(); 
+    });
+    
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    this.consultantSocieteId = currentUser?.societe?.societeId;
+    this.selectedSocieteId = this.consultantSocieteId;
+   
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+
     this.error$.subscribe(error => {
       if (error) console.error("Erreur du store:", error);
     });
     this.actions$
       .pipe(ofType(FactureClientActions.updateFactureClientSuccess))
       .subscribe(() => {
-        this.store.dispatch(FactureClientActions.loadFacturesClient());
-        this.updatePagination();
+        this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
+     
       });
   }
-  //pagination
-  updatePagination() {
-  this.filteredFactures$ = this.factureClients$.pipe(
-    map(factures => {
-      const start = (this.page - 1) * this.facturesParPage;
-      return factures.slice(start, start + this.facturesParPage);
-    })
-  );
-}
+  
   openCreateModal(): void {
     this.modalRef = this.modalService.show(FactureClientCreateComponent, { class: "modal-lg" });
   }
@@ -145,26 +153,32 @@ export class FactureclientAdminComponent {
   }
 
 
-  applyFilters(): void {
-  this.filteredFactures$ = this.factureClients$.pipe(
-    map(factures => {
-      const lowerTerm = this.term.toLowerCase().trim();
-      return factures
-        .filter(f =>
-          (!lowerTerm || Object.values(f).some(value => value?.toString().toLowerCase().includes(lowerTerm))) &&
-          (!this.statutFactureFilter || f.statutFacture?.toUpperCase() === this.statutFactureFilter.toUpperCase().trim()) &&
-          (!this.typePaiementFilter || f.typePaiement?.toUpperCase() === this.typePaiementFilter.toUpperCase().trim()) &&
-          (!this.statutPaiementFilter || f.statutPaiement?.toUpperCase() === this.statutPaiementFilter.toUpperCase().trim())
-        )
-        .slice((this.page - 1) * this.facturesParPage, this.page * this.facturesParPage);
-    })
-  );
-}
-
-  resetFilters(): void {
-    this.term = this.statutPaiementFilter = this.statutFactureFilter = this.typePaiementFilter = "";
-    this.applyFilters();
+  filterFactures() {
+      const termLower = this.term.toLowerCase().trim();
+      this.filteredFactures = this.allFactures.filter(f =>
+        (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
+        (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
+        (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
+        (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter) &&
+        (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
+      );
+      this.pageChanged({ page: 1 });
   }
+  
+    pageChanged(event: any) {
+      this.page = event.page;
+      const start = (this.page - 1) * this.facturesParPage;
+      this.paginatedFactures = this.filteredFactures.slice(start, start + this.facturesParPage);
+    }
+    refreshList() {
+      this.term = '';
+      this.statutFactureFilter = '';
+      this.statutPaiementFilter = '';
+      this.typePaiementFilter = '';
+      this.selectedSocieteId = '';
+      this.page = 1;
+      this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
+    }
 
   openCommentModal(factureClientId: number): void {
     this.modalRef = this.modalService.show(CommentModalComponent, {

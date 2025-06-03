@@ -6,10 +6,22 @@ import { Prestation } from 'src/app/models/prestation.model';
 export const loadFacturesClient = createAction('[FactureClient] Load Factures');
 export const loadFacturesClientSuccess = createAction('[FactureClient] Load Success', props<{ factures: FactureClient[] }>());
 export const loadFacturesClientFailure = createAction('[FactureClient] Load Failure', props<{ error: any }>());
-//load prestation par client
-export const loadPrestationsByClient = createAction('[FactureClient] Load Prestations By Client', props<{ clientId: number }>());
-export const loadPrestationsByClientSuccess = createAction('[FactureClient] Load Prestations By Client Success', props<{ prestations: Prestation[] }>());
-export const loadPrestationsByClientFailure = createAction('[FactureClient] Load Prestations By Client Failure', props<{ error: any }>());
+// Action pour charger les prestations d’un contrat
+export const loadPrestationsByContrat = createAction(
+  '[FactureClient] Load Prestations By Contrat',
+  props<{ contratId: number }>()
+);
+
+export const loadPrestationsByContratSuccess = createAction(
+  '[FactureClient] Load Prestations By Contrat Success',
+  props<{ prestations: Prestation[] }>()
+);
+
+export const loadPrestationsByContratFailure = createAction(
+  '[FactureClient] Load Prestations By Contrat Failure',
+  props<{ error: any }>()
+);
+
 // Create
 export const createFactureClient = createAction('[FactureClient] Create', props<{ facture: FactureClient }>());
 export const createFactureClientSuccess = createAction('[FactureClient] Create Success', props<{ facture: FactureClient }>());
@@ -144,4 +156,23 @@ export const getWorkingDaysSuccess = createAction(
 export const getWorkingDaysFailure = createAction(
   '[WorkingDays] Get Working Days Failure',
   props<{ error: any; index: number }>()
+);
+//load factures by societe admin 
+export const loadFacturesBySocieteAdmin = createAction(
+  '[FactureClient] Load Factures By Societe Admin'
+);
+
+export const loadFacturesBySocieteAdminSuccess = createAction(
+  '[FactureClient] Load Factures By Societe Admin Success',
+  props<{ factures: FactureClient[] }>()
+);
+
+export const loadFacturesBySocieteAdminFailure = createAction(
+  '[FactureClient] Load Factures By Societe Admin Failure',
+  props<{ error: any }>()
+);
+
+export const updateFactureClientWithToken = createAction(
+  '[FactureClient] Update Facture',
+  props<{ facture: FactureClient, token?: string }>()  // Ajout du `token?`
 );

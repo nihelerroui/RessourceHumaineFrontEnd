@@ -79,5 +79,21 @@ export const contratClientReducer = createReducer(
     ...state,
     error,
   })),
-  
+  on(ContratClientActions.loadContratsBySocieteAdmin, state => ({
+  ...state,
+  loading: true
+})),
+
+on(ContratClientActions.loadContratsBySocieteAdminSuccess, (state, { contrats }) => ({
+  ...state,
+  contrats,
+  loading: false,
+  error: null
+})),
+
+on(ContratClientActions.loadContratsBySocieteAdminFailure, (state, { error }) => ({
+  ...state,
+  loading: false,
+  error
+})),
 );

@@ -23,27 +23,26 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
-import { ContratModule } from './contrat/contrat.module';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
 import { FactureModule } from './facture/facture.module';
 import { TresorieModule } from './tresorie/tresorie.module';
 import { PrestationsModule } from './prestations/prestations.module';
-import { FactureClientModule } from './factureclient/factureclient.module';
 import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
 import { FactureclientAdminModule } from './factureclient-admin/factureclient-admin.module';
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
 import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
-import { UserModule } from './users/user.module';
-import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
-
+import { ImporterContratModule } from './ImportationContrat/importerContrat.module';
+import { ContratSousTraitantModule } from './contratSousTraitant/contrat-sous-traitant.module';
+import { ContratClient_ClientModule } from './contratClient_Client/contrat-client_Client.module';
+import { ContratClientModule } from './contratClient/contrat-client.module';
+import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
 
 
 @NgModule({
   declarations: [
     CommentModalComponent,
-    UtilisateurregisterviewComponent
   ],
   imports: [
     CommonModule,
@@ -51,12 +50,10 @@ import { UtilisateurregisterviewComponent } from './users/utilisateurregistervie
     SocieteModule,
     FactureModule,
     TresorieModule,
-    FactureClientModule,
     FactureclientAdminModule,
     HistoriqueMainOeuvreModule,
     PrestationsModule,
     MainOeuvreModule,
-    UserModule,
     FormsModule,
     CommentModalModule,
     BsDropdownModule.forRoot(),
@@ -76,7 +73,12 @@ import { UtilisateurregisterviewComponent } from './users/utilisateurregistervie
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
-    ContratModule
+    ImporterContratModule,
+    ContratSousTraitantModule,
+    ContratClient_ClientModule,
+    ContratClientModule,
+    CommentaireContratModule,
+
   ],
   providers: [DatePipe],
 })

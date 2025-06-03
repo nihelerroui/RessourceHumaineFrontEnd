@@ -41,9 +41,13 @@ export class ClientViewFactureComponent implements OnInit {
 
   page = 1;
   facturesParPage = 5;
+  filteredFactures: FactureClient[] = [];
+
+  paginatedFactures: FactureClient[] = [];
+  allFactures: FactureClient[] = [];
   total$: Observable<number> = this.store.select(factureSelector.selectTotalFactureClient);
-  filteredFactures$: Observable<FactureClient[]> = new Observable();
   token: string | null = null;
+  clientId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,40 +58,56 @@ export class ClientViewFactureComponent implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
-    const type = this.route.snapshot.queryParamMap.get('type'); 
-  
+    const type = this.route.snapshot.queryParamMap.get('type');
+
     if (this.token) {
-      const clientId = this.tokenUtil.extractClientId(this.token);
-      console.log("📦 ID du client extrait du token :", clientId);
-  
-      if (type === 'rejete') {
-        this.store.dispatch(factureAction.loadFacturesRejeteesByClientId({ clientId }));
-      } else if (type === 'nonpayee') {
-        this.store.dispatch(factureAction.loadFacturesNonPayeesByClientId({ clientId }));
-      } else {
-        this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId }));
-      }
-  
+      this.clientId = this.tokenUtil.extractClientId(this.token);
+      console.log("📦 ID du client extrait du token :", this.clientId);
     } else {
-      const clientId = 1;
-      this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId }));
+      this.clientId = 1;
     }
+
     this.factureClients$ = this.store.select(factureSelector.selectFactureClients);
-    this.filteredFactures$ = this.store.select(factureSelector.selectFactureClients).pipe(
-      map(factures => factures.slice(0, this.facturesParPage))
-    );
-    
+
+    this.factureClients$.subscribe(factures => {
+      this.allFactures = factures;
+      this.filterFactures();
+    });
+
+    if (type === 'rejete') {
+      this.store.dispatch(factureAction.loadFacturesRejeteesByClientId({ clientId: this.clientId }));
+    } else if (type === 'nonpayee') {
+      this.store.dispatch(factureAction.loadFacturesNonPayeesByClientId({ clientId: this.clientId }));
+    } else {
+      this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId: this.clientId }));
+    }
   }
-   
+
   //pagination
-  updatePagination() {
-  this.filteredFactures$ = this.factureClients$.pipe(
-    map(factures => {
-      const start = (this.page - 1) * this.facturesParPage;
-      return factures.slice(start, start + this.facturesParPage);
-    })
-  );
-}
+  filterFactures() {
+    const termLower = this.term.toLowerCase().trim();
+    this.filteredFactures = this.allFactures.filter(f =>
+      (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
+      (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
+      (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
+      (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter)
+    );
+    this.pageChanged({ page: 1 });
+  }
+
+  pageChanged(event: any) {
+    this.page = event.page;
+    const start = (this.page - 1) * this.facturesParPage;
+    this.paginatedFactures = this.filteredFactures.slice(start, start + this.facturesParPage);
+  }
+  refreshList() {
+    this.term = '';
+    this.statutFactureFilter = '';
+    this.statutPaiementFilter = '';
+    this.typePaiementFilter = '';
+    this.page = 1;
+    this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId: this.clientId }));
+  }
 
   modifierStatutFacture(facture: any, nouveauStatut: StatutFacture): void {
     const factureDto = {
@@ -114,7 +134,12 @@ export class ClientViewFactureComponent implements OnInit {
       })),
     };
 
-    this.store.dispatch(factureAction.updateFactureClient({ facture: factureDto }));
+    this.store.dispatch(factureAction.updateFactureClientWithToken({
+      facture: factureDto,
+      token: this.token ?? undefined
+
+    }));
+
     setTimeout(() => {
       Swal.fire({
         icon: "success",
@@ -123,32 +148,12 @@ export class ClientViewFactureComponent implements OnInit {
         timer: 1000,
         showConfirmButton: false,
       });
-  
-      this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId: 1 }));
+
+      if (this.clientId !== null) {
+        this.store.dispatch(factureAction.loadFacturesValideesByClientId({ clientId: this.clientId }));
+      }
     }, 500);
   }
-
-  applyFilters(): void {
-   this.filteredFactures$ = this.factureClients$.pipe(
-     map(factures => {
-       const lowerTerm = this.term.toLowerCase().trim();
-       return factures
-         .filter(f =>
-           (!lowerTerm || Object.values(f).some(value => value?.toString().toLowerCase().includes(lowerTerm))) &&
-           (!this.statutFactureFilter || f.statutFacture?.toUpperCase() === this.statutFactureFilter.toUpperCase().trim()) &&
-           (!this.typePaiementFilter || f.typePaiement?.toUpperCase() === this.typePaiementFilter.toUpperCase().trim()) &&
-           (!this.statutPaiementFilter || f.statutPaiement?.toUpperCase() === this.statutPaiementFilter.toUpperCase().trim())
-         )
-         .slice((this.page - 1) * this.facturesParPage, this.page * this.facturesParPage);
-     })
-   );
- }
- 
-   resetFilters(): void {
-   this.term = this.statutPaiementFilter = this.statutFactureFilter = this.typePaiementFilter = "";
-   this.page = 1;
-   this.applyFilters();
- }
 
   openCommentModal(facture: FactureClient | number): void {
     const factureId = typeof facture === 'number' ? facture : facture.factureClientId;
@@ -178,4 +183,3 @@ export class ClientViewFactureComponent implements OnInit {
     this.store.dispatch(factureAction.downloadFacture({ factureClientId: factureId }));
   }
 }
-

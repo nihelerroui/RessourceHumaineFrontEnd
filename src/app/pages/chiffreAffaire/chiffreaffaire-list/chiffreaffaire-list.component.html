@@ -1,0 +1,105 @@
+<div class="container-fluid">
+    <app-page-title
+    title="chiffre d'affaire"
+    [breadcrumbItems]="[
+      { label: 'Dashboard', path: '/' },
+      { label: 'chiffre affaire', active: true }
+    ]"
+  ></app-page-title>
+    <div class="row">
+        <div class="col-12">
+            <div ngClass="card">
+                <div class="card-body border-bottom">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 card-title flex-grow-1">Suivi du Chiffre d'Affaire</h5>
+                        <div class="flex-shrink-0 d-flex gap-1">
+                            <button class="btn btn-primary" (click)="refresh()"><i class="mdi mdi-refresh"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-xxl-3 col-lg-6">
+                            <select class="form-select" [(ngModel)]="selectedClient" (change)="filterByClient()">
+                                <option value>Sélectionner un Client</option>
+                                <option *ngFor="let client of clients$ | async" [value]="client.nom">{{ client.nom }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="row text-center mb-3">
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm bg-light text-primary">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="mdi mdi-cash-multiple"></i> Total</h4>
+                                        <h3>{{ montantTotal | currency:'EUR' }}</h3>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-primary" [style.width.%]="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm bg-light text-success">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="mdi mdi-check-circle"></i> Payées</h4>
+                                        <h3>{{ montantTotalPayees | currency:'EUR' }}</h3>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-success" [style.width.%]="(montantTotalPayees / montantTotal) * 100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm bg-light text-danger">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="mdi mdi-alert-circle"></i> Non Payées</h4>
+                                        <h3>{{ montantTotalNonPayees | currency:'EUR' }}</h3>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-danger" [style.width.%]="(montantTotalNonPayees / montantTotal) * 100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                
+                
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Référence Facture</th>
+                                    <th>Date d'émission</th>
+                                    <th>Montant HT</th>
+                                    <th>Montant TTC</th>
+                                    <th>Statut</th>
+                                    <th>Client</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let facture of filteredFactures">
+                                    <td>{{ facture.refFacture }}</td>
+                                    <td>{{ facture.dateEmmission | date:'dd/MM/yyyy' }}</td>
+                                    <td>{{ facture.montantHt | currency:'EUR' }}</td>
+                                    <td>{{ facture.montantTtc | currency:'EUR' }}</td>
+                                    <td>
+                                        <span class="badge" [ngClass]="{
+                                        'badge-soft-success': facture.statutPaiement === 'PAYÉE',
+                                        'badge-soft-danger': facture.statutPaiement === 'NON_PAYÉE'
+                                      }">
+                                          {{ facture.statutPaiement }}</span>
+                                      </td>                                    
+                                      <td>{{ facture.contratClient.client.nom }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
