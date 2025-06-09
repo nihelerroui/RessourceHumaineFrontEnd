@@ -115,19 +115,25 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 11,
-    label: "MENUITEMS.SOCIETE.TEXT",
+    label: "MENUITEMS.SOCIETES.TEXT",
     icon: "bx-chat",
     link: "/societe/list",
   },
   {
     id: 12,
-    label: "MENUITEMS.CLIENT.TEXT",
+    label: "MENUITEMS.CLIENTS.TEXT",
     icon: "bx-file",
     link: "/client/list",
   },
   {
     id: 12,
-    label: "MENUITEMS.FACTURE.TEXT",
+    label: "MENUITEMS.FACTURES_SOUS_TRAITANT.TEXT",
+    icon: "bx-file",
+    link: "/factureSousTraitant/list",
+  },
+  {
+    id: 12,
+    label: "MENUITEMS.FACTURES_ACHATS.TEXT",
     icon: "bx-file",
     link: "/facture/list",
   },
@@ -138,8 +144,14 @@ export const MENU: MenuItem[] = [
     link: '/depenses'
   },
   {
+    id: 59,
+    label: 'MENUITEMS.RECETTES.TEXT',
+    icon: 'bx-briefcase-alt-2',
+    link: '/recettes/list'
+  },
+  {
     id: 12,
-    label: "MENUITEMS.TRESORIE.TEXT",
+    label: "MENUITEMS.TRESORERIE.TEXT",
     icon: "bx-file",
     link: "/tresorie",
   },

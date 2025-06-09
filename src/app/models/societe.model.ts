@@ -1,5 +1,5 @@
 export interface Societe {
-    societeId: number;
+    societeId?: number;
     nom: string;
     adresse: string;
     contact: string;
@@ -7,7 +7,7 @@ export interface Societe {
     numSiret: string;
     numTva: string;
     telephone: string;
-    seuilTresorerie: number;
+    seuilTresorerie?: number;
     responsable: string;
   }
   

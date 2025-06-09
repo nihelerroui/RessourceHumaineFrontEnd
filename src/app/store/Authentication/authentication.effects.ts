@@ -7,13 +7,19 @@ import {
   tap,
   mergeMap,
   switchMap,
+  withLatestFrom,
 } from "rxjs/operators";
 import { of } from "rxjs";
 import { AuthenticationService } from "../../core/services/auth.service";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import * as SocieteActions from "src/app/store/societe/societe.actions";
 import { Router } from "@angular/router";
 import { TokenStorageService } from "src/app/core/services/token-storage.service";
 import { Consultant } from "src/app/models/consultant.models";
+import { selectSocieteList } from "../societe/societe.selectors";
+import { Store } from "@ngrx/store";
+import { AdminSociete } from "src/app/models/adminSociete.model";
+import { Societe } from "src/app/models/societe.model";
 
 @Injectable()
 export class AuthenticationEffects {
@@ -21,7 +27,8 @@ export class AuthenticationEffects {
     private actions$: Actions,
     private AuthenticationService: AuthenticationService,
     private tokenStorage: TokenStorageService,
-    private router: Router
+    private router: Router,
+    private store: Store
   ) {}
 
   createUser$ = createEffect(() =>
@@ -131,37 +138,36 @@ export class AuthenticationEffects {
     )
   );
 
- login$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(AuthActions.login),
-    exhaustMap(({ email, password }) =>
-      this.AuthenticationService.login({ email, password }).pipe(
-        tap((response) => {
-          const token = response.accessToken;
-          const consultant = response.consultant;
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.login),
+      exhaustMap(({ email, password }) =>
+        this.AuthenticationService.login({ email, password }).pipe(
+          tap((response) => {
+            const token = response.accessToken;
+            const consultant = response.consultant;
 
-          this.tokenStorage.saveToken(token);
-          this.tokenStorage.saveUser(consultant); 
+            this.tokenStorage.saveToken(token);
+            this.tokenStorage.saveUser(consultant);
 
-          const returnUrl = sessionStorage.getItem("returnUrl") || "/";
-          this.router.navigateByUrl(returnUrl);
-          sessionStorage.removeItem("returnUrl");
-        }),
-        map((response) =>
-          AuthActions.loginSuccess({ user: response.consultant.user }) 
-        ),
-        catchError((error) =>
-          of(
-            AuthActions.loginFailure({
-              error: error.message || "Erreur lors de la connexion",
-            })
+            const returnUrl = sessionStorage.getItem("returnUrl") || "/";
+            this.router.navigateByUrl(returnUrl);
+            sessionStorage.removeItem("returnUrl");
+          }),
+          map((response) =>
+            AuthActions.loginSuccess({ user: response.consultant.user })
+          ),
+          catchError((error) =>
+            of(
+              AuthActions.loginFailure({
+                error: error.message || "Erreur lors de la connexion",
+              })
+            )
           )
         )
       )
     )
-  )
-);
-
+  );
 
   logout$ = createEffect(() =>
     this.actions$.pipe(
@@ -185,21 +191,59 @@ export class AuthenticationEffects {
     )
   );
 
-
-updatePersonalDetailsWithFiles$ = createEffect(() =>
+addMissingAdminSocietes$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(AuthActions.updatePersonalDetailsWithFiles),
-    exhaustMap(({ personalDetailsId, dto, files }) =>
-      this.AuthenticationService.updatePersonalDetailsWithFiles(personalDetailsId, dto, files).pipe(
-        map((personalDetails) =>
-          AuthActions.updatePersonalDetailsWithFilesSuccess({ personalDetails })
-        ),
-        catchError((error) =>
-          of(AuthActions.updatePersonalDetailsWithFilesFailure({ error }))
+    ofType(AuthActions.loadAdminSocietesSuccess),
+    withLatestFrom(this.store.select(selectSocieteList)),
+    mergeMap(([action, existingSocietes]) => {
+      const existingNames = new Set(
+        existingSocietes.map(s => s.nom.trim().toLowerCase())
+      );
+
+      const newSocietes = action.societes.filter(apiSociete =>
+        !existingNames.has(apiSociete.name.trim().toLowerCase())
+      );
+
+      return newSocietes.map(apiSociete =>
+        SocieteActions.addSociete({
+          societe: {
+            societeId: apiSociete.societeId,
+            nom: apiSociete.name,
+            adresse: apiSociete.adresse || '',
+            contact: apiSociete.contact || '',
+            email: apiSociete.email || '',
+            numSiret: apiSociete.numSiret || '',
+            numTva: apiSociete.numTva || '',
+            telephone: apiSociete.telephone || '',
+            responsable: apiSociete.contact || ''
+          }
+        })
+      );
+    })
+  )
+);
+
+
+
+  updatePersonalDetailsWithFiles$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updatePersonalDetailsWithFiles),
+      exhaustMap(({ personalDetailsId, dto, files }) =>
+        this.AuthenticationService.updatePersonalDetailsWithFiles(
+          personalDetailsId,
+          dto,
+          files
+        ).pipe(
+          map((personalDetails) =>
+            AuthActions.updatePersonalDetailsWithFilesSuccess({
+              personalDetails,
+            })
+          ),
+          catchError((error) =>
+            of(AuthActions.updatePersonalDetailsWithFilesFailure({ error }))
+          )
         )
       )
     )
-  )
-);
+  );
 }
-

@@ -4,88 +4,72 @@ import { catchError, mergeMap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { ClientService } from 'src/app/core/services/client.service';
-import {
-  loadClients,
-  loadClientsSuccess,
-  loadClientsFailure,
-  addClient,
-  addClientSuccess,
-  addClientFailure,
-  updateClient,
-  updateClientSuccess,
-  updateClientFailure,
-  deleteClient,
-  deleteClientSuccess,
-  deleteClientFailure,
-  sendImportEmailSuccess,
-  sendImportEmailFailure,
-  sendImportEmail
-} from './client.actions';
+import * as ClientActions from './client.actions';
 import { Client } from 'src/app/models/client.model';
 
 @Injectable()
 export class ClientEffects {
   
-  // 🔹 Effet pour charger la liste des clients
   loadClients$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(loadClients),
+      ofType(ClientActions.loadClients),
       mergeMap(() =>
         this.clientService.getAll().pipe(
-          map((clients: Client[]) => loadClientsSuccess({ clients })),
-          catchError((error) => of(loadClientsFailure({ error: error.message })))
+          map((clients: Client[]) => ClientActions.loadClientsSuccess({ clients })),
+          catchError((error) => of(ClientActions.loadClientsFailure({ error: error.message })))
         )
       )
     )
   );
 
-  // 🔹 Effet pour ajouter un client
+ 
   addClient$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(addClient),
+      ofType(ClientActions.addClient),
       mergeMap((action) =>
         this.clientService.create(action.client).pipe(
-          map((newClient: Client) => addClientSuccess({ client: newClient })),
-          catchError((error) => of(addClientFailure({ error: error.message })))
+          map((newClient: Client) => ClientActions.addClientSuccess({ client: newClient })),
+          catchError((error) => of(ClientActions.addClientFailure({ error: error.message })))
         )
       )
     )
   );
 
-  // 🔹 Effet pour mettre à jour un client
+  
   updateClient$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(updateClient),
+      ofType(ClientActions.updateClient),
       mergeMap((action) =>
         this.clientService.update(action.client).pipe(
-          map((updatedClient: Client) => updateClientSuccess({ client: updatedClient })),
-          catchError((error) => of(updateClientFailure({ error: error.message })))
+          map((updatedClient: Client) => ClientActions.updateClientSuccess({ client: updatedClient })),
+          catchError((error) => of(ClientActions.updateClientFailure({ error: error.message })))
         )
       )
     )
   );
 
-  // 🔹 Effet pour supprimer un client
+  
   deleteClient$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(deleteClient),
+      ofType(ClientActions.deleteClient),
       mergeMap((action) =>
         this.clientService.delete(action.clientId).pipe(
-          map(() => deleteClientSuccess({ clientId: action.clientId })),
-          catchError((error) => of(deleteClientFailure({ error: error.message })))
+          map(() => ClientActions.deleteClientSuccess({ clientId: action.clientId })),
+          catchError((error) => of(ClientActions.deleteClientFailure({ error: error.message })))
         )
       )
     )
   );
-  // 🔹 Envoyer email d'import de contrat
+ 
+
 sendImportEmail$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(sendImportEmail),
+    ofType(ClientActions.sendImportEmail),
     mergeMap((action) =>
       this.clientService.envoyerEmailImport(action.clientId).pipe(
-        map(() => sendImportEmailSuccess()),
+        map(() => ClientActions.sendImportEmailSuccess()),
         catchError((error) =>
-          of(sendImportEmailFailure({ error: error.message }))
+          of(ClientActions.sendImportEmailFailure({ error: error.message }))
         )
       )
     )

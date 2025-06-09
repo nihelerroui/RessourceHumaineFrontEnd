@@ -45,6 +45,9 @@ import { SharedModule } from "./cyptolanding/shared/shared.module";
 import { AuthInterceptor } from "./core/helpers/auth.interceptor";
 import { clientReducer } from './store/client/client.reducer';
 import { ClientEffects } from './store/client/client.effects';
+import { SocieteEffects } from "./store/societe/societe.effects";
+import { societeReducer } from "./store/societe/societe.reducer";
+
 
 
 if (environment.defaultauth === "firebase") {
@@ -75,6 +78,9 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     LayoutsModule,
     AppRoutingModule,
+    StoreModule.forFeature('societe', societeReducer),
+EffectsModule.forFeature([SocieteEffects]),
+
     ExtrapagesModule,
     AccordionModule.forRoot(),
     TabsModule.forRoot(),
@@ -92,6 +98,7 @@ export function createTranslateLoader(http: HttpClient): any {
     UIModule,
     StoreModule.forFeature('client', clientReducer),
     EffectsModule.forFeature([ClientEffects]) ,
+  
   ],
   bootstrap: [AppComponent],
   providers: [

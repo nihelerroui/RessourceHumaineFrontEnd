@@ -1,15 +1,15 @@
 import { createAction, props } from '@ngrx/store';
 import { Tresorie } from '../../models/tresorie.model';
 
-// 🔹 Charger la trésorerie d'une société
+
 export const loadTresorie = createAction(
   '[Tresorie] Load Tresorie',
-  props<{ societeId: number }>() // ✅ Ajout du `societeId` pour la requête
+  props<{ societeId: number }>() 
 );
 
 export const loadTresorieSuccess = createAction(
   '[Tresorie] Load Tresorie Success',
-  props<{ tresorie: Tresorie }>() // ✅ Retourne toute la trésorerie
+  props<{ tresorie: Tresorie }>() 
 );
 
 export const loadTresorieFailure = createAction(
@@ -17,7 +17,7 @@ export const loadTresorieFailure = createAction(
   props<{ error: string }>()
 );
 
-// 🔹 Définir le solde initial d'une société
+
 export const setSoldeInitial = createAction(
   '[Tresorie] Set Solde Initial',
   props<{ societeId: number; montant: number }>()
@@ -25,7 +25,7 @@ export const setSoldeInitial = createAction(
 
 export const setSoldeInitialSuccess = createAction(
   '[Tresorie] Set Solde Initial Success',
-  props<{ tresorie: Tresorie }>() // ✅ Retourne toute la trésorerie mise à jour
+  props<{ tresorie: Tresorie }>() 
 );
 
 export const setSoldeInitialFailure = createAction(
@@ -33,15 +33,15 @@ export const setSoldeInitialFailure = createAction(
   props<{ error: string }>()
 );
 
-// 🔹 Valider un paiement et mettre à jour la trésorerie
+
 export const validerPaiement = createAction(
   '[Tresorie] Valider Paiement',
-  props<{ factureId: number }>()
+  props<{ factureAchatId: number }>()
 );
 
 export const validerPaiementSuccess = createAction(
   '[Trésorie] Paiement validé avec succès',
-  props<{ tresorie: Tresorie, factureId: number }>() 
+  props<{ tresorie: Tresorie, factureAchatId: number }>() 
 );
 
 
@@ -51,15 +51,16 @@ export const validerPaiementFailure = createAction(
   props<{ error: string }>()
 );
 
-// 🔹 Augmenter le solde actuel si solde = 1000
+
 export const augmenterSoldeActuel = createAction(
-  '[Tresorie] Augmenter Solde Actuel',
-  props<{ societeId: number; montant: number }>()
+  '[Tresorie] Augmenter Solde',
+  props<{ societeId: number; montant: number; source: string; motif: string }>()
 );
+
 
 export const augmenterSoldeActuelSuccess = createAction(
   '[Tresorie] Augmenter Solde Actuel Success',
-  props<{ tresorie: Tresorie }>() // ✅ Retourne toute la trésorerie mise à jour
+  props<{ tresorie: Tresorie }>() 
 );
 
 export const augmenterSoldeActuelFailure = createAction(

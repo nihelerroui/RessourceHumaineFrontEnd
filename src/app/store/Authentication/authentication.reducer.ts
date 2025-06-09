@@ -4,6 +4,7 @@ import { User } from "../../models/auth.models";
 import { Consultant } from "src/app/models/consultant.models";
 import { PersonalDetails } from "src/app/models/PersonalDetails.model";
 import { Societe } from "src/app/models/societe.model";
+import { AdminSociete } from "src/app/models/adminSociete.model";
 
 export interface AuthenticationState {
   consultants: Consultant[];
@@ -13,7 +14,7 @@ export interface AuthenticationState {
   isLoggedIn: boolean;
   error: string | null;
   loading: boolean;
-  societes: Societe[];
+  societes: AdminSociete[];
 }
 
 const initialState: AuthenticationState = {
