@@ -32,8 +32,15 @@
                 name="datepicker" />
             </div>
             <div class="col-lg-3">
-              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterPrestation()">
-                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSocieteId"
+                 (change)="filterPrestation()"
+              >
+                <option
+                  *ngFor="let s of adminSocietes$ | async"
+                  [ngValue]="s.societeId"
+                >
                   {{ s.name }}
                 </option>
               </select>

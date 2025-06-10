@@ -24,7 +24,7 @@ import { SocieteListComponent } from './societe-list/societe-list.component';
     FormsModule,
     ReactiveFormsModule,
     StoreModule.forFeature('societe', societeReducer),
-    EffectsModule.forFeature([SocieteEffects]) ,
+    EffectsModule.forFeature([SocieteEffects]),
     PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
     CollapseModule.forRoot(),

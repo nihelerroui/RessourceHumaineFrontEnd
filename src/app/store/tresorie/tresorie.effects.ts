@@ -3,68 +3,53 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { TresorieService } from 'src/app/core/services/tresorie.service';
-import {
-  loadTresorie,
-  loadTresorieSuccess,
-  loadTresorieFailure,
-  setSoldeInitial,
-  setSoldeInitialSuccess,
-  setSoldeInitialFailure,
-  validerPaiement,
-  validerPaiementSuccess,
-  validerPaiementFailure,
-  augmenterSoldeActuel,
-  augmenterSoldeActuelSuccess,
-  augmenterSoldeActuelFailure
-} from './tresorie.actions';
+import * as TresorieActions  from './tresorie.actions';
 
 @Injectable()
 export class TresorieEffects {
   constructor(private actions$: Actions, private tresorieService: TresorieService) {}
 
-  // 🔹 Effet pour charger la trésorerie d'une société
+  
   loadTresorie$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(loadTresorie),
+      ofType(TresorieActions.loadTresorie),
       mergeMap(({ societeId }) =>
-        this.tresorieService.getTresorie(societeId).pipe( // ✅ Utilise l'ID de la société dynamique
-          map((tresorie) => loadTresorieSuccess({ tresorie })), // ✅ Retourne toute la trésorerie
-          catchError((error) => of(loadTresorieFailure({ error: error.message })))
+        this.tresorieService.getTresorie(societeId).pipe( 
+          map((tresorie) => TresorieActions.loadTresorieSuccess({ tresorie })), 
+          catchError((error) => of(TresorieActions.loadTresorieFailure({ error: error.message })))
         )
       )
     )
   );
 
-  // 🔹 Effet pour définir le solde initial
   setSoldeInitial$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(setSoldeInitial),
+      ofType(TresorieActions.setSoldeInitial),
       mergeMap((action) =>
         this.tresorieService.setSoldeInitial(action.societeId, action.montant).pipe(
-          map((tresorie) => setSoldeInitialSuccess({ tresorie })), // ✅ Retourne toute la trésorerie mise à jour
-          catchError((error) => of(setSoldeInitialFailure({ error: error.message })))
+          map((tresorie) => TresorieActions.setSoldeInitialSuccess({ tresorie })), 
+          catchError((error) => of(TresorieActions.setSoldeInitialFailure({ error: error.message })))
         )
       )
     )
   );
 
-  // 🔹 Effet pour valider un paiement et mettre à jour la trésorerie
   validerPaiement$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(validerPaiement),
+      ofType(TresorieActions.validerPaiement),
       mergeMap(action =>
-        this.tresorieService.validerPaiement(action.factureId).pipe(
+        this.tresorieService.validerPaiement(action.factureAchatId).pipe(
           map(response => {
             if (response.status === 'error') {
-              return validerPaiementFailure({ error: response.message });
+              return TresorieActions.validerPaiementFailure({ error: response.message });
             }
-            return validerPaiementSuccess({
+            return TresorieActions.validerPaiementSuccess({
               tresorie: response.nouveauSolde, 
-              factureId: action.factureId       
+              factureAchatId: action.factureAchatId       
             });
           }),
           catchError(error =>
-            of(validerPaiementFailure({ error: error.message }))
+            of(TresorieActions.validerPaiementFailure({ error: error.message }))
           )
         )
       )
@@ -73,19 +58,29 @@ export class TresorieEffects {
   
   
   
-  
 
-
-  // 🔹 Effet pour augmenter le solde actuel lorsque le seuil est atteint
 augmenterSoldeActuel$ = createEffect(() =>
   this.actions$.pipe(
-    ofType(augmenterSoldeActuel),
-    mergeMap(({ societeId, montant }) =>
-      this.tresorieService.augmenterSoldeActuel(societeId, montant).pipe(
-        map((tresorie) => augmenterSoldeActuelSuccess({ tresorie })), // ✅ Retourne toute la trésorerie mise à jour
-        catchError((error) => of(augmenterSoldeActuelFailure({ error: error.message })))
+    ofType(TresorieActions.augmenterSoldeActuel),
+    mergeMap(({ societeId, montant, source, motif }) =>
+      this.tresorieService.augmenterSoldeActuel(societeId, montant, source, motif).pipe(
+        mergeMap((response: any) =>
+          this.tresorieService.getTresorie(societeId).pipe(
+            map((tresorie) =>
+              TresorieActions.augmenterSoldeActuelSuccess({ tresorie })
+            ),
+            catchError((error) =>
+              of(TresorieActions.augmenterSoldeActuelFailure({ error: error.message }))
+            )
+          )
+        ),
+        catchError((error) =>
+          of(TresorieActions.augmenterSoldeActuelFailure({ error: error.message }))
+        )
       )
     )
   )
 );
+
+
 }

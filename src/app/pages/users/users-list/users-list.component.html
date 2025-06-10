@@ -71,7 +71,6 @@
                 [(ngModel)]="selectedSocieteId"
                 (ngModelChange)="filterUsers()"
               >
-                <option [ngValue]="null">Toutes les sociétés</option>
                 <option *ngFor="let s of adminSocietes" [ngValue]="s.societeId">
                   {{ s.name }}
                 </option>

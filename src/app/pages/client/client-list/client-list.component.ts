@@ -4,7 +4,7 @@ import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable } from "rxjs";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
-import * as ClientActions  from "src/app/store/client/client.actions";
+import * as ClientActions from "src/app/store/client/client.actions";
 import { Client } from "../../../models/client.model";
 import * as ClientSelectors from "src/app/store/client/client.selectors";
 import { TypeClient } from "src/app/models/type-client.enum";
@@ -34,15 +34,21 @@ export class ClientListComponent implements OnInit {
   paginatedClientList: Client[] = [];
   searchTerm: string = "";
   selectedPays: number | "" = "";
-  selectedSociete: number | "" = "";
+
   selectedTypeClient: string = "";
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
   selectedClient!: Client | null;
 
+  selectedSocieteId: number | null = null;
+
+  adminSocietes: any[] = [];
+  consultantSocieteId: number | null = null;
+
   adminSocietes$: Observable<any[]>;
-  consultantSocieteId!: number;
+
+  clientList: Client[] = [];
 
   constructor(
     private modalService: BsModalService,
@@ -51,36 +57,76 @@ export class ClientListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
-    );
-    this.consultantSocieteId = currentUser.societe.societeId;
-    this.selectedSociete = this.consultantSocieteId;
-
     this.breadCrumbItems = [
       { label: "Dashboard", path: "/" },
       { label: "Liste des Clients", active: true },
     ];
 
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantSocieteId = currentUser.societe?.societeId;
+    this.selectedSocieteId = Number(this.consultantSocieteId);
+
     this.store.dispatch(ClientActions.loadClients());
     this.store.dispatch(loadPays());
-
     this.store.dispatch(AuthActions.loadAdminSocietes());
-    this.adminSocietes$ = this.store.select(selectAllSocietes);
 
     this.paysList$ = this.store.select(selectPaysList);
+    this.adminSocietes$ = this.store.select(selectAllSocietes);
+
+    this.adminSocietes$.subscribe((societes) => {
+      this.adminSocietes = societes;
+
+      const match = societes.find(
+        (s) => s.societeId === this.consultantSocieteId
+      );
+
+      if (match) {
+        this.selectedSocieteId = match.societeId;
+      } else if (societes.length > 0) {
+        this.selectedSocieteId = societes[0].societeId;
+      }
+
+      this.filterClients();
+    });
 
     this.store.select(ClientSelectors.selectClientList).subscribe((clients) => {
-      this.filteredClientList = clients.filter(
-        (client) => client.societe?.societeId === this.consultantSocieteId
-      );
-      this.selectedSociete = this.consultantSocieteId;
-      this.pageChanged({ page: 1 });
+      this.clientList = clients;
+      this.filterClients();
     });
 
     this.loading$ = this.store.select(ClientSelectors.selectClientLoading);
     this.error$ = this.store.select(ClientSelectors.selectClientError);
 
+    this.initClientForm();
+  }
+
+  filterClients() {
+    this.filteredClientList = this.clientList.filter((client) => {
+      const searchMatch =
+        client.nom?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        client.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        client.telephone?.includes(this.searchTerm);
+
+      const paysMatch =
+        !this.selectedPays || client.pays?.paysId === +this.selectedPays;
+
+      const societeMatch =
+        !this.selectedSocieteId ||
+        client.societe?.societeId === this.selectedSocieteId;
+
+      const typeClientMatch =
+        !this.selectedTypeClient ||
+        client.typeClient === this.selectedTypeClient;
+
+      return searchMatch && paysMatch && societeMatch && typeClientMatch;
+    });
+
+    this.pageChanged({ page: 1 });
+  }
+
+  initClientForm(): void {
     this.clientForm = this.formBuilder.group({
       nom: [
         "",
@@ -100,28 +146,6 @@ export class ClientListComponent implements OnInit {
     });
   }
 
-  filterClients() {
-    this.store.select(ClientSelectors.selectClientList).subscribe((clients) => {
-      this.filteredClientList = clients.filter(
-        (client) =>
-          (client.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            client.email
-              .toLowerCase()
-              .includes(this.searchTerm.toLowerCase()) ||
-            client.telephone.includes(this.searchTerm)) &&
-          (this.selectedPays === "" ||
-            client.pays?.paysId == this.selectedPays) &&
-          ((this.selectedSociete !== "" &&
-            client.societe.societeId == this.selectedSociete) ||
-            (this.selectedSociete === "" &&
-              client.societe.societeId === this.consultantSocieteId)) &&
-          (this.selectedTypeClient === "" ||
-            client.typeClient === this.selectedTypeClient)
-      );
-      this.pageChanged({ page: 1 });
-    });
-  }
-
   pageChanged(event: any) {
     this.currentPage = event.page;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -137,10 +161,9 @@ export class ClientListComponent implements OnInit {
 
   openModalAdd(template: TemplateRef<any>) {
     this.clientForm.reset();
-    this.clientForm.patchValue({ clientId: null }); 
+    this.clientForm.patchValue({ clientId: null });
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
-
 
   openModalEdit(client: any, template: TemplateRef<any>) {
     this.clientForm.patchValue({
@@ -157,7 +180,6 @@ export class ClientListComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  
   saveClient() {
     if (this.clientForm.valid) {
       let clientData = this.clientForm.value;
@@ -191,7 +213,6 @@ export class ClientListComponent implements OnInit {
     }
   }
 
-  
   onDeleteClient(clientId: number) {
     Swal.fire({
       title: "Êtes-vous sûr ?",

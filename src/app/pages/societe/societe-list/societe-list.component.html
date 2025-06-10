@@ -8,27 +8,6 @@
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
             <h5 class="mb-0 card-title flex-grow-1">Liste des Sociétés</h5>
-            <div class="flex-shrink-0 d-flex gap-2">
-              <a href="javascript:void(0);" class="btn btn-primary"
-              (click)="openModalAdd(societeModal)"> Ajouter une Société</a>
-              <a href="javascript:void(0);" class="btn btn-light"><i
-                  class="mdi mdi-refresh"></i></a>
-              <div class="dropdown d-inline-block" dropdown>
-                <button type="menu" class="btn btn-success"
-                  id="*dropdownMenuButton1" data-bs-toggle="dropdown"
-                  aria-expanded="false" dropdownToggle><i
-                    class="mdi mdi-dots-vertical"></i></button>
-                <ul class="dropdown-menu dropdown-menu dropdown-menu-end show"
-                  aria-labelledby="*dropdownMenuButton1" *dropdownMenu>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Action</a></li>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Another action</a></li>
-                  <li><a class="dropdown-item"
-                      href="javascript:void(0);">Something else here</a></li>
-                </ul>
-              </div>
-            </div>
           </div>
         </div>
         <div class="card-body border-bottom">
@@ -61,16 +40,17 @@
                   <th>contact</th>
                   <th>Email</th>
                   <th>Responsable</th>
+                  <th>Seuil Tresorerie</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  *ngFor="let societe of paginatedSocieteList; trackBy: trackById">
+                <tr *ngFor="let societe of paginatedSocieteList; trackBy: trackBySocieteId">
                   <td>{{ societe.nom }}</td>
                   <td>{{ societe.contact }}</td>
                   <td>{{ societe.email }}</td>
                   <td>{{ societe.responsable }}</td>
+                  <td>{{ societe.seuilTresorerie }}</td>
                   
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
@@ -86,13 +66,6 @@
                         <button class="btn btn-sm btn-soft-info"
                         (click)="openModalEdit(societe, societeModal)">
                           <i class="mdi mdi-pencil-outline"></i>
-                        </button>
-                      </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Delete">
-                        <button class="btn btn-sm btn-soft-danger"
-                          (click)="onDeleteSociete(societe.societeId)">
-                          <i class="mdi mdi-delete-outline"></i>
                         </button>
                       </li>
                     </ul>
@@ -131,66 +104,12 @@
 
 <ng-template #societeModal>
   <div class="modal-header">
-      <h5 class="modal-title">{{ societeForm.value.societeId ? 'Modifier une Société' : 'Ajouter une Société' }}</h5>
+      <h5 class="modal-title">Modifier une Société</h5>
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
   <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
       <div class="modal-body">
-          <div class="mb-3">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" formControlName="nom" placeholder="Nom de la société">
-              <div *ngIf="societeForm.controls['nom'].invalid && societeForm.controls['nom'].touched" class="text-danger">
-                  Le nom est obligatoire et doit contenir au moins 2 caractères.
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Adresse</label>
-              <input type="text" class="form-control" formControlName="adresse" placeholder="Adresse de la société">
-              <div *ngIf="societeForm.controls['adresse'].invalid && societeForm.controls['adresse'].touched" class="text-danger">
-                  L'adresse est obligatoire.
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Contact</label>
-              <input type="text" class="form-control" formControlName="contact" placeholder="Nom du contact">
-              <div *ngIf="societeForm.controls['contact'].invalid && societeForm.controls['contact'].touched" class="text-danger">
-                  Le contact est obligatoire.
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" formControlName="email" placeholder="Email de la société">
-              <div *ngIf="societeForm.controls['email'].invalid && societeForm.controls['email'].touched" class="text-danger">
-                  Entrez un email valide.
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Numéro SIRET</label>
-              <input type="text" class="form-control" formControlName="numSiret" placeholder="SIRET">
-              <div *ngIf="societeForm.controls['numSiret'].invalid && societeForm.controls['numSiret'].touched" class="text-danger">
-                  <span *ngIf="societeForm.controls['numSiret'].errors?.['required']">Le numéro SIRET est obligatoire.</span>
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Numéro TVA</label>
-              <input type="text" class="form-control" formControlName="numTva" placeholder="Numéro TVA">
-              <div *ngIf="societeForm.controls['numTva'].invalid && societeForm.controls['numTva'].touched" class="text-danger">
-                  <span *ngIf="societeForm.controls['numTva'].errors?.['required']">Le numéro TVA est obligatoire.</span>
-              </div>
-          </div>
-
-          <div class="mb-3">
-              <label class="form-label">Téléphone</label>
-              <input type="text" class="form-control" formControlName="telephone" placeholder="Numéro de téléphone">
-              <div *ngIf="societeForm.controls['telephone'].invalid && societeForm.controls['telephone'].touched" class="text-danger">
-                  Le téléphone doit contenir uniquement des chiffres.
-              </div>
-          </div>
+          
 
           <div class="mb-3">
               <label class="form-label">Seuil Tresorerie</label>
@@ -200,19 +119,13 @@
               </div>
           </div>
 
-          <div class="mb-3">
-              <label class="form-label">Responsable</label>
-              <input type="text" class="form-control" formControlName="responsable" placeholder="Nom du responsable">
-              <div *ngIf="societeForm.controls['responsable'].invalid && societeForm.controls['responsable'].touched" class="text-danger">
-                  Le nom du responsable est obligatoire.
-              </div>
-          </div>
+    
       </div>
 
       <div class="modal-footer">
           <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Annuler</button>
           <button type="submit" class="btn btn-success" [disabled]="societeForm.invalid">
-              {{ societeForm.value.societeId ? 'Mettre à Jour' : 'Ajouter' }}
+              Mettre à Jour 
           </button>
       </div>
   </form>

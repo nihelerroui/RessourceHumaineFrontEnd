@@ -138,7 +138,7 @@ export class AuthenticationService extends GenericService<User> {
       "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NDk0Njg2NjYsImV4cCI6MTc0OTcyNzg2Nn0.qrbJw9mcUNu3JA8eY_YYiPqxWGXTMrgHNzB7C-tCGMo";
 
     const headers = new HttpHeaders()
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${environment.token}`)
       .set("Content-Type", "application/json");
 
     return this.http.get<any[]>(url, { headers });

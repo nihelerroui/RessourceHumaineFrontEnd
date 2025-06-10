@@ -39,15 +39,22 @@ import { ContratClient_ClientModule } from './contratClient_Client/contrat-clien
 import { ContratClientModule } from './contratClient/contrat-client.module';
 import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
 import { CommentaireContratSousTraitantModule } from './comment-contratSousTraitant/comment-contratST.module';
+import { UserModule } from './users/user.module';
+import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
+import { RecettesModule } from './recettes/recettes.module';
+import { StoreModule } from '@ngrx/store';
+import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
 
 
 @NgModule({
   declarations: [
     CommentModalComponent,
+    UtilisateurregisterviewComponent,
   ],
   imports: [
     CommonModule,
     PaysModule,
+    FactureSousTraitantModule,
     SocieteModule,
     FactureModule,
     TresorieModule,
@@ -56,6 +63,7 @@ import { CommentaireContratSousTraitantModule } from './comment-contratSousTrait
     PrestationsModule,
     MainOeuvreModule,
     FormsModule,
+    RecettesModule,
     CommentModalModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),

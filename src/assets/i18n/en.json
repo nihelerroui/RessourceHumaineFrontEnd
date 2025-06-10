@@ -93,17 +93,23 @@
     "DEPENSES": {
       "TEXT": "DEPENSES"
     },
-    "SOCIETE": {
-      "TEXT": "SOCIETE"
+    "RECETTES": {
+      "TEXT": "RECETTES"
     },
-    "CLIENT": {
-      "TEXT": "CLIENT"
+    "SOCIETES": {
+      "TEXT": "SOCIETES"
     },
-    "FACTURE": {
-      "TEXT": "FACTURE"
+    "CLIENTS": {
+      "TEXT": "CLIENTS"
     },
-    "TRESORIE": {
-      "TEXT": "TRESORIE"
+    "FACTURES_ACHATS": {
+      "TEXT": "FACTURES ACHATS"
+    },
+    "FACTURES_SOUS_TRAITANT": {
+      "TEXT": "FACTURES SOUS-TRAITANT"
+    },
+    "TRESORERIE": {
+      "TEXT": "TRESORERIE"
     },
     "MAINOEUVRE": {
       "TEXT": "MAINOEUVRE"

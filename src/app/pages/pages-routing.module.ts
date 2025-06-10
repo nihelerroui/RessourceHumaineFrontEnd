@@ -34,9 +34,9 @@ const routes: Routes = [
   { path: 'contratclientadmin', loadChildren: () => import('./contratClient/contrat-client.module').then(m => m.ContratClientModule) },
   { path: 'import-contrat/:token', loadChildren: () => import('./ImportationContrat/importerContrat.module').then(m => m.ImporterContratModule) },
   { path: 'contrats-client/:clientId', loadChildren: () => import('./contratClient_Client/contrat-client_Client.module').then(m => m.ContratClient_ClientModule) },
-
-
-
+  { path: 'users', loadChildren: () => import('./users/user.module').then(m => m.UserModule) },
+  { path: 'recettes', loadChildren: () => import('./recettes/recettes.module').then(m => m.RecettesModule) },
+  { path: 'factureSousTraitant', loadChildren: () => import('./factureSousTraitant/facture-sous-traitant.module').then(m => m.FactureSousTraitantModule) },
 ];
 
 @NgModule({

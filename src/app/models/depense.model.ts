@@ -1,4 +1,5 @@
-import { Facture } from "./facture.model";
+
+import { FactureAchat } from "./factureAchat.model";
 import { Societe } from "./societe.model";
 
 export interface Depense {
@@ -9,7 +10,7 @@ export interface Depense {
     designation: string;
     motif: string;
     dateCreation: Date;
-    facture: Facture;
+    facture: FactureAchat;
     societe: Societe;
   }
   

@@ -23,6 +23,8 @@ export class TresorieComponent implements OnInit {
   peutAugmenterSolde$: Observable<boolean>; 
   montantInitial: number = 0;
   montantAjout: number = 0; 
+  source: string = '';
+motif: string = '';
   societeId!: number;
   modalAction: string = '';
   modalRef?: BsModalRef;
@@ -30,6 +32,7 @@ export class TresorieComponent implements OnInit {
 
   adminSocietes: any[] = [];
 selectedSocieteId!: number;
+consultantSocieteId!: number;
 
 
 
@@ -46,38 +49,46 @@ ngOnInit(): void {
     { label: 'Trésorie', active: true }
   ];
 
-  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-  const societe = currentUser?.societe;
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  this.consultantSocieteId = currentUser.societe?.societeId;
 
-  if (!societe || !societe.societeId) {
-    alert("Impossible de récupérer la société.");
+  if (!this.consultantSocieteId) {
+    alert("Société de l'utilisateur introuvable.");
     return;
   }
-
-  this.societeId = societe.societeId;
-  
 
   this.store.dispatch(AuthActions.loadAdminSocietes());
 
   this.store.select(selectAllSocietes).subscribe(societes => {
-    this.adminSocietes = societes;
-    if (!this.selectedSocieteId) {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    const societe = currentUser?.societe;
-    if (societe?.societeId) {
-      this.selectedSocieteId = societe.societeId;
-      this.onSocieteChange(); 
-    }
-  }
-  });
+    if (!societes || societes.length === 0) return;
 
-  
+    this.adminSocietes = societes;
+
+    // ✅ Ici, on synchronise bien le select
+    const match = societes.find(s => s.societeId === this.consultantSocieteId);
+    this.selectedSocieteId = match?.societeId ?? societes[0].societeId;
+
+    // Ne déclenche `onSelectChange` qu'après avoir mis à jour `selectedSocieteId`
+    Promise.resolve().then(() => {
+      this.onSelectChange(this.selectedSocieteId);
+    });
+  });
 }
+
+
+
+
 
 onSocieteChange() {
   this.societeId = this.selectedSocieteId;
   this.store.dispatch(loadTresorie({ societeId: this.societeId }));
 }
+
+onSelectChange(id: number) {
+  this.selectedSocieteId = id;
+  this.onSocieteChange();
+}
+
 
 
 
@@ -122,26 +133,40 @@ onSocieteChange() {
   }
   
 
-  augmenterSolde() {
-    if (this.montantAjout <= 0) {
-      alert("Veuillez entrer un montant valide !");
-      return;
-    }
-
-    this.store.dispatch(augmenterSoldeActuel({ societeId: this.societeId, montant: this.montantAjout }));
-
-    this.store.select(selectTresorie).subscribe({
-      next: (tresorie) => {
-        if (tresorie) {
-          this.store.dispatch(loadTresorie({ societeId: this.societeId })); 
-        }
-      }
-    });
-
-
-    this.montantAjout = 0;
-
-
+ /*augmenterSolde() {
+  if (this.montantAjout <= 0) {
+    alert("Veuillez entrer un montant valide !");
+    return;
   }
+  this.store.dispatch(augmenterSoldeActuel({ societeId: this.societeId, montant: this.montantAjout }));
+  this.montantAjout = 0;
+  this.closeModal();
+}*/
+
+augmenterSolde() {
+  if (this.montantAjout <= 0) {
+    alert("Veuillez entrer un montant valide !");
+    return;
+  }
+
+  if (!this.source || !this.motif) {
+    alert("Veuillez renseigner la source et le motif !");
+    return;
+  }
+
+  this.store.dispatch(augmenterSoldeActuel({
+    societeId: this.societeId,
+    montant: this.montantAjout,
+    source: this.source,
+    motif: this.motif
+  }));
+
+  this.montantAjout = 0;
+  this.source = '';
+  this.motif = '';
+  this.closeModal();
+}
+
+
 
 }

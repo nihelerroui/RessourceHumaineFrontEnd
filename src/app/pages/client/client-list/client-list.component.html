@@ -24,39 +24,7 @@
                 (click)="refreshList()"
                 ><i class="mdi mdi-refresh"></i
               ></a>
-              <div class="dropdown d-inline-block" dropdown>
-                <button
-                  type="menu"
-                  class="btn btn-success"
-                  id="*dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  dropdownToggle
-                >
-                  <i class="mdi mdi-dots-vertical"></i>
-                </button>
-                <ul
-                  class="dropdown-menu dropdown-menu dropdown-menu-end show"
-                  aria-labelledby="*dropdownMenuButton1"
-                  *dropdownMenu
-                >
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Action</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Another action</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                      >Something else here</a
-                    >
-                  </li>
-                </ul>
-              </div>
+             
             </div>
           </div>
         </div>
@@ -102,13 +70,12 @@
             <div class="col-lg-2">
               <select
                 class="form-select"
-                [(ngModel)]="selectedSociete"
-                (change)="filterClients()"
+                [(ngModel)]="selectedSocieteId"
+               (ngModelChange)="filterClients()"
               >
-                <option value>Sélectionner une Société</option>
                 <option
-                  *ngFor="let societe of adminSocietes$ | async"
-                  [value]="societe.societeId"
+                  *ngFor="let societe of adminSocietes"
+                 [ngValue]="societe.societeId"
                 >
                   {{ societe.name }}
                 </option>
@@ -207,7 +174,7 @@
                           <i class="mdi mdi-delete-outline"></i>
                         </button>
                       </li>
-                      
+
                       <li
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
