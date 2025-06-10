@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { CommentaireFactureClient } from 'src/app/models/CommentaireFactureClient.models';
 import { FactureClient } from 'src/app/models/factureClient.models';
 import { Prestation } from 'src/app/models/prestation.model';
 
@@ -174,5 +175,17 @@ export const loadFacturesBySocieteAdminFailure = createAction(
 
 export const updateFactureClientWithToken = createAction(
   '[FactureClient] Update Facture',
-  props<{ facture: FactureClient, token?: string }>()  // Ajout du `token?`
+  props<{ facture: FactureClient, token?: string }>()
+);
+export const downloadFactureWithToken = createAction(
+  '[FactureClient] Download Facture With Token',
+  props<{ factureClientId: number; token: string }>()
+);
+export const downloadFactureWithTokenSuccess = createAction(
+  '[FactureClient] Download Facture With Token Success'
+);
+
+export const downloadFactureWithTokenFailure = createAction(
+  '[FactureClient] Download Facture With Token Failure',
+  props<{ error: any }>()
 );

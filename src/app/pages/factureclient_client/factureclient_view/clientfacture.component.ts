@@ -172,6 +172,7 @@ export class ClientViewFactureComponent implements OnInit {
         factureId,
         currentUserEmail: emailClient,
         isClientMode: true,
+        token: this.token
       }
     });
   }
@@ -180,6 +181,6 @@ export class ClientViewFactureComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
   downloadFacture(factureId: number): void {
-    this.store.dispatch(factureAction.downloadFacture({ factureClientId: factureId }));
+    this.store.dispatch(factureAction.downloadFactureWithToken({ factureClientId: factureId, token: this.token!}));
   }
 }

@@ -258,5 +258,30 @@ export class FactureClientEffects {
       )
     )
   );
+  downloadFactureWithToken$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.downloadFactureWithToken),
+    exhaustMap(({ factureClientId, token }) =>
+      this.factureClientService.downloadFactureWithToken(factureClientId, token).pipe(
+        map(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `facture_${factureClientId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          return FactureClientActions.downloadFactureWithTokenSuccess();
+        }),
+        catchError(error => {
+          console.error('❌ Erreur téléchargement (token client)', error);
+          return of(FactureClientActions.downloadFactureWithTokenFailure({ error }));
+        })
+      )
+    )
+  )
+);
+
   
 }

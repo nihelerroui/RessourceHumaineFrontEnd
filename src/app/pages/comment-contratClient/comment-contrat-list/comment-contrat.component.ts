@@ -91,33 +91,39 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   }
 
   addComment(): void {
-    if (!this.newComment.trim() || this.isSubmitting) return;
-    this.isSubmitting = true;
+  if (!this.newComment.trim() || this.isSubmitting) return;
+  this.isSubmitting = true;
 
-    const auteur = this.currentUserEmail || "Utilisateur inconnu";
+  const auteur = this.currentUserEmail || "Utilisateur inconnu";
 
-    if (this.isClientMode && this.contratClientId != null) {
-      const commentaireClient: CommentaireContratClient = {
-        contenu: this.newComment,
-        auteurCommentaire: auteur,
-        dateCommentaire: new Date().toISOString(),
-        contratClient: this.contrat as ContratClient,
-      };
-      this.store.dispatch(addCommentaireContratClient({ commentaire: commentaireClient }));
-    } else if (this.contratId != null) {
-      const commentaireST: CommentaireContratSousTraitant = {
-        contenu: this.newComment,
-        auteurCommentaire: auteur,
-        dateCommentaire: new Date().toISOString(),
-        contratSousTraitant: this.contrat as ContratSousTraitant,
-      };
-      this.store.dispatch(addCommentaireContratSousTraitant({ commentaire: commentaireST }));
-    }
+  const commentaireClient: CommentaireContratClient = {
+    contenu: this.newComment,
+    auteurCommentaire: auteur,
+    dateCommentaire: new Date().toISOString(),
+    contratClient: { contratClientId: this.contratClientId } as ContratClient,
+  };
 
-    this.newComment = "";
-    this.isSubmitting = false;
-    setTimeout(() => this.scrollToBottom(), 300);
+  if ((this.isClientMode || this.isAdminMode) && this.contratClientId != null) {
+    this.store.dispatch(addCommentaireContratClient({ commentaire: commentaireClient }));
+
+    // Recharge la liste après ajout
+    setTimeout(() => {
+      this.store.dispatch(loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
+      this.scrollToBottom();
+    }, 500);
+  } else if (this.contratId != null) {
+    const commentaireST: CommentaireContratSousTraitant = {
+      contenu: this.newComment,
+      auteurCommentaire: auteur,
+      dateCommentaire: new Date().toISOString(),
+      contratSousTraitant: this.contrat as ContratSousTraitant,
+    };
+    this.store.dispatch(addCommentaireContratSousTraitant({ commentaire: commentaireST }));
   }
+
+  this.newComment = "";
+  this.isSubmitting = false;
+}
 
   startEdit(comment: CommentaireContratWithEdit): void {
     comment.isEditing = true;
@@ -131,7 +137,7 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   saveEdit(comment: CommentaireContratWithEdit): void {
     if (!comment.editContent?.trim()) return;
 
-    if (this.isClientMode) {
+    if (this.isClientMode|| this.isAdminMode) {
       const updated: CommentaireContratClient = {
         commentaireId: comment.commentaireId,
         contenu: comment.editContent,
@@ -167,7 +173,7 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   confirmDeleteAction(): void {
     if (!this.commentToDelete) return;
 
-    if (this.isClientMode) {
+    if (this.isClientMode || this.isAdminMode) {
       this.store.dispatch(deleteCommentaireContratClient({ commentaireId: this.commentToDelete.id }));
     } else {
       this.store.dispatch(deleteCommentaireContratSousTraitant({ commentaireId: this.commentToDelete.id }));

@@ -72,6 +72,10 @@ export class FactureClientService extends GenericService<any> {
   getFacturesBySocietesAdmin(): Observable<FactureClient[]> {
     return this.http.get<FactureClient[]>(`${this.apiUrl}/admin/factures-societes`);
   }
-
+  downloadFactureWithToken(factureId: number, token: string) {
+  return this.http.get(`${this.apiUrl}/client/download?factureId=${factureId}&token=${token}`, {
+    responseType: 'blob'
+  });
+}
 
 }

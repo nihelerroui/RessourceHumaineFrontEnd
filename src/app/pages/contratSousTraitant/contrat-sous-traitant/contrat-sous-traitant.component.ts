@@ -302,7 +302,8 @@ export class ContratSousTraitantComponent implements OnInit {
   }
 
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
-    const emailSousTraitant = contrat.consultant?.user?.email || 'consultant@featway.com';
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const emailSousTraitant = currentUser.user?.email || 'consultant@featway.com';
 
     this.modalRef = this.modalService.show(CommentContratComponent, {
       initialState: {

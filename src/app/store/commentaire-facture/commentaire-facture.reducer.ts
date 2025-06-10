@@ -52,5 +52,49 @@ export const commentaireFactureClientReducer = createReducer(
   on(CommentaireActions.deleteCommentaireFactureClientSuccess, (state, { commentaireId }) => ({
     ...state,
     commentaires: state.commentaires.filter((c) => c.commentaireId !== commentaireId),
-  }))
+  })),
+  // Add
+  on(CommentaireActions.addCommentClientSuccess, (state, { commentaire }) => ({
+    ...state,
+    commentaires: [...state.commentaires, commentaire],
+    error: null
+  })),
+  on(CommentaireActions.addCommentClientFailure, (state, { error }) => ({
+    ...state,
+    error
+  })),
+
+  // Update
+  on(CommentaireActions.updateCommentClientSuccess, (state, { commentaire }) => ({
+    ...state,
+    commentaires: state.commentaires.map(c => c.commentaireId === commentaire.commentaireId ? commentaire : c),
+    error: null
+  })),
+  on(CommentaireActions.updateCommentClientFailure, (state, { error }) => ({
+    ...state,
+    error
+  })),
+
+  // Delete
+  on(CommentaireActions.deleteCommentClientSuccess, (state, { commentaireId }) => ({
+    ...state,
+    commentaires: state.commentaires.filter(c => c.commentaireId !== commentaireId),
+    error: null
+  })),
+  on(CommentaireActions.deleteCommentClientFailure, (state, { error }) => ({
+    ...state,
+    error
+  })),
+  on(CommentaireActions.loadCommentairesClientSuccess, (state, { commentaires }) => ({
+  ...state,
+  commentaires,
+  loading: false,
+  error: null
+})),
+on(CommentaireActions.loadCommentairesClientFailure, (state, { error }) => ({
+  ...state,
+  loading: false,
+  error
+}))
+
 );
