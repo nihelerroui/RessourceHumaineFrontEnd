@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Store } from "@ngrx/store";
 import { ContratSousTraitant } from "src/app/models/contrat.models";
@@ -17,7 +17,7 @@ type CommentaireContratSTWithEdit = CommentaireContratSousTraitant & {
     templateUrl: "./comment-contratST.component.html",
     styleUrls: ["./comment-contratST.component.scss"],
 })
-export class CommentContratSTComponent implements OnInit {
+export class CommentContratSTComponent implements OnInit, AfterViewInit {
     comments$!: Observable<CommentaireContratSousTraitant[]>;
     isLoading$!: Observable<boolean>;
 
@@ -34,6 +34,10 @@ export class CommentContratSTComponent implements OnInit {
     @ViewChild("commentSection") commentSection!: ElementRef;
 
     constructor(public modalRef: BsModalRef, private store: Store) { }
+
+    ngAfterViewInit(): void {
+        setTimeout(() => this.scrollToBottom(), 300);
+    }
     ngOnInit(): void {
         if (this.contratId != null) {
             this.store.dispatch(CommentaireContratSousTraitantActions.loadCommentairesContratSousTraitant({ contratSTId: this.contratId }));
@@ -66,7 +70,7 @@ export class CommentContratSTComponent implements OnInit {
 
         this.newComment = "";
         this.isSubmitting = false;
-        this.scrollToBottom();
+        setTimeout(() => this.scrollToBottom(), 300);
     }
 
     startEdit(comment: CommentaireContratSTWithEdit): void {
@@ -120,12 +124,10 @@ export class CommentContratSTComponent implements OnInit {
     }
 
     scrollToBottom(): void {
-        if (this.commentSection?.nativeElement) {
-            setTimeout(() => {
-                const el = this.commentSection.nativeElement;
-                el.scrollTop = el.scrollHeight;
-            });
-        }
+    if (this.commentSection?.nativeElement) {
+      const el = this.commentSection.nativeElement;
+      el.scrollTop = el.scrollHeight;
     }
+  }
 
 }

@@ -77,7 +77,7 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
 
     this.newComment = "";
     this.isSubmitting = false;
-    this.scrollToBottom();
+    setTimeout(() => this.scrollToBottom(), 300);
   }
 
   startEdit(comment: CommentaireContratWithEdit): void {
@@ -140,10 +140,8 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
 
   scrollToBottom(): void {
     if (this.commentSection?.nativeElement) {
-      setTimeout(() => {
-        const el = this.commentSection.nativeElement;
-        el.scrollTop = el.scrollHeight;
-      });
+      const el = this.commentSection.nativeElement;
+      el.scrollTop = el.scrollHeight;
     }
   }
 }
