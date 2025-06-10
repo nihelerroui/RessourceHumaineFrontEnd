@@ -64,3 +64,66 @@ export const deleteCommentaireContratClientFailure = createAction(
   '[Commentaire Contrat Client] Delete Failure',
   props<{ error: string }>()
 );
+// Charger les commentaires côté client
+export const loadCommentairesClientContrat = createAction(
+  '[Commentaire Contrat Client - Client] Load',
+  props<{ contratClientId: number; token: string }>()
+);
+
+export const loadCommentairesClientContratSuccess = createAction(
+  '[Commentaire Contrat Client - Client] Load Success',
+  props<{ commentaires: CommentaireContratClient[] }>()
+);
+
+export const loadCommentairesClientContratFailure = createAction(
+  '[Commentaire Contrat Client - Client] Load Failure',
+  props<{ error: string }>()
+);
+
+// Ajouter côté client
+export const addCommentClientContrat = createAction(
+  '[Commentaire Contrat Client - Client] Add',
+  props<{ commentaire: CommentaireContratClient; token: string }>()
+);
+
+export const addCommentClientContratSuccess = createAction(
+  '[Commentaire Contrat Client - Client] Add Success',
+  props<{ commentaire: CommentaireContratClient }>()
+);
+
+export const addCommentClientContratFailure = createAction(
+  '[Commentaire Contrat Client - Client] Add Failure',
+  props<{ error: string }>()
+);
+
+// Modifier côté client
+export const updateCommentClientContrat = createAction(
+  '[Commentaire Contrat Client - Client] Update',
+  props<{ commentaire: CommentaireContratClient; token: string }>()
+);
+
+export const updateCommentClientContratSuccess = createAction(
+  '[Commentaire Contrat Client - Client] Update Success',
+  props<{ commentaire: CommentaireContratClient }>()
+);
+
+export const updateCommentClientContratFailure = createAction(
+  '[Commentaire Contrat Client - Client] Update Failure',
+  props<{ error: string }>()
+);
+
+// Supprimer côté client
+export const deleteCommentClientContrat = createAction(
+  '[Commentaire Contrat Client - Client] Delete',
+  props<{ commentaireId: number; token: string }>()
+);
+
+export const deleteCommentClientContratSuccess = createAction(
+  '[Commentaire Contrat Client - Client] Delete Success',
+  props<{ commentaireId: number }>()
+);
+
+export const deleteCommentClientContratFailure = createAction(
+  '[Commentaire Contrat Client - Client] Delete Failure',
+  props<{ error: string }>()
+);

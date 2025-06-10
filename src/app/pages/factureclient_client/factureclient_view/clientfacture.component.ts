@@ -161,11 +161,6 @@ export class ClientViewFactureComponent implements OnInit {
       ? 'inconnu@featway.com'
       : facture.contratClient?.client?.email || 'inconnu@featway.com';
 
-    if (!factureId) {
-      console.error("factureId est undefined !");
-      return;
-    }
-
     this.modalRef = this.modalService.show(CommentModalComponent, {
       class: "modal-lg",
       initialState: {
@@ -176,10 +171,12 @@ export class ClientViewFactureComponent implements OnInit {
       }
     });
   }
+  
   openDetailsModal(facture: any, template: TemplateRef<any>): void {
     this.selectedFacture = facture;
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
+
   downloadFacture(factureId: number): void {
     this.store.dispatch(factureAction.downloadFactureWithToken({ factureClientId: factureId, token: this.token!}));
   }

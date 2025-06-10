@@ -147,7 +147,6 @@ export class ContratClientAdminComponent implements OnInit {
       initialState: {
         contratClientId: contrat.contratClientId,
         contrat: contrat,
-        isAdminMode: true,
         currentUserEmail: this.currentUserEmail,
       },
       class: "modal-lg",

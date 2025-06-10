@@ -1,39 +1,18 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Store } from "@ngrx/store";
 import { Observable } from "rxjs";
-import { CommentaireContratSousTraitant } from "../../../models/commentaire-contratSousTraitant.model";
-import { ContratSousTraitant } from "src/app/models/contrat.models";
-import {
-  addCommentaireContratSousTraitant,
-  deleteCommentaireContratSousTraitant,
-  loadCommentairesContratSousTraitant,
-  updateCommentaireContratSousTraitant,
-} from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.actions";
-
-import {
-  selectLoadingCommentairesContratSousTraitant,
-  selectCommentairesByContratSousTraitantId,
-} from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.selectors";
-import { addCommentaireContratClient, deleteCommentaireContratClient, loadCommentairesContratClient, updateCommentaireContratClient } from "src/app/store/commentaire-contratClient/commentaire-contratClient.actions";
+import * as CommentaireContratClientActions from "src/app/store/commentaire-contratClient/commentaire-contratClient.actions";
 import { selectCommentairesByContratClientId, selectLoadingCommentairesContratClient } from "src/app/store/commentaire-contratClient/commentaire-contratClient.selectors";
 import { CommentaireContratClient } from "src/app/models/commentaire-contratClient.model";
 import { ContratClient } from "src/app/models/contratClient.models";
 
 
 
-type CommentaireContratWithEdit =
-  (CommentaireContratSousTraitant | CommentaireContratClient) & {
-    isEditing?: boolean;
-    editContent?: string;
-  };
+type CommentaireContratWithEdit = CommentaireContratClient & {
+  isEditing?: boolean;
+  editContent?: string;
+};
 
 @Component({
   selector: "app-comment-contrat-modal",
@@ -41,12 +20,10 @@ type CommentaireContratWithEdit =
   styleUrls: ["./comment-contrat.component.scss"],
 })
 export class CommentContratComponent implements OnInit, AfterViewInit {
-  @Input() contrat!: ContratSousTraitant | ContratClient;
+  @Input() contrat!: ContratClient;
   @Input() contratClientId: number | null = null;
-  @Input() contratId: number | null = null;
   @Input() token: string | null = null;
   @Input() isClientMode: boolean = false;
-  @Input() isAdminMode: boolean = false;
   @Input() currentUserEmail: string | null = null;
 
   @ViewChild("commentSection") commentSection!: ElementRef;
@@ -60,30 +37,19 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   showDeleteConfirmation = false;
   commentToDelete: { id: number; index: number } | null = null;
 
-  constructor(public modalRef: BsModalRef, private store: Store) {}
+  constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
-    this.isLoading$ = this.isClientMode
-      ? this.store.select(selectLoadingCommentairesContratClient)
-      : this.store.select(selectLoadingCommentairesContratSousTraitant);
+    this.isLoading$ = this.store.select(selectLoadingCommentairesContratClient);
 
-    
-
-    if (this.contratClientId !== null) {
-      this.store.dispatch(
-        loadCommentairesContratClient({ contratClientId: this.contratClientId })
-      );
-      this.comments$ = this.store.select(
-        selectCommentairesByContratClientId(this.contratClientId)
-      );
-    } else if (this.contratId !== null) {
-      this.store.dispatch(
-        loadCommentairesContratSousTraitant({ contratSTId: this.contratId })
-      );
-      this.comments$ = this.store.select(
-        selectCommentairesByContratSousTraitantId(this.contratId)
-      );
+    if (this.isClientMode && this.token) {
+      this.store.dispatch( CommentaireContratClientActions.loadCommentairesClientContrat({contratClientId: this.contratClientId,token: this.token }) );
+    } else {
+      this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId }));
     }
+
+    this.comments$ = this.store.select(selectCommentairesByContratClientId(this.contratClientId));
+  
   }
 
   ngAfterViewInit(): void {
@@ -91,39 +57,39 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   }
 
   addComment(): void {
-  if (!this.newComment.trim() || this.isSubmitting) return;
-  this.isSubmitting = true;
+    if (!this.newComment.trim() || this.isSubmitting) return;
 
-  const auteur = this.currentUserEmail || "Utilisateur inconnu";
+    this.isSubmitting = true;
 
-  const commentaireClient: CommentaireContratClient = {
-    contenu: this.newComment,
-    auteurCommentaire: auteur,
-    dateCommentaire: new Date().toISOString(),
-    contratClient: { contratClientId: this.contratClientId } as ContratClient,
-  };
+    const auteur = this.currentUserEmail || "Utilisateur inconnu";
 
-  if ((this.isClientMode || this.isAdminMode) && this.contratClientId != null) {
-    this.store.dispatch(addCommentaireContratClient({ commentaire: commentaireClient }));
-
-    // Recharge la liste après ajout
-    setTimeout(() => {
-      this.store.dispatch(loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
-      this.scrollToBottom();
-    }, 500);
-  } else if (this.contratId != null) {
-    const commentaireST: CommentaireContratSousTraitant = {
+    const commentaire: CommentaireContratClient = {
       contenu: this.newComment,
       auteurCommentaire: auteur,
       dateCommentaire: new Date().toISOString(),
-      contratSousTraitant: this.contrat as ContratSousTraitant,
+      contratClient: {
+        contratClientId: this.contratClientId!,
+      } as ContratClient,
     };
-    this.store.dispatch(addCommentaireContratSousTraitant({ commentaire: commentaireST }));
-  }
 
-  this.newComment = "";
-  this.isSubmitting = false;
-}
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(CommentaireContratClientActions.addCommentClientContrat({ commentaire, token: this.token }));
+
+      setTimeout(() => {
+        this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({contratClientId: this.contratClientId!,token: this.token!,}));
+        this.scrollToBottom();
+      }, 500);
+    } else { this.store.dispatch(CommentaireContratClientActions.addCommentaireContratClient({ commentaire }));
+
+      setTimeout(() => {
+        this.store.dispatch( CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
+        this.scrollToBottom();
+      }, 500);
+    }
+
+    this.newComment = "";
+    this.isSubmitting = false;
+  }
 
   startEdit(comment: CommentaireContratWithEdit): void {
     comment.isEditing = true;
@@ -137,24 +103,20 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   saveEdit(comment: CommentaireContratWithEdit): void {
     if (!comment.editContent?.trim()) return;
 
-    if (this.isClientMode|| this.isAdminMode) {
-      const updated: CommentaireContratClient = {
-        commentaireId: comment.commentaireId,
-        contenu: comment.editContent,
-        auteurCommentaire: comment.auteurCommentaire,
-        dateCommentaire: comment.dateCommentaire,
-        contratClient: { contratClientId: this.contratClientId } as ContratClient,
-      };
-      this.store.dispatch(updateCommentaireContratClient({ commentaire: updated }));
+    const updated: CommentaireContratClient = {
+      commentaireId: comment.commentaireId,
+      contenu: comment.editContent,
+      auteurCommentaire: comment.auteurCommentaire,
+      dateCommentaire: comment.dateCommentaire,
+      contratClient: {
+        contratClientId: this.contratClientId!,
+      } as ContratClient,
+    };
+
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(CommentaireContratClientActions.updateCommentClientContrat({ commentaire: updated, token: this.token }));
     } else {
-      const updated: CommentaireContratSousTraitant = {
-        commentaireId: comment.commentaireId,
-        contenu: comment.editContent,
-        auteurCommentaire: comment.auteurCommentaire,
-        dateCommentaire: comment.dateCommentaire,
-        contratSousTraitant: this.contrat as ContratSousTraitant,
-      };
-      this.store.dispatch(updateCommentaireContratSousTraitant({ commentaire: updated }));
+      this.store.dispatch(CommentaireContratClientActions.updateCommentaireContratClient({ commentaire: updated }));
     }
 
     comment.isEditing = false;
@@ -173,10 +135,22 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   confirmDeleteAction(): void {
     if (!this.commentToDelete) return;
 
-    if (this.isClientMode || this.isAdminMode) {
-      this.store.dispatch(deleteCommentaireContratClient({ commentaireId: this.commentToDelete.id }));
-    } else {
-      this.store.dispatch(deleteCommentaireContratSousTraitant({ commentaireId: this.commentToDelete.id }));
+    const commentaireId = this.commentToDelete.id;
+
+    if (this.isClientMode && this.token) {
+      this.store.dispatch( CommentaireContratClientActions.deleteCommentClientContrat({ commentaireId, token: this.token }));
+
+      setTimeout(() => {
+        this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId!, token: this.token! }));
+        this.scrollToBottom();
+      }, 500);
+    } else{
+      this.store.dispatch( CommentaireContratClientActions.deleteCommentaireContratClient({ commentaireId }));
+
+      setTimeout(() => {
+        this.store.dispatch( CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
+        this.scrollToBottom();
+      }, 500);
     }
 
     this.cancelDelete();

@@ -89,7 +89,8 @@ export class ContratsClientListComponent implements OnInit {
         contrat: contrat,
         contratClientId: contrat.contratClientId,
         isClientMode: true,
-        currentUserEmail: emailClient
+        currentUserEmail: emailClient,
+        token: this.token
       },
       class: "modal-lg"
     });

@@ -307,8 +307,8 @@ export class ContratSousTraitantComponent implements OnInit {
 
     this.modalRef = this.modalService.show(CommentContratComponent, {
       initialState: {
-        contratId: contrat.contratId,
-        contrat: contrat,
+        //contratId: contrat.contratId,
+        //contrat: contrat,
         currentUserEmail: emailSousTraitant
       },
       class: "modal-lg",

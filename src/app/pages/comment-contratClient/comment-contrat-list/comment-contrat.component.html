@@ -67,7 +67,7 @@
                 <td class="align-middle">
                   <div *ngIf="!comment.isEditing; else editTemplate" class="comment-content">
                     {{ comment.contenu }}
-                    <div class="comment-actions">
+                    <div class="comment-actions" *ngIf="comment.auteurCommentaire === currentUserEmail">
                       <button class="action-btn edit-btn" (click)="startEdit(comment)" title="Modifier">
                         <i class="mdi mdi-pencil"></i>
                       </button>

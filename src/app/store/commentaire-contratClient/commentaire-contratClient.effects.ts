@@ -75,4 +75,72 @@ export class CommentaireContratClientEffects {
       )
     )
   );
+  // === CLIENT: Load Commentaires ===
+loadCommentairesClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CommentaireActions.loadCommentairesClientContrat),
+    mergeMap(({ contratClientId, token }) =>
+      this.commentaireService.getCommentairesByContratClient(contratClientId, token).pipe(
+        map(commentaires =>
+          CommentaireActions.loadCommentairesClientContratSuccess({ commentaires })
+        ),
+        catchError(error =>
+          of(CommentaireActions.loadCommentairesClientContratFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
+// === CLIENT: Add Commentaire ===
+addCommentClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CommentaireActions.addCommentClientContrat),
+    mergeMap(({ commentaire, token }) =>
+      this.commentaireService.addCommentContratClient(commentaire, token).pipe(
+        map(res =>
+          CommentaireActions.addCommentClientContratSuccess({ commentaire: res })
+        ),
+        catchError(error =>
+          of(CommentaireActions.addCommentClientContratFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
+// === CLIENT: Update Commentaire ===
+updateCommentClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CommentaireActions.updateCommentClientContrat),
+    mergeMap(({ commentaire, token }) =>
+      this.commentaireService.updateCommentContratClient(commentaire, token).pipe(
+        map(updated =>
+          CommentaireActions.updateCommentClientContratSuccess({ commentaire: updated })
+        ),
+        catchError(error =>
+          of(CommentaireActions.updateCommentClientContratFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
+// === CLIENT: Delete Commentaire ===
+deleteCommentClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CommentaireActions.deleteCommentClientContrat),
+    mergeMap(({ commentaireId, token }) =>
+      this.commentaireService.deleteCommentContratClient(commentaireId, token).pipe(
+        map(() =>
+          CommentaireActions.deleteCommentClientContratSuccess({ commentaireId })
+        ),
+        catchError(error =>
+          of(CommentaireActions.deleteCommentClientContratFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
 }

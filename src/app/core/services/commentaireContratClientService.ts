@@ -14,5 +14,24 @@ export class CommentaireContratClientService extends GenericService<CommentaireC
   getByContratClientId(contratClientId: number): Observable<CommentaireContratClient[]> {
       return this.http.get<CommentaireContratClient[]>(`${this.apiUrl}/search?contratClientId=${contratClientId}`);
     }
+    // Pour le client
+  getCommentairesByContratClient(contratClientId: number, token: string): Observable<CommentaireContratClient[]> {
+    return this.http.get<CommentaireContratClient[]>(`${this.apiUrl}/client/contrat?contratClientId=${contratClientId}&token=${token}`);
+  }
+
+  // Ajout côté client
+  addCommentContratClient(commentaire: CommentaireContratClient, token: string): Observable<CommentaireContratClient> {
+    return this.http.post<CommentaireContratClient>(`${this.apiUrl}/client/add?token=${token}`, commentaire);
+  }
+
+  // Update côté client
+  updateCommentContratClient(commentaire: CommentaireContratClient, token: string): Observable<CommentaireContratClient> {
+    return this.http.put<CommentaireContratClient>(`${this.apiUrl}/client/update?token=${token}`, commentaire);
+  }
+
+  // Suppression côté client
+  deleteCommentContratClient(commentaireId: number, token: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/client/delete/${commentaireId}?token=${token}`);
+  }
   
 }

@@ -39,58 +39,58 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
-  this.isLoading$ = this.store.select(selectCommentairesLoading);
+    this.isLoading$ = this.store.select(selectCommentairesLoading);
 
-  if (this.isClientMode && this.token) {
-    this.store.dispatch(FactureActions.loadCommentairesClient({ factureId: this.factureId, token: this.token }));
-  } else {
-    this.store.dispatch(FactureActions.loadCommentairesFactureClient({ factureId: this.factureId }));
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(FactureActions.loadCommentairesClient({ factureId: this.factureId, token: this.token }));
+    } else {
+      this.store.dispatch(FactureActions.loadCommentairesFactureClient({ factureId: this.factureId }));
+    }
+
+    this.comments$ = this.store.select(selectCommentairesByFactureId(this.factureId));
+
+    if (!this.isClientMode) {
+      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      this.currentUserEmail = currentUser?.user?.email || 'Admin inconnu';
+    }
+
   }
-
-  this.comments$ = this.store.select(selectCommentairesByFactureId(this.factureId));
-  
-  if (!this.isClientMode) {
-  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-  this.currentUserEmail = currentUser?.user?.email || 'Admin inconnu';
-}
-
-}
 
   ngAfterViewInit(): void {
     setTimeout(() => this.scrollToBottom(), 300);
   }
 
- addComment(): void {
-  if (!this.newComment.trim() || this.isSubmitting) return;
+  addComment(): void {
+    if (!this.newComment.trim() || this.isSubmitting) return;
 
-  this.isSubmitting = true;
-  let auteur = 'Utilisateur inconnu';
+    this.isSubmitting = true;
+    let auteur = 'Utilisateur inconnu';
 
-  const commentaire: CommentaireFactureClient = {
-    contenu: this.newComment.trim(),
-    auteurCommentaire: '',
-    factureClient: { factureClientId: this.factureId },
-  };
+    const commentaire: CommentaireFactureClient = {
+      contenu: this.newComment.trim(),
+      auteurCommentaire: '',
+      factureClient: { factureClientId: this.factureId },
+    };
 
-  if (this.isClientMode) {
-    if (!this.token) {
-  console.error("⛔ Token introuvable !");
-  this.isSubmitting = false;
-  return;
+    if (this.isClientMode) {
+      if (!this.token) {
+        console.error("⛔ Token introuvable !");
+        this.isSubmitting = false;
+        return;
+      }
+      commentaire.auteurCommentaire = this.currentUserEmail || 'Client inconnu';
+      this.store.dispatch(FactureActions.addCommentClient({ commentaire, token: this.token }));
+    } else {
+      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      commentaire.auteurCommentaire = currentUser?.user?.email || 'Admin inconnu';
+      this.store.dispatch(FactureActions.addCommentaireFactureClient({ commentaire }));
+    }
+
+    this.newComment = "";
+    this.isSubmitting = false;
+
+    setTimeout(() => this.scrollToBottom(), 300);
   }
-    commentaire.auteurCommentaire = this.currentUserEmail || 'Client inconnu';
-    this.store.dispatch(FactureActions.addCommentClient({ commentaire, token: this.token }));
-  } else {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    commentaire.auteurCommentaire = currentUser?.user?.email || 'Admin inconnu';
-    this.store.dispatch(FactureActions.addCommentaireFactureClient({ commentaire }));
-  }
-
-  this.newComment = "";
-  this.isSubmitting = false;
-
-  setTimeout(() => this.scrollToBottom(), 300);
-}
 
   startEdit(comment: CommentaireWithEdit): void {
     comment.isEditing = true;
@@ -102,24 +102,24 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   }
 
   saveEdit(comment: CommentaireWithEdit): void {
-  if (!comment.editContent?.trim()) return;
+    if (!comment.editContent?.trim()) return;
 
-  const updatedComment: CommentaireFactureClient = {
-    commentaireId: comment.commentaireId,
-    contenu: comment.editContent.trim(),
-    auteurCommentaire: this.currentUserEmail || 'Utilisateur inconnu',
-    dateCommentaire: comment.dateCommentaire,
-    factureClient: { factureClientId: this.factureId },
-  };
+    const updatedComment: CommentaireFactureClient = {
+      commentaireId: comment.commentaireId,
+      contenu: comment.editContent.trim(),
+      auteurCommentaire: this.currentUserEmail || 'Utilisateur inconnu',
+      dateCommentaire: comment.dateCommentaire,
+      factureClient: { factureClientId: this.factureId },
+    };
 
-  if (this.isClientMode && this.token) {
-    this.store.dispatch(FactureActions.updateCommentClient({ commentaire: updatedComment, token: this.token }));
-  } else {
-    this.store.dispatch(FactureActions.updateCommentaireFactureClient({ commentaire: updatedComment }));
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(FactureActions.updateCommentClient({ commentaire: updatedComment, token: this.token }));
+    } else {
+      this.store.dispatch(FactureActions.updateCommentaireFactureClient({ commentaire: updatedComment }));
+    }
+
+    comment.isEditing = false;
   }
-
-  comment.isEditing = false;
-}
 
 
   confirmDelete(commentaireId: number, index: number): void {
@@ -133,30 +133,30 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   }
 
   confirmDeleteAction(): void {
-  if (!this.commentToDelete) return;
+    if (!this.commentToDelete) return;
 
-  if (this.isClientMode && this.token) {
-    this.store.dispatch(FactureActions.deleteCommentClient({
-      commentaireId: this.commentToDelete.id,
-      token: this.token
-    }));
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(FactureActions.deleteCommentClient({
+        commentaireId: this.commentToDelete.id,
+        token: this.token
+      }));
 
-    setTimeout(() => {
-      this.store.dispatch(FactureActions.loadCommentairesClient({ factureId: this.factureId, token: this.token }));
-    }, 200);
+      setTimeout(() => {
+        this.store.dispatch(FactureActions.loadCommentairesClient({ factureId: this.factureId, token: this.token }));
+      }, 200);
 
-  } else {
-    this.store.dispatch(FactureActions.deleteCommentaireFactureClient({
-      commentaireId: this.commentToDelete.id
-    }));
+    } else {
+      this.store.dispatch(FactureActions.deleteCommentaireFactureClient({
+        commentaireId: this.commentToDelete.id
+      }));
 
-    setTimeout(() => {
-      this.store.dispatch(FactureActions.loadCommentairesFactureClient({ factureId: this.factureId }));
-    }, 200);
+      setTimeout(() => {
+        this.store.dispatch(FactureActions.loadCommentairesFactureClient({ factureId: this.factureId }));
+      }, 200);
+    }
+
+    this.cancelDelete();
   }
-
-  this.cancelDelete();
-}
 
 
   scrollToBottom(): void {
