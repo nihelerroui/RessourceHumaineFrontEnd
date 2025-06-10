@@ -35,10 +35,21 @@ export const societeReducer = createReducer(
   })),
 
   // Ajouter une société
-  on(SocieteActions.addSocieteSuccess, (state, { societe }) => ({
+  on(SocieteActions.addSocieteSuccess, (state, { societe }) => {
+  const exists = state.societes.some(
+    s => s.nom.trim().toLowerCase() === societe.nom.trim().toLowerCase()
+  );
+
+  if (exists) {
+    return state;
+  }
+
+  return {
     ...state,
     societes: [...state.societes, societe]
-  })),
+  };
+}),
+
   on(SocieteActions.addSocieteFailure, (state, { error }) => ({
     ...state,
     error
@@ -54,13 +65,4 @@ export const societeReducer = createReducer(
     error
   })),
 
-  // Supprimer une société
-  on(SocieteActions.deleteSocieteSuccess, (state, { societeId }) => ({
-    ...state,
-    societes: state.societes.filter(s => s.societeId !== societeId)
-  })),
-  on(SocieteActions.deleteSocieteFailure, (state, { error }) => ({
-    ...state,
-    error
-  }))
 );

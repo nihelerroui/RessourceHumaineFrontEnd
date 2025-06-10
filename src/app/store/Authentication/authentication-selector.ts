@@ -90,3 +90,8 @@ export const selectSocietesError = createSelector(
   selectAuthState,
   (state) => state.error
 );
+
+export const selectAdminSocietes = createSelector(
+  selectAuthState,
+  (state) => state.societes
+);

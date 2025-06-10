@@ -37,17 +37,22 @@ import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
 import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
 import { UserModule } from './users/user.module';
 import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
+import { RecettesModule } from './recettes/recettes.module';
+import { StoreModule } from '@ngrx/store';
+import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
 
 
 
 @NgModule({
   declarations: [
     CommentModalComponent,
-    UtilisateurregisterviewComponent
+    UtilisateurregisterviewComponent,
+  
   ],
   imports: [
     CommonModule,
     PaysModule,
+    FactureSousTraitantModule,
     SocieteModule,
     FactureModule,
     TresorieModule,
@@ -58,6 +63,7 @@ import { UtilisateurregisterviewComponent } from './users/utilisateurregistervie
     MainOeuvreModule,
     UserModule,
     FormsModule,
+    RecettesModule,
     CommentModalModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),

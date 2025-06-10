@@ -1,24 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Facture } from 'src/app/models/facture.model';
+import { FactureAchat } from 'src/app/models/factureAchat.model';
 import { GenericService } from './generic.service';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class FactureService extends GenericService<Facture> {
+export class FactureAchatService extends GenericService<FactureAchat> {
 
   constructor(protected http: HttpClient) {
-    super(http, 'factures'); 
+    super(http, 'facturesAchats'); 
   }
 
-  createFacture(formData: FormData): Observable<Facture> {
-    return this.http.post<Facture>(`${this.apiUrl}/create`, formData);
+  createFacture(formData: FormData): Observable<FactureAchat> {
+    return this.http.post<FactureAchat>(`${this.apiUrl}/create`, formData);
   }
   
-  updateFacture(formData: FormData): Observable<Facture> {
-    return this.http.put<Facture>(`${this.apiUrl}/update`, formData);
+  updateFacture(formData: FormData): Observable<FactureAchat> {
+    return this.http.put<FactureAchat>(`${this.apiUrl}/update`, formData);
   }
   
   getFileUrl(filename: string, disposition: 'inline' | 'attachment' = 'inline'): string {

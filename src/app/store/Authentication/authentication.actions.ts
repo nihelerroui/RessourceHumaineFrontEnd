@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { AdminSociete } from 'src/app/models/adminSociete.model';
 import { User } from 'src/app/models/auth.models';
 import { Consultant } from 'src/app/models/consultant.models';
 import { PersonalDetails } from 'src/app/models/PersonalDetails.model';
@@ -134,7 +135,7 @@ export const loadAdminSocietes = createAction(
 
 export const loadAdminSocietesSuccess = createAction(
   '[Societe] Load Admin Societes Success',
-  props<{ societes: Societe[] }>()
+  props<{ societes: AdminSociete[] }>()
 );
 
 export const loadAdminSocietesFailure = createAction(

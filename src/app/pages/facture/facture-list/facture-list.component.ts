@@ -1,29 +1,35 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Observable } from 'rxjs';
-import { addFacture, addFactureSuccess, deleteFacture, loadFactures, setFileUrl, updateFacture, updateFactureSuccess } from 'src/app/store/facture/facture.actions';
-import { Facture } from 'src/app/models/facture.model';
-import { selectFactureError, selectFactureList, selectFactureLoading, selectFileUrl } from 'src/app/store/facture/facture.selectors';
-import { TypeFacture } from 'src/app/models/type-facture.enum';
-import { TypePaiement } from 'src/app/models/type-paiement.enum';
-import { validerPaiement, validerPaiementSuccess } from 'src/app/store/tresorie/tresorie.actions';
-import Swal from 'sweetalert2';
-import { StatutPaiement } from 'src/app/models/statut-paiement.enum';
-import { environment } from 'src/environments/environment';
-import { Actions, ofType } from '@ngrx/effects';
-import { selectTresorieError } from 'src/app/store/tresorie/tresorie.selectors';
+import { Component, OnInit, TemplateRef } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Store } from "@ngrx/store";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { Observable } from "rxjs";
+import * as FactureActions from "src/app/store/factureAchat/factureAchat.actions";
+import { FactureAchat } from "src/app/models/factureAchat.model";
+import {
+  selectFactureError,
+  selectFactureList,
+  selectFactureLoading,
+} from "src/app/store/factureAchat/factureAchat.selectors";
+import { TypePaiement } from "src/app/models/type-paiement.enum";
+import * as TresorerieActions from "src/app/store/tresorie/tresorie.actions";
+import Swal from "sweetalert2";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import { StatutPaiement } from "src/app/models/statut-paiement.enum";
+import { environment } from "src/environments/environment";
+import { Actions, ofType } from "@ngrx/effects";
+import { selectTresorieError } from "src/app/store/tresorie/tresorie.selectors";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
+import { UserRole } from "src/app/models/userRole.enum";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 @Component({
-  selector: 'app-facture-list',
-  templateUrl: './facture-list.component.html',
-  styleUrls: ['./facture-list.component.css']
+  selector: "app-facture-list",
+  templateUrl: "./facture-list.component.html",
+  styleUrls: ["./facture-list.component.css"],
 })
 export class FactureListComponent implements OnInit {
-
   breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
-  factureList$: Observable<Facture[]>;
+  factureList$: Observable<FactureAchat[]>;
   loading$: Observable<boolean>;
 
   error$: Observable<string | null>;
@@ -31,326 +37,344 @@ export class FactureListComponent implements OnInit {
   factureForm!: FormGroup;
 
   submitted: boolean = false;
-  typeFactureOptions = Object.values(TypeFacture);
   typePaiementOptions = Object.values(TypePaiement);
   statutPaiementOptions = Object.values(StatutPaiement);
-  filteredTypePaiementOptions: TypePaiement[] = [];
 
-  filteredFactureList: Facture[] = [];
-  paginatedFactureList: Facture[] = [];
-  searchTerm: string = '';
-  selectedStatutPaiement: string = '';
-  selectedTypeFacture: string = '';
+  filteredFactureList: FactureAchat[] = [];
+  paginatedFactureList: FactureAchat[] = [];
+  searchTerm: string = "";
+  selectedStatutPaiement: string = "";
+  selectedTypeFacture: string = "";
   currentPage: number = 1;
   itemsPerPage: number = 4;
 
-  selectedFacture!: Facture | null;
+  selectedFacture!: FactureAchat | null;
 
-  factures: Facture[] = [];
+  factures: FactureAchat[] = [];
 
   selectedFile: File | null = null;
 
+  societeOptions: any[] = [];
 
+  adminSocietes$: Observable<any[]>;
+  consultantSocieteId!: number;
+  selectedSocieteId!: number;
+  consultantId!: number;
+  role!: UserRole;
 
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
     public store: Store,
     private actions$: Actions,
+    private http: HttpClient
   ) {
     this.factureList$ = this.store.select(selectFactureList);
   }
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: 'Dashboard', path: '/' },
-      { label: 'Liste des Factures', active: true }
+      { label: "Dashboard", path: "/" },
+      { label: "Liste des Factures Achats", active: true },
     ];
 
-    this.actions$.pipe(
-      ofType(validerPaiementSuccess)
-    ).subscribe(() => {
-      Swal.fire('Succès', 'Le paiement a été validé.', 'success');
-      this.store.dispatch(loadFactures());
-    });
+    const currentUser = JSON.parse(
+      sessionStorage.getItem("currentUser") || "{}"
+    );
+    this.consultantId = currentUser.consultantId;
     
-    this.store.select(selectTresorieError).subscribe(error => {
+    this.consultantSocieteId = currentUser.societe?.societeId;
+    this.selectedSocieteId = this.consultantSocieteId;
+    this.role = currentUser.user?.role || "";
+
+    this.store.dispatch(AuthActions.loadAdminSocietes());
+    this.adminSocietes$ = this.store.select(selectAllSocietes);
+
+    this.adminSocietes$.subscribe((societes) => {
+      this.societeOptions = societes;
+
+      const match = societes.find(
+        (s) => s.societeId === this.consultantSocieteId
+      );
+      if (!match && societes.length > 0) {
+        this.selectedSocieteId = societes[0].societeId;
+      }
+
+      this.filterFactures();
+    });
+
+    this.actions$.pipe(ofType(TresorerieActions.validerPaiementSuccess)).subscribe(() => {
+      Swal.fire("Succès", "Le paiement a été validé.", "success");
+      this.store.dispatch(FactureActions.loadFacturesAchat());
+    });
+
+    this.actions$.pipe(ofType(FactureActions.updateFactureAchatSuccess)).subscribe(() => {
+      Swal.fire({
+        icon: "success",
+        title: "Facture mise à jour avec succès !",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      this.modalRef?.hide();
+      this.factureForm.reset();
+      this.selectedFile = null;
+      this.store.dispatch(FactureActions.loadFacturesAchat());
+    });
+
+    this.actions$.pipe(ofType(FactureActions.addFactureAchatSuccess)).subscribe(() => {
+      Swal.fire({
+        icon: "success",
+        title: "Nouvelle facture ajoutée avec succès !",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      this.modalRef?.hide();
+      this.factureForm.reset();
+      this.selectedFile = null;
+      this.store.dispatch(FactureActions.loadFacturesAchat());
+    });
+
+    this.store.select(selectTresorieError).subscribe((error) => {
       if (error) {
-        Swal.fire('Erreur', error, 'error');
+        Swal.fire("Erreur", error, "error");
       }
     });
 
-    this.actions$.pipe(ofType(updateFactureSuccess)).subscribe(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Facture mise à jour avec succès !',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      this.modalRef?.hide();
-      this.factureForm.reset();
-      this.selectedFile = null;
-      this.store.dispatch(loadFactures());
-    });
-    
-    this.actions$.pipe(ofType(addFactureSuccess)).subscribe(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Nouvelle facture ajoutée avec succès !',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      this.modalRef?.hide();
-      this.factureForm.reset();
-      this.selectedFile = null;
-      this.store.dispatch(loadFactures());
-    });
-    
-    // Charger les factures
-    this.store.dispatch(loadFactures());
+    this.store.dispatch(FactureActions.loadFacturesAchat());
 
-    // Récupérer les factures depuis le store
-    this.factureList$.subscribe(factures => {
+    this.factureList$ = this.store.select(selectFactureList);
+    this.factureList$.subscribe((factures) => {
       this.factures = factures;
-      this.filteredFactureList = factures;
-      this.pageChanged({ page: 1 });
+      this.filterFactures();
     });
 
     this.loading$ = this.store.select(selectFactureLoading);
     this.error$ = this.store.select(selectFactureError);
 
-    // Initialisation du formulaire avec les validations
-    this.factureForm = this.formBuilder.group({
-      factureId: [''],
-      designation: ['', [Validators.required, Validators.minLength(2)]],
-      refFacture: ['', [Validators.required, Validators.minLength(3)]],
-      montantTtc: [0, [Validators.required, Validators.min(0)]],
-      dateEmmission: ['', [Validators.required, this.dateEmmissionValidator.bind(this)]],
-      typeFacture: ['', Validators.required],
-      typePaiement: ['', Validators.required]
-
-    });
-
-    this.factureForm.get('typeFacture')?.valueChanges.subscribe(() => {
-      this.updatePaiementOptions();
-    });
-  
-    // Initialiser les options de paiement au chargement
-    this.updatePaiementOptions();
+    this.initFactureForm();
   }
 
-  /** ✅ Vérifier si la date d’émission est <= aujourd’hui */
+  initFactureForm(): void {
+    this.factureForm = this.formBuilder.group({
+      factureAchatId: [""],
+      designation: ["", [Validators.required, Validators.minLength(2)]],
+      refFacture: ["", [Validators.required, Validators.minLength(3)]],
+      montantTtc: [0, [Validators.required, Validators.min(0)]],
+      dateEmmission: [
+        "",
+        [Validators.required, this.dateEmmissionValidator.bind(this)],
+      ],
+      typePaiement: ["", Validators.required],
+      societeId: [null, Validators.required],
+    });
+  }
+
   dateEmmissionValidator(control: any) {
     const dateValue = new Date(control.value);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Supprimer l'heure pour comparer uniquement la date
+    today.setHours(0, 0, 0, 0);
 
     return dateValue <= today ? null : { invalidDate: true };
   }
 
-  /** ✅ Vérifier si la référence facture est unique */
-  isRefFactureUnique(ref: string, factureId?: number): boolean {
-    return !this.factures.some(facture => facture.refFacture === ref && facture.factureId !== factureId);
+  isRefFactureUnique(ref: string, factureAchatId?: number): boolean {
+    return !this.factures.some(
+      (facture) => facture.refFacture === ref && facture.factureAchatId !== factureAchatId
+    );
   }
 
-  /** 🔍 Filtrer la liste des factures */
-  filterFactures() {
-    this.filteredFactureList = this.factures.filter(facture =>
-      (facture.designation.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       facture.refFacture.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (this.selectedStatutPaiement === '' || facture.statutPaiement === this.selectedStatutPaiement) &&
-      (this.selectedTypeFacture === '' || facture.typeFacture === this.selectedTypeFacture)
+  filterFactures(): void {
+    const search = this.searchTerm?.toLowerCase() || "";
+
+    this.filteredFactureList = this.factures.filter(
+      (f) =>
+        f.societe?.societeId === this.selectedSocieteId &&
+        (f.designation?.toLowerCase().includes(search) ||
+          f.refFacture?.toLowerCase().includes(search)) &&
+        (this.selectedStatutPaiement === "" ||
+          f.statutPaiement === this.selectedStatutPaiement)
     );
+
     this.pageChanged({ page: 1 });
   }
 
-  /** 📌 Pagination */
   pageChanged(event: any) {
     this.currentPage = event.page;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedFactureList = this.filteredFactureList.slice(startIndex, startIndex + this.itemsPerPage);
+    this.paginatedFactureList = this.filteredFactureList.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
   }
 
-  /** 🔄 Rafraîchir la liste */
   refreshList() {
-    this.store.dispatch(loadFactures());
+    this.store.dispatch(FactureActions.loadFacturesAchat());
   }
 
-  /** ✅ Ouvrir le modal en mode ajout */
   openModalAdd(template: TemplateRef<any>) {
     this.factureForm.reset();
-    this.factureForm.patchValue({ factureId: null });
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+    this.factureForm.patchValue({ factureAchatId: null });
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  /** ✅ Ouvrir le modal en mode modification */
-  openModalEdit(facture: Facture, template: TemplateRef<any>) {
-    this.factureForm.patchValue(facture);
-    this.factureForm.patchValue({ filePath: facture.filePath });
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
-
- saveFacture() {
-  if (this.factureForm.valid) {
-    let factureData = this.factureForm.value;
+  openModalEdit(facture: FactureAchat, template: TemplateRef<any>) {
+   this.factureForm.patchValue({
+  ...facture,
+  factureAchatId: facture.factureAchatId,
+  societeId: facture.societe?.societeId || null
+});
 
     
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    const consultantId = currentUser.consultantId;
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
+  }
 
-    if (!consultantId) {
-      Swal.fire("Erreur", "Consultant connecté non trouvé.", "error");
-      return;
-    }
+  saveFacture() {
+    if (this.factureForm.valid) {
+      let factureData = this.factureForm.value;
 
-    factureData.consultantId = consultantId;
+      if (!this.consultantId) {
+        Swal.fire("Erreur", "Consultant connecté non trouvé.", "error");
+        return;
+      }
 
-    if (!this.selectedFile && !factureData.factureId) {
-      Swal.fire("Erreur", "Veuillez importer un fichier (PDF).", "error");
-      return;
-    }
+      factureData.consultantId = this.consultantId;
 
-    if (!factureData.statutPaiement) {
-      factureData.statutPaiement = 'NON_PAYÉE';
-    }
+      if (!this.selectedFile && !factureData.factureAchatId) {
+        Swal.fire("Erreur", "Veuillez importer un fichier (PDF).", "error");
+        return;
+      }
 
-    if (!this.isRefFactureUnique(factureData.refFacture, factureData.factureId)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erreur',
-        text: 'La référence de la facture existe déjà !',
-        confirmButtonText: 'OK'
-      });
-      return;
-    }
+      if (!factureData.statutPaiement) {
+        factureData.statutPaiement = "NON_PAYÉE";
+      }
 
-    const formData = new FormData();
-    formData.append('facture', JSON.stringify(factureData));
+      if (
+        !this.isRefFactureUnique(factureData.refFacture, factureData.factureAchatId)
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Erreur",
+          text: "La référence de la facture existe déjà !",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
 
-    if (this.selectedFile) {
-      formData.append('file', this.selectedFile);
-    }
+      const formData = new FormData();
+      formData.append("facture", JSON.stringify(factureData));
 
-    if (factureData.factureId) {
-      this.store.dispatch(updateFacture({ facture: formData }));
-    } else {
-      this.store.dispatch(addFacture({ facture: formData }));
+      if (this.selectedFile) {
+        formData.append("file", this.selectedFile);
+      }
+
+      if (factureData.factureAchatId) {
+        this.store.dispatch(FactureActions.updateFactureAchat({ facture: formData }));
+      } else {
+        this.store.dispatch(FactureActions.addFactureAchat({ facture: formData }));
+      }
     }
   }
-}
 
-  
-
-  onDeleteFacture(factureId: number) {
+  onDeleteFacture(factureAchatId: number) {
     Swal.fire({
-      title: 'Êtes-vous sûr ?',
-      text: 'Cette action est irréversible !',
-      icon: 'warning',
+      title: "Êtes-vous sûr ?",
+      text: "Cette action est irréversible !",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Oui, supprimer !',
-      cancelButtonText: 'Annuler'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Oui, supprimer !",
+      cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(deleteFacture({ factureId }));
-        Swal.fire('Succès', 'Facture supprimée avec succès.', 'success');
+        this.store.dispatch(FactureActions.deleteFactureAchat({ factureAchatId }));
+        Swal.fire("Succès", "Facture supprimée avec succès.", "success");
       }
     });
   }
 
-  openDetailsModal(facture: Facture, template: TemplateRef<any>) {
+  openDetailsModal(facture: FactureAchat, template: TemplateRef<any>) {
     console.log("Détails de la facture :", facture);
     this.selectedFacture = facture;
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  validerPaiement(factureId: number) {
+  validerPaiement(factureAchatId: number) {
     Swal.fire({
-      title: 'Confirmer le paiement ?',
+      title: "Confirmer le paiement ?",
       text: "Cette action est irréversible.",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Oui, valider !',
-      cancelButtonText: 'Annuler'
+      confirmButtonText: "Oui, valider !",
+      cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(validerPaiement({ factureId }));
+        this.store.dispatch(TresorerieActions.validerPaiement({ factureAchatId }));
       }
     });
   }
-  
 
-onFileSelected(event: any) {
-  const file = event.target.files[0];
-  if (file) {
-    const allowedTypes = ['application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
+
+  openFacture(filePath: string): void {
+    const fileName = this.getFileName(filePath);
+    const token = sessionStorage.getItem("accessToken"); 
+    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=inline`;
+
+    const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
+
+    this.http.get(fileUrl, { headers, responseType: "blob" }).subscribe(
+      (blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+      },
+      (error) => {
+        Swal.fire("Erreur", "Impossible d’ouvrir le fichier.", "error");
+      }
+    );
+  }
+
+  onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.selectedFile = input.files[0];
+    console.log("Fichier sélectionné :", this.selectedFile.name);
+  }
+}
+
+
+  downloadFacture(filePath: string): void {
+    if (!filePath) {
       Swal.fire({
-        icon: 'error',
-        title: 'Format invalide',
-        text: 'Seuls les fichiers PDF sont autorisés.',
-        confirmButtonText: 'OK'
+        icon: "error",
+        title: "Erreur",
+        text: "Aucun fichier disponible pour cette facture.",
+        confirmButtonText: "OK",
       });
       return;
     }
-    this.selectedFile = file;
-  }
-}
 
-openFacture(filePath: string): void {
-  if (!filePath) return;
-  this.generateFileUrl(filePath, 'inline');
-  this.store.select(selectFileUrl).subscribe(url => {
-    if (url) window.open(url, '_blank');
-  });
-}
+    const fileName = this.getFileName(filePath);
+    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=attachment`;
+    const token = sessionStorage.getItem("accessToken");
 
-downloadFacture(filePath: string): void {
-  if (!filePath) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur',
-      text: 'Aucun fichier disponible pour cette facture.',
-      confirmButtonText: 'OK'
-    });
-    return;
-  }
-  this.generateFileUrl(filePath, 'attachment');
-  this.store.select(selectFileUrl).subscribe(url => {
-    if (url) window.open(url, '_blank');
-  });
-}
+    const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
 
-
-generateFileUrl(filePath: string, disposition: 'inline' | 'attachment' = 'inline') {
-  const fileName = this.getFileName(filePath);
-  const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=${disposition}`;
-  this.store.dispatch(setFileUrl({ fileUrl }));
-}
-
-
-
-/** ✅ Récupère uniquement le nom du fichier */
-getFileName(filePath: string): string {
-  return filePath.split('\\').pop() || ''; // Extrait le nom du fichier depuis le chemin
-}
-
-
-
-updatePaiementOptions() {
-  const selectedTypeFacture = this.factureForm.get('typeFacture')?.value;
-  
-  if (selectedTypeFacture === 'SOUSTRAITANT') {
-    this.filteredTypePaiementOptions = [TypePaiement.VIREMENT_BANCAIRE, TypePaiement.CHEQUE];
-  } else {
-    this.filteredTypePaiementOptions = Object.values(TypePaiement);
+    this.http.get(fileUrl, { headers, responseType: "blob" }).subscribe(
+      (blob) => {
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(downloadUrl);
+      },
+      () => {
+        Swal.fire("Erreur", "Téléchargement échoué.", "error");
+      }
+    );
   }
 
-  // Réinitialiser la valeur de typePaiement pour afficher "Sélectionner un type de paiement"
-  this.factureForm.patchValue({ typePaiement: TypePaiement.CHEQUE });
-}
-
-
-
+  getFileName(filePath: string): string {
+    return filePath.split("\\").pop() || "";
+  }
 }

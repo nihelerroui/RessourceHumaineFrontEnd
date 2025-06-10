@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { FactureRoutingModule } from './facture-routing.module';
 import { FactureListComponent } from './facture-list/facture-list.component';
-import { factureReducer } from 'src/app/store/facture/facture.reducer';
-import { FactureEffects } from 'src/app/store/facture/facture.effects';
+import { factureAchatReducer } from 'src/app/store/factureAchat/factureAchat.reducer';
+import { FactureAchatEffects } from 'src/app/store/factureAchat/factureAchat.effects';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
@@ -24,8 +24,8 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     FactureRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    StoreModule.forFeature('facture', factureReducer),
-    EffectsModule.forFeature([FactureEffects]),
+    StoreModule.forFeature('factureAchat', factureAchatReducer),
+    EffectsModule.forFeature([FactureAchatEffects]),
     BsDatepickerModule.forRoot(),
     PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
