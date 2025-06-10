@@ -13,6 +13,7 @@ import { selectAllContracts } from "../../../store/contratSousTraitant/contrat-s
 import Swal from "sweetalert2";
 import { ContratService } from "../../../core/services/contrat.service";
 import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
+import { CommentContratSTComponent } from "../../comment-contratSousTraitant/comment-contratST-list/comment-contratST.component";
 
 @Component({
   selector: "app-contrat-sous-traitant",
@@ -302,18 +303,19 @@ export class ContratSousTraitantComponent implements OnInit {
   }
 
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
-    const emailSousTraitant = currentUser.user?.email || 'consultant@featway.com';
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const emailSousTraitant = currentUser?.user?.email || 'consultant@featway.com';
 
-    this.modalRef = this.modalService.show(CommentContratComponent, {
-      initialState: {
-        //contratId: contrat.contratId,
-        //contrat: contrat,
-        currentUserEmail: emailSousTraitant
-      },
-      class: "modal-lg",
-    });
-  }
+  this.modalRef = this.modalService.show(CommentContratSTComponent, {
+    initialState: {
+      contratId: contrat.contratId,
+      contrat: contrat,
+      currentUserEmail: emailSousTraitant
+    },
+    class: "modal-lg",
+  });
+}
+
   modifierStatutContrat(
     contrat: ContratSousTraitant,
     nouveauStatut: StatutContrat

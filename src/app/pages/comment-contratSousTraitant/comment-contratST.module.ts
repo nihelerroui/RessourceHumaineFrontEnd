@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { CommentContratComponent } from "./comment-contrat-list/comment-contrat.component";
 import { CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { UIModule } from "src/app/shared/ui/ui.module";
@@ -10,20 +9,18 @@ import { BsDatepickerModule } from "ngx-bootstrap/datepicker";
 import { NgxSliderModule } from "ngx-slider-v2";
 import { StoreModule } from "@ngrx/store";
 import { EffectsModule } from "@ngrx/effects";
+import { CommentContratSTComponent } from "./comment-contratST-list/comment-contratST.component";
 import { commentaireContratSousTraitantReducer } from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.reducer";
 import { CommentaireContratSousTraitantEffects } from "src/app/store/commentaire-contratSousTraitant/commentaire-contratSousTraitant.effects";
-import { commentaireContratClientReducer } from "src/app/store/commentaire-contratClient/commentaire-contratClient.reducer";
-import { CommentaireContratClientEffects } from "src/app/store/commentaire-contratClient/commentaire-contratClient.effects";
-
 const routes: Routes = [
   {
     path: '',
-    component: CommentContratComponent
+    component: CommentContratSTComponent
   }
 ];
 @NgModule({
   declarations: [
-    CommentContratComponent
+    CommentContratSTComponent
   ],
   imports: [
     CommonModule,
@@ -35,9 +32,8 @@ const routes: Routes = [
     SharedModule,
     BsDatepickerModule.forRoot(),
     NgxSliderModule,
-    StoreModule.forFeature('commentaireContratClient', commentaireContratClientReducer),
-    EffectsModule.forFeature([CommentaireContratClientEffects])
-    
+    StoreModule.forFeature('commentaireContratSousTraitant', commentaireContratSousTraitantReducer),
+    EffectsModule.forFeature([CommentaireContratSousTraitantEffects])
   ]
 })
-export class CommentaireContratModule { }
+export class CommentaireContratSousTraitantModule { }

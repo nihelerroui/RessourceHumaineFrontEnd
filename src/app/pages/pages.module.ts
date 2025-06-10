@@ -38,6 +38,7 @@ import { ContratSousTraitantModule } from './contratSousTraitant/contrat-sous-tr
 import { ContratClient_ClientModule } from './contratClient_Client/contrat-client_Client.module';
 import { ContratClientModule } from './contratClient/contrat-client.module';
 import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
+import { CommentaireContratSousTraitantModule } from './comment-contratSousTraitant/comment-contratST.module';
 
 
 @NgModule({
@@ -78,6 +79,7 @@ import { CommentaireContratModule } from './comment-contratClient/comment-contra
     ContratClient_ClientModule,
     ContratClientModule,
     CommentaireContratModule,
+    CommentaireContratSousTraitantModule
 
   ],
   providers: [DatePipe],

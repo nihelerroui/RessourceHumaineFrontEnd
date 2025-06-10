@@ -43,13 +43,13 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
     this.isLoading$ = this.store.select(selectLoadingCommentairesContratClient);
 
     if (this.isClientMode && this.token) {
-      this.store.dispatch( CommentaireContratClientActions.loadCommentairesClientContrat({contratClientId: this.contratClientId,token: this.token }) );
+      this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId, token: this.token }));
     } else {
       this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId }));
     }
 
     this.comments$ = this.store.select(selectCommentairesByContratClientId(this.contratClientId));
-  
+
   }
 
   ngAfterViewInit(): void {
@@ -74,21 +74,13 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
 
     if (this.isClientMode && this.token) {
       this.store.dispatch(CommentaireContratClientActions.addCommentClientContrat({ commentaire, token: this.token }));
-
-      setTimeout(() => {
-        this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({contratClientId: this.contratClientId!,token: this.token!,}));
-        this.scrollToBottom();
-      }, 500);
-    } else { this.store.dispatch(CommentaireContratClientActions.addCommentaireContratClient({ commentaire }));
-
-      setTimeout(() => {
-        this.store.dispatch( CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
-        this.scrollToBottom();
-      }, 500);
+    } else {
+      this.store.dispatch(CommentaireContratClientActions.addCommentaireContratClient({ commentaire }));
     }
 
     this.newComment = "";
     this.isSubmitting = false;
+    this.scrollToBottom();
   }
 
   startEdit(comment: CommentaireContratWithEdit): void {
@@ -138,17 +130,17 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
     const commentaireId = this.commentToDelete.id;
 
     if (this.isClientMode && this.token) {
-      this.store.dispatch( CommentaireContratClientActions.deleteCommentClientContrat({ commentaireId, token: this.token }));
+      this.store.dispatch(CommentaireContratClientActions.deleteCommentClientContrat({ commentaireId, token: this.token }));
 
       setTimeout(() => {
         this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId!, token: this.token! }));
         this.scrollToBottom();
       }, 500);
-    } else{
-      this.store.dispatch( CommentaireContratClientActions.deleteCommentaireContratClient({ commentaireId }));
+    } else {
+      this.store.dispatch(CommentaireContratClientActions.deleteCommentaireContratClient({ commentaireId }));
 
       setTimeout(() => {
-        this.store.dispatch( CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
+        this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
         this.scrollToBottom();
       }, 500);
     }
@@ -157,9 +149,11 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   }
 
   scrollToBottom(): void {
-    if (this.commentSection) {
-      const el = this.commentSection.nativeElement;
-      el.scrollTop = el.scrollHeight;
+    if (this.commentSection?.nativeElement) {
+      setTimeout(() => {
+        const el = this.commentSection.nativeElement;
+        el.scrollTop = el.scrollHeight;
+      });
     }
   }
 }
