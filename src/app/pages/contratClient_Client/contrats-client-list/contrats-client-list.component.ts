@@ -1,15 +1,11 @@
 import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Store, select } from "@ngrx/store";
-import { combineLatest, map, Observable } from "rxjs";
+import { Observable } from "rxjs";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
-import {
-  selectAllContratsClient,
-  selectContratsClientLoading
-} from "../../../store/contratClient/contratClient-selector";
+import { selectAllContratsClient, selectContratsClientLoading } from "../../../store/contratClient/contratClient-selector";
 import { ContratClient, StatutContrat } from "src/app/models/contratClient.models";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-//import { CommentContratModalComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { environment } from "src/environments/environment";
 import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 
@@ -18,55 +14,83 @@ import { CommentContratComponent } from "../../comment-contratClient/comment-con
   templateUrl: "./contrats-client-list.component.html"
 })
 export class ContratsClientListComponent implements OnInit {
+
   contratsClients$: Observable<ContratClient[]> = this.store.pipe(select(selectAllContratsClient));
   loading$: Observable<boolean> = this.store.select(selectContratsClientLoading);
 
-  contratsPagination$: Observable<ContratClient[]> = new Observable();
-  total$: Observable<number> = new Observable();
+  @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>;
 
-  token: string | null = null;
+  allContrats: ContratClient[] = [];
+  filteredContrats: ContratClient[] = [];
+  paginatedContrats: ContratClient[] = [];
+
+  // Modal et session
   modalRef: BsModalRef | null = null;
-  contratFileUrl: string | null = null;
-  // Critères de recherche
-  searchTerm: string = "";
-  selectedStatut: string = "";
+  clientId!: number;
+  token: string | null = null;
+
+  // Recherche & Filtres
+  searchTerm = "";
+  selectedStatut = "";
   minTjm: number | null = null;
   maxTjm: number | null = null;
-  statutContratValues = Object.values(StatutContrat);
 
+  // Pagination
   page = 1;
   contratsParPage = 5;
 
-  @ViewChild('contratModal', { static: true }) contratModalTemplate!: TemplateRef<any>;
+  // Enum to array
+  statutContratValues = Object.values(StatutContrat);
 
-  constructor(
-    private route: ActivatedRoute,
-    private store: Store,
-    private modalService: BsModalService
-  ) { }
+  constructor(private route: ActivatedRoute, private store: Store, private modalService: BsModalService) { }
+
   ngOnInit(): void {
+    this.initSession();
+    this.loadContrats();
+    this.listenContrats();
+  }
+  private initSession(): void {
     const idFromStorage = localStorage.getItem("clientId");
     this.token = localStorage.getItem("clientToken");
-    if (idFromStorage) {
-      const clientId = Number(idFromStorage);
-      this.store.dispatch(ContratActions.loadContratsClientByClientId({ clientId }));
-      this.updatePagination();
+    if (idFromStorage) this.clientId = +idFromStorage;
+  }
+
+  private loadContrats(): void {
+    if (this.clientId) {
+      this.store.dispatch(ContratActions.loadContratsClientByClientId({ clientId: this.clientId }));
     }
-    this.searchContrat();
+  }
+
+  private listenContrats(): void {
+    this.contratsClients$.subscribe(contrats => {
+      this.allContrats = contrats;
+      this.filterContrats();
+    });
   }
   //pagination
-  updatePagination(): void {
-    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
-      map(([contratsClients]) => {
-        const total = contratsClients.length;
-        this.total$ = new Observable(observer => observer.next(total));
-        const start = (this.page - 1) * this.contratsParPage;
-        return contratsClients.slice(start, start + this.contratsParPage);
-      })
+  filterContrats() {
+    const termLower = this.searchTerm.toLowerCase().trim();
+    this.filteredContrats = this.allContrats.filter(c =>
+      (!this.searchTerm || c.designation.toLowerCase().includes(termLower)) &&
+      (!this.selectedStatut || c.statutContrat === this.selectedStatut) &&
+      (!this.minTjm || c.tjm >= this.minTjm) &&
+      (!this.maxTjm || c.tjm <= this.maxTjm)
     );
+    this.pageChanged({ page: 1 });
   }
-  trackById(index: number, item: ContratClient): number {
-    return item.contratClientId;
+
+  pageChanged(event: any) {
+    this.page = event.page;
+    const start = (this.page - 1) * this.contratsParPage;
+    this.paginatedContrats = this.filteredContrats.slice(start, start + this.contratsParPage);
+  }
+
+  refreshList() {
+    this.selectedStatut = '';
+    this.minTjm = 0;
+    this.maxTjm = 0;
+    this.page = 1;
+    this.loadContrats();
   }
 
   visualiserContrat(contrat: ContratClient): void {
@@ -77,8 +101,6 @@ export class ContratsClientListComponent implements OnInit {
 
     const fileName = contrat.filePath.split("\\").pop();
     const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
-
-    console.log("Ouverture du fichier :", fileUrl);
     window.open(fileUrl, "_blank");
   }
   ouvrirCommentairesClient(contrat: ContratClient): void {
@@ -95,6 +117,11 @@ export class ContratsClientListComponent implements OnInit {
       class: "modal-lg"
     });
   }
+  
+  trackById(index: number, item: ContratClient): number {
+    return item.contratClientId;
+  }
+
   getStatutLabel(statut: string): string {
     const statutLabels: { [key: string]: string } = {
       EN_ATTENTE: "En Attente",
@@ -113,25 +140,5 @@ export class ContratsClientListComponent implements OnInit {
     };
     return statutClasses[statut] || "badge bg-secondary";
   }
-  searchContrat() {
-    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
-      map(([contratsClients]) => {
-        let filtered = contratsClients;
-        if (this.selectedStatut) {
-          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
-        }
-        if (this.minTjm !== null) {
-          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
-        }
-        if (this.maxTjm !== null) {
-          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
-        }
-        const total = filtered.length;
-        this.total$ = new Observable(observer => observer.next(total));
-        const start = (this.page - 1) * this.contratsParPage;
-        return filtered.slice(start, start + this.contratsParPage);
-      })
-    );
-  }
-  
+
 }

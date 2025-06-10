@@ -28,32 +28,33 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
 
   @ViewChild("commentSection") commentSection!: ElementRef;
 
-  comments$: Observable<CommentaireContratWithEdit[]> = new Observable();
-  isLoading$: Observable<boolean> = new Observable();
+  comments$: Observable<CommentaireContratWithEdit[]>;
+  isLoading$: Observable<boolean>;
 
   newComment = "";
   isSubmitting = false;
   isFocused = false;
   showDeleteConfirmation = false;
-  commentToDelete: { id: number; index: number } | null = null;
+  commentToDeleteId: number | null = null;
 
   constructor(public modalRef: BsModalRef, private store: Store) { }
 
   ngOnInit(): void {
     this.isLoading$ = this.store.select(selectLoadingCommentairesContratClient);
-
-    if (this.isClientMode && this.token) {
-      this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId, token: this.token }));
-    } else {
-      this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId }));
-    }
-
     this.comments$ = this.store.select(selectCommentairesByContratClientId(this.contratClientId));
-
+    this.loadCommentaires();
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.scrollToBottom(), 300);
+  }
+
+  private loadCommentaires(): void {
+    if (this.isClientMode && this.token) {
+      this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId!, token: this.token }));
+    } else {
+      this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
+    }
   }
 
   addComment(): void {
@@ -61,15 +62,11 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
 
     this.isSubmitting = true;
 
-    const auteur = this.currentUserEmail || "Utilisateur inconnu";
-
     const commentaire: CommentaireContratClient = {
       contenu: this.newComment,
-      auteurCommentaire: auteur,
+      auteurCommentaire: this.currentUserEmail || "Utilisateur inconnu",
       dateCommentaire: new Date().toISOString(),
-      contratClient: {
-        contratClientId: this.contratClientId!,
-      } as ContratClient,
+      contratClient: { contratClientId: this.contratClientId! } as ContratClient,
     };
 
     if (this.isClientMode && this.token) {
@@ -100,9 +97,7 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
       contenu: comment.editContent,
       auteurCommentaire: comment.auteurCommentaire,
       dateCommentaire: comment.dateCommentaire,
-      contratClient: {
-        contratClientId: this.contratClientId!,
-      } as ContratClient,
+      contratClient: { contratClientId: this.contratClientId! } as ContratClient,
     };
 
     if (this.isClientMode && this.token) {
@@ -115,35 +110,30 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
   }
 
   confirmDelete(commentaireId: number): void {
+    this.commentToDeleteId = commentaireId;
     this.showDeleteConfirmation = true;
-    this.commentToDelete = { id: commentaireId, index: -1 };
   }
 
   cancelDelete(): void {
+    this.commentToDeleteId = null;
     this.showDeleteConfirmation = false;
-    this.commentToDelete = null;
   }
 
   confirmDeleteAction(): void {
-    if (!this.commentToDelete) return;
+    if (!this.commentToDeleteId) return;
 
-    const commentaireId = this.commentToDelete.id;
+    const id = this.commentToDeleteId;
 
     if (this.isClientMode && this.token) {
-      this.store.dispatch(CommentaireContratClientActions.deleteCommentClientContrat({ commentaireId, token: this.token }));
-
-      setTimeout(() => {
-        this.store.dispatch(CommentaireContratClientActions.loadCommentairesClientContrat({ contratClientId: this.contratClientId!, token: this.token! }));
-        this.scrollToBottom();
-      }, 500);
+      this.store.dispatch(CommentaireContratClientActions.deleteCommentClientContrat({ commentaireId: id, token: this.token }));
     } else {
-      this.store.dispatch(CommentaireContratClientActions.deleteCommentaireContratClient({ commentaireId }));
-
-      setTimeout(() => {
-        this.store.dispatch(CommentaireContratClientActions.loadCommentairesContratClient({ contratClientId: this.contratClientId! }));
-        this.scrollToBottom();
-      }, 500);
+      this.store.dispatch(CommentaireContratClientActions.deleteCommentaireContratClient({ commentaireId: id }));
     }
+
+    setTimeout(() => {
+      this.loadCommentaires();
+      this.scrollToBottom();
+    }, 300);
 
     this.cancelDelete();
   }

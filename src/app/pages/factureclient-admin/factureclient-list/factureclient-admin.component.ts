@@ -20,70 +20,58 @@ import * as AuthActions from "src/app/store/Authentication/authentication.action
   templateUrl: './factureclient-admin.component.html'
 })
 export class FactureclientAdminComponent implements OnInit {
-  
-  modalRef?: BsModalRef;
-  factureClients$: Observable<FactureClient[]>;
-  allFactures: FactureClient[] = [];
+
+  factureClients$: Observable<FactureClient[]> = this.store.select(selectFactureClients);
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
   loading$ = this.store.select(selectLoading);
   error$ = this.store.select(selectError);
+  total$ = this.store.select(selectTotalFactureClient);
+
+  modalRef?: BsModalRef;
   bsConfig: Partial<BsDatepickerConfig> = { showWeekNumbers: false, dateInputFormat: "DD/MM/YYYY" };
-  breadCrumbItems = [
-    { label: "Factures Clients" },
-    { label: "Factures Clients List", active: true },
-  ];
 
-  selectedFacture: any;
-  
-  StatutPaiement = StatutPaiement;
-  term: string = "";
-  statutPaiementFilter: string = "";
-  statutFactureFilter: string = "";
-  typePaiementFilter: string = "";
-  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
-  consultantSocieteId: number = 0;
-  selectedSocieteId: number | "" = "";
-
-  page = 1;
-  filteredTotal: number = 0;
-  facturesParPage = 5;
+  allFactures: FactureClient[] = [];
   filteredFactures: FactureClient[] = [];
   paginatedFactures: FactureClient[] = [];
-  total$: Observable<number> = this.store.select(selectTotalFactureClient);
+
+  consultantSocieteId = 0;
+  selectedSocieteId: number | "" = "";
+  selectedFacture: FactureClient | null = null;
+
+  term = "";
+  statutPaiementFilter = "";
+  statutFactureFilter = "";
+  typePaiementFilter = "";
+
+  page = 1;
+  facturesParPage = 5;
   today: string = new Date().toISOString().split('T')[0];
 
-
   constructor(
-    public store: Store,
+    private store: Store,
     private modalService: BsModalService,
     private actions$: Actions
-  ) {
-    this.factureClients$ = this.store.select(selectFactureClients);
-  }
+  ) { }
 
   ngOnInit(): void {
-    this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
-    this.factureClients$.subscribe(factures => {
-      this.allFactures = factures;
-      this.filterFactures(); 
-    });
-    
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    this.consultantSocieteId = currentUser?.societe?.societeId;
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    this.consultantSocieteId = user?.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
-   
+
+    this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
     this.store.dispatch(AuthActions.loadAdminSocietes());
 
-    this.error$.subscribe(error => {
-      if (error) console.error("Erreur du store:", error);
+    this.factureClients$.subscribe(factures => {
+      this.allFactures = factures;
+      this.filterFactures();
     });
-    this.actions$
-      .pipe(ofType(FactureClientActions.updateFactureClientSuccess))
-      .subscribe(() => {
-        this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
-     
-      });
+
+    this.actions$.pipe(ofType(FactureClientActions.updateFactureClientSuccess))
+      .subscribe(() => this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin()));
+
+    this.error$.subscribe(error => error && console.error("Erreur store :", error));
   }
-  
+
   openCreateModal(): void {
     this.modalRef = this.modalService.show(FactureClientCreateComponent, { class: "modal-lg" });
   }
@@ -92,6 +80,16 @@ export class FactureclientAdminComponent implements OnInit {
       class: "modal-lg",
       initialState: { factureClientId }
     });
+  }
+  openCommentModal(factureClientId: number): void {
+    this.modalRef = this.modalService.show(CommentModalComponent, {
+      class: "modal-lg",
+      initialState: { factureId: factureClientId }
+    });
+  }
+  openDetailsModal(facture: any, template: TemplateRef<any>): void {
+    this.selectedFacture = facture;
+    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
   deleteFacture(factureClientId: number): void {
@@ -110,6 +108,12 @@ export class FactureclientAdminComponent implements OnInit {
       }
     });
   }
+  
+  modifierStatutFacture(facture: any, statut: StatutFacture): void {
+    const statutPaiement = (statut === 'Confirmation_Complet') ? 'PAYÉE' : facture.statutPaiement;
+    this.updateFactureStatus(facture, statut, statutPaiement);
+  }
+
   updateFactureStatus(facture: any, statutFacture: string, statutPaiement?: string): void {
     const factureDto = {
       factureClientId: facture.factureClientId,
@@ -147,50 +151,34 @@ export class FactureclientAdminComponent implements OnInit {
     }, 500);
   }
 
-  modifierStatutFacture(facture: any, statut: StatutFacture): void {
-    const statutPaiement = (statut === 'Confirmation_Complet') ? 'PAYÉE' : facture.statutPaiement;
-    this.updateFactureStatus(facture, statut, statutPaiement);
+  filterFactures() {
+    const termLower = this.term.toLowerCase().trim();
+    this.filteredFactures = this.allFactures.filter(f =>
+      (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
+      (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
+      (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
+      (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter) &&
+      (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
+    );
+    this.pageChanged({ page: 1 });
   }
 
+  pageChanged(event: any) {
+    this.page = event.page;
+    const start = (this.page - 1) * this.facturesParPage;
+    this.paginatedFactures = this.filteredFactures.slice(start, start + this.facturesParPage);
+  }
 
-  filterFactures() {
-      const termLower = this.term.toLowerCase().trim();
-      this.filteredFactures = this.allFactures.filter(f =>
-        (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
-        (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
-        (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
-        (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter) &&
-        (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
-      );
-      this.pageChanged({ page: 1 });
+  refreshList() {
+    this.term = '';
+    this.statutFactureFilter = '';
+    this.statutPaiementFilter = '';
+    this.typePaiementFilter = '';
+    this.selectedSocieteId = this.consultantSocieteId;
+    this.page = 1;
+    this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
   }
   
-    pageChanged(event: any) {
-      this.page = event.page;
-      const start = (this.page - 1) * this.facturesParPage;
-      this.paginatedFactures = this.filteredFactures.slice(start, start + this.facturesParPage);
-    }
-    refreshList() {
-      this.term = '';
-      this.statutFactureFilter = '';
-      this.statutPaiementFilter = '';
-      this.typePaiementFilter = '';
-      this.selectedSocieteId = '';
-      this.page = 1;
-      this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
-    }
-
-  openCommentModal(factureClientId: number): void {
-    this.modalRef = this.modalService.show(CommentModalComponent, {
-      class: "modal-lg",
-      initialState: { factureId: factureClientId }
-    });
-  }
-
-  openDetailsModal(facture: any, template: TemplateRef<any>): void {
-    this.selectedFacture = facture;
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
   envoyerEmailRappelClient(factureId: number): void {
     this.store.dispatch(FactureClientActions.envoyerEmailFacture({ factureId }));
     Swal.fire({
@@ -201,6 +189,7 @@ export class FactureclientAdminComponent implements OnInit {
       showConfirmButton: false
     });
   }
+
   downloadFacture(factureId: number): void {
     this.store.dispatch(FactureClientActions.downloadFacture({ factureClientId: factureId }));
   }

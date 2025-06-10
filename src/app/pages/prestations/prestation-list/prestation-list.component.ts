@@ -277,6 +277,7 @@ export class PrestationListComponent implements OnInit {
   refreshPrestations() {
     this.term = "";
     this.selectedDate = null;
+    this.selectedSocieteId = this.consultantSocieteId;
     this.store.dispatch(PrestationActions.loadPrestations());
   }
 

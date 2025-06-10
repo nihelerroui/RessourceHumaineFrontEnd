@@ -105,7 +105,7 @@ export class ContratClientAdminComponent implements OnInit {
     this.selectedStatut = '';
     this.minTjm = 0;
     this.maxTjm = 0;
-    this.selectedSocieteId = '';
+    this.selectedSocieteId = this.consultantSocieteId;
     this.page = 1;
     this.store.dispatch(loadContratsClient());
   }
