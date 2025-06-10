@@ -25,13 +25,16 @@
             <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
             <div class="flex-shrink-0 d-flex gap-1">
               <a [routerLink]="['/import-contrat', token]" class="btn btn-primary">Add New Contrat</a>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
+                <i class="mdi mdi-refresh"></i>
+              </a>
             </div>
           </div>
         </div>
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
-              <select class="form-select" [(ngModel)]="selectedStatut"  (ngModelChange)="filterContrats()">
+              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats()">
                 <option value>Tous les statuts</option>
                 <option *ngFor="let statut of statutContratValues" [value]="statut">
                   {{ getStatutLabel(statut) }}
