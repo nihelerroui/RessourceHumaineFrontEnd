@@ -9,7 +9,7 @@ import { Prestation } from 'src/app/models/prestation.model';
 @Injectable({
   providedIn: 'root',
 })
-export class FactureClientService extends GenericService<any> {
+export class FactureClientService extends GenericService<FactureClient> {
   constructor(protected http: HttpClient) {
     super(http, 'facturesClient');
   }

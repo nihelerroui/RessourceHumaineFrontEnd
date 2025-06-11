@@ -44,6 +44,7 @@ import { UtilisateurregisterviewComponent } from './users/utilisateurregistervie
 import { RecettesModule } from './recettes/recettes.module';
 import { StoreModule } from '@ngrx/store';
 import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
+import { HistoriqueChiffreAffaireModule } from './historiqueChiffreAffaire/historiqueChiffreAffaire.module';
 
 
 @NgModule({
@@ -87,7 +88,8 @@ import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-tr
     ContratClient_ClientModule,
     ContratClientModule,
     CommentaireContratModule,
-    CommentaireContratSousTraitantModule
+    CommentaireContratSousTraitantModule,
+    HistoriqueChiffreAffaireModule
 
   ],
   providers: [DatePipe],
