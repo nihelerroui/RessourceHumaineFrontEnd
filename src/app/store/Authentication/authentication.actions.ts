@@ -171,3 +171,33 @@ export const updatePersonalDetailsWithFilesFailure = createAction(
   '[Auth] Update Personal Details With Files Failure',
   props<{ error: any }>()
 );
+
+export const forgotPassword = createAction(
+  '[Auth] Forgot Password',
+  props<{ email: string }>()
+);
+
+export const forgotPasswordSuccess = createAction(
+  '[Auth] Forgot Password Success',
+  props<{ message: string }>()
+);
+
+export const forgotPasswordFailure = createAction(
+  '[Auth] Forgot Password Failure',
+  props<{ error: string }>()
+);
+
+export const resetPassword = createAction(
+  '[Auth] Reset Password',
+  props<{ token: string; newPassword: string }>()
+);
+
+export const resetPasswordSuccess = createAction(
+  '[Auth] Reset Password Success',
+  props<{ message: string }>()
+);
+
+export const resetPasswordFailure = createAction(
+  '[Auth] Reset Password Failure',
+  props<{ error: string }>()
+);

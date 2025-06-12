@@ -95,3 +95,43 @@ export const selectAdminSocietes = createSelector(
   selectAuthState,
   (state) => state.societes
 );
+
+
+export const selectResetPasswordLoading = createSelector(
+  selectAuthState,
+  state => state.resetPasswordLoading
+);
+
+export const selectResetPasswordSuccess = createSelector(
+  selectAuthState,
+  state => state.resetPasswordSuccess
+);
+
+export const selectResetPasswordError = createSelector(
+  selectAuthState,
+  state => state.resetPasswordError
+);
+
+
+export const selectConfirmResetLoading = createSelector(
+  selectAuthState,
+  state => state.confirmResetLoading
+);
+
+export const selectConfirmResetSuccess = createSelector(
+  selectAuthState,
+  state => state.confirmResetSuccess
+);
+
+export const selectConfirmResetError = createSelector(
+  selectAuthState,
+  state => state.confirmResetError
+);
+
+export const selectResetPasswordSuccessMessage = createSelector(
+  selectAuthState,
+  (state: AuthenticationState) => state.resetPasswordSuccessMessage
+);
+
+
+

@@ -15,6 +15,16 @@ export interface AuthenticationState {
   error: string | null;
   loading: boolean;
   societes: AdminSociete[];
+
+  resetPasswordSuccess: boolean;
+  resetPasswordError: string | null;
+  resetPasswordLoading: boolean;
+
+  confirmResetSuccess: boolean;
+  confirmResetError: string | null;
+  confirmResetLoading: boolean;
+
+  resetPasswordSuccessMessage: string | null;
 }
 
 const initialState: AuthenticationState = {
@@ -26,6 +36,15 @@ const initialState: AuthenticationState = {
   error: null,
   loading: false,
   societes: [],
+
+  resetPasswordSuccess: false,
+  resetPasswordError: null,
+  resetPasswordLoading: false,
+
+  confirmResetSuccess: false,
+  confirmResetError: null,
+  confirmResetLoading: false,
+  resetPasswordSuccessMessage: null,
 };
 
 export const authenticationReducer = createReducer(
@@ -115,5 +134,49 @@ on(AuthActions.loadAdminSocietesFailure, (state, { error }) => ({
   societes: [],
   error,
 })),
+ on(AuthActions.forgotPassword, state => ({
+  ...state,
+  resetPasswordLoading: true,
+  resetPasswordSuccess: false,
+  resetPasswordError: null
+})),
 
-);
+
+on(AuthActions.forgotPasswordSuccess, (state, { message }) => ({
+  ...state,
+  forgotPasswordSuccessMessage: message,
+  forgotPasswordError: null,
+})),
+
+on(AuthActions.forgotPasswordFailure, (state, { error }) => ({
+  ...state,
+  resetPasswordLoading: false,
+  resetPasswordError: error
+})),
+on(AuthActions.resetPassword, state => ({
+  ...state,
+  confirmResetLoading: true,
+  confirmResetSuccess: false,
+  confirmResetError: null
+})),
+
+on(AuthActions.resetPasswordSuccess, () => ({
+  ...initialState,
+  confirmResetLoading: false,
+  confirmResetSuccess: true
+})),
+
+on(AuthActions.resetPasswordFailure, (state, { error }) => ({
+  ...state,
+  confirmResetLoading: false,
+  confirmResetError: error
+})),
+on(AuthActions.forgotPasswordSuccess, (state, { message }) => ({
+  ...state,
+  resetPasswordSuccess: true,
+  resetPasswordSuccessMessage: message,
+  resetPasswordError: null,
+  resetPasswordLoading: false,
+}))
+
+)

@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { DefaultComponent } from './dashboards/default/default.component';
 import { PaysListComponent } from './pays/pays-list/pays-list.component';
+import { ProfileEditComponent } from './users/profile/userprofileedit/profileedit.component';
 
 
 const routes: Routes = [
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'users', loadChildren: () => import('./users/user.module').then(m => m.UserModule) },
   { path: 'recettes', loadChildren: () => import('./recettes/recettes.module').then(m => m.RecettesModule) },
   { path: 'factureSousTraitant', loadChildren: () => import('./factureSousTraitant/facture-sous-traitant.module').then(m => m.FactureSousTraitantModule) },
+
 ];
 
 @NgModule({

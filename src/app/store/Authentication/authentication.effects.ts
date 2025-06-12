@@ -246,4 +246,45 @@ addMissingAdminSocietes$ = createEffect(() =>
       )
     )
   );
+
+  /*forgotPassword$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.forgotPassword),
+      mergeMap(({ email }) =>
+        this.AuthenticationService.forgotPassword(email).pipe(
+          map(() => AuthActions.forgotPasswordSuccess({ message: 'Email envoyé !' })),
+          catchError(err => of(AuthActions.forgotPasswordFailure({ error: err.error.message || 'Erreur serveur' })))
+        )
+      )
+    )
+  );*/
+
+  forgotPassword$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.forgotPassword),
+    mergeMap(({ email }) =>
+      this.AuthenticationService.forgotPassword(email).pipe(
+        map((response: { message: string }) =>
+          AuthActions.forgotPasswordSuccess({ message: response.message })
+        ),
+        catchError((error) =>
+          of(AuthActions.forgotPasswordFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
+
+  resetPassword$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.resetPassword),
+      mergeMap(({ token, newPassword }) =>
+        this.AuthenticationService.resetPassword(token, newPassword).pipe(
+          map(() => AuthActions.resetPasswordSuccess({ message: 'Mot de passe modifié avec succès' })),
+          catchError(err => of(AuthActions.resetPasswordFailure({ error: err.error.message || 'Erreur serveur' })))
+        )
+      )
+    )
+  );
 }

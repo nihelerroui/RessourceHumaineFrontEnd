@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FactureSousTraitant } from 'src/app/models/FactureSousTraitant.model';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
@@ -9,7 +10,7 @@ import { FactureSousTraitant } from 'src/app/models/FactureSousTraitant.model';
 })
 export class FactureSousTraitantService {
 
-  private baseUrl = 'https://featway-serveur.fr:8181/portail-backend-dev/api/factureIndep';
+  private baseUrl = `${environment.baseUrl}/factureIndep`;
 
   constructor(private http: HttpClient) {}
 

@@ -133,7 +133,8 @@ export class AuthenticationService extends GenericService<User> {
   }
 
   getAdminSocietes(): Observable<any[]> {
-    const url = `https://featway-serveur.fr:8181/portail-backend-dev/api/adminsociete/admin/141`;
+    
+    const url = `${environment.baseUrl}/adminsociete/admin/141`;
   
     const headers = new HttpHeaders()
       .set("Authorization", `Bearer ${environment.token}`)
@@ -151,4 +152,19 @@ export class AuthenticationService extends GenericService<User> {
       profileData
     );
   }
+
+
+   forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.authUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.authUrl}/reset-password`, {
+      token,
+      newPassword
+    });
+  }
+
+  
+
 }

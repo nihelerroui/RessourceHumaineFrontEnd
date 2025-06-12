@@ -24,6 +24,7 @@ export class AuthInterceptor implements HttpInterceptor {
       "/contrats-client/",
       "/import-contrat/",
       "facture/client/view",
+      "/reset-password"
     ];
     const isExcludedRoute = excludedRoutes.some((path) =>
       req.url.includes(path)
