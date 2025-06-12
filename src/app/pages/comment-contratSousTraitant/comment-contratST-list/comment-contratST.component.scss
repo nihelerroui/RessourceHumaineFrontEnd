@@ -1,0 +1,431 @@
+.comments-table-container {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bcc0c4;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #9ca0a4;
+  }
+}
+
+// Comment editing and actions styling
+.comment-actions {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 8px;
+  
+  .action-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    margin: 0 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &.edit-btn {
+      color: #1877f2;
+      
+      &:hover {
+        background-color: rgba(24, 119, 242, 0.1);
+      }
+    }
+    
+    &.delete-btn {
+      color: #e41e3f;
+      
+      &:hover {
+        background-color: rgba(228, 30, 63, 0.1);
+      }
+    }
+    
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+// Show actions on hover
+tr:hover .comment-actions {
+  opacity: 1;
+}
+
+// Comment editing form
+.comment-edit-form {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  
+  .form-control {
+    border-radius: 18px;
+    border: 1px solid #dddfe2;
+    padding: 8px 12px;
+    font-size: 14px;
+    flex: 1;
+    
+    &:focus {
+      border-color: #1877f2;
+      box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+    }
+  }
+  
+  .edit-actions {
+    display: flex;
+    margin-left: 8px;
+    
+    .btn {
+      border-radius: 4px;
+      font-size: 13px;
+      padding: 4px 10px;
+      font-weight: 500;
+      
+      &.btn-save {
+        background-color: #1877f2;
+        border-color: #1877f2;
+        color: white;
+        margin-right: 4px;
+        
+        &:hover {
+          background-color: #166fe5;
+        }
+      }
+      
+      &.btn-cancel {
+        background-color: #e4e6eb;
+        border-color: #e4e6eb;
+        color: #050505;
+        
+        &:hover {
+          background-color: #dddfe2;
+        }
+      }
+    }
+  }
+}
+
+// Comment content styling
+.comment-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+// Confirmation dialog styling
+.delete-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  
+  .confirmation-dialog {
+    background-color: white;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    padding: 16px;
+    box-shadow: 0 2px 26px rgba(0, 0, 0, 0.3);
+    
+    .dialog-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .dialog-message {
+      font-size: 15px;
+      color: #65676b;
+      margin-bottom: 16px;
+    }
+    
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      
+      .btn {
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 12px;
+        margin-left: 8px;
+        
+        &.btn-cancel {
+          background-color: #e4e6eb;
+          border-color: #e4e6eb;
+          color: #050505;
+          
+          &:hover {
+            background-color: #dddfe2;
+          }
+        }
+        
+        &.btn-confirm {
+          background-color: #e41e3f;
+          border-color: #e41e3f;
+          color: white;
+          
+          &:hover {
+            background-color: #d41a38;
+          }
+        }
+      }
+    }
+  }
+}
+// Modern Comment Input Styling (Improved)
+.modern-comment-input {
+  --primary-color: #1877f2;
+  --primary-hover: #166fe5;
+  --bg-color: #fff;
+  --border-color: #dddfe2;
+  --text-color: #050505;
+  --placeholder-color: #65676b;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --animation-timing: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  .comment-input-container {
+    display: flex;
+    background-color: var(--bg-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    padding: 20px;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+  
+  .comment-avatar {
+    margin-right: 16px;
+    align-self: flex-start;
+    
+    .avatar-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--animation-timing);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      
+      i {
+        font-size: 22px;
+      }
+    }
+  }
+  
+  .comment-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+    
+    .comment-textarea {
+      width: 100%;
+      min-height: 90px;
+      max-height: 200px;
+      padding: 14px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: #f0f2f5;
+      color: var(--text-color);
+      font-size: 15px;
+      line-height: 1.5;
+      resize: none;
+      transition: all var(--animation-timing);
+      
+      &::placeholder {
+        color: transparent;
+      }
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      
+      &:focus {
+        outline: none;
+        background-color: #fff;
+        box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+      }
+    }
+    
+    .floating-label {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      color: var(--placeholder-color);
+      font-size: 15px;
+      pointer-events: none;
+      transition: all var(--animation-timing);
+    }
+    
+    .focus-border {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background-color: var(--primary-color);
+      transition: all var(--animation-timing);
+    }
+    
+    &.focused, &.has-content {
+      .floating-label {
+        top: -24px;
+        left: 0;
+        font-size: 13px;
+        color: var(--primary-color);
+        font-weight: 500;
+      }
+      
+      .comment-textarea {
+        background-color: #fff;
+        border-color: var(--primary-color);
+        
+        &::placeholder {
+          color: var(--placeholder-color);
+        }
+      }
+    }
+    
+    &.focused {
+      .focus-border {
+        width: 100%;
+        left: 0;
+      }
+      
+      & + .comment-actions {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+  
+  .comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    opacity: 0.8;
+    transform: translateY(5px);
+    transition: all var(--animation-timing);
+  }
+  
+  .send-button {
+    position: relative;
+    background: none;
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all var(--animation-timing);
+    opacity: 0.7;
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    .button-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      
+      i {
+        margin-right: 8px;
+        font-size: 18px;
+      }
+      
+      .button-text {
+        font-size: 15px;
+        letter-spacing: 0.3px;
+      }
+    }
+    
+    .button-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--primary-color);
+      z-index: 1;
+      transition: all var(--animation-timing);
+    }
+    
+    &:hover:not(:disabled) .button-background {
+      background-color: var(--primary-hover);
+    }
+    
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+    }
+    
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    
+    &.active {
+      opacity: 1;
+      transform: scale(1);
+      
+      &:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(24, 119, 242, 0.5);
+      }
+    }
+    
+    &:active:not(:disabled) {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(24, 119, 242, 0.4);
+    }
+  }
+  
+  // Animation for the avatar when the textarea is focused
+  .input-wrapper.focused ~ .comment-avatar .avatar-circle {
+    transform: scale(1.1);
+  }
+  
+  // Improved focus state for the entire container
+  &:focus-within .comment-input-container {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+  }
+  .comments-table-container {
+  max-height: 300px; // ou 400px selon ton design
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+}
