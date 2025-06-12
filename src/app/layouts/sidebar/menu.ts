@@ -84,12 +84,6 @@ export const MENU: MenuItem[] = [
     link: "/contratclientadmin",
   },
   {
-    id: 20,
-    label: "MENUITEMS.CHIFFREAFFAIRE.TEXT",
-    icon: "bx bx-message-alt-dots",
-    link: "/chiffreAffaire",
-  },
-  {
     id: 21,
     label: "MENUITEMS.HISTORIQUECHIFFREAFFAIRE.TEXT",
     icon: "bx bx-message-alt-dots",
