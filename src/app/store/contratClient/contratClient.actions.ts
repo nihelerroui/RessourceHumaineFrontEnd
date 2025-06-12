@@ -62,5 +62,9 @@ export const loadContratsClientByClientIdFailure = createAction(
   "[ContratClient] Load Contrats By Client ID Failure",
   props<{ error: string }>()
 );
+//load contrat by societe admin 
+export const loadContratsBySocieteAdmin = createAction('[ContratClient] Load By Societe Admin');
+export const loadContratsBySocieteAdminSuccess = createAction('[ContratClient] Load By Societe Admin Success', props<{ contrats: ContratClient[] }>());
+export const loadContratsBySocieteAdminFailure = createAction('[ContratClient] Load By Societe Admin Failure', props<{ error: string }>());
 
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { Store } from "@ngrx/store";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -20,7 +20,6 @@ export class ImportContratComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private fb: FormBuilder,
     private store: Store,
     private tokenUtil: TokenUtilService

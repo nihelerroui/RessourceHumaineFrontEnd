@@ -8,15 +8,14 @@ export const selectTotalFactureClient = createSelector(
   selectFactureClientState,
   (state: FactureClientState) => state.factureClients.length
 );
-export const selectPrestationsByClient = createSelector(
-  selectFactureClientState,
-  (state) => state.prestationsByClient
-);
 export const selectFactureClients = createSelector(
   selectFactureClientState,
   (state: FactureClientState) => state?.factureClients ?? []
 );
-
+export const selectPrestationsByContrat = createSelector(
+  selectFactureClientState,
+  (state: FactureClientState) => state.prestationsByContrat
+);
 export const selectLoading = createSelector(
   selectFactureClientState,
   (state) => state.loading

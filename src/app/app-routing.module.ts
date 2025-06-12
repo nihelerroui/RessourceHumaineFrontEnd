@@ -5,6 +5,7 @@ import { AuthGuard } from "./core/guards/auth.guard";
 import { LayoutComponent } from "./layouts/layout.component";
 import { CyptolandingComponent } from "./cyptolanding/cyptolanding.component";
 import { Page404Component } from "./extrapages/page404/page404.component";
+import { ImportContratComponent } from "./pages/ImportationContrat/import-contrat/import-contrat.component";
 
 const routes: Routes = [
   {
@@ -26,7 +27,12 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: "crypto-ico-landing", component: CyptolandingComponent },
+  {
+    path: "import-contrat",
+    component: ImportContratComponent
+  },
   { path: "**", component: Page404Component },
+
 ];
 
 @NgModule({
