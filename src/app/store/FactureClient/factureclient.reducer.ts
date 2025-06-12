@@ -4,7 +4,7 @@ import { Prestation } from 'src/app/models/prestation.model';
 
 export interface FactureClientState {
   factureClients: any[];
-  prestationsByClient: Prestation[];
+  prestationsByContrat: Prestation[];
   facturePreview: any | null;
   loading: boolean;
   error: string | null;
@@ -13,7 +13,7 @@ export interface FactureClientState {
 
 export const initialState: FactureClientState = {
   factureClients: [],
-  prestationsByClient: [],
+  prestationsByContrat: [],
   facturePreview: null,
   loading: false,
   error: null,
@@ -34,21 +34,24 @@ export const factureClientReducer = createReducer(
     error,
     loading: false
   })),
-  on(FactureClientActions.loadPrestationsByClient, (state) => ({
-    ...state,
-    loadingPrestations: true,
-    error: null
-  })),
-  on(FactureClientActions.loadPrestationsByClientSuccess, (state, { prestations }) => ({
-    ...state,
-    prestationsByClient: prestations,
-    loadingPrestations: false
-  })),
-  on(FactureClientActions.loadPrestationsByClientFailure, (state, { error }) => ({
-    ...state,
-    error,
-    loadingPrestations: false
-  })),
+ // --- Load prestations by contrat ---
+on(FactureClientActions.loadPrestationsByContrat, (state) => ({
+  ...state,
+  loading: true,
+  error: null
+})),
+
+on(FactureClientActions.loadPrestationsByContratSuccess, (state, { prestations }) => ({
+  ...state,
+  prestationsByContrat: prestations,
+  loading: false
+})),
+
+on(FactureClientActions.loadPrestationsByContratFailure, (state, { error }) => ({
+  ...state,
+  loading: false,
+  error
+})),
   // Create
   on(FactureClientActions.createFactureClientSuccess, (state, { facture }) => ({
     ...state,
@@ -142,5 +145,23 @@ export const factureClientReducer = createReducer(
     ...state,
     loading: false,
     error,
-  }))
+  })),
+  on(FactureClientActions.loadFacturesBySocieteAdmin, (state) => ({
+  ...state,
+  loading: true,
+})),
+//loadFacturesBySocieteAdmin
+on(FactureClientActions.loadFacturesBySocieteAdminSuccess, (state, { factures }) => ({
+  ...state,
+  factureClients: factures,
+  loading: false,
+  total: factures.length,
+})),
+
+on(FactureClientActions.loadFacturesBySocieteAdminFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false,
+})),
+
 );

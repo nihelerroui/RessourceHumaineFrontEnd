@@ -10,15 +10,17 @@ import {
 import {
   selectAllContratsClient,
   selectContratsClientLoading,
-  selectContratsClientSearchResults,
 } from "../../../store/contratClient/contratClient-selector";
 import {
   loadContratsClient,
   updateContratClient,
 } from "src/app/store/contratClient/contratClient.actions";
 import { SafeResourceUrl } from "@angular/platform-browser";
-import { CommentContratModalComponent } from "../../contrat/comment-contrat-modal/comment-contrat-modal.component";
+//import { CommentContratClientComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { environment } from "src/environments/environment";
+import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 
 @Component({
   selector: "app-contrat-client-admin",
@@ -38,10 +40,19 @@ export class ContratClientAdminComponent implements OnInit {
   minTjm: number | null = null;
   maxTjm: number | null = null;
   //pagination
-  contratsParPage = 5;
   page = 1;
-  contratsPagination$: Observable<ContratClient[]> = new Observable();
+  contratsParPage = 5;
+  filteredContrats: ContratClient[] = [];
+  paginatedContrats: ContratClient[] = [];
+  allContrats: ContratClient[] = [];
   total$: Observable<number> = new Observable();
+
+  selectedSocieteId: number | "" = "";
+  consultantSocieteId: number = 0;
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
+
+  currentUserEmail: string = '';
+
   @ViewChild("contratModal") contratModal!: TemplateRef<any>;
   statutContratValues = Object.values(StatutContrat);
 
@@ -52,28 +63,51 @@ export class ContratClientAdminComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("Dispatch de loadContratsClient");
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    this.currentUserEmail = currentUser.user.email || '';
+    this.consultantSocieteId = currentUser.societe?.societeId;
+    this.selectedSocieteId = this.consultantSocieteId;
+
     this.store.dispatch(loadContratsClient());
+    this.store.dispatch(AuthActions.loadAdminSocietes());
 
-    this.contratsClients$.subscribe((contrats) => {
-      console.log("✅ Contrats récupérés du store:", contrats);
-    });
     this.total$ = this.contratsClients$.pipe(map(contrats => contrats.length));
-    this.updatePagination();
-    this.store.select(selectAllContratsClient).subscribe(() => {
-  this.updatePagination();
-});
 
+    this.contratsClients$.subscribe(allContracts => {
+      const filtered = allContracts.filter(contract =>
+        this.selectedSocieteId
+          ? contract.client?.societe?.societeId === +this.selectedSocieteId
+          : contract.client?.societe?.societeId === this.consultantSocieteId
+      );
+      this.allContrats = filtered;
+      this.filterContrats();
+    });
   }
-  
+
   //pagination
-  updatePagination() {
-    this.contratsPagination$ = this.contratsClients$.pipe(
-      map((contratsClients) => {
-        const start = (this.page - 1) * this.contratsParPage;
-        return contratsClients.slice(start, start + this.contratsParPage);
-      })
+  filterContrats() {
+    const termLower = this.searchTerm.toLowerCase().trim();
+    this.filteredContrats = this.allContrats.filter(c =>
+      (!this.searchTerm || c.designation.toLowerCase().includes(termLower)) &&
+      (!this.selectedStatut || c.statutContrat === this.selectedStatut) &&
+      (!this.minTjm || c.tjm >= this.minTjm) &&
+      (!this.maxTjm || c.tjm <= this.maxTjm) &&
+      (!this.selectedSocieteId || c.client.societe.societeId === +this.selectedSocieteId)
     );
+    this.pageChanged({ page: 1 });
+  }
+  pageChanged(event: any) {
+    this.page = event.page;
+    const start = (this.page - 1) * this.contratsParPage;
+    this.paginatedContrats = this.filteredContrats.slice(start, start + this.contratsParPage);
+  }
+  refreshList() {
+    this.selectedStatut = '';
+    this.minTjm = 0;
+    this.maxTjm = 0;
+    this.selectedSocieteId = this.consultantSocieteId;
+    this.page = 1;
+    this.store.dispatch(loadContratsClient());
   }
 
   modifierStatutContrat(
@@ -84,7 +118,6 @@ export class ContratClientAdminComponent implements OnInit {
       console.error("❌ Erreur : L'ID du contrat ou du client est manquant !");
       return;
     }
-
     const contratModifie: ContratClient = {
       ...contrat,
       statutContrat: nouveauStatut,
@@ -95,7 +128,6 @@ export class ContratClientAdminComponent implements OnInit {
 
     this.store.dispatch(updateContratClient({ contrat: contratModifie }));
   }
-
 
   visualiserContrat(contrat: ContratClient): void {
     if (!contrat.filePath) {
@@ -111,13 +143,11 @@ export class ContratClientAdminComponent implements OnInit {
   }
 
   ouvrirCommentaireContrat(contrat: ContratClient): void {
-    const emailAdmin = 'admin@featway.com';
-    this.modalRef = this.modalService.show(CommentContratModalComponent, {
+    this.modalRef = this.modalService.show(CommentContratComponent, {
       initialState: {
         contratClientId: contrat.contratClientId,
         contrat: contrat,
-        isAdminMode: true,
-        currentUserEmail: emailAdmin
+        currentUserEmail: this.currentUserEmail,
       },
       class: "modal-lg",
     });
@@ -139,25 +169,5 @@ export class ContratClientAdminComponent implements OnInit {
       REJETE: "badge bg-danger",
     };
     return statutClasses[statut] || "badge bg-secondary";
-  }
-  searchContrat() {
-    this.contratsPagination$ = combineLatest([this.contratsClients$]).pipe(
-      map(([contratsClients]) => {
-        let filtered = contratsClients;
-        if (this.selectedStatut) {
-          filtered = filtered.filter(c => c.statutContrat === this.selectedStatut);
-        }
-        if (this.minTjm !== null) {
-          filtered = filtered.filter(c => c.tjm >= this.minTjm!);
-        }
-        if (this.maxTjm !== null) {
-          filtered = filtered.filter(c => c.tjm <= this.maxTjm!);
-        }
-        const total = filtered.length;
-        this.total$ = new Observable(observer => observer.next(total));
-        const start = (this.page - 1) * this.contratsParPage;
-        return filtered.slice(start, start + this.contratsParPage);
-      })
-    );
   }
 }

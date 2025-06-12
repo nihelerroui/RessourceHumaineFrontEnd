@@ -1,6 +1,8 @@
 <div class="container-fluid">
-  <app-page-title title="Liste des Contrats client" [breadcrumbItems]="breadCrumbItems"></app-page-title>
-
+<app-page-title title="Listes des contrats clients" [breadcrumbItems]="[
+      { label: 'Dashboard', path: '/' },
+      { label: 'contrat client', active: true }
+    ]"></app-page-title>
   <div *ngIf="loading$ | async" class="text-center">
     <p class="text-muted">Chargement des contrats...</p>
   </div>
@@ -9,9 +11,19 @@
     <div class="col-12">
       <div ngClass="card">
         <div class="card-body border-bottom">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 card-title flex-grow-1">Liste des contrats clients</h5>
+                        <div class="flex-shrink-0 d-flex gap-1">
+                            <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
+                                <i class="mdi mdi-refresh"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
-              <select class="form-select" [(ngModel)]="selectedStatut">
+              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats()">
                 <option value>Tous les statuts</option>
                 <option *ngFor="let statut of statutContratValues" [value]="statut">
                   {{ getStatutLabel(statut) }}
@@ -20,16 +32,20 @@
             </div>
             <div class="col-xxl-3 col-lg-4">
               <div class="input-group">
-                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm" />
+                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm"
+                  (ngModelChange)="filterContrats()" />
                 <span class="input-group-text">-</span>
-                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm" />
+                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm"
+                  (ngModelChange)="filterContrats()" />
               </div>
             </div>
-            <div class="col-xxl-2 col-lg-4 d-flex align-items-center">
-              <button type="button" class="btn btn-primary w-100" (click)="searchContrat()">
-                <i class="mdi mdi-filter-outline align-middle"></i> Appliquer le
-                filtre
-              </button>
+            <!-- Filtrer par société -->
+            <div class="col-lg-3">
+              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterContrats()">
+                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
+                  {{ s.name }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
@@ -46,7 +62,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let contrat of contratsPagination$ | async;">
+                <tr *ngFor="let contrat of paginatedContrats">
                   <td>{{ contrat.client?.nom || "N/A" }}</td>
                   <td>{{ contrat.designation }}</td>
                   <td>{{ contrat.tjm }}</td>
@@ -101,24 +117,20 @@
               </tbody>
             </table>
           </div>
-        </div>
-        <!-- Pagination -->
-        <div class="card-footer d-flex justify-content-between align-items-center">
-          <div class="text-muted">
-            Affichage de {{ (page - 1) * contratsParPage + 1 }} à
-            {{
-            page * contratsParPage > (total$ | async)!
-            ? (total$ | async)
-            : page * contratsParPage
-            }}
-            sur {{ total$ | async }} contrats
+          <!-- Pagination -->
+          <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredContrats.length > 0">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">Affichage de <b>{{ paginatedContrats.length }}
+                </b> sur <b>
+                  {{ filteredContrats.length }}</b> contrats </p>
+            </div>
+            <div class="col-auto">
+              <ul class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination [totalItems]="filteredContrats.length" [itemsPerPage]="contratsParPage"
+                  (pageChanged)="pageChanged($event)"></pagination>
+              </ul>
+            </div>
           </div>
-
-          <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="contratsParPage" [maxSize]="5"
-            [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹" nextText="›" firstText="«"
-            lastText="»" class="pagination pagination-rounded mb-0">
-          </pagination>
-
           <!-- Message si aucun contrat n'est disponible -->
           <ng-template #noContrats>
             <div class="card-body text-center">

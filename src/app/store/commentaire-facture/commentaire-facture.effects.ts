@@ -66,4 +66,55 @@ export class CommentaireFactureClientEffects {
       )
     )
   );
+  add$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CommentaireActions.addCommentClient),
+      mergeMap(({ commentaire, token }) =>
+        this.commentaireService.addCommentClient(commentaire, token).pipe(
+          map(res => CommentaireActions.addCommentClientSuccess({ commentaire: res })),
+          catchError(error => of(CommentaireActions.addCommentClientFailure({ error })))
+        )
+      )
+    )
+  );
+
+  update$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CommentaireActions.updateCommentClient),
+      mergeMap(({ commentaire, token }) =>
+        this.commentaireService.updateCommentClient(commentaire, token).pipe(
+          map(res => CommentaireActions.updateCommentClientSuccess({ commentaire: res })),
+          catchError(error => of(CommentaireActions.updateCommentClientFailure({ error })))
+        )
+      )
+    )
+  );
+
+  delete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CommentaireActions.deleteCommentClient),
+      mergeMap(({ commentaireId, token }) =>
+        this.commentaireService.deleteCommentClient(commentaireId, token).pipe(
+          map(() => CommentaireActions.deleteCommentClientSuccess({ commentaireId })),
+          catchError(error => of(CommentaireActions.deleteCommentClientFailure({ error })))
+        )
+      )
+    )
+  );
+  loadCommentairesClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CommentaireActions.loadCommentairesClient),
+    mergeMap(({ factureId, token }) =>
+      this.commentaireService.getCommentairesByFactureClient(factureId, token).pipe(
+        map((commentaires) =>
+          CommentaireActions.loadCommentairesClientSuccess({ commentaires })
+        ),
+        catchError((error) =>
+          of(CommentaireActions.loadCommentairesClientFailure({ error }))
+        )
+      )
+    )
+  )
+);
+
 }
