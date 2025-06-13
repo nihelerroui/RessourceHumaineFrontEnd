@@ -1,0 +1,96 @@
+<div class="container-fluid">
+    <app-page-title title="Historique chiffre d'affaire" [breadcrumbItems]="[
+      { label: 'Dashboard', path: '/' },
+      { label: 'Historique chiffre affaire', active: true }
+    ]"></app-page-title>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <!-- 🔎 Filtres -->
+                <div class="card-body border-bottom">
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 card-title flex-grow-1">Liste des chiffres d'affaires</h5>
+                        <div class="flex-shrink-0 d-flex gap-1">
+                            <a href="javascript:void(0);" class="btn btn-light" (click)="resetFilters()">
+                                <i class="mdi mdi-refresh"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+                    <div class="row g-3">
+                        <div class="col-xxl-3 col-lg-6">
+                            <select class="form-select" [(ngModel)]="selectedYear" (change)="filterChiffreAffaire()">
+                                <option disabled value="">Toutes les années</option>
+                                <option *ngFor="let an of anneesDisponibles" [value]="an">{{ an }}</option>
+                            </select>
+                        </div>
+                        <!-- Filtrer par société -->
+                        <div class="col-lg-3">
+                            <select class="form-select" [(ngModel)]="selectedSocieteId"
+                                (change)="filterChiffreAffaire()">
+                                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
+                                    {{ s.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <table class="table align-middle dt-responsive nowrap w-100 table-check" id="facture-list">
+                            <thead>
+                                <tr>
+                                    <th>Année</th>
+                                    <th>Client</th>
+                                    <th>Montant total</th>
+                                    <th>Payé</th>
+                                    <th>Non payé</th>
+                                    <th>Taux de paiement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let chiffre of paginatedChiffre">
+                                    <td>{{ chiffre.annee }}</td>
+                                    <td>{{ chiffre.client.nom }}</td>
+                                    <td>{{ chiffre.montant | number: '1.2-2' }}$</td>
+                                    <td>{{ getMontantPaye(chiffre.client.clientId) | async | number:'1.2-2' }}$</td>
+                                    <td>{{ getMontantNonPaye$(chiffre.client.clientId, chiffre.montant) | async | number:'1.2-2' }}$</td>
+                                    <td>{{ getTauxPaiement(chiffre) | percent:'1.0-1' }}</td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredChiffre.length > 0">
+                        <div class="col-auto me-auto">
+                            <p class="text-muted mb-0">Affichage de <b>{{ paginatedChiffre.length }}
+                                </b> sur <b>
+                                    {{ filteredChiffre.length }}</b> chiffres </p>
+                        </div>
+                        <div class="col-auto">
+                            <ul class="pagination pagination-rounded justify-content-end mb-2">
+                                <pagination [totalItems]="filteredChiffre.length" [itemsPerPage]="ChiffreAffaireParPage"
+                                    (pageChanged)="pageChanged($event)"></pagination>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🖊️ Graphique en barres -->
+                <div class="card-body border-top">
+                    <h5 class="card-title text-center mb-4">Visualisation du Chiffre d'Affaire</h5>
+                    <apx-chart [series]="apexChartSeries" [chart]="apexChartOptions.chart"
+                        [xaxis]="apexChartOptions.xaxis" [title]="apexChartOptions.title"
+                        [dataLabels]="apexChartOptions.dataLabels" [plotOptions]="apexChartOptions.plotOptions">
+                    </apx-chart>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
