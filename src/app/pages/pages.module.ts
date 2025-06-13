@@ -39,12 +39,11 @@ import { ContratClient_ClientModule } from './contratClient_Client/contrat-clien
 import { ContratClientModule } from './contratClient/contrat-client.module';
 import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
 import { CommentaireContratSousTraitantModule } from './comment-contratSousTraitant/comment-contratST.module';
-import { UserModule } from './users/user.module';
 import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
 import { RecettesModule } from './recettes/recettes.module';
-import { StoreModule } from '@ngrx/store';
 import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
+import { HistoriqueChiffreAffaireModule } from './historiqueChiffreAffaire/historiqueChiffreAffaire.module';
 
 
 @NgModule({
@@ -88,7 +87,8 @@ import { CommentModalModule } from './factureclientcomment-modal/comment-modal.m
     ContratClient_ClientModule,
     ContratClientModule,
     CommentaireContratModule,
-    CommentaireContratSousTraitantModule
+    CommentaireContratSousTraitantModule,
+    HistoriqueChiffreAffaireModule
 
   ],
   providers: [DatePipe],

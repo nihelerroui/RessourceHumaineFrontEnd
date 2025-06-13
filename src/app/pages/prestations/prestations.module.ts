@@ -13,6 +13,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { consultantReducer } from 'src/app/store/consultant/consultant.reducer';
 import { ConsultantEffects } from 'src/app/store/consultant/consultant.effects';
+import { UIModule } from 'src/app/shared/ui/ui.module';
 
 const routes: Routes = [
   {
@@ -27,6 +28,7 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    UIModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
