@@ -78,12 +78,6 @@ export const MENU: MenuItem[] = [
     link: "/contratsoustraitant",
   },
   {
-    id: 18,
-    label: "MENUITEMS.LISTCONTRATSOUSTRAITANT.TEXT",
-    icon: "bx bx-message-alt-dots",
-    link: "/listcontratsoustraitant",
-  },
-  {
     id: 19,
     label: "MENUITEMS.CONTRATCLIENTADMIN.TEXT",
     icon: "bx bx-message-alt-dots",

@@ -14,7 +14,7 @@
                             <button class="btn btn-primary" (click)="openCreateModal()">
                                 Ajouter une nouvelle facture
                             </button>
-                            <a href="javascript:void(0);" class="btn btn-light" (click)="resetFilters()">
+                            <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
                                 <i class="mdi mdi-refresh"></i>
                             </a>
                         </div>
@@ -24,11 +24,11 @@
                     <div class="row g-3">
                         <div class="col-xxl-3 col-lg-6">
                             <input type="search" class="form-control" id="searchInput" placeholder="Rechercher ..."
-                                [(ngModel)]="term" (ngModelChange)="applyFilters()" />
+                                [(ngModel)]="term" (ngModelChange)="filterFactures()" />
                         </div>
                         <div class="col-xxl-3 col-lg-6">
                             <select class="form-select" id="idStatutFacture" aria-label="Sélectionner le statut"
-                                [(ngModel)]="statutFactureFilter" (ngModelChange)="applyFilters()">
+                                [(ngModel)]="statutFactureFilter" (ngModelChange)="filterFactures()">
                                 <option value>Sélectionner le statut</option>
                                 <option value="En_Attente">En Attente</option>
                                 <option value="Confirmé_Admin">Confirmé
@@ -43,7 +43,7 @@
                         <div class="col-xxl-3 col-lg-6">
                             <select class="form-select" id="idTypePaiement"
                                 aria-label="Sélectionner le type de paiement" [(ngModel)]="typePaiementFilter"
-                                (ngModelChange)="applyFilters()">
+                                (ngModelChange)="filterFactures()">
                                 <option value>Sélectionner le type de
                                     paiement</option>
                                 <option value="ESPECES">Espèces</option>
@@ -56,11 +56,19 @@
                         <div class="col-xxl-3 col-lg-6">
                             <select class="form-select" id="idStatutPaiement"
                                 aria-label="Sélectionner le statut de paiement" [(ngModel)]="statutPaiementFilter"
-                                (ngModelChange)="applyFilters()">
+                                (ngModelChange)="filterFactures()">
                                 <option value>Sélectionner le statut de
                                     paiement</option>
                                 <option value="PAYÉE">Payée</option>
                                 <option value="NON_PAYÉE">Non Payée</option>
+                            </select>
+                        </div>
+                        <!-- Filtrer par société -->
+                        <div class="col-lg-3">
+                            <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterFactures()">
+                                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
+                                    {{ s.name }}
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -75,7 +83,7 @@
                         {{ error }}
                     </div>
 
-                    <div class="table-responsive" *ngIf="(factureClients$ | async)?.length">
+                    <div class="table-responsive" *ngIf="paginatedFactures.length > 0">
                         <table class="table align-middle dt-responsive nowrap w-100 table-check" id="facture-list">
                             <thead>
                                 <tr>
@@ -90,7 +98,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let facture of filteredFactures$ | async; let i = index">
+                                <tr *ngFor="let facture of paginatedFactures">
                                     <td>{{ facture.refFacture }}</td>
                                     <td>{{ facture.dateEmmission | date:
                                         'dd/MM/yyyy' }}</td>
@@ -186,7 +194,7 @@
                                                 </button>
                                             </li>
                                             <!-- Icône d'envoi d'email si facture échue ou date égale à aujourd'hui -->
-                                            <li *ngIf="(facture.dateEcheance | date:'yyyy-MM-dd') < (today | date:'yyyy-MM-dd')"
+                                            <li *ngIf="(facture.dateEcheance | date:'yyyy-MM-dd') < (today | date:'yyyy-MM-dd') && facture.statutPaiement !== 'PAYÉE'"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Envoyer un rappel au client">
                                                 <button class="btn btn-sm btn-soft-warning"
@@ -205,111 +213,109 @@
                         Aucune facture n'a été trouvée
                     </div>
                     <!-- Pagination -->
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <div class="text-muted">
-                            Affichage de
-                            {{
-                            page * facturesParPage > (total$ | async)! ? (total$ | async) : page * facturesParPage
-                            }}
-                            sur {{ total$ | async }} factures
+                    <div class="row justify-content-between align-items-center mt-3"
+                        *ngIf="filteredFactures.length > 0">
+                        <div class="col-auto me-auto">
+                            <p class="text-muted mb-0">Affichage de <b>{{ paginatedFactures.length }}
+                                </b> sur <b>
+                                    {{ filteredFactures.length }}</b> factures</p>
                         </div>
-
-                        <pagination [(ngModel)]="page" [totalItems]="total$ | async" [itemsPerPage]="facturesParPage"
-                            [maxSize]="5" [boundaryLinks]="true" (ngModelChange)="updatePagination()" previousText="‹"
-                            nextText="›" firstText="«" lastText="»" class="pagination pagination-rounded mb-0">
-                        </pagination>
+                        <div class="col-auto">
+                            <ul class="pagination pagination-rounded justify-content-end mb-2">
+                                <pagination [totalItems]="filteredFactures.length" [itemsPerPage]="facturesParPage"
+                                    (pageChanged)="pageChanged($event)"></pagination>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <ng-template #detailsFactureModal>
-        <div class="modal-header bg-soft-primary">
-            <h5 class="modal-title text-primary fw-bold">
-                <i class="mdi mdi-file-document-outline me-1"></i> Détails de la
-                facture
-            </h5>
-            <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-        </div>
+            <ng-template #detailsFactureModal>
+                <div class="modal-header bg-soft-primary">
+                    <h5 class="modal-title text-primary fw-bold">
+                        <i class="mdi mdi-file-document-outline me-1"></i> Détails de la
+                        facture
+                    </h5>
+                    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+                </div>
 
-        <div class="modal-body px-4 py-3">
-            <div class="row gy-3">
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📄 Référence</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.refFacture
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📅 Date d’émission</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.dateEmmission |
-                        date:'dd/MM/yyyy' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💰 Montant HT</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantHt |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💶 Montant TTC</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantTtc |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📊 Montant TVA</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.montantTva |
-                        currency:'EUR' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📈 % TVA</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.pourcentageTva
-                        }}%</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">⏳ Date d’échéance</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.dateEcheance |
-                        date:'dd/MM/yyyy' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">🔻 % Remise</p>
-                    <h6 class="fw-semibold">{{
-                        selectedFacture?.pourcentageRemise || 0 }}%</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📦 Bon de commande</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.numBonCommande
-                        || 'N/A' }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📝 Objet</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.objet || 'N/A'
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">📌 Statut Facture</p>
-                    <span class="badge" [ngClass]="{
+                <div class="modal-body px-4 py-3">
+                    <div class="row gy-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📄 Référence</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.refFacture
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📅 Date d’émission</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.dateEmmission |
+                                date:'dd/MM/yyyy' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💰 Montant HT</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantHt |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💶 Montant TTC</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantTtc |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📊 Montant TVA</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.montantTva |
+                                currency:'EUR' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📈 % TVA</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.pourcentageTva
+                                }}%</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">⏳ Date d’échéance</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.dateEcheance |
+                                date:'dd/MM/yyyy' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">🔻 % Remise</p>
+                            <h6 class="fw-semibold">{{
+                                selectedFacture?.pourcentageRemise || 0 }}%</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📦 Bon de commande</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.numBonCommande
+                                || 'N/A' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📝 Objet</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.objet || 'N/A'
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📌 Statut Facture</p>
+                            <span class="badge" [ngClass]="{
               'badge-soft-success': selectedFacture?.statutFacture === 'Confirmation_Complet',
               'badge-soft-warning': selectedFacture?.statutFacture === 'En_Attente',
               'badge-soft-info': selectedFacture?.statutFacture === 'Confirmé_Admin',
               'badge-soft-danger': selectedFacture?.statutFacture === 'Rejete'
             }">{{ selectedFacture?.statutFacture }}</span>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💳 Type Paiement</p>
-                    <h6 class="fw-semibold">{{ selectedFacture?.typePaiement
-                        }}</h6>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-muted">💼 Statut Paiement</p>
-                    <span class="badge" [ngClass]="{
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💳 Type Paiement</p>
+                            <h6 class="fw-semibold">{{ selectedFacture?.typePaiement
+                                }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">💼 Statut Paiement</p>
+                            <span class="badge" [ngClass]="{
               'badge-soft-success': selectedFacture?.statutPaiement === 'PAYÉE',
               'badge-soft-danger': selectedFacture?.statutPaiement === 'NON_PAYÉE'
             }">{{ selectedFacture?.statutPaiement }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+                </div>
+            </ng-template>
         </div>
-    </ng-template>
-</div>
