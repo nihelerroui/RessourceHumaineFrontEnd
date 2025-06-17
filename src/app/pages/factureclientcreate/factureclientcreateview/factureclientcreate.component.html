@@ -11,7 +11,7 @@
   <div class="mb-4">
     <select class="form-select" formControlName="contratId" (change)="onContratSelected()">
       <option [ngValue]="null" disabled>Sélectionner un contrat</option>
-      <option *ngFor="let contrat of contratsClient" [value]="contrat.contratClientId">
+      <option *ngFor="let contrat of contratsFiltres" [value]="contrat.contratClientId">
         {{ contrat.designation }}
       </option>
     </select>

@@ -66,12 +66,6 @@ export const MENU: MenuItem[] = [
     link: '/prestations'
   },
   {
-    id: 111,
-    label: 'MENUITEMS.FACTURE_CLIENT.TEXT',
-    icon: 'bx-receipt',
-    link: '/factureclient'
-  },
-  {
     id: 112,
     label: 'MENUITEMS.FACTURE_CLIENT_ADMIN.TEXT',
     icon: 'bx-receipt',
@@ -84,22 +78,10 @@ export const MENU: MenuItem[] = [
     link: "/contratsoustraitant",
   },
   {
-    id: 18,
-    label: "MENUITEMS.LISTCONTRATSOUSTRAITANT.TEXT",
-    icon: "bx bx-message-alt-dots",
-    link: "/listcontratsoustraitant",
-  },
-  {
     id: 19,
     label: "MENUITEMS.CONTRATCLIENTADMIN.TEXT",
     icon: "bx bx-message-alt-dots",
     link: "/contratclientadmin",
-  },
-  {
-    id: 20,
-    label: "MENUITEMS.CHIFFREAFFAIRE.TEXT",
-    icon: "bx bx-message-alt-dots",
-    link: "/chiffreAffaire",
   },
   {
     id: 21,

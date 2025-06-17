@@ -70,4 +70,16 @@ export class ContratClientEffects {
       )
     )
   );
+  loadContratsBySocieteAdmin$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ContratClientActions.loadContratsBySocieteAdmin),
+    switchMap(() =>
+      this.contratClientService.getContratsBySocietesAdmin().pipe(
+        map(contrats => ContratClientActions.loadContratsBySocieteAdminSuccess({ contrats })),
+        catchError(error => of(ContratClientActions.loadContratsBySocieteAdminFailure({ error: error.message })))
+      )
+    )
+  )
+);
+
 }
