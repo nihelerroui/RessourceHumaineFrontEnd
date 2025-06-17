@@ -133,5 +133,15 @@ export const selectResetPasswordSuccessMessage = createSelector(
   (state: AuthenticationState) => state.resetPasswordSuccessMessage
 );
 
+export const selectUserImage = createSelector(
+  selectAuthState,
+  (state: AuthenticationState) => state.userImage
+);
+
+export const selectUserImageLoading = createSelector(
+  selectAuthState,
+  (state: AuthenticationState) => state.loading
+);
+
 
 

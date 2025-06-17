@@ -81,20 +81,6 @@ export const updateConsultantFailure = createAction(
   props<{ error: any }>()
 );
 
-export const updatePersonalDetails = createAction(
-  '[Auth] Update Personal Details',
-  props<{ personalDetailsId: number; request: any }>()
-);
-
-export const updatePersonalDetailsSuccess = createAction(
-  '[Auth] Update Personal Details Success',
-  props<{ personalDetails: any }>()
-);
-
-export const updatePersonalDetailsFailure = createAction(
-  '[Auth] Update Personal Details Failure',
-  props<{ error: any }>()
-);
 
 
 export const login = createAction(
@@ -201,3 +187,7 @@ export const resetPasswordFailure = createAction(
   '[Auth] Reset Password Failure',
   props<{ error: string }>()
 );
+
+export const loadUserImage = createAction('[Consultant] Load Consultant Image');
+export const loadUserImageSuccess = createAction('[Consultant] Load Consultant Image Success', props<{ image: string }>());
+export const loadUserImageFailure = createAction('[Consultant] Load Consultant Image Failure', props<{ error: string }>());

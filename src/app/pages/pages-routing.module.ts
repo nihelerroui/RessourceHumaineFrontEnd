@@ -36,6 +36,9 @@ const routes: Routes = [
   { path: 'users', loadChildren: () => import('./users/user.module').then(m => m.UserModule) },
   { path: 'recettes', loadChildren: () => import('./recettes/recettes.module').then(m => m.RecettesModule) },
   { path: 'factureSousTraitant', loadChildren: () => import('./factureSousTraitant/facture-sous-traitant.module').then(m => m.FactureSousTraitantModule) },
+  { path: 'profile', loadChildren: () => import('./users/profile/profile.module').then(m => m.ProfileModule) },
+  { path: 'profile/edit', component : ProfileEditComponent },
+  
 
 ];
 
