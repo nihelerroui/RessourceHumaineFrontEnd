@@ -27,6 +27,19 @@ export class FactureClientEffects {
       )
     )
   );
+  //loadFacturesBySocieteAdmin
+  loadFacturesBySocieteAdmin$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadFacturesBySocieteAdmin),
+    mergeMap(() =>
+      this.factureClientService.getFacturesBySocietesAdmin().pipe(
+        map(factures => FactureClientActions.loadFacturesBySocieteAdminSuccess({ factures })),
+        catchError(error => of(FactureClientActions.loadFacturesBySocieteAdminFailure({ error })))
+      )
+    )
+  )
+);
+
   //Create
   createFacture$ = createEffect(() =>
     this.actions$.pipe(
@@ -59,6 +72,29 @@ export class FactureClientEffects {
       })
     )
   );
+  updateFactureClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.updateFactureClientWithToken),
+    mergeMap(({ facture, token }) => {
+      if (!token) {
+        console.error('❌ Token manquant pour mise à jour client');
+        return of(FactureClientActions.updateFactureClientFailure({ error: 'Token requis pour client' }));
+      }
+
+      return this.factureClientService.updateFactureWithToken(facture, token).pipe(
+        map((updated) => {
+          console.log('✅ FACTURE CLIENT MISE À JOUR:', updated);
+          return FactureClientActions.updateFactureClientSuccess({ facture: updated });
+        }),
+        catchError((error) => {
+          console.error('❌ Erreur update client:', error);
+          return of(FactureClientActions.updateFactureClientFailure({ error }));
+        })
+      );
+    })
+  )
+);
+
   //loadFactureById
   loadFactureById$ = createEffect(() =>
     this.actions$.pipe(
@@ -71,22 +107,21 @@ export class FactureClientEffects {
       )
     )
   );
-  //loadPrestationsByClient
-  loadPrestationsByClient$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(FactureClientActions.loadPrestationsByClient),
-      mergeMap(({ clientId }) =>
-        this.factureClientService.getPrestationsByClient(clientId).pipe(
-          map((prestations) =>
-            FactureClientActions.loadPrestationsByClientSuccess({ prestations })
-          ),
-          catchError((error) =>
-            of(FactureClientActions.loadPrestationsByClientFailure({ error }))
-          )
+  loadPrestationsByContrat$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadPrestationsByContrat),
+    mergeMap(({ contratId }) =>
+      this.factureClientService.getPrestationsByContratId(contratId).pipe(
+        map((prestations) =>
+          FactureClientActions.loadPrestationsByContratSuccess({ prestations })
+        ),
+        catchError((error) =>
+          of(FactureClientActions.loadPrestationsByContratFailure({ error }))
         )
       )
     )
-  );
+  )
+);
 
   loadFacturesClientByClientId$ = createEffect(() =>
     this.actions$.pipe(
@@ -223,4 +258,30 @@ export class FactureClientEffects {
       )
     )
   );
+  downloadFactureWithToken$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.downloadFactureWithToken),
+    exhaustMap(({ factureClientId, token }) =>
+      this.factureClientService.downloadFactureWithToken(factureClientId, token).pipe(
+        map(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `facture_${factureClientId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          return FactureClientActions.downloadFactureWithTokenSuccess();
+        }),
+        catchError(error => {
+          console.error('❌ Erreur téléchargement (token client)', error);
+          return of(FactureClientActions.downloadFactureWithTokenFailure({ error }));
+        })
+      )
+    )
+  )
+);
+
+  
 }

@@ -4,13 +4,13 @@ import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
 import { Store } from "@ngrx/store";
-import { selectFactureSelected } from "src/app/store/FactureClient/factureclient.selector";
+import { selectFactureSelected, selectPrestationsByContrat } from "src/app/store/FactureClient/factureclient.selector";
 import * as FactureClientActions from '../../../store/FactureClient/factureclient.actions';
-import { loadPrestations } from "src/app/store/Prestation/prestation.action";
-import { loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
-import { selectAllPrestations } from "src/app/store/Prestation/prestation-selector";
-import { selectAllContratsClient } from "src/app/store/contratClient/contratClient-selector";
+import { loadContratsBySocieteAdmin, loadContratsClient } from "src/app/store/contratClient/contratClient.actions";
+import { selectAllContratsClient, selectContratsBySocieteAdmin } from "src/app/store/contratClient/contratClient-selector";
 import { Actions, ofType } from "@ngrx/effects";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 
 @Component({
   selector: "app-factureclientcreate",
@@ -27,6 +27,13 @@ export class FactureClientCreateComponent implements OnInit {
   bsConfig: Partial<BsDatepickerConfig>;
   today = new Date();
   isEditMode: boolean = false;
+  consultantId!: number;
+
+  adminSocietes: any[] = [];
+  selectedSocieteId!: number;
+  consultantSocieteId!: number;
+  contratsFiltres: any[] = [];
+
 
   @Output() factureCreated = new EventEmitter<any>();
   @Input() factureClientId!: number;
@@ -44,40 +51,102 @@ export class FactureClientCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isEditMode = !!this.factureClientId;
-    this.store.dispatch(loadPrestations());
-    this.store.dispatch(loadContratsClient());
+  // Initialisation des dates et mode édition
+  this.today = new Date();
+  this.isEditMode = !!this.factureClientId;
 
-    let loadedFacture: any = null;
+  // Récupération de l'utilisateur connecté
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  this.consultantId = currentUser.consultantId;
+  this.consultantSocieteId = currentUser.societe?.societeId;
+  this.selectedSocieteId = this.consultantSocieteId;
 
-    this.store.select(selectAllContratsClient).subscribe((contrats) => this.contratsClient = contrats);
-    this.store.select(selectAllPrestations).subscribe((prestations) => {
-      this.prestations = prestations;
-      this.availablePrestations = [...prestations];
-      this.actions$.pipe(ofType(FactureClientActions.getWorkingDaysSuccess)).subscribe(({ workingDays, index }) => {
-        const prestation = this.prestationIds.at(index).value;
-        const updated = {
-          ...prestation,
-          quantite: workingDays,
-          montantHt: (prestation.prixUnitaire || 0) * workingDays
-        };
-        this.prestationIds.at(index).setValue(updated);
-        this.updateFacturePreview();
-      });
-      if (this.isEditMode && loadedFacture) this.patchFactureForm(loadedFacture);
-    });
+  // Charger les sociétés administrées
+  this.store.dispatch(AuthActions.loadAdminSocietes());
 
-    if (this.isEditMode) {
-      this.store.dispatch(FactureClientActions.loadFactureClientById({ id: this.factureClientId }));
-      this.store.select(selectFactureSelected).subscribe((facture) => {
-        if (facture) {
-          loadedFacture = facture;
-          if (this.prestations.length > 0) this.patchFactureForm(facture);
-        }
-      });
+  // Récupérer les sociétés et filtrer
+  this.store.select(selectAllSocietes).subscribe((societes) => {
+    this.adminSocietes = societes;
+
+    const matchingSociete = societes.find(
+      (s) => s.societeId === this.consultantSocieteId
+    );
+
+    if (!matchingSociete && societes.length > 0) {
+      this.selectedSocieteId = societes[0].societeId;
     }
 
-    this.factureForm.valueChanges.subscribe(() => this.updateFacturePreview());
+    this.filtrerContrats();
+  });
+
+  // Charger tous les contrats clients
+  this.store.dispatch(loadContratsClient());
+
+  // Récupérer les contrats et filtrer
+  this.store.select(selectAllContratsClient).subscribe((contrats) => {
+    this.contratsClient = contrats;
+    this.filtrerContrats();
+  });
+
+  // Préparation au chargement de facture si en édition
+  let loadedFacture: any = null;
+
+  // Souscription aux prestations
+  this.store.select(selectPrestationsByContrat).subscribe((prestations) => {
+    this.prestations = prestations;
+    this.availablePrestations = [...prestations];
+
+    if (this.isEditMode && loadedFacture) {
+      this.patchFactureForm(loadedFacture);
+    }
+  });
+
+  // Écoute du résultat des working days
+  this.actions$
+    .pipe(ofType(FactureClientActions.getWorkingDaysSuccess))
+    .subscribe(({ workingDays, index }) => {
+      const prestation = this.prestationIds.at(index).value;
+      const updated = {
+        ...prestation,
+        quantite: workingDays,
+        montantHt: (prestation.prixUnitaire || 0) * workingDays,
+      };
+      this.prestationIds.at(index).setValue(updated);
+      this.updateFacturePreview();
+    });
+
+  // Si mode édition : charger la facture et patcher
+  if (this.isEditMode) {
+    this.store.dispatch(
+      FactureClientActions.loadFactureClientById({ id: this.factureClientId })
+    );
+
+    this.store.select(selectFactureSelected).subscribe((facture) => {
+      if (facture) {
+        loadedFacture = facture;
+        this.store.dispatch(
+          FactureClientActions.loadPrestationsByContrat({
+            contratId: facture.contratId,
+          })
+        );
+
+        if (this.prestations.length > 0) {
+          this.patchFactureForm(facture);
+        }
+      }
+    });
+  }
+
+  // Mettre à jour le preview à chaque changement de formulaire
+  this.factureForm.valueChanges.subscribe(() => this.updateFacturePreview());
+}
+
+  filtrerContrats(): void {
+    if (!this.contratsClient || !this.selectedSocieteId) return;
+
+    this.contratsFiltres = this.contratsClient.filter(
+      (c) => c.client?.societe?.societeId === this.selectedSocieteId
+    );
   }
 
   initForm() {
@@ -163,6 +232,7 @@ export class FactureClientCreateComponent implements OnInit {
         pourcentageTva: isTunisie ? 19 : 20,
         objet: `Facture ${new Date().toLocaleString('fr-FR', { month: 'long' })}`
       });
+      this.store.dispatch(FactureClientActions.loadPrestationsByContrat({ contratId }));
       this.updateFacturePreview();
     }
   }
@@ -210,7 +280,7 @@ export class FactureClientCreateComponent implements OnInit {
     const prestation = this.prestationIds.at(index).value;
     return prestation ? { ...prestation, quantite: prestation.quantite ?? 1, description: prestation.description ?? '' } : null;
   }
-  
+
   clearForm(): void {
     this.factureForm.reset({
       contratId: null,
@@ -231,7 +301,7 @@ export class FactureClientCreateComponent implements OnInit {
     const factureData: any = {
       factureClientId: this.factureClientId,
       prestations: this.factureForm.value.prestationIds.filter((p: any) => p !== null),
-      consultantId: 1,
+      consultantId: this.consultantId,
       contratId: this.factureForm.value.contratId,
       dateEcheance: this.factureForm.value.dateEcheance,
       typePaiement: this.factureForm.value.typePaiement,
@@ -239,17 +309,17 @@ export class FactureClientCreateComponent implements OnInit {
       objet: this.factureForm.value.objet,
       numBonCommande: this.factureForm.value.numBonCommande,
     };
-  
+
     this.submitted = true;
-  
+
     if (this.isEditMode) {
       this.store.select(selectFactureSelected).subscribe((facture) => {
         if (facture && this.submitted) {
           factureData.statutFacture = facture.statutFacture;
           factureData.statutPaiement = facture.statutPaiement;
-  
+
           this.store.dispatch(FactureClientActions.updateFactureClient({ facture: factureData }));
-  
+
           Swal.fire({
             icon: 'success',
             title: 'Facture modifiée !',
@@ -260,14 +330,14 @@ export class FactureClientCreateComponent implements OnInit {
             this.factureCreated.emit();
             this.modalRef.hide();
           });
-  
-          this.submitted = false; 
+
+          this.submitted = false;
         }
       });
     } else {
       factureData.statutFacture = 'En_Attente';
       factureData.statutPaiement = 'NON_PAYÉE';
-  
+
       this.store.dispatch(FactureClientActions.createFactureClient({ facture: factureData }));
       this.store.dispatch(FactureClientActions.loadFacturesClient());
       Swal.fire({
@@ -281,23 +351,23 @@ export class FactureClientCreateComponent implements OnInit {
         this.modalRef.hide();
       });
     }
-  }   
+  }
   onPrestationSelected(index: number): void {
     const prestation = this.prestationIds.at(index).value;
     const full = this.prestations.find(p => p.prestationId === prestation?.prestationId);
-  
+
     if (!full) return;
-  
+
     const consultant_id = full.consultant?.consultantId;
     const month = full.month;
     const year = full.year;
-  
+
     this.prestationIds.at(index).setValue(full);
-  
+
     if (consultant_id && month && year) {
       this.store.dispatch(FactureClientActions.getWorkingDays({ consultant_id, month, year, index }));
     }
   }
-   
-  
+
+
 }

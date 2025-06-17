@@ -32,39 +32,45 @@ export class PrestationListComponent implements OnInit {
   contracts$: Observable<any[]> = this.store.select(
     PrestationSelector.selectAllContrats
   );
+  // Observables
   consultants$: Observable<any[]> = this.store.select(selectAllConsultants);
+  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
 
-  prestations: Prestation[] = [];
+  // Form & Modals
   form!: FormGroup;
-  selectedPrestation!: Prestation;
+  modalRef?: BsModalRef;
+  editMode = false;
+
+  // Filtres
   term: string = "";
   selectedDate: Date | null = null;
+  selectedSocieteId: number | "" = "";
   bsConfig = { dateInputFormat: "YYYY-MM-DD" };
 
+  // Pagination
   page = 1;
   prestationsParPage = 5;
 
-  prestationsPagination$: Observable<Prestation[]> = new Observable();
-  filteredPrestations$: Observable<Prestation[]> = new Observable();
-
-  modalRef?: BsModalRef;
-  newContratSelected = false;
-
-  editMode = false;
-  contracts: any[] = [];
-
+  // Utilisateur
   connectedConsultantId: number = 0;
-
-  adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
   consultantSocieteId: number = 0;
-  selectedSocieteId: number | "" = "";
+
+  // Données
+  prestations: Prestation[] = [];
+  allPrestation: Prestation[] = [];
+  filteredPrestations: Prestation[] = [];
+  paginatedPrestations: Prestation[] = [];
+  contracts: any[] = [];
+  selectedPrestation!: Prestation;
+
+  newContratSelected = false;
 
   constructor(
     private store: Store,
     private modalService: BsModalService,
     private fb: FormBuilder,
     private actions$: Actions
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const currentUser = JSON.parse(
@@ -83,22 +89,27 @@ export class PrestationListComponent implements OnInit {
     }
     this.store.dispatch(PrestationActions.loadPrestations());
     this.store.dispatch(loadContratsClient());
+    this.prestations$.subscribe(prestations => {
+      this.allPrestation = prestations;
+      this.filterPrestation();
+    });
     this.initForms();
 
-   this.prestations$.subscribe((allPrestations) => {
-  this.prestations = allPrestations.filter((p) =>
-    this.selectedSocieteId
-      ? p.consultant?.societe?.societeId === +this.selectedSocieteId
-      : p.consultant?.societe?.societeId === this.consultantSocieteId
-  );
-  this.updatePagination();
-});
-
-
-    this.contracts$.subscribe((contracts) => {
-      this.contracts = contracts;
-      this.updatePagination();
+    this.prestations$.subscribe((allPrestations) => {
+      this.prestations = allPrestations.filter((p) =>
+        this.selectedSocieteId
+          ? p.consultant?.societe?.societeId === +this.selectedSocieteId
+          : p.consultant?.societe?.societeId === this.consultantSocieteId
+      );
     });
+    this.contracts$.subscribe((contracts) => {
+      this.contracts = contracts.filter(c =>
+        this.selectedSocieteId
+          ? c.client?.societe?.societeId === +this.selectedSocieteId
+          : c.client?.societe?.societeId === this.consultantSocieteId
+      );
+    });
+
   }
 
   initForms() {
@@ -111,28 +122,34 @@ export class PrestationListComponent implements OnInit {
       monthYear: ["", Validators.required],
     });
   }
+  filterPrestation() {
+    const termLower = this.term.toLowerCase().trim();
 
-  
+    this.filteredPrestations = this.allPrestation.filter((p) => {
+      const matchesTitle = !this.term || p.titre?.toLowerCase().includes(termLower);
 
+      const matchesDate = !this.selectedDate || new Date(p.createdAt).toDateString() === new Date(this.selectedDate).toDateString();
 
- updatePagination() {
-  this.filteredPrestations$ = combineLatest([
-    this.prestations$,
-    this.adminSocietes$
-  ]).pipe(
-    map(([prestations]) =>
-      prestations.filter((p) =>
-        this.selectedSocieteId
-          ? p.consultant?.societe?.societeId === +this.selectedSocieteId
-          : p.consultant?.societe?.societeId === this.consultantSocieteId
-      )
-    ),
-    map((filtered) => {
-      const start = (this.page - 1) * this.prestationsParPage;
-      return filtered.slice(start, start + this.prestationsParPage);
-    })
-  );
-}
+      const matchesSociete = !this.selectedSocieteId || p.contratClient?.client?.societe?.societeId === +this.selectedSocieteId;
+
+      return matchesTitle && matchesDate && matchesSociete;
+    });
+
+    this.pageChanged({ page: 1 });
+  }
+
+  pageChanged(event: any) {
+    this.page = event.page;
+    const start = (this.page - 1) * this.prestationsParPage;
+    this.paginatedPrestations = this.filteredPrestations.slice(start, start + this.prestationsParPage);
+  }
+  refreshList() {
+    this.term = '';
+    this.selectedDate = null;
+    this.selectedSocieteId = '';
+    this.page = 1;
+    this.filterPrestation();
+  }
 
   openCreateModal(template: TemplateRef<any>) {
     this.editMode = false;
@@ -260,34 +277,8 @@ export class PrestationListComponent implements OnInit {
   refreshPrestations() {
     this.term = "";
     this.selectedDate = null;
+    this.selectedSocieteId = this.consultantSocieteId;
     this.store.dispatch(PrestationActions.loadPrestations());
-  }
-
-  filterByDate() {
-    this.filteredPrestations$ = this.prestations$.pipe(
-      map((prestations) => {
-        return prestations.filter((p) => {
-          const matchesDescription = p.description
-            ?.toLowerCase()
-            .includes(this.term.toLowerCase());
-
-          let matchesDate = true;
-          if (this.selectedDate) {
-            const formattedDate = this.selectedDate.toISOString().split("T")[0];
-            const prestationDate = new Date(p.createdAt)
-              .toISOString()
-              .split("T")[0];
-            matchesDate = prestationDate === formattedDate;
-          }
-
-          return matchesDescription && matchesDate;
-        });
-      }),
-      map((filtered) => {
-        const start = (this.page - 1) * this.prestationsParPage;
-        return filtered.slice(start, start + this.prestationsParPage);
-      })
-    );
   }
 
   onContratChange(value: string) {

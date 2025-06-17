@@ -72,23 +72,14 @@
     "CONTRATSOUSTRAITANT": {
       "TEXT": "ContratSousTraitant"
     },
-    "LISTCONTRATSOUSTRAITANT": {
-      "TEXT": "ListContratSousTraitant"
-    },
     "CONTRATCLIENTADMIN": {
       "TEXT": "ContratClient"
-    },
-    "CHIFFREAFFAIRE": {
-      "TEXT": "Chiffre Affaire"
     },
     "HISTORIQUECHIFFREAFFAIRE": {
       "TEXT": "Historique Chiffre Affaire"
     },
     "PRESTATIONS": {
       "TEXT": "PRESTATIONS"
-    },
-    "FACTURE_CLIENT": {
-      "TEXT": "Facture Client"
     },
     "FACTURE_CLIENT_ADMIN": {
       "TEXT": "Facture Client Admin"

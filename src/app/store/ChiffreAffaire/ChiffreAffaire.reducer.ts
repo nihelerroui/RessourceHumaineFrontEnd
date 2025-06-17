@@ -1,39 +1,42 @@
 import { createReducer, on } from '@ngrx/store';
-import * as ChiffreAffaireActions from './ChiffreAffaire.actions';
 import { HistoriqueChiffreAffaire } from '../../models/HistoriqueChiffreAffaire.model';
+import * as ChiffreAffaireActions from '../ChiffreAffaire/ChiffreAffaire.actions';
 
+// 1. Interface de l'état
 export interface ChiffreAffaireState {
   historique: HistoriqueChiffreAffaire[];
-  montantTotal: number;
-  montantTotalPayees: number;
+  totalByClient: { [clientId: number]: number };
+  totalPayeesByClient: { [clientId: number]: number }; 
   loading: boolean;
-  error: any;
+  error: string | null;
 }
 
+
+
+// 2. État initial
 export const initialState: ChiffreAffaireState = {
   historique: [],
-  montantTotal: 0,
-  montantTotalPayees: 0,
+  totalByClient: {},
+  totalPayeesByClient: {}, 
   loading: false,
   error: null
 };
 
+
+
 export const chiffreAffaireReducer = createReducer(
   initialState,
-  on(ChiffreAffaireActions.resetMontants, (state) => ({
+
+  // Load historique
+  on(ChiffreAffaireActions.loadChiffreAffaire, state => ({
     ...state,
-    montantTotal: 0,
-    montantTotalPayees: 0
+    loading: true,
+    error: null
   })),
-  // Chargement de l'historique du chiffre d'affaire
-  on(ChiffreAffaireActions.loadChiffreAffaire, (state) => ({
+  on(ChiffreAffaireActions.loadChiffreAffaireSuccess, (state, { chiffres }) => ({
     ...state,
-    loading: true
-  })),
-  on(ChiffreAffaireActions.loadChiffreAffaireSuccess, (state, { historique }) => ({
-    ...state,
-    loading: false,
-    historique
+    historique: chiffres,
+    loading: false
   })),
   on(ChiffreAffaireActions.loadChiffreAffaireFailure, (state, { error }) => ({
     ...state,
@@ -41,33 +44,41 @@ export const chiffreAffaireReducer = createReducer(
     error
   })),
 
-  // Chargement du montant total des factures
-  on(ChiffreAffaireActions.getTotalFactures, (state) => ({
+  // Load total factures
+  on(ChiffreAffaireActions.loadTotalFactures, state => ({
     ...state,
-    loading: true
+    loading: true,
+    error: null
   })),
-  on(ChiffreAffaireActions.getTotalFacturesSuccess, (state, { montantTotal }) => ({
-    ...state,
-    loading: false,
-    montantTotal
-  })),
-  on(ChiffreAffaireActions.getTotalFacturesFailure, (state, { error }) => ({
+  on(ChiffreAffaireActions.loadTotalFacturesSuccess, (state, { clientId, total }) => ({
+  ...state,
+  totalByClient: {
+    ...state.totalByClient,
+    [clientId]: total
+  },
+  loading: false
+})),
+  on(ChiffreAffaireActions.loadTotalFacturesFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
   })),
 
-  // Chargement du montant total des factures payées
-  on(ChiffreAffaireActions.getTotalFacturesPayees, (state) => ({
+  // ✅ Load total factures payées par client
+  on(ChiffreAffaireActions.loadTotalFacturesPayees, state => ({
     ...state,
-    loading: true
+    loading: true,
+    error: null
   })),
-  on(ChiffreAffaireActions.getTotalFacturesPayeesSuccess, (state, { montantTotalPayees }) => ({
+  on(ChiffreAffaireActions.loadTotalFacturesPayeesSuccess, (state, { clientId, totalPayees }) => ({
     ...state,
-    loading: false,
-    montantTotalPayees
+    totalPayeesByClient: {
+      ...state.totalPayeesByClient,
+      [clientId]: totalPayees
+    },
+    loading: false
   })),
-  on(ChiffreAffaireActions.getTotalFacturesPayeesFailure, (state, { error }) => ({
+  on(ChiffreAffaireActions.loadTotalFacturesPayeesFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
