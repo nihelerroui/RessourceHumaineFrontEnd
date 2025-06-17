@@ -25,6 +25,8 @@ export interface AuthenticationState {
   confirmResetLoading: boolean;
 
   resetPasswordSuccessMessage: string | null;
+
+  userImage: string | null;
 }
 
 const initialState: AuthenticationState = {
@@ -45,6 +47,7 @@ const initialState: AuthenticationState = {
   confirmResetError: null,
   confirmResetLoading: false,
   resetPasswordSuccessMessage: null,
+  userImage: null,
 };
 
 export const authenticationReducer = createReducer(
@@ -177,6 +180,28 @@ on(AuthActions.forgotPasswordSuccess, (state, { message }) => ({
   resetPasswordSuccessMessage: message,
   resetPasswordError: null,
   resetPasswordLoading: false,
-}))
+})),
+on(AuthActions.updatePersonalDetailsWithFilesSuccess, (state, { personalDetails }) => ({
+  ...state,
+  personalDetails,
+  loading: false,
+})),
 
+ on(AuthActions.loadUserImage, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(AuthActions.loadUserImageSuccess, (state, { image }) => ({
+    ...state,
+    userImage: image,
+    loading: false
+  })),
+
+  on(AuthActions.loadUserImageFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false
+  }))
 )

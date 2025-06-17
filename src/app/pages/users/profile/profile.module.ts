@@ -5,6 +5,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ProfileViewComponent } from './profileview/profileview.component';
 import { UIModule } from 'src/app/shared/ui/ui.module';
+import { ProfileEditComponent } from './userprofileedit/profileedit.component';
+import { NgStepperModule } from 'angular-ng-stepper';
+import { CdkStepperModule } from '@angular/cdk/stepper';
 
 const routes: Routes = [
   {
@@ -14,14 +17,16 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [ProfileViewComponent],
+  declarations: [ProfileViewComponent , ProfileEditComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     SharedModule,
-     UIModule
+    UIModule,
+    NgStepperModule,
+    CdkStepperModule
   ]
 })
 export class ProfileModule { }

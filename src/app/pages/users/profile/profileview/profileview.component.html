@@ -1,101 +1,132 @@
-<div class="container-fluid">
-  <app-page-title title="Mon Profil"></app-page-title>
+<div class="container-fluid py-3">
+  <app-page-title
+    title="Profil"
+    [breadcrumbItems]="[
+      { label: 'Dashboard', link: '/dashboard' },
+      { label: 'Profil', active: true }
+    ]"
+  ></app-page-title>
+</div>
 
-  <div class="row">
-    <!-- COLONNE GAUCHE -->
-    <div class="col-xl-4">
-      <!-- CARD PROFIL -->
-      <div class="card overflow-hidden">
-        <div class="bg-primary-subtle">
-          <div class="row">
-            <div class="col-8">
-              <div class="text-primary p-3">
-                <h5 class="text-primary">Bienvenue !</h5>
-                <p class="mb-0">{{ consultant?.fullName }}</p>
-              </div>
-            </div>
-            <div class="col-4 align-self-end">
-              <img src="assets/images/profile-img.png" alt="" class="img-fluid" />
-            </div>
-          </div>
-        </div>
-        <div class="card-body pt-0 text-center">
+<div class="container pb-4">
+  <!-- Carte photo + nom -->
+  <div class="card p-4 mb-4 shadow-sm border-0">
+    <div class="row align-items-center">
+      <div class="col-md-2 text-center text-md-start mb-3 mb-md-0">
+        <div class="position-relative d-inline-block">
           <img
-            [src]="getFileUrl('photoFile', consultant?.personalDetails?.photoFile)"
-            alt="photo"
-            class="img-thumbnail rounded-circle"
-            width="100"
+            [src]="consultant?.photoUrl"
             onerror="this.src='assets/images/users/avatar-1.jpg';"
+            alt="Photo de {{ consultant?.fullName }}"
+            class="rounded-circle border"
+            width="100"
+            height="100"
+            style="object-fit: cover"
           />
-          <h5 class="mt-2">{{ consultant?.fullName }}</h5>
-          <p class="text-muted">{{ consultant?.fonction }}</p>
-          <span class="badge bg-primary">{{ consultant?.typeLibelle }}</span>
+          <span
+            class="position-absolute bottom-0 end-0 translate-middle p-1 border border-white rounded-circle"
+            [ngClass]="consultant?.user?.enabled ? 'bg-success' : 'bg-danger'"
+            style="width: 14px; height: 14px"
+          ></span>
         </div>
       </div>
 
-      <!-- INFOS PERSO -->
-      <div class="card">
+      <div class="col-md-10">
+        <h3 class="mb-1">{{ consultant?.fullName }}</h3>
+        <p class="text-muted mb-0">{{ consultant?.fonction }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations principales -->
+  <div class="card p-3 mb-4 shadow-sm border-0">
+    <div class="d-flex flex-wrap align-items-center gap-4 justify-content-between">
+      <div class="d-flex align-items-center">
+        <i class="bx bx-envelope me-2 text-muted"></i>
+        <span><strong>Email :</strong> {{ consultant?.user?.email }}</span>
+      </div>
+      <div class="d-flex align-items-center">
+        <i class="bx bx-phone me-2 text-muted"></i>
+        <span><strong>Téléphone :</strong> {{ consultant?.telephone }}</span>
+      </div>
+      <div class="d-flex align-items-center">
+        <i class="bx bxs-building me-2 text-muted"></i>
+        <span><strong>Société :</strong> {{ consultant?.societe?.nom || 'Société non précisée' }}</span>
+      </div>
+      <div class="d-flex align-items-center">
+        <i class="bx bxs-user-detail me-2 text-muted"></i>
+        <span><strong>Rôle :</strong> {{ consultant?.user?.role || 'Rôle inconnu' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grille principale -->
+  <div class="row g-4 align-items-stretch">
+    <!-- Colonne gauche -->
+    <div class="col-lg-6 d-flex flex-column">
+      <div class="card mb-3">
+        <div class="section-header header-adresse">
+          <h5 class="mb-0">📍 Adresse</h5>
+        </div>
         <div class="card-body">
-          <h4 class="card-title mb-3">Informations personnelles</h4>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">Email : {{ consultant?.user?.email }}</li>
-            <li class="list-group-item">Téléphone : {{ consultant?.telephone }}</li>
-            <li class="list-group-item">Date embauche : {{ formatDate(consultant?.dateRecrutement) }}</li>
-            <li class="list-group-item">Date sortie : {{ formatDate(consultant?.dateSortie) || '—' }}</li>
-          </ul>
+          <p><strong>Rue :</strong> {{ consultant?.personalDetails?.numRue }} {{ consultant?.personalDetails?.nomRue }}</p>
+          <p><strong>Complément :</strong> {{ consultant?.personalDetails?.complementAdr || "—" }}</p>
+          <p><strong>Code Postal :</strong> {{ consultant?.personalDetails?.codePostal }}</p>
+          <p><strong>Ville :</strong> {{ consultant?.personalDetails?.ville }}</p>
+          <p><strong>Bis/Ter :</strong> {{ consultant?.personalDetails?.bisTer || "—" }}</p>
+          <p><strong>Numéro MSS :</strong> {{ consultant?.personalDetails?.nummss || "—" }}</p>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="section-header header-cni">
+          <h5 class="mb-0">🪪 Carte d'identité</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Date début :</strong> {{ formatDate(consultant?.personalDetails?.dateDebCni) }}</p>
+          <p><strong>Date fin :</strong> {{ formatDate(consultant?.personalDetails?.dateFinCni) }}</p>
+        </div>
+      </div>
+
+      <div class="card flex-fill">
+        <div class="section-header header-bancaire">
+          <h5 class="mb-0">💳 Informations bancaires</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>IBAN :</strong> {{ consultant?.personalDetails?.iban }}</p>
+          <p><strong>BIC :</strong> {{ consultant?.personalDetails?.bic }}</p>
         </div>
       </div>
     </div>
 
-    <!-- COLONNE DROITE -->
-    <div class="col-xl-8">
-      <!-- ADRESSE -->
-      <div class="card mb-3">
-        <div class="card-body">
-          <h4 class="card-title mb-3">Adresse</h4>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              Rue : {{ consultant?.personalDetails?.numRue }} {{ consultant?.personalDetails?.nomRue }}
-            </li>
-            <li class="list-group-item">Complément : {{ consultant?.personalDetails?.complementAdr || '—' }}</li>
-            <li class="list-group-item">Code Postal : {{ consultant?.personalDetails?.codePostal }}</li>
-            <li class="list-group-item">Ville : {{ consultant?.personalDetails?.ville }}</li>
-          </ul>
+    <!-- Colonne droite -->
+    <div class="col-lg-6 d-flex flex-column">
+      <div class="card flex-fill">
+        <div class="section-header header-documents">
+          <h5 class="mb-0">📁 Documents</h5>
         </div>
-      </div>
-
-      <!-- BANQUE -->
-      <div class="card mb-3">
-        <div class="card-body">
-          <h4 class="card-title mb-3">Informations Bancaires</h4>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">IBAN : {{ consultant?.personalDetails?.iban }}</li>
-            <li class="list-group-item">BIC : {{ consultant?.personalDetails?.bic }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- DOCUMENTS -->
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-3">Documents</h4>
-          <div class="row">
-            <div
-              class="col-md-6 col-lg-4 mb-3"
-              *ngFor="let doc of documents"
-            >
-              <div class="border p-2 rounded">
-                <strong>{{ doc.label }}</strong>
-                <div *ngIf="doc.path; else notProvided">
-                  <button class="btn btn-link text-primary p-0" (click)="viewFile(doc.folder, doc.path)">
-                    <i class="bx bx-show-alt"></i> Voir le fichier
+        <div class="card-body d-flex flex-column flex-grow-1">
+          <div class="row g-2 flex-grow-1">
+            <div class="col-12" *ngFor="let doc of documents">
+              <div class="d-flex justify-content-between align-items-center border rounded p-2 small">
+                <span>{{ doc.label }}</span>
+                <ng-container *ngIf="doc.path; else notAvailable">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="viewFile(doc.folder, doc.filename)">
+                    <i class="bx bx-show"></i>
                   </button>
-                </div>
-                <ng-template #notProvided>
-                  <span class="badge bg-secondary">Non fourni</span>
+                </ng-container>
+                <ng-template #notAvailable>
+                  <span class="badge bg-secondary-subtle text-muted">Non fourni</span>
                 </ng-template>
               </div>
             </div>
+          </div>
+
+          <!-- Bouton modifier -->
+          <div class="text-end mt-4">
+            <button class="btn btn-primary px-4" (click)="editProfile()">
+              <i class="bx bx-edit me-2"></i> Modifier le profil
+            </button>
           </div>
         </div>
       </div>

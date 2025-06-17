@@ -1,234 +1,285 @@
-<!--
-<div class="profile-edit-container">
-    <div class="profile-edit-header">
-      <h2>Modifier votre profil</h2>
-      <p>Mettez à jour vos informations personnelles et professionnelles</p>
+<div class="container-fluid">
+  <app-page-title
+    title="Modifier le profil"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title mb-4">Modification du profil</h4>
+
+      <ng-stepper #stepper [linear]="true" class="wizard">
+        <cdk-step [stepControl]="userForm">
+          <ng-template cdkStepLabel>
+            <span class="number">1.</span> Compte & Consultant
+          </ng-template>
+
+          <form [formGroup]="userForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <input
+                  formControlName="email"
+                  type="email"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Nom</label>
+                <input
+                  formControlName="name"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Prénom</label>
+                <input
+                  formControlName="prenom"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Nom complet</label>
+                <input
+                  formControlName="fullName"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Téléphone</label>
+                <input
+                  formControlName="telephone"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-end">
+            <button
+              class="btn btn-primary"
+              cdkStepperNext
+              [disabled]="userForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </cdk-step>
+
+        <cdk-step [stepControl]="personalDetailsForm">
+          <ng-template cdkStepLabel>
+            <span class="number">2.</span> Adresse
+          </ng-template>
+
+          <form [formGroup]="personalDetailsForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>Rue</label>
+                <input
+                  formControlName="nomRue"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Numéro</label>
+                <input
+                  formControlName="numRue"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Code postal</label>
+                <input
+                  formControlName="codePostal"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Ville</label>
+                <input
+                  formControlName="ville"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Bis/Ter</label
+                ><input
+                  formControlName="bisTer"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Complément d'adresse</label>
+                <input
+                  formControlName="complementAdr"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Numéro MSS</label>
+                <input
+                  formControlName="nummss"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>IBAN</label>
+                <input
+                  formControlName="iban"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>BIC</label>
+                <input formControlName="bic" type="text" class="form-control" />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Date début CNI</label>
+                <input
+                  formControlName="dateDebCni"
+                  type="date"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Date fin CNI</label>
+                <input
+                  formControlName="dateFinCni"
+                  type="date"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-primary" cdkStepperNext>Suivant</button>
+          </div>
+        </cdk-step>
+        <cdk-step [stepControl]="personalDetailsForm">
+          <ng-template cdkStepLabel>
+            <span class="number">3.</span> Documents
+          </ng-template>
+
+          <form [formGroup]="personalDetailsForm">
+            <div class="row">
+              <ng-container
+                *ngFor="
+                  let doc of [
+                    { label: 'CNI', field: 'cniFile', path: cniPath },
+                    {
+                      label: 'Carte Grise',
+                      field: 'carteGriseFile',
+                      path: carteGrisePath
+                    },
+                    { label: 'RIB', field: 'ribFile', path: ribPath },
+                    { label: 'KBIS', field: 'kbisFile', path: kbisPath },
+                    { label: 'NAVIGO', field: 'navigoFile', path: navigoPath },
+                    {
+                      label: 'Contrat',
+                      field: 'contratFile',
+                      path: contratPath
+                    },
+                    { label: 'URSSAF', field: 'urssafFile', path: urssafPath },
+                    { label: 'Photo', field: 'photoFile', path: photoPath }
+                  ]
+                "
+              >
+                <div class="col-md-6 mb-3">
+                  <label>{{ doc.label }}</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    (change)="onFileChange($event, doc.field)"
+                  />
+                  <div
+                    class="mt-2 text-success"
+                    *ngIf="getFileByField(doc.field)"
+                  >
+                    Fichier sélectionné : {{ getFileByField(doc.field)?.name }}
+                  </div>
+
+                  <div
+                    class="mt-2 text-info"
+                    *ngIf="!getFileByField(doc.field) && doc.path"
+                  >
+                    Fichier existant : {{ extractFileName(doc.path) }}
+                  </div>
+                </div>
+              </ng-container>
+              <div class="col-md-12 mb-3">
+                <label>Attestations (multiple)</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  multiple
+                  (change)="onFileChange($event, 'attestationsFiles')"
+                />
+                <div
+                  class="mt-2 text-success"
+                  *ngIf="attestationsFiles?.length"
+                >
+                  {{ attestationsFiles.length }} fichier(s) sélectionné(s)
+                </div>
+                <div
+                  class="mt-2 text-info"
+                  *ngIf="!attestationsFiles?.length && attestationsPath"
+                >
+                  Fichier(s) existant(s) :
+                  {{ extractFileName(attestationsPath) }}
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-primary" cdkStepperNext>Suivant</button>
+          </div>
+        </cdk-step>
+
+        <cdk-step>
+          <ng-template cdkStepLabel>
+            <span class="number">4.</span> Confirmation
+          </ng-template>
+
+          <div class="text-center p-4">
+            <i class="mdi mdi-check-circle-outline text-success display-4"></i>
+            <h4 class="mt-3">Confirmez les modifications</h4>
+            <p>Appuyez sur le bouton ci-dessous pour sauvegarder</p>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-success" (click)="submit()">
+              Enregistrer
+            </button>
+          </div>
+        </cdk-step>
+      </ng-stepper>
     </div>
-  
-    <div *ngIf="successMessage" class="alert alert-success">
-      {{ successMessage }}
-    </div>
-    
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
-    </div>
-  
-    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-edit-form">
-     
-      <div class="form-section">
-        <h3>Informations du compte</h3>
-        <div class="form-group">
-          <label for="email">E-mail</label>
-          <input type="email" id="email" formControlName="email" class="form-control" 
-                 [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
-          <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-            <div *ngIf="f.email.errors.required">L'email est requis</div>
-            <div *ngIf="f.email.errors.email">Veuillez entrer une adresse email valide</div>
-          </div>
-        </div>
-      </div>
-  
-    
-      <div class="form-section">
-        <h3>Détails professionnels</h3>
-        
-        <div class="form-group">
-          <label for="fullName">Nom complet</label>
-          <input type="text" id="fullName" formControlName="fullName" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.fullName.errors }">
-          <div *ngIf="submitted && f.fullName.errors" class="invalid-feedback">
-            <div *ngIf="f.fullName.errors.required">Le nom complet est requis</div>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="prenom">Prénom</label>
-            <input type="text" id="prenom" formControlName="prenom" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f.prenom.errors }">
-            <div *ngIf="submitted && f.prenom.errors" class="invalid-feedback">
-              <div *ngIf="f.prenom.errors.required">Le prénom est requis</div>
-            </div>
-          </div>
-          
-          <div class="form-group col-md-6">
-            <label for="name">Nom de famille</label>
-            <input type="text" id="name" formControlName="name" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f.name.errors }">
-            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
-              <div *ngIf="f.name.errors.required">Le nom de famille est requis</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="telephone">Téléphone</label>
-          <input type="tel" id="telephone" formControlName="telephone" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.telephone.errors }">
-          <div *ngIf="submitted && f.telephone.errors" class="invalid-feedback">
-            <div *ngIf="f.telephone.errors.required">Le numéro de téléphone est requis</div>
-            <div *ngIf="f.telephone.errors.pattern">Veuillez entrer un numéro de téléphone valide (10 chiffres)</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="fonction">Poste</label>
-          <input type="text" id="fonction" formControlName="fonction" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.fonction.errors }">
-          <div *ngIf="submitted && f.fonction.errors" class="invalid-feedback">
-            <div *ngIf="f.fonction.errors.required">Le poste est requis</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="matricule">ID Employé</label>
-          <input type="text" id="matricule" formControlName="matricule" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.matricule.errors }">
-          <div *ngIf="submitted && f.matricule.errors" class="invalid-feedback">
-            <div *ngIf="f.matricule.errors.required">L'ID employé est requis</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="typeLibelle">Type</label>
-          <input type="text" id="typeLibelle" formControlName="typeLibelle" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.typeLibelle.errors }">
-          <div *ngIf="submitted && f.typeLibelle.errors" class="invalid-feedback">
-            <div *ngIf="f.typeLibelle.errors.required">Le type est requis</div>
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="dateRecrutement">Date d'embauche</label>
-            <input type="date" id="dateRecrutement" formControlName="dateRecrutement" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f.dateRecrutement.errors }">
-            <div *ngIf="submitted && f.dateRecrutement.errors" class="invalid-feedback">
-              <div *ngIf="f.dateRecrutement.errors.required">La date d'embauche est requise</div>
-            </div>
-          </div>
-          
-          <div class="form-group col-md-6">
-            <label for="dateSortie">Date de fin</label>
-            <input type="date" id="dateSortie" formControlName="dateSortie" class="form-control">
-          </div>
-        </div>
-        
-        <div class="form-group form-check">
-          <input type="checkbox" id="commercial" formControlName="commercial" class="form-check-input">
-          <label for="commercial" class="form-check-label">Commercial</label>
-        </div>
-      </div>
-  
-     
-      <div class="form-section">
-        <h3>Informations d'adresse</h3>
-        
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label for="numRue">Numéro de rue</label>
-            <input type="text" id="numRue" formControlName="numRue" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f.numRue.errors }">
-            <div *ngIf="submitted && f.numRue.errors" class="invalid-feedback">
-              <div *ngIf="f.numRue.errors.pattern">Veuillez entrer un numéro valide</div>
-            </div>
-          </div>
-          
-          <div class="form-group col-md-8">
-            <label for="nomRue">Nom de rue</label>
-            <input type="text" id="nomRue" formControlName="nomRue" class="form-control">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="complementAdr">Informations supplémentaires</label>
-          <input type="text" id="complementAdr" formControlName="complementAdr" class="form-control">
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label for="codePostal">Code postal</label>
-            <input type="text" id="codePostal" formControlName="codePostal" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f.codePostal.errors }">
-            <div *ngIf="submitted && f.codePostal.errors" class="invalid-feedback">
-              <div *ngIf="f.codePostal.errors.pattern">Veuillez entrer un code postal valide (5 chiffres)</div>
-            </div>
-          </div>
-          
-          <div class="form-group col-md-8">
-            <label for="ville">Ville</label>
-            <input type="text" id="ville" formControlName="ville" class="form-control">
-          </div>
-        </div>
-      </div>
-  
-     
-      <div class="form-section">
-        <h3>Informations bancaires</h3>
-        
-        <div class="form-group">
-          <label for="iban">IBAN</label>
-          <input type="text" id="iban" formControlName="iban" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.iban.errors }">
-          <div *ngIf="submitted && f.iban.errors" class="invalid-feedback">
-            <div *ngIf="f.iban.errors.pattern">Veuillez entrer un IBAN valide</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="bic">BIC</label>
-          <input type="text" id="bic" formControlName="bic" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.bic.errors }">
-          <div *ngIf="submitted && f.bic.errors" class="invalid-feedback">
-            <div *ngIf="f.bic.errors.pattern">Veuillez entrer un BIC valide (8-11 caractères)</div>
-          </div>
-        </div>
-      </div>
-  
-      
-      <div class="form-section">
-        <h3>Documents</h3>
-        
-        <div class="form-group">
-          <label for="cni">Carte d'identité</label>
-          <input type="text" id="cni" formControlName="cni" class="form-control">
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="dateDebCni">Carte d'identité valide depuis</label>
-            <input type="date" id="dateDebCni" formControlName="dateDebCni" class="form-control">
-          </div>
-          
-          <div class="form-group col-md-6">
-            <label for="dateFinCni">Carte d'identité valide jusqu'à</label>
-            <input type="date" id="dateFinCni" formControlName="dateFinCni" class="form-control">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="nummss">Sécurité sociale</label>
-          <input type="text" id="nummss" formControlName="nummss" class="form-control"
-                 [ngClass]="{ 'is-invalid': submitted && f.nummss.errors }">
-          <div *ngIf="submitted && f.nummss.errors" class="invalid-feedback">
-            <div *ngIf="f.nummss.errors.pattern">Veuillez entrer un numéro de sécurité sociale valide (15 chiffres)</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="carteGrise">Carte grise</label>
-          <input type="text" id="carteGrise" formControlName="carteGrise" class="form-control">
-        </div>
-      </div>
-  
-     
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="loading">
-          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-          Enregistrer
-        </button>
-      </div>
-    </form>
   </div>
--->
+</div>

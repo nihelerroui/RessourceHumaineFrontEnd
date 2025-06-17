@@ -50,15 +50,6 @@ export class AuthenticationService extends GenericService<User> {
     );
   }
 
-  updatePersonalDetails(
-    personalDetailsId: number,
-    request: any
-  ): Observable<PersonalDetails> {
-    return this.http.put<PersonalDetails>(
-      `${this.authUrl}/updatePersonalDetails/${personalDetailsId}`,
-      request
-    );
-  }
 
   updatePersonalDetailsWithFiles(
     personalDetailsId: number,
@@ -77,11 +68,9 @@ export class AuthenticationService extends GenericService<User> {
   ): Observable<PersonalDetails> {
     const formData = new FormData();
 
-    // JSON des données
     const jsonBlob = new Blob([JSON.stringify(dto)], { type: 'application/json' });
     formData.append('data', jsonBlob);
 
-    // Fichiers individuels
     if (files.cniFile) formData.append('cniFile', files.cniFile);
     if (files.carteGriseFile) formData.append('carteGriseFile', files.carteGriseFile);
     if (files.navigoFile) formData.append('navigoFile', files.navigoFile);
@@ -164,6 +153,27 @@ export class AuthenticationService extends GenericService<User> {
       newPassword
     });
   }
+
+   getUserImage(): Promise<string | null> {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const filename = currentUser?.personalDetails?.photo;
+    if (!filename) return Promise.resolve(null);
+
+    const cleanFilename = filename.split('/').pop();
+    const url = `${this.authUrl}/files/photo/${encodeURIComponent(cleanFilename)}`;
+    const token = sessionStorage.getItem('auth-token');
+
+    return fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.blob())
+      .then(blob => URL.createObjectURL(blob))
+      .catch(err => {
+        console.error('Erreur chargement photo utilisateur :', err);
+        return null;
+      });
+  }
+
 
   
 

@@ -1,171 +1,215 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
-import { Router } from '@angular/router';
-import { AuthenticationService } from 'src/app/core/services/auth.service';
-import { ProfileUpdateRequest } from 'src/app/models/auth.models';
+import { Router } from "@angular/router";
+import { Store } from "@ngrx/store";
+import { filter, take } from "rxjs";
+import { selectCreatedPersonalDetails } from "src/app/store/Authentication/authentication-selector";
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 
 @Component({
-  selector: 'app-profile-edit',
-  templateUrl: './profileedit.component.html',
-  styleUrls: ['./profileedit.component.scss']
+  selector: "app-profile-edit",
+  templateUrl: "./profileedit.component.html",
+  styleUrls: ["./profileedit.component.scss"],
 })
 export class ProfileEditComponent implements OnInit {
-  profileForm: FormGroup;
-  user: any;
+  breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
+  userForm: FormGroup;
+
+  personalDetailsForm: FormGroup;
+
+  cniFile: File;
+  ribFile: File;
+  carteGriseFile: File;
+  kbisFile: File;
+  navigoFile: File;
+  contratFile: File;
+  attestationsFiles: File[] = [];
+
+  currentUser: any;
   loading = false;
   submitted = false;
-  errorMessage = '';
-  successMessage = '';
+  currentStep = 1;
+  totalSteps = 5;
+
+  cniPath: string;
+  ribPath: string;
+  carteGrisePath: string;
+  kbisPath: string;
+  navigoPath: string;
+  contratPath: string;
+  attestationsPath: string;
+
+  urssafFile: File;
+  photoFile: File;
+  urssafPath: string;
+  photoPath: string;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthenticationService,
+    private fb: FormBuilder,
+    private store: Store,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    // Get user data from sessionStorage
-    const userData = sessionStorage.getItem('currentUser');
-    if (userData) {
-      this.user = JSON.parse(userData);
-      
-      // Initialize the form with user data
-      this.initializeForm();
-    } else {
-      // Redirect to login if no user data
-      this.router.navigate(['/login']);
-    }
-  }
+    this.breadCrumbItems = [
+      { label: "Dashboard", path: "/" },
+      { label: "Modifier Profile", active: true },
+    ];
 
-  initializeForm(): void {
-    const consultant = this.user.consultant || {};
-    const personalDetails = consultant.personalDetails || {};
-    
-    this.profileForm = this.formBuilder.group({
-      // User fields
-      email: [this.user.email, [Validators.required, Validators.email]],
-      
-      // Consultant fields (required)
-      fullName: [consultant.fullName, Validators.required],
-      name: [consultant.name, Validators.required],
-      prenom: [consultant.prenom, Validators.required],
-      telephone: [consultant.telephone, [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      typeLibelle: [consultant.typeLibelle, Validators.required],
-      dateRecrutement: [consultant.dateRecrutement ? new Date(consultant.dateRecrutement).toISOString().split('T')[0] : null, Validators.required],
-      dateSortie: [consultant.dateSortie ? new Date(consultant.dateSortie).toISOString().split('T')[0] : null],
-      fonction: [consultant.fonction, Validators.required],
-      matricule: [consultant.matricule, Validators.required],
-      commercial: [consultant.commercial || false],
-      
-      // Personal details (optional)
-      attestations: [personalDetails.attestations],
-      bic: [personalDetails.bic, [Validators.pattern(/^[A-Z0-9]{8,11}$/)]],
-      bisTer: [personalDetails.bisTer],
-      carteGrise: [personalDetails.carteGrise],
-      cni: [personalDetails.cni],
-      codePostal: [personalDetails.codePostal, [Validators.pattern(/^\d{5}$/)]],
-      complementAdr: [personalDetails.complementAdr],
-      contart: [personalDetails.contart],
-      dateDebCni: [personalDetails.dateDebCni ? new Date(personalDetails.dateDebCni).toISOString().split('T')[0] : null],
-      dateFinCni: [personalDetails.dateFinCni ? new Date(personalDetails.dateFinCni).toISOString().split('T')[0] : null],
-      iban: [personalDetails.iban, [Validators.pattern(/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/)]],
-      kbis: [personalDetails.kbis],
-      navigo: [personalDetails.navigo],
-      nomRue: [personalDetails.nomRue],
-      numRue: [personalDetails.numRue, [Validators.pattern(/^\d+$/)]],
-      nummss: [personalDetails.nummss, [Validators.pattern(/^\d{15}$/)]],
-      photo: [personalDetails.photo],
-      rib: [personalDetails.rib],
-      urssaf: [personalDetails.urssaf],
-      ville: [personalDetails.ville]
-    });
-  }
-
-  // Convenience getter for easy access to form fields
-  get f() { return this.profileForm.controls; }
-
-  onSubmit(): void {
-    this.submitted = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    // Stop here if form is invalid
-    if (this.profileForm.invalid) {
+    const data = sessionStorage.getItem("currentUser");
+    if (!data) {
+      this.router.navigate(["/login"]);
       return;
     }
 
-    this.loading = true;
-    
-    const formValues = this.profileForm.value;
-    const updateData: ProfileUpdateRequest = {
-      // User fields
-      email: formValues.email,
-      
-      // Consultant fields
-      fullName: formValues.fullName,
-      name: formValues.name,
-      prenom: formValues.prenom,
-      telephone: formValues.telephone,
-      typeLibelle: formValues.typeLibelle,
-      dateRecrutement: formValues.dateRecrutement,
-      dateSortie: formValues.dateSortie,
-      fonction: formValues.fonction,
-      matricule: formValues.matricule,
-      commercial: formValues.commercial,
-      
-      // Personal details
-      attestations: formValues.attestations,
-      bic: formValues.bic,
-      bisTer: formValues.bisTer,
-      carteGrise: formValues.carteGrise,
-      cni: formValues.cni,
-      codePostal: formValues.codePostal,
-      complementAdr: formValues.complementAdr,
-      contart: formValues.contart,
-      dateDebCni: formValues.dateDebCni,
-      dateFinCni: formValues.dateFinCni,
-      iban: formValues.iban,
-      kbis: formValues.kbis,
-      navigo: formValues.navigo,
-      nomRue: formValues.nomRue,
-      numRue: formValues.numRue,
-      nummss: formValues.nummss,
-      photo: formValues.photo,
-      rib: formValues.rib,
-      urssaf: formValues.urssaf,
-      ville: formValues.ville
+    this.currentUser = JSON.parse(data);
+    this.initForms();
+  }
+
+  initForms(): void {
+    const c = this.currentUser;
+    const p = c.personalDetails || {};
+
+    this.cniPath = p.cni || "";
+    this.ribPath = p.rib || "";
+    this.carteGrisePath = p.carteGrise || "";
+    this.kbisPath = p.kbis || "";
+    this.navigoPath = p.navigo || "";
+    this.contratPath = p.contart || "";
+    this.attestationsPath = p.attestations || "";
+    this.urssafPath = p.urssaf || "";
+    this.photoPath = p.photo || "";
+
+    this.userForm = this.fb.group({
+      email: [c.user?.email, [Validators.required, Validators.email]],
+      fullName: [c.fullName, Validators.required],
+      name: [c.name, Validators.required],
+      prenom: [c.prenom, Validators.required],
+      telephone: [c.telephone, [Validators.required]],
+    });
+
+    this.personalDetailsForm = this.fb.group({
+      numRue: [p.numRue],
+      nomRue: [p.nomRue],
+      complementAdr: [p.complementAdr],
+      codePostal: [p.codePostal],
+      ville: [p.ville],
+      iban: [p.iban],
+      bic: [p.bic],
+      nummss: [p.nummss],
+      dateDebCni: [p.dateDebCni],
+      dateFinCni: [p.dateFinCni],
+      bisTer: [p.bisTer],
+    });
+  }
+
+  nextStep() {
+    if (this.currentStep < this.totalSteps) this.currentStep++;
+  }
+
+  prevStep() {
+    if (this.currentStep > 1) this.currentStep--;
+  }
+
+  submit(): void {
+    this.submitted = true;
+    if (this.userForm.invalid) return;
+
+    const userId = this.currentUser.user.userId;
+    const consultantId = this.currentUser.consultantId;
+    const personalDetailsId =
+      this.currentUser.personalDetails?.personalDetailsId;
+
+    const email = this.userForm.value.email;
+
+    const consultantData = {
+      name: this.userForm.value.name,
+      prenom: this.userForm.value.prenom,
+      fullName: this.userForm.value.fullName,
+      telephone: this.userForm.value.telephone,
+      commercial: this.userForm.value.commercial,
+      dateSortie: this.userForm.value.dateSortie,
     };
 
-    this.authService.updateUserProfile(this.user.id, updateData)
-      .subscribe({
-        next: (response) => {
-          this.loading = false;
-          if (response.success) {
-            this.successMessage = 'Profil mis à jour avec succès';
-            
-            // Update the user data in session storage
-            this.authService.getUser().subscribe(userData => {
-              sessionStorage.setItem('currentUser', JSON.stringify(userData));
-              //this.authService.notifyUserUpdated();
-              
-              // Redirect back to profile view after a short delay
-              setTimeout(() => {
-                this.router.navigate(['/profile']);
-              }, 2000);
-            });
-          } else {
-            this.errorMessage = response.message || 'Une erreur est survenue';
-          }
+    const personalData = this.personalDetailsForm.value;
+
+    this.loading = true;
+
+    this.store.dispatch(AuthActions.updateUser({ userId, request: { email } }));
+    this.store.dispatch(
+      AuthActions.updateConsultant({ consultantId, request: consultantData })
+    );
+    this.store.dispatch(
+      AuthActions.updatePersonalDetailsWithFiles({
+        personalDetailsId,
+        dto: personalData,
+        files: {
+          cniFile: this.cniFile,
+          ribFile: this.ribFile,
+          carteGriseFile: this.carteGriseFile,
+          kbisFile: this.kbisFile,
+          navigoFile: this.navigoFile,
+          contratFile: this.contratFile,
+          attestationsFiles: this.attestationsFiles,
+          urssafFile: this.urssafFile,
+          photoFile: this.photoFile,
         },
-        error: (error) => {
-          this.loading = false;
-          this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la mise à jour du profil';
-        }
+      })
+    );
+
+    this.store
+      .select(selectCreatedPersonalDetails)
+      .pipe(
+        filter((details) => !!details),
+        take(1)
+      )
+      .subscribe((updatedDetails) => {
+        const updatedUser = {
+          ...this.currentUser,
+          user: {
+            ...this.currentUser.user,
+            email,
+          },
+          ...consultantData,
+          personalDetails: updatedDetails,
+        };
+
+        sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+        this.loading = false;
+        this.router.navigate(["/profile"]);
       });
   }
 
-  cancel(): void {
-    this.router.navigate(['/profile']);
+  get userF() {
+    return this.userForm.controls;
+  }
+
+  get personalF() {
+    return this.personalDetailsForm.controls;
+  }
+
+  onFileChange(event: Event, field: string): void {
+    const target = event.target as HTMLInputElement;
+    if (!target.files || target.files.length === 0) return;
+
+    if (field === "attestationsFiles") {
+      this.attestationsFiles = Array.from(target.files);
+    } else {
+      this[field] = target.files[0];
+    }
+  }
+
+  hasExistingFile(field: string): boolean {
+    return !!this.currentUser?.personalDetails?.[field];
+  }
+
+  extractFileName(path: string): string {
+    return path?.split("/").pop() || "";
+  }
+
+  getFileByField(field: string): File | undefined {
+    return (this as any)[field];
   }
 }

@@ -1,200 +1,144 @@
-<div class="modal-container">
-  <!-- Header -->
-  <div class="modal-header">
-    <div class="d-flex align-items-center">
-      <div class="user-avatar me-3">
-        <i class="bi bi-person-circle"></i>
-      </div>
-      <div>
-        <h4 class="modal-title mb-0">{{ consultant?.fullName || 'Détails de l\'utilisateur' }}</h4>
-        <p class="text-muted small mb-0">
-          {{ consultant?.user?.email || 'Aucun email' }} • {{ consultant?.user?.role || 'Rôle non défini' }}
-        </p>
-      </div>
+<div class="container py-4">
+  <div class="text-center mb-5">
+    <div class="position-relative d-inline-block">
+      <img
+        [src]="photoUrl"
+        alt="Photo de {{ consultant?.fullName }}"
+        class="rounded-circle border shadow"
+        width="120"
+        height="120"
+        style="object-fit: cover"
+      />
+
+      <span
+        class="position-absolute bottom-0 end-0 translate-middle p-1 border border-white rounded-circle"
+        [ngClass]="consultant?.user?.enabled ? 'bg-success' : 'bg-danger'"
+        style="width: 14px; height: 14px"
+      ></span>
     </div>
-    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+
+    <h4 class="mt-3 mb-0">{{ consultant?.fullName }}</h4>
   </div>
 
-  <!-- Body -->
-  <div class="modal-body">
-    <!-- Status banner -->
-    <div class="status-banner mb-4" [class.active]="consultant?.user?.enabled" [class.inactive]="!consultant?.user?.enabled">
-      <i class="bi" [class.bi-check-circle-fill]="consultant?.user?.enabled" [class.bi-x-circle-fill]="!consultant?.user?.enabled"></i>
-      <span>{{ consultant?.user?.enabled ? 'Compte actif' : 'Compte inactif' }}</span>
+  <div class="row g-4">
+    <div class="col-md-6 d-flex flex-column gap-4">
+      <div class="card h-100">
+        <div class="section-header">
+          <i class="bi bi-shield-lock me-2"></i>Informations du compte
+        </div>
+        <div class="card-body">
+          <p><strong>Email :</strong> {{ consultant?.user?.email }}</p>
+          <p>
+            <strong>Rôle :</strong>
+            <span class="badge bg-primary">{{ consultant?.user?.role }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card h-100">
+        <div class="section-header">
+          <i class="bi bi-briefcase me-2"></i>Détails professionnels
+        </div>
+        <div class="card-body">
+          <p><strong>Fonction :</strong> {{ consultant?.fonction }}</p>
+          <p><strong>Matricule :</strong> {{ consultant?.matricule }}</p>
+          <p>
+            <strong>Date recrutement :</strong>
+            {{ formatDate(consultant?.dateRecrutement) }}
+          </p>
+          <p>
+            <strong>Date sortie :</strong>
+            {{ formatDate(consultant?.dateSortie) }}
+          </p>
+          <p>
+            <strong>Commercial :</strong>
+            {{ consultant?.isCommercial ? "Oui" : "Non" }}
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="row g-4">
-      <!-- Informations du compte -->
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-primary text-white">
-            <i class="bi bi-shield-lock me-2"></i>Informations du compte
-          </div>
-          <div class="card-body">
-            <div class="info-item">
-              <span class="info-label">ID Utilisateur</span>
-              <span class="info-value">{{ consultant?.user?.userId || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Email</span>
-              <span class="info-value">{{ consultant?.user?.email || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Rôle</span>
-              <span class="info-value badge" 
-                    [class.bg-primary]="consultant?.user?.role === 'SOUS_TRAITANT'" 
-                    [class.bg-success]="consultant?.user?.role === 'ADMIN'" 
-                    [class.bg-info]="consultant?.user?.role !== 'SOUS_TRAITANT' && consultant?.user?.role !== 'ADMIN'">
-                {{ consultant?.user?.role || 'Non spécifié' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Statut</span>
-              <span class="info-value" [class.text-success]="consultant?.user?.enabled" [class.text-danger]="!consultant?.user?.enabled">
-                <i class="bi" [class.bi-check-circle-fill]="consultant?.user?.enabled" [class.bi-x-circle-fill]="!consultant?.user?.enabled"></i>
-                {{ consultant?.user?.enabled ? 'Activé' : 'Désactivé' }}
-              </span>
-            </div>
-            <div class="info-item" *ngIf="consultant?.user?.tokenCreationDate">
-              <span class="info-label">Date de création du token</span>
-              <span class="info-value">{{ formatDate(consultant.user.tokenCreationDate) }}</span>
-            </div>
-          </div>
+    <div class="col-md-6 d-flex flex-column gap-4">
+    
+      <div class="card h-100">
+      <div class="section-header">
+          <i class="bi bi-person-vcard me-2"></i>Informations personnelles
+        </div>
+        <div class="card-body">
+          <p><strong>Nom complet :</strong> {{ consultant?.fullName }}</p>
+          <p><strong>Prénom :</strong> {{ consultant?.prenom }}</p>
+          <p><strong>Nom :</strong> {{ consultant?.name }}</p>
+          <p><strong>Téléphone :</strong> {{ consultant?.telephone }}</p>
+          <p><strong>Type libellé :</strong> {{ consultant?.typeLibelle }}</p>
         </div>
       </div>
 
-      <!-- Informations personnelles -->
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-info text-white">
-            <i class="bi bi-person-vcard me-2"></i>Informations personnelles
-          </div>
-          <div class="card-body">
-            <div class="info-item">
-              <span class="info-label">Nom complet</span>
-              <span class="info-value">{{ consultant?.fullName || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Prénom</span>
-              <span class="info-value">{{ consultant?.prenom || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Nom</span>
-              <span class="info-value">{{ consultant?.name || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Téléphone</span>
-              <span class="info-value">
-                <i class="bi bi-telephone me-1"></i> {{ consultant?.telephone || 'Non spécifié' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Type Libellé</span>
-              <span class="info-value">{{ consultant?.typeLibelle || 'Non spécifié' }}</span>
-            </div>
-          </div>
+      <div class="card h-100">
+        <div class="section-header">
+          <i class="bi bi-geo-alt me-2"></i>Adresse & Bancaire
+        </div>
+        <div class="card-body">
+          <p>
+            <strong>Rue :</strong> {{ consultant?.personalDetails?.numRue }}
+            {{ consultant?.personalDetails?.nomRue }}
+          </p>
+          <p>
+            <strong>Complément :</strong>
+            {{ consultant?.personalDetails?.complementAdr }}
+          </p>
+          <p>
+            <strong>Code Postal :</strong>
+            {{ consultant?.personalDetails?.codePostal }}
+          </p>
+          <p>
+            <strong>Ville :</strong> {{ consultant?.personalDetails?.ville }}
+          </p>
+          <p>
+            <strong>Bis/Ter :</strong> {{ consultant?.personalDetails?.bisTer }}
+          </p>
+          <p><strong>IBAN :</strong> {{ consultant?.personalDetails?.iban }}</p>
+          <p><strong>BIC :</strong> {{ consultant?.personalDetails?.bic }}</p>
+          <p>
+            <strong>MSS :</strong> {{ consultant?.personalDetails?.nummss }}
+          </p>
         </div>
       </div>
+    </div>
 
-      <!-- Détails professionnels -->
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-success text-white">
-            <i class="bi bi-briefcase me-2"></i>Détails professionnels
-          </div>
-          <div class="card-body">
-            <div class="info-item">
-              <span class="info-label">Fonction</span>
-              <span class="info-value">{{ consultant?.fonction || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Matricule</span>
-              <span class="info-value badge">{{ consultant?.matricule || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Date de recrutement</span>
-              <span class="info-value">
-                <i class="bi bi-calendar-check me-1"></i>
-                {{ consultant?.dateRecrutement ? (formatDate(consultant.dateRecrutement)) : 'Non spécifié' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Date de sortie</span>
-              <span class="info-value">
-                <i class="bi bi-calendar-x me-1"></i>
-                {{ consultant?.dateSortie ? (formatDate(consultant.dateSortie)) : 'Non spécifié' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Commercial</span>
-              <span class="info-value" [class.text-success]="consultant?.isCommercial" [class.text-secondary]="!consultant?.isCommercial">
-                <i class="bi" [class.bi-check-circle-fill]="consultant?.isCommercial" [class.bi-dash-circle]="!consultant?.isCommercial"></i>
-                {{ consultant?.isCommercial ? 'Oui' : 'Non' }}
-              </span>
-            </div>
-          </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="section-header">
+          <i class="bi bi-folder me-2"></i>Documents
         </div>
-      </div>
-
-      <!-- Adresse & Coordonnées bancaires -->
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-warning text-dark">
-            <i class="bi bi-geo-alt me-2"></i>Adresse & Coordonnées bancaires
-          </div>
-          <div class="card-body">
-            <div class="section-divider"><span>Adresse</span></div>
-            <div class="info-item">
-              <span class="info-label">Ville</span>
-              <span class="info-value"><i class="bi bi-geo-alt me-1"></i>{{ consultant?.personalDetails?.ville || 'Non spécifié' }}</span>
-            </div>
-            <div class="info-item"><span class="info-label">Code postal</span><span class="info-value">{{ consultant?.personalDetails?.codePostal || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">Numéro de rue</span><span class="info-value">{{ consultant?.personalDetails?.numRue || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">Nom de rue</span><span class="info-value">{{ consultant?.personalDetails?.nomRue || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">Complément d'adresse</span><span class="info-value">{{ consultant?.personalDetails?.complementAdr || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">Bis/Ter</span><span class="info-value">{{ consultant?.personalDetails?.bisTer || 'Non spécifié' }}</span></div>
-
-            <div class="section-divider mt-3"><span>Coordonnées bancaires</span></div>
-            <div class="info-item"><span class="info-label">BIC</span><span class="info-value">{{ consultant?.personalDetails?.bic || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">IBAN</span><span class="info-value">{{ consultant?.personalDetails?.iban || 'Non spécifié' }}</span></div>
-            <div class="info-item"><span class="info-label">Numéro MSS</span><span class="info-value">{{ consultant?.personalDetails?.nummss || 'Non spécifié' }}</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Documents -->
-      <div class="col-md-12">
-        <div class="card shadow-sm">
-          <div class="card-header bg-secondary text-white">
-            <i class="bi bi-file-earmark me-2"></i>Documents
-          </div>
-          <div class="card-body">
-            <div *ngIf="hasAnyDocument(); else noDocuments" class="row g-3">
-              <ng-container *ngFor="let doc of ['cni', 'rib', 'carteGrise', 'kbis', 'urssaf', 'attestations', 'contart', 'navigo', 'photo']">
-                <div class="col-md-3 col-sm-6" *ngIf="consultant?.personalDetails?.[doc]">
-                  <div class="document-item">
-                    <i class="bi bi-file-earmark-text document-icon"></i>
-                    <span>{{ doc | uppercase }}</span>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-            <ng-template #noDocuments>
-              <div class="missing-data">
-                <i class="bi bi-exclamation-circle text-muted"></i>
-                <p>Aucun document disponible</p>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6" *ngFor="let doc of documents">
+              <div
+                class="border rounded p-2 d-flex justify-content-between align-items-center"
+              >
+                <span>{{ doc.label }}</span>
+                <ng-container *ngIf="doc.path; else noFile">
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="viewFile(doc.folder, doc.filename)"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </ng-container>
+                <ng-template #noFile>
+                  <span class="badge bg-light text-muted">Non fourni</span>
+                </ng-template>
               </div>
-            </ng-template>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-secondary me-2" (click)="closeModal()">
-      <i class="bi bi-x-circle me-1"></i>Fermer
+  <div class="text-end mt-4">
+    <button class="btn btn-outline-secondary" (click)="closeModal()">
+      <i class="bi bi-x-circle me-1"></i> Fermer
     </button>
   </div>
 </div>
