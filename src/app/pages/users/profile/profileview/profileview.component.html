@@ -1,0 +1,104 @@
+<div class="container-fluid">
+  <app-page-title title="Mon Profil"></app-page-title>
+
+  <div class="row">
+    <!-- COLONNE GAUCHE -->
+    <div class="col-xl-4">
+      <!-- CARD PROFIL -->
+      <div class="card overflow-hidden">
+        <div class="bg-primary-subtle">
+          <div class="row">
+            <div class="col-8">
+              <div class="text-primary p-3">
+                <h5 class="text-primary">Bienvenue !</h5>
+                <p class="mb-0">{{ consultant?.fullName }}</p>
+              </div>
+            </div>
+            <div class="col-4 align-self-end">
+              <img src="assets/images/profile-img.png" alt="" class="img-fluid" />
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-0 text-center">
+          <img
+            [src]="getFileUrl('photoFile', consultant?.personalDetails?.photoFile)"
+            alt="photo"
+            class="img-thumbnail rounded-circle"
+            width="100"
+            onerror="this.src='assets/images/users/avatar-1.jpg';"
+          />
+          <h5 class="mt-2">{{ consultant?.fullName }}</h5>
+          <p class="text-muted">{{ consultant?.fonction }}</p>
+          <span class="badge bg-primary">{{ consultant?.typeLibelle }}</span>
+        </div>
+      </div>
+
+      <!-- INFOS PERSO -->
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Informations personnelles</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Email : {{ consultant?.user?.email }}</li>
+            <li class="list-group-item">Téléphone : {{ consultant?.telephone }}</li>
+            <li class="list-group-item">Date embauche : {{ formatDate(consultant?.dateRecrutement) }}</li>
+            <li class="list-group-item">Date sortie : {{ formatDate(consultant?.dateSortie) || '—' }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLONNE DROITE -->
+    <div class="col-xl-8">
+      <!-- ADRESSE -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Adresse</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Rue : {{ consultant?.personalDetails?.numRue }} {{ consultant?.personalDetails?.nomRue }}
+            </li>
+            <li class="list-group-item">Complément : {{ consultant?.personalDetails?.complementAdr || '—' }}</li>
+            <li class="list-group-item">Code Postal : {{ consultant?.personalDetails?.codePostal }}</li>
+            <li class="list-group-item">Ville : {{ consultant?.personalDetails?.ville }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- BANQUE -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Informations Bancaires</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">IBAN : {{ consultant?.personalDetails?.iban }}</li>
+            <li class="list-group-item">BIC : {{ consultant?.personalDetails?.bic }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Documents</h4>
+          <div class="row">
+            <div
+              class="col-md-6 col-lg-4 mb-3"
+              *ngFor="let doc of documents"
+            >
+              <div class="border p-2 rounded">
+                <strong>{{ doc.label }}</strong>
+                <div *ngIf="doc.path; else notProvided">
+                  <button class="btn btn-link text-primary p-0" (click)="viewFile(doc.folder, doc.path)">
+                    <i class="bx bx-show-alt"></i> Voir le fichier
+                  </button>
+                </div>
+                <ng-template #notProvided>
+                  <span class="badge bg-secondary">Non fourni</span>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

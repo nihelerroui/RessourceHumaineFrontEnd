@@ -109,6 +109,10 @@ loadUserData() {
   }
 }
 
+ navigateToProfile() {
+    this.router.navigate(['/profile']);
+  }
+
 
 
   /**

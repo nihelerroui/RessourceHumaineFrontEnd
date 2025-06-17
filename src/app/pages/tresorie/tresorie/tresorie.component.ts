@@ -77,8 +77,6 @@ ngOnInit(): void {
 
 
 
-
-
 onSocieteChange() {
   this.societeId = this.selectedSocieteId;
   this.store.dispatch(loadTresorie({ societeId: this.societeId }));
@@ -89,10 +87,6 @@ onSelectChange(id: number) {
   this.onSocieteChange();
 }
 
-
-
-
-  
 
   openModal(template: TemplateRef<any>, action: string) {
     this.modalAction = action;
@@ -133,15 +127,6 @@ onSelectChange(id: number) {
   }
   
 
- /*augmenterSolde() {
-  if (this.montantAjout <= 0) {
-    alert("Veuillez entrer un montant valide !");
-    return;
-  }
-  this.store.dispatch(augmenterSoldeActuel({ societeId: this.societeId, montant: this.montantAjout }));
-  this.montantAjout = 0;
-  this.closeModal();
-}*/
 
 augmenterSolde() {
   if (this.montantAjout <= 0) {

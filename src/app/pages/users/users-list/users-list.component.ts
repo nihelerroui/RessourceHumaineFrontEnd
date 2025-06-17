@@ -62,7 +62,7 @@ export class UsersListComponent implements OnInit {
   ngOnInit(): void {
     this.breadCrumbItems = [
       { label: "Dashboard", path: "/" },
-      { label: "Liste des Utilisateurs", active: true },
+      { label: "Liste des Consultants", active: true },
     ];
 
     const currentUser = JSON.parse(

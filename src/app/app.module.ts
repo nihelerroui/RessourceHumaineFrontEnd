@@ -50,6 +50,7 @@ import { societeReducer } from "./store/societe/societe.reducer";
 
 
 
+
 if (environment.defaultauth === "firebase") {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
