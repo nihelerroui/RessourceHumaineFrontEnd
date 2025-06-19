@@ -109,14 +109,14 @@
         </div>
       </div>
 
-      <div class="modern-comment-input mt-4">
+      <div class="modern-comment-input mt-4" *ngIf="!readOnlyMode">
         <div class="comment-input-container">
           <div class="comment-avatar">
             <div class="avatar-circle bg-primary text-white">
               <i class="mdi mdi-account"></i>
             </div>
           </div>
-          <div class="comment-form">
+          <div class="comment-form" >
             <div class="input-wrapper" [class.focused]="isFocused" [class.has-content]="newComment.trim().length > 0">
               <textarea class="comment-textarea" [(ngModel)]="newComment" placeholder="Écrire un commentaire..." [disabled]="isSubmitting" (focus)="isFocused = true" (blur)="isFocused = false"></textarea>
               <label class="floating-label">Ajouter un commentaire</label>

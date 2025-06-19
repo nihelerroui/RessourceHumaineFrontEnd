@@ -28,6 +28,8 @@ export class HistoriqueChiffreAffaireComponent implements OnInit {
   ChiffreAffaireParPage = 5;
   anneesDisponibles: string[] = [];
 
+  role : string ="";
+
   apexChartSeries: ApexAxisChartSeries = [];
   apexChartOptions = {
     chart: { type: 'bar', height: 350 },
@@ -43,6 +45,7 @@ export class HistoriqueChiffreAffaireComponent implements OnInit {
     const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     this.consultantSocieteId = user?.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+    this.role = user?.role;
 
     this.store.dispatch(ChiffreAffaireActions.loadChiffreAffaire());
     this.store.dispatch(AuthActions.loadAdminSocietes());

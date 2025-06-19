@@ -42,6 +42,7 @@ export class FactureclientAdminComponent implements OnInit {
   statutPaiementFilter = "";
   statutFactureFilter = "";
   typePaiementFilter = "";
+  role : string ="";
 
   page = 1;
   facturesParPage = 5;
@@ -57,6 +58,7 @@ export class FactureclientAdminComponent implements OnInit {
     const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     this.consultantSocieteId = user?.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+    this.role = user?.role || "";
 
     this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
     this.store.dispatch(AuthActions.loadAdminSocietes());
@@ -84,7 +86,7 @@ export class FactureclientAdminComponent implements OnInit {
   openCommentModal(factureClientId: number): void {
     this.modalRef = this.modalService.show(CommentModalComponent, {
       class: "modal-lg",
-      initialState: { factureId: factureClientId }
+      initialState: { factureId: factureClientId },
     });
   }
   openDetailsModal(facture: any, template: TemplateRef<any>): void {

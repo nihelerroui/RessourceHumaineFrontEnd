@@ -12,9 +12,9 @@
             <h5 class="mb-0 card-title flex-grow-1">Trésorerie des Sociétés</h5>
           </div>
         </div>
-        <div class="card-body border-bottom">
+        <div class="card-body border-bottom" *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 0">
           <div class="row g-3">
-            <div class="col-lg-4" *ngIf="adminSocietes.length > 0">
+            <div class="col-lg-4"  >
               <select
                 class="form-select"
                 [ngModel]="selectedSocieteId"
@@ -110,7 +110,7 @@
                   <div class="text-end">
                     <button
                       class="btn btn-warning"
-                      *ngIf="
+                      *ngIf="role === 'ADMINISTRATEUR' &&
                         !(tresorie$ | async)?.soldeInitial ||
                         (tresorie$ | async)?.soldeInitial < 0
                       "
@@ -121,7 +121,7 @@
 
                     <button
                       class="btn btn-primary"
-                      *ngIf="
+                      *ngIf="role === 'ADMINISTRATEUR' &&
                         (tresorie$ | async)?.soldeActuel >= 0 &&
                         (tresorie$ | async)?.soldeInitial &&
                         (tresorie$ | async)?.soldeActuel <=

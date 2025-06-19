@@ -91,7 +91,7 @@ export class ContratSousTraitantComponent implements OnInit {
 
   //Charger la liste des contrats
   loadContrats() {
-  if (this.userRole === 'ADMINISTRATEUR') {
+  if (this.userRole === 'ADMINISTRATEUR' || 'RESPONSABLE_FINANCIER') {
     this.store.dispatch(ContratActions.loadContracts());
   } else if (this.userRole === 'SOUS_TRAITANT' && this.connectedConsultantId) {
     this.store.dispatch(

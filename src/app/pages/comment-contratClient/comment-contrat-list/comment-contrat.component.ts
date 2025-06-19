@@ -20,6 +20,7 @@ type CommentaireContratWithEdit = CommentaireContratClient & {
   styleUrls: ["./comment-contrat.component.scss"],
 })
 export class CommentContratComponent implements OnInit, AfterViewInit {
+  @Input() readOnlyMode: boolean = false;
   @Input() contrat!: ContratClient;
   @Input() contratClientId: number | null = null;
   @Input() token: string | null = null;
@@ -43,7 +44,10 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
     this.isLoading$ = this.store.select(selectLoadingCommentairesContratClient);
     this.comments$ = this.store.select(selectCommentairesByContratClientId(this.contratClientId));
     this.loadCommentaires();
+    const user = JSON.parse(sessionStorage.getItem("currentUser") || '{}');
+  this.readOnlyMode = user?.user?.role === 'RESPONSABLE_FINANCIER';
   }
+  
 
   ngAfterViewInit(): void {
     setTimeout(() => this.scrollToBottom(), 300);

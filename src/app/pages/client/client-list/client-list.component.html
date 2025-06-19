@@ -67,7 +67,7 @@
                 </option>
               </select>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2" *ngIf="role === 'ADMINISTRATEUR'">
               <select
                 class="form-select"
                 [(ngModel)]="selectedSocieteId"

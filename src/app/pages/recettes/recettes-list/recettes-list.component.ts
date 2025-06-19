@@ -35,6 +35,8 @@ export class RecettesListComponent {
   consultantSocieteId!: number;
   adminSocietes: any[] = [];
 
+  role : String ="";
+
   constructor(
     private store: Store,
     private modalService: BsModalService
@@ -49,6 +51,7 @@ export class RecettesListComponent {
     const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+    this.role = currentUser?.user?.role || "";
 
     this.store.dispatch(AuthActions.loadAdminSocietes());
 

@@ -20,8 +20,8 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   @Input() factureId!: number;
   @Input() isClientMode: boolean = false;
   @Input() currentUserEmail: string | null = null;
-  @Input() readOnlyMode: boolean = false;
   @Input() token?: string;
+  @Input() readOnlyMode: boolean = false;
 
   @ViewChild("commentSection") commentSection!: ElementRef;
 
@@ -34,6 +34,7 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
   showDeleteConfirmation: boolean = false;
   commentToDelete: { id: number; index: number } | null = null;
   facture: any = null;
+  role : string ="";
 
   constructor(public modalRef: BsModalRef, private store: Store) { }
 
@@ -51,6 +52,7 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
     if (!this.isClientMode) {
       const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
       this.currentUserEmail = currentUser?.user?.email || 'Admin inconnu';
+      this.role=currentUser.user?.role;
     }
 
   }

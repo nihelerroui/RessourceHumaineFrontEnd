@@ -65,6 +65,8 @@ export class PrestationListComponent implements OnInit {
 
   newContratSelected = false;
 
+  role: string = "";
+
   constructor(
     private store: Store,
     private modalService: BsModalService,
@@ -79,6 +81,7 @@ export class PrestationListComponent implements OnInit {
     this.connectedConsultantId = currentUser.consultantId;
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+    this.role = currentUser?.user?.role || "";
 
     this.store.dispatch(AuthActions.loadAdminSocietes());
 

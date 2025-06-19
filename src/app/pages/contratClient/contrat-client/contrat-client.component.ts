@@ -53,7 +53,10 @@ export class ContratClientAdminComponent implements OnInit {
 
   currentUserEmail: string = '';
 
+  role : string ="";
+
   @ViewChild("contratModal") contratModal!: TemplateRef<any>;
+
   statutContratValues = Object.values(StatutContrat);
 
 
@@ -67,6 +70,8 @@ export class ContratClientAdminComponent implements OnInit {
     this.currentUserEmail = currentUser.user.email || '';
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+    this.role = currentUser.user?.role;
+    
 
     this.store.dispatch(loadContratsClient());
     this.store.dispatch(AuthActions.loadAdminSocietes());

@@ -19,7 +19,7 @@ export class ConsultantService extends GenericService<Consultant> {
 
   getBySocieteByConsultant(id: number): Observable<any[]> {
     const headers = new HttpHeaders();
-    return this.http.get<any[]>(`${environment.baseUrl}/consultant/getbysocietebyconsultantPFE/${id}`, { headers });
+    return this.http.get<any[]>(`${environment.baseUrl}/consultant/getbysocietebyconsultantPFE/141`, { headers });
   }
   
 }

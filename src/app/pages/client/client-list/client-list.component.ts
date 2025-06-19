@@ -50,6 +50,8 @@ export class ClientListComponent implements OnInit {
 
   clientList: Client[] = [];
 
+  role: string = "";
+
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
@@ -67,6 +69,7 @@ export class ClientListComponent implements OnInit {
     );
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = Number(this.consultantSocieteId);
+    this.role = currentUser?.user?.role || "";
 
     this.store.dispatch(ClientActions.loadClients());
     this.store.dispatch(loadPays());
