@@ -54,6 +54,8 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
       this.currentUserEmail = currentUser?.user?.email || 'Admin inconnu';
       this.role=currentUser.user?.role;
     }
+    const user = JSON.parse(sessionStorage.getItem("currentUser") || '{}');
+  this.readOnlyMode = user?.user?.role === 'RESPONSABLE_FINANCIER';
 
   }
 

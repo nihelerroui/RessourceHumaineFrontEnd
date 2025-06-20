@@ -175,7 +175,7 @@
                                                 </button>
                                             </li>
                                             <!-- Rejete -->
-                                            <li *ngIf="ole === 'ADMINISTRATEUR' && facture.statutFacture !== 'Confirmé_Admin'&& facture.statutFacture !== 'Confirmation_Complet' && facture.statutFacture !== 'Rejete'"
+                                            <li *ngIf="role === 'ADMINISTRATEUR' && facture.statutFacture !== 'Confirmé_Admin'&& facture.statutFacture !== 'Confirmation_Complet' && facture.statutFacture !== 'Rejete'"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Rejeter la facture">
                                                 <button class="btn btn-sm btn-soft-danger"

@@ -58,7 +58,7 @@ export class FactureclientAdminComponent implements OnInit {
     const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     this.consultantSocieteId = user?.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
-    this.role = user?.role || "";
+    this.role = user.user?.role || "";
 
     this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
     this.store.dispatch(AuthActions.loadAdminSocietes());
