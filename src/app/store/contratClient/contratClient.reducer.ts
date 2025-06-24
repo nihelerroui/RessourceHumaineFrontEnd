@@ -7,6 +7,7 @@ export interface ContratClientState {
   searchResults: ContratClient[];
   loading: boolean;
   error: string | null;
+  nombreContratsRealises: number | null;
 }
 
 export const initialState: ContratClientState = {
@@ -14,6 +15,7 @@ export const initialState: ContratClientState = {
   searchResults: [], 
   loading: false,
   error: null,
+  nombreContratsRealises: 0
 };
 
 export const contratClientReducer = createReducer(
@@ -95,5 +97,5 @@ on(ContratClientActions.loadContratsBySocieteAdminFailure, (state, { error }) =>
   ...state,
   loading: false,
   error
-})),
+}))
 );

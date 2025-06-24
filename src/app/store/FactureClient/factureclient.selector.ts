@@ -29,3 +29,12 @@ export const selectFactureSelected = createSelector(
   selectFactureClientState,
   (state) => state.factureSelected
 );
+export const selectNbFacturesValider = createSelector(
+  selectFactureClientState,
+  (state: FactureClientState) => state.nbFacturesValider
+);
+export const selectNbFacturesValiderMoisPrecedent = createSelector(
+  selectFactureClientState,
+  (state: FactureClientState) => state.nbFacturesValiderMoisPrecedent
+);
+

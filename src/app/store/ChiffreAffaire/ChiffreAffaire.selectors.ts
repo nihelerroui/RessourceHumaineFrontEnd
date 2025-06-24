@@ -42,3 +42,14 @@ export const selectError = createSelector(
   selectChiffreAffaireState,
   (state: ChiffreAffaireState) => state.error
 );
+
+// Sélecteurs pour les données annuelles
+export const selectCaAnneePrecedente = createSelector(
+  selectChiffreAffaireState,
+  state => state.caAnneePrecedente  // année N-1
+);
+
+export const selectCaDeuxAnsAvant = createSelector(
+  selectChiffreAffaireState,
+  state => state.caDeuxAnsAvant     // année N-2
+);

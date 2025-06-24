@@ -17,12 +17,18 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { SimplebarAngularModule } from 'simplebar-angular';
 
 import { DefaultComponent } from './default/default.component';
+import { StoreModule } from '@ngrx/store';
+import { factureClientReducer } from 'src/app/store/FactureClient/factureclient.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { FactureClientEffects } from 'src/app/store/FactureClient/factureclient.effects';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @NgModule({
   declarations: [DefaultComponent],
   imports: [
     CommonModule,
     FormsModule,
+    PaginationModule ,
     ReactiveFormsModule,
     DashboardsRoutingModule,
     UIModule,
@@ -33,7 +39,9 @@ import { DefaultComponent } from './default/default.component';
     WidgetModule,
     NgApexchartsModule,
     SimplebarAngularModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    StoreModule.forFeature('factureClient', factureClientReducer),
+    EffectsModule.forFeature([FactureClientEffects]),
   ],
   providers: [BsDropdownConfig],
 })

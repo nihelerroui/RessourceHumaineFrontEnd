@@ -80,5 +80,28 @@ export class ChiffreAffaireEffects {
       )
     )
   );
-
+  // Effet pour le chiffre d'affaire annuel
+loadChiffreAffaireDeuxDernieresAnnees$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ChiffreAffaireActions.loadChiffreAffaireDeuxDernieresAnnees),
+    mergeMap(() =>
+      this.chiffreAffaireService.getChiffreAffaireDeuxDernieresAnnees().pipe(
+        map(data => {
+          console.log("Reçu CA N-1 et N-2:", data);
+          return ChiffreAffaireActions.loadChiffreAffaireDeuxDernieresAnneesSuccess({
+            caAnneePrecedente: data.caAnneePrecedente,
+            caDeuxAnsAvant: data.caDeuxAnsAvant
+          });
+        }),
+        catchError(error =>
+          of(
+            ChiffreAffaireActions.loadChiffreAffaireDeuxDernieresAnneesFailure({
+              error: error.message || 'Erreur serveur'
+            })
+          )
+        )
+      )
+    )
+  )
+);
 }

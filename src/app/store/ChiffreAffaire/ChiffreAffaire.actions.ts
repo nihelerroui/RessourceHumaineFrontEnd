@@ -48,3 +48,17 @@ export const loadTotalFacturesPayeesFailure = createAction(
   '[Chiffre Affaire] Load Total Factures Payees Failure',
   props<{ error: string }>()
 );
+//loadChiffreAffaireTrimestriel
+export const loadChiffreAffaireDeuxDernieresAnnees = createAction(
+  '[ChiffreAffaire] Load CA Deux Dernières Années'
+);
+
+export const loadChiffreAffaireDeuxDernieresAnneesSuccess = createAction(
+  '[ChiffreAffaire] Load CA Deux Dernières Années Success',
+  props<{ caAnneePrecedente: number; caDeuxAnsAvant: number }>()
+);
+
+export const loadChiffreAffaireDeuxDernieresAnneesFailure = createAction(
+  '[ChiffreAffaire] Load CA Deux Dernières Années Failure',
+  props<{ error: string }>()
+);

@@ -6,23 +6,23 @@ import * as ChiffreAffaireActions from '../ChiffreAffaire/ChiffreAffaire.actions
 export interface ChiffreAffaireState {
   historique: HistoriqueChiffreAffaire[];
   totalByClient: { [clientId: number]: number };
-  totalPayeesByClient: { [clientId: number]: number }; 
+  totalPayeesByClient: { [clientId: number]: number };
   loading: boolean;
   error: string | null;
+  caDeuxAnsAvant: number;
+  caAnneePrecedente: number;
 }
-
-
 
 // 2. État initial
 export const initialState: ChiffreAffaireState = {
   historique: [],
   totalByClient: {},
-  totalPayeesByClient: {}, 
+  totalPayeesByClient: {},
   loading: false,
-  error: null
+  error: null,
+  caAnneePrecedente: 0,
+  caDeuxAnsAvant: 0,
 };
-
-
 
 export const chiffreAffaireReducer = createReducer(
   initialState,
@@ -51,13 +51,13 @@ export const chiffreAffaireReducer = createReducer(
     error: null
   })),
   on(ChiffreAffaireActions.loadTotalFacturesSuccess, (state, { clientId, total }) => ({
-  ...state,
-  totalByClient: {
-    ...state.totalByClient,
-    [clientId]: total
-  },
-  loading: false
-})),
+    ...state,
+    totalByClient: {
+      ...state.totalByClient,
+      [clientId]: total
+    },
+    loading: false
+  })),
   on(ChiffreAffaireActions.loadTotalFacturesFailure, (state, { error }) => ({
     ...state,
     loading: false,
@@ -82,5 +82,21 @@ export const chiffreAffaireReducer = createReducer(
     ...state,
     loading: false,
     error
-  }))
+  })),
+  
+  on(ChiffreAffaireActions.loadChiffreAffaireDeuxDernieresAnneesSuccess, (state, { caAnneePrecedente, caDeuxAnsAvant }) => ({
+  ...state,
+  caAnneePrecedente,
+  caDeuxAnsAvant,
+  loading: false,
+  error: null
+})),
+
+on(ChiffreAffaireActions.loadChiffreAffaireDeuxDernieresAnneesFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false
+}))
+
+
 );

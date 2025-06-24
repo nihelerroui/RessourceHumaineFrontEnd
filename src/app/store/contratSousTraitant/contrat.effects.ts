@@ -10,7 +10,7 @@ export class ContratEffects {
   constructor(
     private actions$: Actions,
     private contratService: ContratService
-  ) {}
+  ) { }
   // Charger la liste des contrats
   loadContracts$ = createEffect(() =>
     this.actions$.pipe(
@@ -39,8 +39,8 @@ export class ContratEffects {
       )
     )
   );
-  
-  
+
+
   // Ajouter un contrat
   addContract$ = createEffect(() =>
     this.actions$.pipe(
@@ -71,21 +71,52 @@ export class ContratEffects {
       )
     )
   );
-    //Supprimer un contrat
-    deleteContract$ = createEffect(() =>
-      this.actions$.pipe(
-        ofType(ContratActions.deleteContract),
-        tap(({ id }) => console.log("Suppression du contrat ID :", id)),
-        mergeMap(({ id }) =>
-          this.contratService.delete(id).pipe(
-            tap(() => console.log("Contrat supprimé avec succès, ID :", id)),
-            map(() => ContratActions.deleteContractSuccess({ id })),
-            catchError((error) => {
-              console.error("Erreur lors de la suppression du contrat :", error);
-              return of(ContratActions.deleteContractFailure({ error: error.message || error }));
-            })
+  //Supprimer un contrat
+  deleteContract$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratActions.deleteContract),
+      tap(({ id }) => console.log("Suppression du contrat ID :", id)),
+      mergeMap(({ id }) =>
+        this.contratService.delete(id).pipe(
+          tap(() => console.log("Contrat supprimé avec succès, ID :", id)),
+          map(() => ContratActions.deleteContractSuccess({ id })),
+          catchError((error) => {
+            console.error("Erreur lors de la suppression du contrat :", error);
+            return of(ContratActions.deleteContractFailure({ error: error.message || error }));
+          })
+        )
+      )
+    )
+  );
+
+  loadNbContratsEcheance$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ContratActions.loadNbContratsEcheance),
+      switchMap(() =>
+        this.contratService.getNbContratsEnEcheance().pipe(
+          map(count => ContratActions.loadNbContratsEcheanceSuccess({ count })),
+          catchError(error =>
+            of(ContratActions.loadNbContratsEcheanceFailure({ error: error.message || 'Erreur inconnue' }))
           )
         )
       )
-    );
+    )
+  );
+  loadNbContratsEcheanceMoisPrecedent$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ContratActions.loadNbContratsEcheanceMoisPrecedent),
+    switchMap(() =>
+      this.contratService.getNbContratsEnEcheanceMoisPrecedent().pipe(
+        map((count) =>
+          ContratActions.loadNbContratsEcheanceMoisPrecedentSuccess({ count })
+        ),
+        catchError((error) =>
+          of(ContratActions.loadNbContratsEcheanceMoisPrecedentFailure({ error }))
+        )
+      )
+    )
+  )
+);
+
+
 }

@@ -27,3 +27,8 @@ export const selectClientError = createSelector(
   selectClientState,
   (state: ClientState) => state.error
 );
+export const selectClientMetrics = createSelector(
+  selectClientState,
+  (state: ClientState) => state.metrics
+);
+

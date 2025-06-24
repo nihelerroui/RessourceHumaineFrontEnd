@@ -15,7 +15,7 @@ export const MENU: MenuItem[] = [
       {
         id: 3,
         label: "MENUITEMS.DASHBOARDS.LIST.DEFAULT",
-        link: "/",
+        link: "dashboards/default",
         parentId: 2,
       },
       {

@@ -1,5 +1,4 @@
 import { createAction, props } from '@ngrx/store';
-import { CommentaireFactureClient } from 'src/app/models/CommentaireFactureClient.models';
 import { FactureClient } from 'src/app/models/factureClient.models';
 import { Prestation } from 'src/app/models/prestation.model';
 
@@ -189,3 +188,31 @@ export const downloadFactureWithTokenFailure = createAction(
   '[FactureClient] Download Facture With Token Failure',
   props<{ error: any }>()
 );
+export const loadNbFacturesValider = createAction(
+  '[FactureClient] Load Nb Factures à Valider'
+);
+
+export const loadNbFacturesValiderSuccess = createAction(
+  '[FactureClient] Load Nb Factures à Valider Success',
+  props<{ count: number }>()
+);
+
+export const loadNbFacturesValiderFailure = createAction(
+  '[FactureClient] Load Nb Factures à Valider Failure',
+  props<{ error: any }>()
+);
+export const loadNbFacturesValiderMoisPrecedent = createAction(
+  '[FactureClient] Load Nb Factures Valider Mois Precedent'
+);
+
+export const loadNbFacturesValiderMoisPrecedentSuccess = createAction(
+  '[FactureClient] Load Nb Factures Valider Mois Precedent Success',
+  props<{ count: number }>()
+);
+
+export const loadNbFacturesValiderMoisPrecedentFailure = createAction(
+  '[FactureClient] Load Nb Factures Valider Mois Precedent Failure',
+  props<{ error: string }>()
+);
+
+

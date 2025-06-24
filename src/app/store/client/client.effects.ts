@@ -75,6 +75,20 @@ sendImportEmail$ = createEffect(() =>
     )
   )
 );
+loadClientMetrics$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ClientActions.loadClientMetrics),
+    mergeMap(() =>
+      this.clientService.getAllClientMetrics().pipe(
+        map(metrics => ClientActions.loadClientMetricsSuccess({ metrics })),
+        catchError(error =>
+          of(ClientActions.loadClientMetricsFailure({ error: error.message || 'Erreur serveur' }))
+        )
+      )
+    )
+  )
+);
+
 
 
   constructor(

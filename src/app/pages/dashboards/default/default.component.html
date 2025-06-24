@@ -1,21 +1,554 @@
 <div class="container-fluid">
-    <!-- start page title -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="d-flex align-items-center">
+                <img src="assets/images/users/avatar-1.jpg" alt="" class="avatar-sm rounded">
+                <div class="ms-3 flex-grow-1">
+                    <h5 class="mb-2 card-title">Hello, Henry Franklin</h5>
+                    <p class="text-muted mb-0">Ready to jump back in?</p>
+                </div>
+            </div>
+        </div><!--end col-->
+    </div><!--end row-->
+
     <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <h4 class="mb-0 font-size-18">Dashboard</h4>
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <ng-container>
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboards</a>
-                            </li>
-                            <li class="breadcrumb-item active">Dashboard
-                            </li>
-                        </ng-container>
-                    </ol>
+        <div class="col-lg-3">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-2">CA Année Précédente</p>
+                            <h4 class="mb-0 text-primary">{{ caAnneePrecedente$ | async | currency:'EUR' }}</h4>
+                        </div>
+
+                        <div class="flex-shrink-0 align-self-center">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-top py-3">
+                    <p class="mb-0" *ngIf="pourcentageEvolutionCA !== null">
+                        <span class="badge"
+                            [ngClass]="pourcentageEvolutionCA >= 0 ? 'badge-soft-success' : 'badge-soft-danger'">
+                            <i class="bx"
+                                [ngClass]="pourcentageEvolutionCA >= 0 ? 'bx-trending-up' : 'bx-trending-down'"></i>
+                            {{ pourcentageEvolutionCA | number:'1.2-2' }}%
+                        </span>
+                        {{ pourcentageEvolutionCA >= 0 ? 'Hausse' : 'Baisse' }} vs année. N-2.
+                    </p>
+
+                </div>
+            </div>
+        </div><!--end col-->
+        <div class="col-lg-3">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-2">CA année N-2</p>
+                            <h4 class="mb-0 text-secondary">{{ caDeuxAnsAvant$ | async | currency:'EUR' }}</h4>
+                        </div>
+                        <div class="flex-shrink-0 align-self-center">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-top py-3">
+                    <p class="mb-0 d-flex align-items-center ">
+                        <span class="badge me-1"
+                            [ngClass]="pourcentageNMoins1vsActuel >= 0 ? 'badge-soft-success' : 'badge-soft-danger'">
+                            <i class="bx align-bottom me-1"
+                                [ngClass]="pourcentageNMoins1vsActuel >= 0 ? 'bx-trending-up' : 'bx-trending-down'"></i>
+                            {{ pourcentageNMoins1vsActuel | number:'1.2-2' }}%
+                        </span>
+                        {{ pourcentageNMoins1vsActuel >= 0 ? 'Hausse' : 'Baisse' }} vs année N-1.
+                    </p>
+                </div>
+            </div>
+        </div><!--end col-->
+        <div class="col-lg-3">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-2">Contrats à échéance</p>
+                            <h4 class="mb-0 text-danger">{{ nbContratsEcheance$ | async }}</h4>
+                        </div>
+
+                        <div class="flex-shrink-0 align-self-center">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-top py-3">
+                    <p class="mb-0">
+                        <span class="badge me-1" [ngClass]="{
+          'badge-soft-success': evolutionContratsPourcent > 0,
+          'badge-soft-danger': evolutionContratsPourcent < 0
+        }">
+                            <i class="bx align-bottom me-1" [ngClass]="{
+         'bx-trending-up': evolutionContratsPourcent > 0,
+         'bx-trending-down': evolutionContratsPourcent < 0
+       }"></i>
+                            {{ evolutionContratsPourcent !== null ? (evolutionContratsPourcent | number: '1.2-2') + '%'
+                            : '--' }}
+                        </span>
+                        {{ evolutionContratsPourcent !== null
+                        ? (evolutionContratsPourcent >= 0 ? 'Hausse' : 'Baisse') + ' vs mois préc.'
+                        : 'Pas de données' }}
+                    </p>
+                </div>
+            </div>
+        </div><!--end col-->
+        <div class="col-lg-3">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-2">Factures à valider</p>
+                            <h4 class="mb-0 text-warning">{{ nbFacturesValider$ | async }}</h4>
+                        </div>
+
+                        <div class="flex-shrink-0 align-self-center">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-top py-3">
+                    <p class="mb-0">
+                        <span class="badge me-1" [ngClass]="{
+          'badge-soft-success': evolutionFacturesPourcent > 0,
+          'badge-soft-danger': evolutionFacturesPourcent < 0
+        }">
+                            <i class="bx align-bottom me-1" [ngClass]="{
+            'bx-trending-up': evolutionFacturesPourcent > 0,
+            'bx-trending-down': evolutionFacturesPourcent < 0
+          }"></i>
+                            {{ evolutionFacturesPourcent !== null ? (evolutionFacturesPourcent | number: '1.2-2') + '%'
+                            : '--' }}
+                        </span>
+                        {{ evolutionFacturesPourcent !== null
+                        ? (evolutionFacturesPourcent >= 0 ? 'Hausse' : 'Baisse') + ' vs mois préc.'
+                        : 'Pas de données' }}
+                    </p>
+                </div>
+            </div>
+        </div><!--end col-->
+    </div><!--end row-->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-sm-flex flex-wrap">
+                        <h4 class="card-title mb-4">Statistics Applications</h4>
+
+                    </div>
+                    <apx-chart class="apex-charts" [series]="rentabiliteChart.series" [chart]="rentabiliteChart.chart"
+                        [xaxis]="rentabiliteChart.xaxis" [colors]="rentabiliteChart.colors"
+                        [dataLabels]="rentabiliteChart.dataLabels" [plotOptions]="rentabiliteChart.plotOptions"
+                        [yaxis]="rentabiliteChart.yaxis"></apx-chart>
+
                 </div>
             </div>
         </div>
-    </div>
-    <!-- end page title -->
-</div> <!-- container-fluid -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div>
+                            <h4 class="card-title mb-3">Invite your friends to Skote</h4>
+                            <p class="text-muted">Nor again is there anyone who loves or pursues or desires to obtain
+                                pain of itself, because it is pain, but because occasionally.</p>
+                            <div>
+                                <a href="javascript:void(0);" class="btn btn-primary btn-sm"><i
+                                        class='bx bx-user-plus align-middle'></i> Invite Friends</a>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="assets/images/jobs.png" alt="" height="130">
+                        </div>
+                    </div>
+                </div>
+            </div><!--end card-->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Popular Candidate</h4>
+                    <carousel>
+                        <slide>
+                            <div class="bg-light p-3 d-flex mb-3 rounded">
+                                <img src="assets/images/users/avatar-4.jpg" alt="" class="avatar-sm rounded me-3">
+                                <div class="flex-grow-1">
+                                    <h5 class="font-size-15 mb-2"><a routerLink="/jobs/candidate-overview"
+                                            class="text-body">Stephen Hadley</a> <span
+                                            class="badge badge-soft-info">Freelance</span></h5>
+                                    <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Germany
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="dropdown" dropdown>
+                                        <button class="btn btn-soft-primary" type="button" id="*dropdownMenuButton11"
+                                            data-bs-toggle="dropdown" aria-expanded="false" dropdownToggle>
+                                            <i class='bx bx-dots-vertical-rounded'></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end"
+                                            aria-labelledby="*dropdownMenuButton11" *dropdownMenu>
+                                            <li><a class="dropdown-item" routerLink="/jobs/candidate-overview">View
+                                                    Details</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Download CV</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-light p-3 d-flex">
+                                <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-sm rounded me-3">
+                                <div class="flex-grow-1">
+                                    <h5 class="font-size-15 mb-2"><a routerLink="/jobs/candidate-overview"
+                                            class="text-body">Charles Brown</a> <span
+                                            class="badge badge-soft-success">Full Time</span></h5>
+                                    <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Cambodia
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="dropdown" dropdown>
+                                        <button class="btn btn-soft-primary" type="button" id="*dropdownMenuButton12"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            dropdownToggle>
+                                            <i class='bx bx-dots-vertical-rounded'></i>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="*dropdownMenuButton12" *dropdownMenu>
+                                            <li role="menuitem"><a class="dropdown-item"
+                                                    routerLink="/jobs/candidate-overview">View
+                                                    Details</a></li>
+                                            <li role="menuitem"><a class="dropdown-item"
+                                                    href="javascript:void(0);">Download CV</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </slide>
+                    </carousel>
+                </div>
+            </div><!--end card-->
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Social Source</h4>
+                        <div class="text-center">
+                            <div class="avatar-sm mx-auto mb-4">
+                                <span class="avatar-title rounded-circle bg-primary-subtle font-size-24">
+                                    <i class="mdi mdi-facebook text-primary"></i>
+                                </span>
+                            </div>
+                            <p class="font-16 text-muted mb-2"></p>
+                            <h5><a href="javascript: void(0);" class="text-dark">Facebook - <span
+                                        class="text-muted font-16">125
+                                        sales</span> </a></h5>
+                            <p class="text-muted">Maecenas nec odio et ante
+                                tincidunt tempus. Donec vitae sapien ut
+                                libero
+                                venenatis
+                                faucibus tincidunt.</p>
+                            <a href="javascript: void(0);" class="text-primary font-16">Learn more <i
+                                    class="mdi mdi-chevron-right"></i></a>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-4">
+                                <div class="social-source text-center mt-3">
+                                    <div class="avatar-xs mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-primary font-size-16">
+                                            <i class="mdi mdi-facebook text-white"></i>
+                                        </span>
+                                    </div>
+                                    <h5 class="font-size-15">Facebook</h5>
+                                    <p class="text-muted mb-0">125 sales</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="social-source text-center mt-3">
+                                    <div class="avatar-xs mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-info font-size-16">
+                                            <i class="mdi mdi-twitter text-white"></i>
+                                        </span>
+                                    </div>
+                                    <h5 class="font-size-15">Twitter</h5>
+                                    <p class="text-muted mb-0">112 sales</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="social-source text-center mt-3">
+                                    <div class="avatar-xs mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-pink font-size-16">
+                                            <i class="mdi mdi-instagram text-white"></i>
+                                        </span>
+                                    </div>
+                                    <h5 class="font-size-15">Instagram</h5>
+                                    <p class="text-muted mb-0">104 sales</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-5">Activity</h4>
+                        <ul class="verti-timeline list-unstyled">
+                            <li class="event-list">
+                                <div class="event-timeline-dot">
+                                    <i class="bx bx-right-arrow-circle font-size-18"></i>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">
+                                        <h5 class="font-size-14">22 Nov <i
+                                                class="bx bx-right-arrow-alt font-size-16 text-primary align-middle ms-2"></i>
+                                        </h5>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div>
+                                            Responded to need “Volunteer Activities
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="event-list">
+                                <div class="event-timeline-dot">
+                                    <i class="bx bx-right-arrow-circle font-size-18"></i>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">
+                                        <h5 class="font-size-14">17 Nov <i
+                                                class="bx bx-right-arrow-alt font-size-16 text-primary align-middle ms-2"></i>
+                                        </h5>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div>
+                                            Everyone realizes why a new common
+                                            language would be desirable... <a href="javascript: void(0);">Read
+                                                more</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="event-list active">
+                                <div class="event-timeline-dot">
+                                    <i class="bx bxs-right-arrow-circle font-size-18 bx-fade-right"></i>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">
+                                        <h5 class="font-size-14">15 Nov <i
+                                                class="bx bx-right-arrow-alt font-size-16 text-primary align-middle ms-2"></i>
+                                        </h5>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div>
+                                            Joined the group “Boardsmanship Forum”
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="event-list">
+                                <div class="event-timeline-dot">
+                                    <i class="bx bx-right-arrow-circle font-size-18"></i>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">
+                                        <h5 class="font-size-14">12 Nov <i
+                                                class="bx bx-right-arrow-alt font-size-16 text-primary align-middle ms-2"></i>
+                                        </h5>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div>
+                                            Responded to need “In-Kind Opportunity”
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="text-center mt-4"><a href="javascript: void(0);" class="btn btn-primary btn-sm">View
+                                More <i class="mdi mdi-arrow-right ms-1"></i></a></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Top Cities Selling Product</h4>
+
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <i class="bx bx-map-pin text-primary display-4"></i>
+                            </div>
+                            <h3>1,456</h3>
+                            <p>San Francisco</p>
+                        </div>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-centered align-middle table-nowrap">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 30%">
+                                            <p class="mb-0">San Francisco</p>
+                                        </td>
+                                        <td style="width: 25%">
+                                            <h5 class="mb-0">1,456</h5>
+                                        </td>
+                                        <td>
+                                            <div class="progress bg-transparent progress-sm">
+                                                <div class="progress-bar bg-primary rounded" role="progressbar"
+                                                    style="width: 94%" aria-valuenow="94" aria-valuemin="0"
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p class="mb-0">Los Angeles</p>
+                                        </td>
+                                        <td>
+                                            <h5 class="mb-0">1,123</h5>
+                                        </td>
+                                        <td>
+                                            <div class="progress bg-transparent progress-sm">
+                                                <div class="progress-bar bg-success rounded" role="progressbar"
+                                                    style="width: 82%" aria-valuenow="82" aria-valuemin="0"
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p class="mb-0">San Diego</p>
+                                        </td>
+                                        <td>
+                                            <h5 class="mb-0">1,026</h5>
+                                        </td>
+                                        <td>
+                                            <div class="progress bg-transparent progress-sm">
+                                                <div class="progress-bar bg-warning rounded" role="progressbar"
+                                                    style="width: 70%" aria-valuenow="70" aria-valuemin="0"
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Fiabilité des clients</h4>
+                        <p class="card-title-desc">
+                            Vue synthétique des indicateurs de performance client
+                        </p>
+                        <div class="row mb-3">
+                            <div class="col-md-auto d-flex align-items-center gap-3 flex-wrap">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge badge-soft-success me-2">
+                                        <i class="bx bxs-check-circle me-1"></i> Bon
+                                    </span>
+                                    <small class="text-muted">≥ 80</small>
+                                </div>
+
+                                <div class="d-flex align-items-center">
+                                    <span class="badge badge-soft-warning me-2">
+                                        <i class="bx bxs-error me-1"></i> Moyen
+                                    </span>
+                                    <small class="text-muted">60 - 79</small>
+                                </div>
+
+                                <div class="d-flex align-items-center">
+                                    <span class="badge badge-soft-danger me-2">
+                                        <i class="bx bxs-x-circle me-1"></i> Faible
+                                    </span>
+                                    <small class="text-muted">&lt; 60</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Paiement à temps</th>
+                                        <th>Délai moyen</th>
+                                        <th>CA Généré</th>
+                                        <th>Contrats</th>
+                                        <th>Score Global</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let client of paginatedMetrics; let i = index">
+                                        <td>{{ client.nom }}</td>
+
+                                        <!-- Paiement à temps avec badge + icône + valeur -->
+                                        <td>
+                                            <span [ngClass]="getBadgeClass(client.tauxPaiementTemps, 'paiement')"
+                                                class="ms-2 px-2 py-1">
+                                                <i class="me-1 bx" [ngClass]="{
+                'bxs-check-circle': client.tauxPaiementTemps >= 80,
+                'bxs-error': client.tauxPaiementTemps >= 50 && client.tauxPaiementTemps < 80,
+                'bxs-x-circle': client.tauxPaiementTemps < 50
+              }"></i>
+                                                {{ client.tauxPaiementTemps }}%
+                                            </span>
+                                        </td>
+
+                                        <!-- Délai moyen -->
+                                        <td>{{ client.delaiMoyenPaiement }} j</td>
+
+                                        <!-- CA Généré -->
+                                        <td>{{ client.chiffreAffaire | currency: 'EUR' }}</td>
+
+                                        <!-- Contrats -->
+                                        <td>{{ client.nombreContrats }}</td>
+
+                                        <!-- Score global avec badge + icône + valeur -->
+                                        <td>
+                                            <span [ngClass]="getBadgeClass(client.scoreGlobal, 'score')"
+                                                class="ms-2 px-2 py-1">
+                                                <i class="me-1 bx" [ngClass]="{
+                'bxs-shield': client.scoreGlobal >= 80,
+                'bxs-error-circle': client.scoreGlobal >= 60 && client.scoreGlobal < 80,
+                'bxs-bug': client.scoreGlobal < 60
+              }"></i>
+                                                {{ client.scoreGlobal | number: '1.0-0' }}/100
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr *ngIf="(clientMetricsFiltres$ | async)?.length === 0">
+                                        <td colspan="8" class="text-center text-muted">Aucun client trouvé</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- Pagination -->
+                            <div class="row justify-content-between align-items-center mt-3" *ngIf="totalItems > 0">
+                                <div class="col-auto me-auto">
+                                    <p class="text-muted mb-0">
+                                        Affichage de <b>{{ paginatedMetrics.length }}</b> sur <b>{{ totalItems }}</b>
+                                        métriques
+                                    </p>
+                                </div>
+                                <div class="col-auto">
+                                    <ul class="pagination pagination-rounded justify-content-end mb-2">
+                                        <pagination [totalItems]="totalItems" [itemsPerPage]="metricsParPage"
+                                            [maxSize]="5" [(ngModel)]="page" (pageChanged)="pageChanged($event)">
+                                        </pagination>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

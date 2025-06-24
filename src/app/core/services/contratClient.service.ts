@@ -33,7 +33,10 @@ export class ContratClientService extends GenericService<ContratClient> {
   }
   getContratsBySocietesAdmin(): Observable<ContratClient[]> {
     console.log("📡 Appel du service Angular vers backend pour contrats admin");
-  return this.http.get<ContratClient[]>(`${this.apiUrl}/admin/contrats-societes`);
-}
+    return this.http.get<ContratClient[]>(`${this.apiUrl}/admin/contrats-societes`);
+  }
+  getNombreContratsRealises(clientId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/realises?clientId=${clientId}`);
+  }
 
 }

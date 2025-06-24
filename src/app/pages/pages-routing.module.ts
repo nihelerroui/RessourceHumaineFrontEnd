@@ -6,12 +6,12 @@ import { PaysListComponent } from './pays/pays-list/pays-list.component';
 
 
 const routes: Routes = [
-  // { path: '', redirectTo: 'dashboard' },
+  //{ path: '', redirectTo: 'dashboard' },
   {
-    path: "",
+    path: '',
     component: DefaultComponent
   },
-  { path: 'dashboard', component: DefaultComponent },
+  { path: 'dashboards/default', component: DefaultComponent },
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
   { path: 'prestations', loadChildren: () => import('./prestations/prestations.module').then(m => m.PrestationsModule) },
   { path: "contratsoustraitant", loadChildren: () => import("./contratSousTraitant/contrat-sous-traitant.module").then((m) => m.ContratSousTraitantModule) },

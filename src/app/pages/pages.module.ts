@@ -44,6 +44,7 @@ import { RecettesModule } from './recettes/recettes.module';
 import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { HistoriqueChiffreAffaireModule } from './historiqueChiffreAffaire/historiqueChiffreAffaire.module';
+import { DefaultComponent } from './dashboards/default/default.component';
 
 
 @NgModule({
