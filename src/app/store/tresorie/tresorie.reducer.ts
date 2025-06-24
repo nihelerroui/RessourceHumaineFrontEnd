@@ -1,103 +1,104 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { 
-  loadTresorie, 
-  loadTresorieSuccess, 
-  loadTresorieFailure,
-  setSoldeInitial,
-  setSoldeInitialSuccess,
-  setSoldeInitialFailure,
-  validerPaiement,
-  validerPaiementSuccess,
-  validerPaiementFailure,
-  augmenterSoldeActuel,
-  augmenterSoldeActuelSuccess,
-  augmenterSoldeActuelFailure
-} from './tresorie.actions';
+import * as TresorieActions from './tresorie.actions';
 import { Tresorie } from '../../models/tresorie.model';
+import { ScoreSante } from 'src/app/models/ScoreSante.model';
+import { Societe } from 'src/app/models/societe.model';
 
-// 🔹 Interface pour le state de la trésorerie
+
 export interface TresorieState {
-  tresorie: Tresorie | null;  // ✅ Stocke toute la trésorerie
+  tresorie: Tresorie | null;  
   loading: boolean;
   error: string | null;
+  score: ScoreSante | null;
+  societe?: Societe;
 }
 
-// 🔹 État initial de la trésorerie
+
 export const initialState: TresorieState = {
+  score: null,
   tresorie: null,
   loading: false,
   error: null
 };
 
-// 🔹 Reducer NgRx
 export const tresorieReducer = createReducer(
   initialState,
 
-  // 🚀 Charger la trésorerie complète
-  on(loadTresorie, (state) => ({
+  on(TresorieActions.loadTresorie, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
-  on(loadTresorieSuccess, (state, { tresorie }) => ({
+  on(TresorieActions.loadTresorieSuccess, (state, { tresorie }) => ({
     ...state,
     tresorie, 
     loading: false
   })),
-  on(loadTresorieFailure, (state, { error }) => ({
+  on(TresorieActions.loadTresorieFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
 
 
-  on(setSoldeInitial, (state) => ({
+  on(TresorieActions.setSoldeInitial, (state) => ({
     ...state,
     loading: true
   })),
-  on(setSoldeInitialSuccess, (state, { tresorie }) => ({
+  on(TresorieActions.setSoldeInitialSuccess, (state, { tresorie }) => ({
     ...state,
     tresorie, 
     loading: false,
     error: null
   })),
-  on(setSoldeInitialFailure, (state, { error }) => ({
+  on(TresorieActions.setSoldeInitialFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
 
 
-  on(validerPaiement, (state) => ({
+  on(TresorieActions.validerPaiement, (state) => ({
     ...state,
     loading: true
   })),
-  on(validerPaiementSuccess, (state, { tresorie }) => ({
+  on(TresorieActions.validerPaiementSuccess, (state, { tresorie }) => ({
     ...state,
     tresorie, 
     loading: false
   })),
-  on(validerPaiementFailure, (state, { error }) => ({
+  on(TresorieActions.validerPaiementFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false
   })),
  
-on(augmenterSoldeActuel, (state) => ({
+on(TresorieActions.augmenterSoldeActuel, (state) => ({
   ...state,
   loading: true
 })),
-on(augmenterSoldeActuelSuccess, (state, { tresorie }) => ({
+on(TresorieActions.augmenterSoldeActuelSuccess, (state, { tresorie }) => ({
   ...state,
   tresorie, 
   loading: false,
   error: null
 })),
-on(augmenterSoldeActuelFailure, (state, { error }) => ({
+on(TresorieActions.augmenterSoldeActuelFailure, (state, { error }) => ({
   ...state,
   error,
   loading: false
-}))
+})),
+on(TresorieActions.loadScoreSante, (state) => ({ ...state, loading: true, error: null })),
+  on(TresorieActions.loadScoreSanteSuccess, (state, { score }) => ({
+    ...state,
+    loading: false,
+    score
+  })),
+  on(TresorieActions.loadScoreSanteFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  }))
 );
 
 

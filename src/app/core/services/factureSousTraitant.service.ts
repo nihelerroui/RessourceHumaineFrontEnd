@@ -14,13 +14,9 @@ export class FactureSousTraitantService {
 
   constructor(private http: HttpClient) {}
 
-  getFactures(consultantId: number, month: number, year: number, token: string): Observable<FactureSousTraitant[]> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+  getFacturesAvecMontantTTC(consultantId: number, month: number, year: number): Observable<FactureSousTraitant[]> {
+  const url = `${environment.apiUrl}/factureSousTraitant/extraction-ttc?consultantId=${consultantId}&month=${month}&year=${year}`;
+  return this.http.get<FactureSousTraitant[]>(url);
+}
 
-    const url = `${this.baseUrl}/consultantMonthYear?consultant_id=${consultantId}&month=${month}&year=${year}`;
-
-    return this.http.get<FactureSousTraitant[]>(url, { headers });
-  }
 }

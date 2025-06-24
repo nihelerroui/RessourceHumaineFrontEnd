@@ -12,8 +12,8 @@ export class FactureSousTraitantEffects {
   loadFactures$ = createEffect(() =>
     this.actions$.pipe(
       ofType(FactureActions.loadFacturesSousTraitant),
-      mergeMap(({ consultantId, month, year, token }) =>
-        this.factureService.getFactures(consultantId, month, year, token).pipe(
+      mergeMap(({ consultantId, month, year}) =>
+        this.factureService.getFacturesAvecMontantTTC(consultantId, month, year).pipe(
           map(factures => FactureActions.loadFacturesSousTraitantSuccess({ factures })),
           catchError(error => of(FactureActions.loadFacturesSousTraitantFailure({ error })))
         )

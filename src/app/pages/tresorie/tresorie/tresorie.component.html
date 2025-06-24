@@ -9,12 +9,15 @@
       <div class="card">
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Trésorerie des Sociétés</h5>
+            <h5 class="mb-0 card-title flex-grow-1">Suivi Trésorerie</h5>
           </div>
         </div>
-        <div class="card-body border-bottom" *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 0">
+        <div
+          class="card-body border-bottom"
+          *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 0"
+        >
           <div class="row g-3">
-            <div class="col-lg-4"  >
+            <div class="col-lg-4">
               <select
                 class="form-select"
                 [ngModel]="selectedSocieteId"
@@ -67,6 +70,38 @@
             <div class="col-lg-8">
               <div class="card h-100">
                 <div class="card-body">
+                  <div
+                    class="d-inline-flex align-items-center px-3 py-2 rounded mb-4"
+                    [ngClass]="{
+                      'badge-soft-danger':
+                        (tresorie$ | async)?.soldeActuel <
+                        (tresorie$ | async)?.societe?.seuilTresorerie,
+                      'badge-soft-success':
+                        (tresorie$ | async)?.soldeActuel >=
+                        (tresorie$ | async)?.societe?.seuilTresorerie
+                    }"
+                    style="font-size: 1rem; font-weight: 600"
+                  >
+                    <i
+                      class="mdi me-2"
+                      [ngClass]="{
+                        'mdi-alert-circle':
+                          (tresorie$ | async)?.soldeActuel <
+                          (tresorie$ | async)?.societe?.seuilTresorerie,
+                        'mdi-check-circle':
+                          (tresorie$ | async)?.soldeActuel >=
+                          (tresorie$ | async)?.societe?.seuilTresorerie
+                      }"
+                    ></i>
+                    Trésorerie Critique :
+                    {{
+                      (tresorie$ | async)?.soldeActuel <
+                      (tresorie$ | async)?.societe?.seuilTresorerie
+                        ? " Solde sous le seuil !"
+                        : " Stable"
+                    }}
+                  </div>
+
                   <h5 class="text-muted">
                     Montant Initial :
                     {{ (tresorie$ | async)?.soldeInitial | currency }}
@@ -106,31 +141,34 @@
                         | date : "dd/MM/yyyy"
                     }}
                   </p>
+                  <div class="mt-4">
+                    <div class="text-end">
+                      <button
+                        class="btn btn-warning"
+                        *ngIf="
+                          (role === 'ADMINISTRATEUR' &&
+                            !(tresorie$ | async)?.soldeInitial) ||
+                          (tresorie$ | async)?.soldeInitial < 0
+                        "
+                        (click)="openModal(tresorieModal, 'initialiser')"
+                      >
+                        Initialiser
+                      </button>
 
-                  <div class="text-end">
-                    <button
-                      class="btn btn-warning"
-                      *ngIf="role === 'ADMINISTRATEUR' &&
-                        !(tresorie$ | async)?.soldeInitial ||
-                        (tresorie$ | async)?.soldeInitial < 0
-                      "
-                      (click)="openModal(tresorieModal, 'initialiser')"
-                    >
-                      Initialiser
-                    </button>
-
-                    <button
-                      class="btn btn-primary"
-                      *ngIf="role === 'ADMINISTRATEUR' &&
-                        (tresorie$ | async)?.soldeActuel >= 0 &&
-                        (tresorie$ | async)?.soldeInitial &&
-                        (tresorie$ | async)?.soldeActuel <=
-                          (tresorie$ | async)?.societe?.seuilTresorerie
-                      "
-                      (click)="openModal(tresorieModal, 'augmenter')"
-                    >
-                      Augmenter
-                    </button>
+                      <button
+                        class="btn btn-primary"
+                        *ngIf="
+                          role === 'ADMINISTRATEUR' &&
+                          (tresorie$ | async)?.soldeActuel >= 0 &&
+                          (tresorie$ | async)?.soldeInitial &&
+                          (tresorie$ | async)?.soldeActuel <=
+                            (tresorie$ | async)?.societe?.seuilTresorerie
+                        "
+                        (click)="openModal(tresorieModal, 'augmenter')"
+                      >
+                        Augmenter
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -139,41 +177,47 @@
         </div>
       </div>
     </div>
+
+    <ng-template #tresorieModal let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{
+            modalAction === "initialiser"
+              ? "Initialiser le solde"
+              : "Augmenter le solde"
+          }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <label for="montantInput">
+          Montant à
+          {{ modalAction === "initialiser" ? "initialiser" : "ajouter" }} :
+        </label>
+        <input
+          type="number"
+          class="form-control mb-2"
+          [(ngModel)]="montantAjout"
+          min="1"
+        />
+
+        <div *ngIf="modalAction === 'augmenter'">
+          <label>Source</label>
+          <input type="text" class="form-control mb-2" [(ngModel)]="source" />
+
+          <label>Motif</label>
+          <input type="text" class="form-control" [(ngModel)]="motif" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="closeModal()">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-success" (click)="validerAction()">
+          {{ modalAction === "initialiser" ? "Initialiser" : "Confirmer" }}
+        </button>
+      </div>
+    </ng-template>
   </div>
-
-  <ng-template #tresorieModal let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title">
-        {{
-          modalAction === "initialiser"
-            ? "Initialiser le solde"
-            : "Augmenter le solde"
-        }}
-      </h5>
-      <button type="button" class="btn-close" (click)="closeModal()"></button>
-    </div>
-    <div class="modal-body">
-  <label for="montantInput">
-    Montant à {{ modalAction === "initialiser" ? "initialiser" : "ajouter" }} :
-  </label>
-  <input type="number" class="form-control mb-2" [(ngModel)]="montantAjout" min="1" />
-
-  <div *ngIf="modalAction === 'augmenter'">
-    <label>Source</label>
-    <input type="text" class="form-control mb-2" [(ngModel)]="source" />
-
-    <label>Motif</label>
-    <input type="text" class="form-control" [(ngModel)]="motif" />
-  </div>
-</div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn btn-light" (click)="closeModal()">
-        Annuler
-      </button>
-      <button type="button" class="btn btn-success" (click)="validerAction()">
-        {{ modalAction === "initialiser" ? "Initialiser" : "Confirmer" }}
-      </button>
-    </div>
-  </ng-template>
 </div>

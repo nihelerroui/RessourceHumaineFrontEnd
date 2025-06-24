@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Tresorie } from '../../models/tresorie.model';
+import { ScoreSante } from 'src/app/models/ScoreSante.model';
 
 
 export const loadTresorie = createAction(
@@ -65,5 +66,20 @@ export const augmenterSoldeActuelSuccess = createAction(
 
 export const augmenterSoldeActuelFailure = createAction(
   '[Tresorie] Augmenter Solde Actuel Failure',
+  props<{ error: string }>()
+);
+
+export const loadScoreSante = createAction(
+  '[SanteFinanciere] Load Score Sante',
+  props<{ societeId: number; debut: string; fin: string }>()
+);
+
+export const loadScoreSanteSuccess = createAction(
+  '[SanteFinanciere] Load Score Sante Success',
+  props<{ score: ScoreSante }>()
+);
+
+export const loadScoreSanteFailure = createAction(
+  '[SanteFinanciere] Load Score Sante Failure',
   props<{ error: string }>()
 );
