@@ -52,6 +52,8 @@ export class DepenseListComponent implements OnInit {
   consultantSocieteId!: number;
   adminSocietes: any[] = [];
 
+  role: string = "";
+
   constructor(
     private store: Store,
     private modalService: BsModalService,
@@ -68,6 +70,7 @@ export class DepenseListComponent implements OnInit {
     );
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+     this.role = currentUser?.user?.role || "";
 
     this.store.dispatch(AuthActions.loadAdminSocietes());
 

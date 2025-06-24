@@ -30,6 +30,7 @@ export class CommentContratSTComponent implements OnInit, AfterViewInit {
     @Input() contrat!: ContratSousTraitant;
     @Input() contratId: number | null = null;
     @Input() currentUserEmail: string | null = null;
+    @Input() readOnlyMode: boolean = false;
 
     @ViewChild("commentSection") commentSection!: ElementRef;
 
@@ -45,6 +46,8 @@ export class CommentContratSTComponent implements OnInit, AfterViewInit {
             this.comments$ = this.store.select(selectCommentairesByContratSousTraitantId(this.contratId));
             this.isLoading$ = this.store.select(selectLoadingCommentairesContratSousTraitant);
         }
+        const user = JSON.parse(sessionStorage.getItem("currentUser") || '{}');
+  this.readOnlyMode = user?.user?.role === 'RESPONSABLE_FINANCIER';
     }
 
     addComment(): void {

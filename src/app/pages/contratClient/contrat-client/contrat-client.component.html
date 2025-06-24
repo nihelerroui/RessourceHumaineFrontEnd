@@ -40,7 +40,7 @@
               </div>
             </div>
             <!-- Filtrer par société -->
-            <div class="col-lg-3">
+            <div class="col-lg-3"  *ngIf="role === 'ADMINISTRATEUR'">
               <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterContrats()">
                 <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
                   {{ s.name }}
@@ -90,7 +90,7 @@
                       </li>
 
                       <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Valider">
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE' && role =='ADMINISTRATEUR'" data-bs-toggle="tooltip" title="Valider">
                         <a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="
                             modifierStatutContrat(contrat, 'CONFIRME_ADMIN')
                           ">
@@ -99,7 +99,7 @@
                       </li>
 
                       <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Rejeter">
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'&& role =='ADMINISTRATEUR'" data-bs-toggle="tooltip" title="Rejeter">
                         <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
                           (click)="modifierStatutContrat(contrat, 'REJETE')">
                           <i class="mdi mdi-close-circle-outline"></i>
