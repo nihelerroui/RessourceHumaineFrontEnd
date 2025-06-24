@@ -7,10 +7,10 @@ import { combineLatest, map, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectAllSocietes } from 'src/app/store/Authentication/authentication-selector';
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
-import { loadNbContratsEcheance, loadNbContratsEcheanceMoisPrecedent } from 'src/app/store/contratSousTraitant/contrat.actions';
+import * as ContratClientActions from 'src/app/store/contratSousTraitant/contrat.actions';
 import { selectNbContratsEcheance, selectNbContratsEcheanceMoisPrecedent } from 'src/app/store/contratSousTraitant/contrat-selector';
 import { selectNbFacturesValider, selectNbFacturesValiderMoisPrecedent } from 'src/app/store/FactureClient/factureclient.selector';
-import { loadNbFacturesValider, loadNbFacturesValiderMoisPrecedent } from 'src/app/store/FactureClient/factureclient.actions';
+import * as FactureClientActions from 'src/app/store/FactureClient/factureclient.actions';
 import { loadClientMetrics, loadClients } from 'src/app/store/client/client.actions';
 import { selectClientList, selectClientMetrics } from 'src/app/store/client/client.selectors';
 import { Client } from 'src/app/models/client.model';
@@ -81,10 +81,10 @@ export class DefaultComponent implements OnInit {
     this.selectedSocieteId = this.consultantSocieteId;
     this.store.dispatch(AuthActions.loadAdminSocietes());
     this.store.dispatch(loadChiffreAffaireDeuxDernieresAnnees());
-    this.store.dispatch(loadNbContratsEcheance());
-    this.store.dispatch(loadNbFacturesValider());
-    this.store.dispatch(loadNbContratsEcheanceMoisPrecedent());
-    this.store.dispatch(loadNbFacturesValiderMoisPrecedent());
+    this.store.dispatch(ContratClientActions.loadNbContratsEcheance());
+    this.store.dispatch(FactureClientActions.loadNbFacturesValider());
+    this.store.dispatch(ContratClientActions.loadNbContratsEcheanceMoisPrecedent());
+    this.store.dispatch(FactureClientActions.loadNbFacturesValiderMoisPrecedent());
     this.store.dispatch(loadClients());
     this.store.dispatch(loadClientMetrics());
 
