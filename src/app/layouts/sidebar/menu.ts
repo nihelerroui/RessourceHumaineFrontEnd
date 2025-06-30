@@ -122,9 +122,16 @@ export const MENU: MenuItem[] = [
   },
   {
     id: 12,
+    label: "MENUITEMS.CAISSE.TEXT",
+    icon: "bx-file",
+    link: "/caisse",
+    roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER']
+  },
+  {
+    id: 12,
     label: "MENUITEMS.TRESORERIE.TEXT",
     icon: "bx-file",
-    link: "/tresorie",
+    link: "/tresorerie",
     roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER']
   },
   {

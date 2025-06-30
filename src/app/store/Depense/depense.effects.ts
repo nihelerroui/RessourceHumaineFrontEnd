@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 import * as DepenseActions from './depense.actions';
 import { DepenseService } from 'src/app/core/services/depense.service';
 
@@ -24,6 +24,18 @@ export class DepenseEffects {
           catchError(error => of(DepenseActions.fetchDepenseDataFailure({ error: error.message })))
         )
         
+      )
+    )
+  );
+
+  loadDepenses$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(DepenseActions.loadDepenses),
+      mergeMap(({ societeId }) =>
+        this.depenseService.getDepensesBySociete(societeId).pipe(
+          map(depenses => DepenseActions.loadDepensesSuccess({ depenses })),
+          catchError(error => of(DepenseActions.loadDepensesFailure({ error })))
+        )
       )
     )
   );

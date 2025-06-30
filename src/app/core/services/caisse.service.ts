@@ -2,20 +2,20 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { GenericService } from "./generic.service";
-import { Tresorie } from "src/app/models/tresorie.model";
+import { Caisse } from "src/app/models/caisse.model";
 import { ScoreSante } from "src/app/models/ScoreSante.model";
 import { Diagnostic } from "src/app/models/Diagnostic.model";
 
 @Injectable({
   providedIn: "root",
 })
-export class TresorieService extends GenericService<Tresorie> {
+export class CaisseService extends GenericService<Caisse> {
   constructor(protected http: HttpClient) {
-    super(http, "tresories");
+    super(http, "caisse");
   }
 
-  getTresorie(societeId: number): Observable<Tresorie> {
-    return this.http.get<Tresorie>(`${this.apiUrl}/societe/${societeId}`);
+  getCaisse(societeId: number): Observable<Caisse> {
+    return this.http.get<Caisse>(`${this.apiUrl}/societe/${societeId}`);
   }
 
   setSoldeInitial(societeId: number, montant: number): Observable<any> {

@@ -31,6 +31,8 @@ const routes: Routes = [
     path: "import-contrat",
     component: ImportContratComponent
   },
+  { path: 'tresorerie', loadChildren: () => import('./pages/tresorerie/tresorerie.module').then(m => m.TresorerieModule) },
+  { path: 'tresorerie', loadChildren: () => import('./pages/tresorerie/tresorerie.module').then(m => m.TresorerieModule) },
   { path: "**", component: Page404Component },
 
 ];

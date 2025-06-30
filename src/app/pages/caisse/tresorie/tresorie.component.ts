@@ -1,22 +1,18 @@
 import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { Observable } from "rxjs";
-import { Tresorie } from "src/app/models/tresorie.model";
+import { combineLatest, filter, map, Observable, take } from "rxjs";
+import { Caisse } from "src/app/models/caisse.model";
+import { SourceFinancement } from "src/app/models/SourceFinancement.enum";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
-import {
-  augmenterSoldeActuel,
-  loadTresorie,
-  setSoldeInitial,
-} from "src/app/store/tresorie/tresorie.actions";
-import { TresorieState } from "src/app/store/tresorie/tresorie.reducer";
-import {
-  selectPeutAugmenterSolde,
-  selectTresorie,
-  selectTresorieError,
-  selectTresorieLoading,
-} from "src/app/store/tresorie/tresorie.selectors";
+import * as CaisseActions from "src/app/store/caisse/caisse.actions";
+import { CaisseState } from "src/app/store/caisse/caisse.reducer";
+import * as CaisseSelectors from "src/app/store/caisse/caisse.selectors";
+import * as RecetteActions from "src/app/store/recette/recette.actions";
+import * as RecetteSelectors from "src/app/store/recette/recette.selectors";
+import * as DepenseActions from "src/app/store/Depense/depense.actions";
+import * as DepenseSelectors from "src/app/store/Depense/depense.selectors";
 
 @Component({
   selector: "app-tresorie",
@@ -25,7 +21,7 @@ import {
 })
 export class TresorieComponent implements OnInit {
   breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
-  tresorie$: Observable<Tresorie | null>;
+  tresorie$: Observable<Caisse | null>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
   peutAugmenterSolde$: Observable<boolean>;
@@ -42,21 +38,25 @@ export class TresorieComponent implements OnInit {
   selectedSocieteId!: number;
   consultantSocieteId!: number;
   role: string = "";
+  transactions: any[] = [];
+  paginatedTransactions: any[] = [];
+  pageSize = 5;
+  currentPage = 1;
 
   constructor(
     private modalService: BsModalService,
-    private store: Store<{ tresorie: TresorieState }>
+    private store: Store<{ tresorie: CaisseState }>
   ) {
-    this.tresorie$ = this.store.select(selectTresorie);
-    this.loading$ = this.store.select(selectTresorieLoading);
-    this.error$ = this.store.select(selectTresorieError);
-    this.peutAugmenterSolde$ = this.store.select(selectPeutAugmenterSolde);
+    this.tresorie$ = this.store.select(CaisseSelectors.selectCaisse);
+    this.loading$ = this.store.select(CaisseSelectors.selectCaisseLoading);
+    this.error$ = this.store.select(CaisseSelectors.selectCaisseError);
+    this.peutAugmenterSolde$ = this.store.select(CaisseSelectors.selectPeutAugmenterSolde);
   }
 
   ngOnInit(): void {
     this.breadCrumbItems = [
       { label: "Dashboard", path: "/" },
-      { label: "Trésorie", active: true },
+      { label: "Caisse", active: true },
     ];
 
     const currentUser = JSON.parse(
@@ -88,10 +88,24 @@ export class TresorieComponent implements OnInit {
     });
   }
 
-  onSocieteChange() {
-    this.societeId = this.selectedSocieteId;
-    this.store.dispatch(loadTresorie({ societeId: this.societeId }));
-  }
+ onSocieteChange() {
+  this.societeId = this.selectedSocieteId;
+  this.store.dispatch(CaisseActions.loadCaisse({ societeId: this.societeId }));
+  this.store.dispatch(RecetteActions.loadRecettesBySociete({ societeId: this.societeId }));
+  this.store.dispatch(DepenseActions.loadDepenses({ societeId: this.societeId }));
+  combineLatest([
+    this.store.select(RecetteSelectors.selectRecettesBySocieteLoading),
+    this.store.select(DepenseSelectors.selectDepensesLoading)
+  ])
+  .pipe(
+    filter(([recettesLoading, depensesLoading]) => !recettesLoading && !depensesLoading),
+    take(1)
+  )
+  .subscribe(() => {
+    this.observeTransactions();
+  });
+}
+
 
   onSelectChange(id: number) {
     this.selectedSocieteId = id;
@@ -131,7 +145,7 @@ export class TresorieComponent implements OnInit {
       return;
     }
     this.store.dispatch(
-      setSoldeInitial({ societeId: this.societeId, montant: this.montantAjout })
+      CaisseActions.setSoldeInitial({ societeId: this.societeId, montant: this.montantAjout })
     );
     this.closeModal();
   }
@@ -148,7 +162,7 @@ export class TresorieComponent implements OnInit {
     }
 
     this.store.dispatch(
-      augmenterSoldeActuel({
+      CaisseActions.augmenterSoldeActuel({
         societeId: this.societeId,
         montant: this.montantAjout,
         source: this.source,
@@ -156,9 +170,60 @@ export class TresorieComponent implements OnInit {
       })
     );
 
+    this.onSocieteChange();
+
     this.montantAjout = 0;
     this.source = "";
     this.motif = "";
     this.closeModal();
   }
+
+  observeTransactions(): void {
+  combineLatest([
+    this.store.select(RecetteSelectors.selectAllRecettesBySociete),
+    this.store.select(DepenseSelectors.selectAllDepenses)
+  ])
+  .pipe(
+    map(([recettes, depenses]) => {
+      const recettesCaisse = recettes
+        .filter(r => r.sourceFinancement === SourceFinancement.CAISSE)
+        .map(r => ({
+          dateCreation: r.dateCreation,
+          motif: r.motif,
+          montant: r.montant,
+          entree: true
+        }));
+
+      const depensesCaisse = depenses
+        .filter(d => d.sourceFinancement === SourceFinancement.CAISSE)
+        .map(d => ({
+          dateCreation: d.dateCreation,
+          motif: d.motif,
+          montant: d.montant,
+          entree: false
+        }));
+
+      return [...recettesCaisse, ...depensesCaisse]
+        .sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+    })
+  )
+  .subscribe(transactions => {
+    this.transactions = transactions;
+    this.currentPage = 1;
+    this.updatePaginatedTransactions();
+  });
+}
+
+updatePaginatedTransactions() {
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+  this.paginatedTransactions = this.transactions.slice(start, end);
+}
+
+onPageChanged(event: any) {
+  this.currentPage = event.page;
+  this.updatePaginatedTransactions();
+}
+
+
 }

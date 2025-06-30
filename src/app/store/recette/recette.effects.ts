@@ -22,4 +22,16 @@ export class RecetteEffects {
       )
     )
   );
+
+  loadRecettesBySociete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecetteActions.loadRecettesBySociete),
+      mergeMap(({ societeId }) =>
+        this.recetteService.getRecettesBySociete(societeId).pipe(
+          map(recettes => RecetteActions.loadRecettesSuccess({ recettes })),
+          catchError(error => of(RecetteActions.loadRecettesFailure({ error })))
+        )
+      )
+    )
+  );
 }

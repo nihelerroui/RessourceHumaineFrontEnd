@@ -11,3 +11,18 @@ export const fetchDepenseDataFailure = createAction(
   props<{ error: string }>()
 );
 
+export const loadDepenses = createAction(
+  '[Depense] Load Depenses',
+  props<{ societeId: number }>()
+);
+
+export const loadDepensesSuccess = createAction(
+  '[Depense] Load Depenses Success',
+  props<{ depenses: Depense[] }>()
+);
+
+export const loadDepensesFailure = createAction(
+  '[Depense] Load Depenses Failure',
+  props<{ error: any }>()
+);
+

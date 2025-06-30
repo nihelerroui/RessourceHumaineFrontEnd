@@ -1,4 +1,5 @@
 import { Societe } from "./societe.model";
+import { SourceFinancement } from "./SourceFinancement.enum";
 
 export interface Recette {
   recetteId: number;
@@ -7,4 +8,5 @@ export interface Recette {
   motif: string;
   dateCreation: string;
   societe: Societe
+  sourceFinancement : SourceFinancement ;
 }

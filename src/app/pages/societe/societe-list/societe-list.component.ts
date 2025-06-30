@@ -10,10 +10,8 @@ import * as SocieteSelectors from "src/app/store/societe/societe.selectors";
 import Swal from "sweetalert2";
 import { selectAdminSocietes } from "src/app/store/Authentication/authentication-selector";
 import { AdminSociete } from "src/app/models/adminSociete.model";
-import { HttpClient } from "@angular/common/http";
-import { TresorieService } from "src/app/core/services/tresorie.service";
-import { loadScoreSante } from "src/app/store/tresorie/tresorie.actions";
-import { selectTresorieState } from "src/app/store/tresorie/tresorie.selectors";
+import { loadScoreSante } from "src/app/store/caisse/caisse.actions";
+import { selectCaisseState } from "src/app/store/caisse/caisse.selectors";
 
 @Component({
   selector: "app-societe-list",
@@ -47,8 +45,7 @@ export class SocieteListComponent implements OnInit {
   constructor(
     private modalService: BsModalService,
     private formBuilder: FormBuilder,
-    public store: Store,
-    private service: TresorieService
+    public store: Store
   ) {}
 
   ngOnInit(): void {
@@ -190,7 +187,7 @@ export class SocieteListComponent implements OnInit {
         );
 
         this.store
-          .select(selectTresorieState)
+          .select(selectCaisseState)
           .pipe(
             map((state) => state.score),
             filter((score) => !!score && score.nomSociete === s.nom),
