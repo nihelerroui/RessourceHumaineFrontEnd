@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <app-page-title
-    title="Suivi Trésorerie"
+    title="Suivi Caisse"
     [breadcrumbItems]="breadCrumbItems"
   ></app-page-title>
 
@@ -9,7 +9,7 @@
       <div class="card">
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Suivi Trésorerie</h5>
+            <h5 class="mb-0 card-title flex-grow-1">Suivi Caisse</h5>
           </div>
         </div>
         <div
@@ -93,7 +93,7 @@
                           (tresorie$ | async)?.societe?.seuilTresorerie
                       }"
                     ></i>
-                    Trésorerie Critique :
+                    Caisse Critique :
                     {{
                       (tresorie$ | async)?.soldeActuel <
                       (tresorie$ | async)?.societe?.seuilTresorerie

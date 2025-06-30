@@ -1,7 +1,7 @@
 import { Societe } from "./societe.model";
 
-export interface Tresorie {
-  tresorieId?: number;
+export interface Caisse {
+  caisseId?: number;
   societeId?: number;  
   soldeInitial: number;
   soldeActuel: number;

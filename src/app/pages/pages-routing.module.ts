@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { DefaultComponent } from './dashboards/default/default.component';
-import { PaysListComponent } from './pays/pays-list/pays-list.component';
 import { ProfileEditComponent } from './users/profile/userprofileedit/profileedit.component';
 import { AuthGuard } from '../core/guards/auth.guard';
 
@@ -23,7 +22,7 @@ const routes: Routes = [
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
   { path: 'facture', loadChildren: () => import('./facture/facture.module').then(m => m.FactureModule),canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
-  { path: 'tresorie', loadChildren: () => import('./tresorie/tresorie.module').then(m => m.TresorieModule),canActivate: [AuthGuard],
+  { path: 'caisse', loadChildren: () => import('./caisse/caisse.module').then(m => m.CaisseModule),canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
   { path: 'factureclientadmin', loadChildren: () => import('./factureclient-admin/factureclient-admin.module').then(m => m.FactureclientAdminModule),canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
@@ -55,6 +54,9 @@ const routes: Routes = [
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER','SOUS_TRAITANT'] } },
   { path: 'profile/edit', component : ProfileEditComponent , canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER','SOUS_TRAITANT'] } },
+   { path: 'tresorerie', loadChildren: () => import('./tresorerie/tresorerie.module').then(m => m.TresorerieModule),canActivate: [AuthGuard],
+  data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
+  
   
 
 ];

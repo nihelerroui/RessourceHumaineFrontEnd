@@ -11,13 +11,13 @@ import {
   selectFactureLoading,
 } from "src/app/store/factureAchat/factureAchat.selectors";
 import { TypePaiement } from "src/app/models/type-paiement.enum";
-import * as TresorerieActions from "src/app/store/tresorie/tresorie.actions";
+import * as CaisseActions from "src/app/store/caisse/caisse.actions";
 import Swal from "sweetalert2";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 import { StatutPaiement } from "src/app/models/statut-paiement.enum";
 import { environment } from "src/environments/environment";
 import { Actions, ofType } from "@ngrx/effects";
-import { selectTresorieError } from "src/app/store/tresorie/tresorie.selectors";
+import { selectCaisseError } from "src/app/store/caisse/caisse.selectors";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 import { UserRole } from "src/app/models/userRole.enum";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
@@ -103,7 +103,7 @@ export class FactureListComponent implements OnInit {
       this.filterFactures();
     });
 
-    this.actions$.pipe(ofType(TresorerieActions.validerPaiementSuccess)).subscribe(() => {
+    this.actions$.pipe(ofType(CaisseActions.validerPaiementSuccess)).subscribe(() => {
       Swal.fire("Succès", "Le paiement a été validé.", "success");
       this.store.dispatch(FactureActions.loadFacturesAchat());
     });
@@ -134,7 +134,7 @@ export class FactureListComponent implements OnInit {
       this.store.dispatch(FactureActions.loadFacturesAchat());
     });
 
-    this.store.select(selectTresorieError).subscribe((error) => {
+    this.store.select(selectCaisseError).subscribe((error) => {
       if (error) {
         Swal.fire("Erreur", error, "error");
       }
@@ -309,7 +309,7 @@ export class FactureListComponent implements OnInit {
       cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(TresorerieActions.validerPaiement({ factureAchatId }));
+        this.store.dispatch(CaisseActions.validerPaiement({ factureAchatId }));
       }
     });
   }

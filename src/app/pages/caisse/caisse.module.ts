@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { TresorieRoutingModule } from './tresorie-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { tresorieReducer } from 'src/app/store/tresorie/tresorie.reducer';
-import { TresorieEffects } from 'src/app/store/tresorie/tresorie.effects';
+import { caisseReducer } from 'src/app/store/caisse/caisse.reducer';
+import { CaisseEffects } from 'src/app/store/caisse/caisse.effects';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
@@ -12,6 +11,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { UIModule } from 'src/app/shared/ui/ui.module';
 import { TresorieComponent } from './tresorie/tresorie.component';
+import { CaisseRoutingModule } from './caisse-routing.module';
 
 
 
@@ -22,11 +22,11 @@ import { TresorieComponent } from './tresorie/tresorie.component';
   ],
   imports: [
     CommonModule,
-    TresorieRoutingModule,
+    CaisseRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    StoreModule.forFeature('tresorie', tresorieReducer),
-    EffectsModule.forFeature([TresorieEffects]),
+    StoreModule.forFeature('caisse', caisseReducer),
+    EffectsModule.forFeature([CaisseEffects]),
     PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
     CollapseModule.forRoot(),
@@ -35,4 +35,4 @@ import { TresorieComponent } from './tresorie/tresorie.component';
 
   ]
 })
-export class TresorieModule { }
+export class CaisseModule { }

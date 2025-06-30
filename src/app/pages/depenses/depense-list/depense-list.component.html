@@ -85,6 +85,7 @@
                   <th>Motif</th>
                   <th>Date de création</th>
                   <th>Montant</th>
+                  <th> SourceFiancement</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -95,6 +96,19 @@
                   <td>{{ data.motif }}</td>
                   <td>{{ data.dateCreation | date : "dd/MM/yyyy" }}</td>
                   <td>{{ data.montant }}</td>
+                   <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-warning':
+                          data.sourceFinancement=== 'CAISSE',
+                        'badge-soft-info':
+                          data.sourceFinancement==='TRESORERIE'
+                      }"
+                    >
+                      {{ data.sourceFinancement }}
+                    </span>
+                  </td>
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
                       <li>

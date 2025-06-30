@@ -1,71 +1,71 @@
 import { createAction, props } from '@ngrx/store';
-import { Tresorie } from '../../models/tresorie.model';
+import { Caisse } from '../../models/caisse.model';
 import { ScoreSante } from 'src/app/models/ScoreSante.model';
 
 
-export const loadTresorie = createAction(
-  '[Tresorie] Load Tresorie',
+export const loadCaisse = createAction(
+  '[Caisse] Load Caisse',
   props<{ societeId: number }>() 
 );
 
-export const loadTresorieSuccess = createAction(
-  '[Tresorie] Load Tresorie Success',
-  props<{ tresorie: Tresorie }>() 
+export const loadCaisseSuccess = createAction(
+  '[Caisse] Load Caisse Success',
+  props<{ caisse : Caisse }>() 
 );
 
-export const loadTresorieFailure = createAction(
-  '[Tresorie] Load Tresorie Failure',
+export const loadCaisseFailure = createAction(
+  '[Caisse] Load Caisse Failure',
   props<{ error: string }>()
 );
 
 
 export const setSoldeInitial = createAction(
-  '[Tresorie] Set Solde Initial',
+  '[Caisse] Set Solde Initial',
   props<{ societeId: number; montant: number }>()
 );
 
 export const setSoldeInitialSuccess = createAction(
-  '[Tresorie] Set Solde Initial Success',
-  props<{ tresorie: Tresorie }>() 
+  '[Caisse] Set Solde Initial Success',
+  props<{ caisse : Caisse }>() 
 );
 
 export const setSoldeInitialFailure = createAction(
-  '[Tresorie] Set Solde Initial Failure',
+  '[Caisse] Set Solde Initial Failure',
   props<{ error: string }>()
 );
 
 
 export const validerPaiement = createAction(
-  '[Tresorie] Valider Paiement',
+  '[Caisse] Valider Paiement',
   props<{ factureAchatId: number }>()
 );
 
 export const validerPaiementSuccess = createAction(
-  '[Trésorie] Paiement validé avec succès',
-  props<{ tresorie: Tresorie, factureAchatId: number }>() 
+  '[Caisse] Paiement validé avec succès',
+  props<{ caisse: Caisse, factureAchatId: number }>() 
 );
 
 
 
 export const validerPaiementFailure = createAction(
-  '[Trésorie] Paiement échoué',
+  '[Caisse] Paiement échoué',
   props<{ error: string }>()
 );
 
 
 export const augmenterSoldeActuel = createAction(
-  '[Tresorie] Augmenter Solde',
+  '[Caisse] Augmenter Solde',
   props<{ societeId: number; montant: number; source: string; motif: string }>()
 );
 
 
 export const augmenterSoldeActuelSuccess = createAction(
-  '[Tresorie] Augmenter Solde Actuel Success',
-  props<{ tresorie: Tresorie }>() 
+  '[Caisse] Augmenter Solde Actuel Success',
+  props<{ caisse: Caisse }>() 
 );
 
 export const augmenterSoldeActuelFailure = createAction(
-  '[Tresorie] Augmenter Solde Actuel Failure',
+  '[Caisse] Augmenter Solde Actuel Failure',
   props<{ error: string }>()
 );
 
