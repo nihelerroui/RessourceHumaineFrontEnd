@@ -103,24 +103,6 @@ export class AuthenticationEffects {
     )
   );
 
-  updatePersonalDetails$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.updatePersonalDetails),
-      switchMap(({ personalDetailsId, request }) =>
-        this.AuthenticationService.updatePersonalDetails(
-          personalDetailsId,
-          request
-        ).pipe(
-          map((personalDetails) =>
-            AuthActions.updatePersonalDetailsSuccess({ personalDetails })
-          ),
-          catchError((error) =>
-            of(AuthActions.updatePersonalDetailsFailure({ error }))
-          )
-        )
-      )
-    )
-  );
 
   loadConsultants$ = createEffect(() =>
     this.actions$.pipe(
@@ -242,6 +224,49 @@ addMissingAdminSocietes$ = createEffect(() =>
           catchError((error) =>
             of(AuthActions.updatePersonalDetailsWithFilesFailure({ error }))
           )
+        )
+      )
+    )
+  );
+
+
+  forgotPassword$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(AuthActions.forgotPassword),
+    mergeMap(({ email }) =>
+      this.AuthenticationService.forgotPassword(email).pipe(
+        map((response: { message: string }) =>
+          AuthActions.forgotPasswordSuccess({ message: response.message })
+        ),
+        catchError((error) =>
+          of(AuthActions.forgotPasswordFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
+
+
+  resetPassword$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.resetPassword),
+      mergeMap(({ token, newPassword }) =>
+        this.AuthenticationService.resetPassword(token, newPassword).pipe(
+          map(() => AuthActions.resetPasswordSuccess({ message: 'Mot de passe modifié avec succès' })),
+          catchError(err => of(AuthActions.resetPasswordFailure({ error: err.error.message || 'Erreur serveur' })))
+        )
+      )
+    )
+  );
+
+  loadUserImage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loadUserImage),
+      mergeMap(() =>
+        this.AuthenticationService.getUserImage().then(image =>
+          AuthActions.loadUserImageSuccess({ image: image || '' })
+        ).catch(error =>
+          AuthActions.loadUserImageFailure({ error: error.message })
         )
       )
     )

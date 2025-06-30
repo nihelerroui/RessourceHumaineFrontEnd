@@ -29,7 +29,9 @@ export class PaysListComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
-  selectedPays!: Pays | null; // Pays sélectionné pour affichage
+  selectedPays!: Pays | null; 
+
+  role: string = '';
 
   constructor(
     private modalService: BsModalService,
@@ -43,13 +45,14 @@ export class PaysListComponent implements OnInit {
       { label: 'Liste des Pays', active: true }
     ];
 
-    // Déclencher l'action NgRx pour charger les pays
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    this.role = currentUser?.user?.role || '';
+    
     this.store.dispatch(loadPays());
 
-    // Sélectionner les données depuis le store
     this.store.select(selectPaysList).subscribe(pays => {
       this.filteredPaysList = pays;
-      this.pageChanged({ page: 1 }); // Initialiser la pagination
+      this.pageChanged({ page: 1 }); 
     });
     this.loading$ = this.store.select(selectPaysLoading);
     this.error$ = this.store.select(selectPaysError);
@@ -70,7 +73,6 @@ export class PaysListComponent implements OnInit {
 
   }
 
-  /** ✅ Filtrer la liste des pays */
   filterPays() {
     this.store.select(selectPaysList).subscribe(pays => {
       this.filteredPaysList = pays.filter(p =>
@@ -81,40 +83,35 @@ export class PaysListComponent implements OnInit {
     });
   }
 
-  /** ✅ Pagination */
   pageChanged(event: any) {
     this.currentPage = event.page;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     this.paginatedPaysList = this.filteredPaysList.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
-  /** ✅ Rafraîchir la liste */
   refreshList() {
     this.store.dispatch(loadPays());
   }
 
 
-  /** ✅ Ouvrir le modal en mode ajout */
   openModalAdd(template: TemplateRef<any>) {
     this.paysForm.reset(); 
     this.paysForm.patchValue({ paysId: null }); 
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
-  /** ✅ Ouvrir le modal en mode modification */
+
   openModalEdit(pays: Pays, template: TemplateRef<any>) {
     this.paysForm.patchValue(pays); 
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 
 
-  /** ✅ Ajouter ou modifier un pays */
   savePays() {
     if (this.paysForm.valid) {
       const paysData = this.paysForm.value;
 
       if (paysData.paysId) {
-        // 🛠 Mise à jour
         this.store.dispatch(updatePays({ pays: paysData }));
         Swal.fire({
           icon: 'success',
@@ -123,7 +120,6 @@ export class PaysListComponent implements OnInit {
           timer: 1500
         });
       } else {
-        // 🛠 Ajout
         this.store.dispatch(addPays({ pays: paysData }));
         Swal.fire({
           icon: 'success',
@@ -138,7 +134,6 @@ export class PaysListComponent implements OnInit {
     }
   }
 
-  /** ✅ Supprimer un pays avec confirmation */
   onDeletePays(paysId: number) {
     Swal.fire({
       title: 'Êtes-vous sûr ?',
@@ -162,9 +157,8 @@ export class PaysListComponent implements OnInit {
     });
   }
 
-  /** ✅ Ouvrir le modal des détails */
   showDetails(pays: Pays, template: TemplateRef<any>) {
-    this.selectedPays = pays; // Stocke le pays sélectionné
+    this.selectedPays = pays; 
     this.modalRef = this.modalService.show(template, { class: 'modal-md' });
   }
 }

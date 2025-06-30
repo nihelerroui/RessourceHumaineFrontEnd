@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <app-page-title
-    title="Liste des Utilisateurs"
+    title="Liste des Consultants"
     [breadcrumbItems]="breadCrumbItems"
   ></app-page-title>
   <div class="row">
@@ -9,14 +9,14 @@
       
         <div class="card-body border-bottom">
           <div class="d-flex align-items-center">
-            <h5 class="mb-0 card-title flex-grow-1">Liste des Utilisateurs</h5>
+            <h5 class="mb-0 card-title flex-grow-1">Liste des Consultants</h5>
             <div class="flex-shrink-0 d-flex gap-2">
               <a
                 href="javascript:void(0);"
                 class="btn btn-primary"
                 (click)="openModalAdd()"
               >
-                Ajouter un utilisateur
+                Ajouter un consultant
               </a>
               <a
                 href="javascript:void(0);"
@@ -36,7 +36,7 @@
               <input
                 type="search"
                 class="form-control"
-                placeholder="Rechercher un utilisateur..."
+                placeholder="Rechercher un consultant ..."
                 [(ngModel)]="searchTerm"
                 (ngModelChange)="filterUsers()"
               />
@@ -91,7 +91,7 @@
               *ngIf="paginatedUserList.length === 0 && !(loading$ | async)"
               class="text-center text-muted"
             >
-              Aucun utilisateur trouvé.
+              Aucun consultant trouvé.
             </div>
 
             <table
@@ -190,7 +190,7 @@
               <div class="col-auto me-auto">
                 <p class="text-muted mb-0">
                   Affichage de <b>{{ paginatedUserList.length }}</b> sur
-                  <b>{{ filteredUserList.length }}</b> utilisateurs
+                  <b>{{ filteredUserList.length }}</b> Consultants
                 </p>
               </div>
               <div class="col-auto">
@@ -214,7 +214,7 @@
   <ng-template #userModal>
     <div class="modal-header">
       <h5 class="modal-title">
-        {{ selectedUser ? "Modifier Utilisateur" : "Ajouter Utilisateur" }}
+        {{ selectedUser ? "Modifier Consultant" : "Ajouter Consultant" }}
       </h5>
       <button
         type="button"
@@ -223,7 +223,7 @@
       ></button>
     </div>
     <div class="modal-body">
-      <p>Formulaire utilisateur ici...</p>
+      <p>Formulaire consultant ici...</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-light" (click)="modalRef?.hide()">

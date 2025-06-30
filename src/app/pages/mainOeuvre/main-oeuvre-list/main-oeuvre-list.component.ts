@@ -43,6 +43,8 @@ export class MainOeuvreListComponent implements OnInit {
   adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
   selectedSocieteId: number | "" = "";
 
+  role : string ="";
+
   constructor(private store: Store, private actions$: Actions) {
     this.mainOeuvreList$ = this.store.select(selectMainOeuvreData);
     this.loading$ = this.store.select(selectMainOeuvreLoading);
@@ -57,6 +59,7 @@ export class MainOeuvreListComponent implements OnInit {
     this.consultantId = currentUser.consultantId;
     this.societeId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.societeId;
+    this.role = currentUser.user?.role;
 
     this.store.dispatch(loadMainOeuvre());
 

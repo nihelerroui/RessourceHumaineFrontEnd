@@ -24,10 +24,26 @@
                 (ngModelChange)="filtrerRecettes()"
               />
             </div>
+            <div class="col-xxl-3 col-lg-3">
+              <select
+                class="form-select"
+                [(ngModel)]="sourceFinancementSelectionne"
+                (ngModelChange)="filtrerRecettes()"
+              >
+                <option value="">Sélectionner un source</option>
+                <option
+                  *ngFor="let option of sourceFinancementOptions"
+                  [value]="option"
+                >
+                  {{ option }}
+                </option>
+              </select>
+            </div>
 
-
-            
-            <div class="col-xxl-2 col-lg-3" *ngIf="adminSocietes.length > 1">
+            <div
+              class="col-xxl-3 col-lg-3"
+              *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 1"
+            >
               <select
                 class="form-select"
                 [(ngModel)]="selectedSocieteId"
@@ -52,7 +68,6 @@
         </div>
 
         <div class="card-body">
-        
           <div
             *ngIf="error$ | async as error"
             class="alert alert-danger"
@@ -72,6 +87,7 @@
                   <th>Motif</th>
                   <th>Date de création</th>
                   <th>Montant</th>
+                  <th>SourceFiancement</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -79,8 +95,21 @@
                 <tr *ngFor="let data of lists">
                   <td>{{ data.source }}</td>
                   <td>{{ data.motif }}</td>
-                  <td>{{ data.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ data.dateCreation | date : "dd/MM/yyyy" }}</td>
                   <td>{{ data.montant }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-warning':
+                          data.sourceFinancement === 'CAISSE',
+                        'badge-soft-info':
+                          data.sourceFinancement === 'TRESORERIE'
+                      }"
+                    >
+                      {{ data.sourceFinancement }}
+                    </span>
+                  </td>
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
                       <li>
@@ -151,7 +180,7 @@
           </tr>
           <tr>
             <th><i class="bi bi-calendar text-primary"></i> Date :</th>
-            <td>{{ selectedRecette?.dateCreation | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ selectedRecette?.dateCreation | date : "dd/MM/yyyy" }}</td>
           </tr>
           <tr>
             <th><i class="bi bi-currency-euro text-success"></i> Montant :</th>

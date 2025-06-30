@@ -1,0 +1,101 @@
+.card {
+  background-color: #fff !important;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border: none;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.section-header {
+  background-color: #f1f5f9; // 🎨 couleur douce (bleu très clair)
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #d1d5db;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+
+  h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1e293b; // gris très foncé pour bon contraste
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1.1rem;
+      color: #0f172a;
+    }
+  }
+}
+
+
+.section-body {
+  padding: 1rem 1.25rem;
+}
+
+h3, h5 {
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.875rem;
+}
+
+.info-value {
+  font-weight: 400;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background-color: #dc3545;
+
+  &.active {
+    background-color: #28a745;
+  }
+}
+
+// Pour séparer visuellement les cartes dans des colonnes
+.card + .card {
+  margin-top: 1rem;
+}
+
+
+.header-adresse {
+  background-color: #dbeafe ; // gris bleuté clair
+}
+
+.header-cni {
+  background-color: #e2e8f0; // bleu doux
+  
+}
+
+.header-bancaire {
+  background-color: #dbeafe; // idem CNI pour homogénéité
+}
+
+.header-documents {
+  background-color: #e5e7eb; // gris plus net
+}
+
+
+
+

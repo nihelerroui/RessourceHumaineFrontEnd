@@ -13,11 +13,12 @@ import { UIModule } from 'src/app/shared/ui/ui.module';
 import { UsersListComponent } from './users-list/users-list.component';
 import { UtilisateurregisterviewComponent } from './utilisateurregisterview/utilisateurregisterview.component';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { UtilisateurdetailviewComponent } from './utilisateurdetailview/utilisateurdetailview.component';
 
 
 @NgModule({
   declarations: [
-    UsersListComponent
+    UsersListComponent , UtilisateurdetailviewComponent
   ],
   imports: [
     CommonModule,

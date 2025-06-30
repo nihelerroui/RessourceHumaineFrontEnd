@@ -12,6 +12,7 @@ import {
 } from "../../../store/Depense/depense.selectors";
 import { Depense } from "src/app/models/depense.model";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
+import { SourceFinancement } from "src/app/models/SourceFinancement.enum";
 
 @Component({
   selector: "app-depense-list",
@@ -52,6 +53,12 @@ export class DepenseListComponent implements OnInit {
   consultantSocieteId!: number;
   adminSocietes: any[] = [];
 
+  role: string = "";
+
+   sourceFinancementEnum = SourceFinancement;
+   sourceFinancementOptions: string[] = [];
+   sourceFinancementSelectionne: string = "";
+
   constructor(
     private store: Store,
     private modalService: BsModalService,
@@ -63,11 +70,14 @@ export class DepenseListComponent implements OnInit {
       { label: "Dépenses", path: "/" },
       { label: "Liste des Dépenses", active: true },
     ];
+
+    this.sourceFinancementOptions = Object.values(SourceFinancement);
     const currentUser = JSON.parse(
       sessionStorage.getItem("currentUser") || "{}"
     );
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
+     this.role = currentUser?.user?.role || "";
 
     this.store.dispatch(AuthActions.loadAdminSocietes());
 
@@ -115,7 +125,9 @@ export class DepenseListComponent implements OnInit {
           d.mois?.toLowerCase() === this.moisSelectionne.toLowerCase()) &&
         (!terme ||
           d.designation?.toLowerCase().includes(terme) ||
-          d.motif?.toLowerCase().includes(terme))
+          d.motif?.toLowerCase().includes(terme))&&
+      (!this.sourceFinancementSelectionne ||
+        d.sourceFinancement === this.sourceFinancementSelectionne)
     );
 
     this.pageChanged({ page: 1 });

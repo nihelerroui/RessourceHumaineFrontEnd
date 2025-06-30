@@ -10,11 +10,13 @@ import { LoginComponent } from './login/login.component';
 
 
 import { AuthRoutingModule } from './auth-routing';
+import { PasswordresetComponent } from './passwordreset/passwordreset.component';
+import { PasswordConfirmComponent } from './password-confirm/password-confirm.component';
 
 
 
 @NgModule({
-  declarations: [LoginComponent],
+  declarations: [LoginComponent , PasswordresetComponent , PasswordConfirmComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

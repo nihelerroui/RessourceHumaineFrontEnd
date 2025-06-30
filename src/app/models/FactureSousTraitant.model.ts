@@ -6,4 +6,5 @@ export interface FactureSousTraitant {
   dateUpload: string;
   owner: number;
   consultantId: number;
+  montantTTC: number;
 }

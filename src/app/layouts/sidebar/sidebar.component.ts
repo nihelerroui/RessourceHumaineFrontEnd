@@ -33,6 +33,9 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   ];
   showBars: boolean = true;
 
+  userRole: string;
+
+
   @ViewChild('sideMenu') sideMenu: ElementRef;
 
   constructor(private eventService: EventService, private router: Router, public translate: TranslateService, private http: HttpClient) {
@@ -45,20 +48,23 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-    //détection de currentPath et le comparer
-    this.router.events.subscribe(() => {
-      const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
-      const currentPath = '/' + urlSegments?.map(s => s.path).join('/') || '';
-    
-      this.showBars = !this.routesToHideBars.some(route =>
-      currentPath.startsWith(route)
-);
+  const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  this.userRole = user?.user?.role;
 
-    });
-    
-    this.initialize();
-    this._scrollElement();
-  }
+  // filtre les menus selon le rôle
+  this.initialize();
+
+  this.router.events.subscribe(() => {
+    const urlSegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
+    const currentPath = '/' + urlSegments?.map(s => s.path).join('/') || '';
+    this.showBars = !this.routesToHideBars.some(route =>
+      currentPath.startsWith(route)
+    );
+  });
+
+  this._scrollElement();
+}
+
 
   ngAfterViewInit() {
     this.menu = new MetisMenu(this.sideMenu.nativeElement);
@@ -156,9 +162,21 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   /**
    * Initialize
    */
-  initialize(): void {
-    this.menuItems = MENU;
-  }
+initialize(): void {
+  this.menuItems = MENU
+    .map(item => {
+      if (item.subItems) {
+        item.subItems = item.subItems.filter(sub => !sub.roles || sub.roles.includes(this.userRole));
+      }
+      return item;
+    })
+    .filter(item => {
+      return (!item.roles || item.roles.includes(this.userRole)) &&
+             (!item.subItems || item.subItems.length > 0 || !item.subItems);
+    });
+}
+
+
 
   /**
    * Returns true or false if given menu item has child or not

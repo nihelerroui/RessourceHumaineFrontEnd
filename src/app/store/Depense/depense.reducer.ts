@@ -31,5 +31,22 @@ export const depenseReducer = createReducer(
     loading: false,
     error
   })),
+   on(DepenseActions.loadDepenses, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(DepenseActions.loadDepensesSuccess, (state, { depenses }) => ({
+    ...state,
+    depenses,
+    loading: false
+  })),
+
+  on(DepenseActions.loadDepensesFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  }))
   
 );

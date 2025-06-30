@@ -17,3 +17,19 @@ export const selectRecetteError = createSelector(
   selectRecetteState,
   (state) => state.error
 );
+
+
+export const selectAllRecettesBySociete = createSelector(
+  selectRecetteState,
+  state => state.recettes
+);
+
+export const selectRecettesBySocieteLoading = createSelector(
+  selectRecetteState,
+  state => state.loading
+);
+
+export const selectRecettesBySocieteError = createSelector(
+  selectRecetteState,
+  state => state.error
+);

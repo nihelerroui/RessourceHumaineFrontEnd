@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FactureSousTraitant } from 'src/app/models/FactureSousTraitant.model';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
@@ -9,17 +10,13 @@ import { FactureSousTraitant } from 'src/app/models/FactureSousTraitant.model';
 })
 export class FactureSousTraitantService {
 
-  private baseUrl = 'https://featway-serveur.fr:8181/portail-backend-dev/api/factureIndep';
+  private baseUrl = `${environment.baseUrl}/factureIndep`;
 
   constructor(private http: HttpClient) {}
 
-  getFactures(consultantId: number, month: number, year: number, token: string): Observable<FactureSousTraitant[]> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+  getFacturesAvecMontantTTC(consultantId: number, month: number, year: number): Observable<FactureSousTraitant[]> {
+  const url = `${environment.apiUrl}/factureSousTraitant/extraction-ttc?consultantId=${consultantId}&month=${month}&year=${year}`;
+  return this.http.get<FactureSousTraitant[]>(url);
+}
 
-    const url = `${this.baseUrl}/consultantMonthYear?consultant_id=${consultantId}&month=${month}&year=${year}`;
-
-    return this.http.get<FactureSousTraitant[]>(url, { headers });
-  }
 }

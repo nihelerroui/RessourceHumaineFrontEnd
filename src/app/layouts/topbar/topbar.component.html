@@ -349,13 +349,19 @@
 
       <div class="dropdown d-inline-block" dropdown>
         <button type="button" class="btn header-item" dropdownToggle id="page-header-user-dropdown">
-          <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
+          <img
+  class="rounded-circle header-profile-user"
+  [src]="userImage || 'assets/images/users/avatar-1.jpg'"
+  alt="Avatar"
+  (error)="userImage = 'assets/images/users/avatar-1.jpg'"
+/>
+
           <span class="d-none d-xl-inline-block ms-1">{{ userName || 'User' }}</span>
           <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end" *dropdownMenu>
           <!-- item-->
-          <a class="dropdown-item"  style="cursor: pointer;">
+          <a class="dropdown-item" (click)="navigateToProfile()" style="cursor: pointer;">
             <i class="bx bx-user font-size-16 align-middle me-1"></i>{{ 'HEADER.LOGIN.PROFILE' | translate}}</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item text-danger" href="javascript: void(0);" (click)="logout()">

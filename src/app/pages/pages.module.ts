@@ -26,7 +26,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { PaysModule } from './pays/pays.module';
 import { SocieteModule } from './societe/societe.module';
 import { FactureModule } from './facture/facture.module';
-import { TresorieModule } from './tresorie/tresorie.module';
 import { PrestationsModule } from './prestations/prestations.module';
 import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
 import { FactureclientAdminModule } from './factureclient-admin/factureclient-admin.module';
@@ -45,12 +44,14 @@ import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-tr
 import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
 import { HistoriqueChiffreAffaireModule } from './historiqueChiffreAffaire/historiqueChiffreAffaire.module';
 import { DefaultComponent } from './dashboards/default/default.component';
+import { CaisseModule } from './caisse/caisse.module';
+import { TresorerieModule } from './tresorerie/tresorerie.module';
 
 
 @NgModule({
   declarations: [
     CommentModalComponent,
-    UtilisateurregisterviewComponent,
+    UtilisateurregisterviewComponent
   ],
   imports: [
     CommonModule,
@@ -58,7 +59,8 @@ import { DefaultComponent } from './dashboards/default/default.component';
     FactureSousTraitantModule,
     SocieteModule,
     FactureModule,
-    TresorieModule,
+    CaisseModule,
+    TresorerieModule,
     FactureclientAdminModule,
     HistoriqueMainOeuvreModule,
     PrestationsModule,

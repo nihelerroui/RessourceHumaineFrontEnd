@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { combineLatest, filter, Observable, take } from "rxjs";
+import { combineLatest, filter, map, Observable, take } from "rxjs";
 import * as SocieteActions from "src/app/store/societe/societe.actions";
 import { Societe } from "src/app/models/societe.model";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
@@ -10,6 +10,8 @@ import * as SocieteSelectors from "src/app/store/societe/societe.selectors";
 import Swal from "sweetalert2";
 import { selectAdminSocietes } from "src/app/store/Authentication/authentication-selector";
 import { AdminSociete } from "src/app/models/adminSociete.model";
+import { loadScoreSante } from "src/app/store/caisse/caisse.actions";
+import { selectCaisseState } from "src/app/store/caisse/caisse.selectors";
 
 @Component({
   selector: "app-societe-list",
@@ -37,7 +39,6 @@ export class SocieteListComponent implements OnInit {
 
   adminSocieteNamesSet = new Set<string>();
 
-
   adminSocieteList$: Observable<AdminSociete[]>;
   adminSocieteMappedList: Societe[] = [];
 
@@ -47,60 +48,55 @@ export class SocieteListComponent implements OnInit {
     public store: Store
   ) {}
 
- ngOnInit(): void {
+  ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: 'Dashboard', path: '/' },
-      { label: 'Liste des Sociétes', active: true }
+      { label: "Dashboard", path: "/" },
+      { label: "Liste des Sociétes", active: true },
     ];
     this.store.dispatch(SocieteActions.loadSocietes());
-this.store.dispatch(AuthActions.loadAdminSocietes());
+    this.store.dispatch(AuthActions.loadAdminSocietes());
 
-this.loading$ = this.store.select(SocieteSelectors.selectSocieteLoading);
-  this.error$ = this.store.select(SocieteSelectors.selectSocieteError);
+    this.loading$ = this.store.select(SocieteSelectors.selectSocieteLoading);
+    this.error$ = this.store.select(SocieteSelectors.selectSocieteError);
 
-  this.initSocieteForm();
+    this.initSocieteForm();
 
- combineLatest([
-  this.store.select(SocieteSelectors.selectSocieteList), // Toutes les sociétés de la BD
-  this.store.select(selectAdminSocietes) // Celles de l'API externe
-]).subscribe(([allSocietes, adminSocietes]) => {
-  const existingNames = allSocietes.map(s => s.nom.trim().toLowerCase());
+    combineLatest([
+      this.store.select(SocieteSelectors.selectSocieteList), // Toutes les sociétés de la BD
+      this.store.select(selectAdminSocietes), // Celles de l'API externe
+    ]).subscribe(([allSocietes, adminSocietes]) => {
+      const existingNames = allSocietes.map((s) => s.nom.trim().toLowerCase());
 
-  const societesToAdd = adminSocietes.filter(s =>
-    !existingNames.includes(s.name.trim().toLowerCase()) 
-  );
+      const societesToAdd = adminSocietes.filter(
+        (s) => !existingNames.includes(s.name.trim().toLowerCase())
+      );
 
-  societesToAdd.forEach(apiSociete => {
-    const newSociete: Societe = {
-      nom: apiSociete.name,
-      adresse: apiSociete.adresse || '',
-      contact: apiSociete.contact || '',
-      email: apiSociete.email || '',
-      numSiret: apiSociete.numSiret || '',
-      numTva: apiSociete.numTva || '',
-      telephone: apiSociete.telephone || '',
-      responsable: apiSociete.contact || ''
-    };
+      societesToAdd.forEach((apiSociete) => {
+        const newSociete: Societe = {
+          nom: apiSociete.name,
+          adresse: apiSociete.adresse || "",
+          contact: apiSociete.contact || "",
+          email: apiSociete.email || "",
+          numSiret: apiSociete.numSiret || "",
+          numTva: apiSociete.numTva || "",
+          telephone: apiSociete.telephone || "",
+          responsable: apiSociete.contact || "",
+        };
 
-    this.store.dispatch(SocieteActions.addSociete({ societe: newSociete }));
-  });
+        this.store.dispatch(SocieteActions.addSociete({ societe: newSociete }));
+      });
 
-  const adminSocieteNames = adminSocietes.map(s => s.name.trim().toLowerCase());
-  this.originalSocieteList = allSocietes.filter(s =>
-    adminSocieteNames.includes(s.nom.trim().toLowerCase())
-  );
+      const adminSocieteNames = adminSocietes.map((s) =>
+        s.name.trim().toLowerCase()
+      );
+      this.originalSocieteList = allSocietes.filter((s) =>
+        adminSocieteNames.includes(s.nom.trim().toLowerCase())
+      );
+      this.loadNiveauxSante(this.originalSocieteList);
 
-  this.filterSociete();
-});
-
-
-
+      this.filterSociete();
+    });
   }
-
-
-
-
-
 
   private initSocieteForm(): void {
     this.societeForm = this.formBuilder.group({
@@ -109,17 +105,15 @@ this.loading$ = this.store.select(SocieteSelectors.selectSocieteLoading);
     });
   }
 
- filterSociete() {
-  this.filteredSocieteList = this.originalSocieteList.filter(
-    s =>
-      s.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      s.adresse.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      s.contact.toLowerCase().includes(this.searchTerm.toLowerCase())
-  );
-  this.pageChanged({ page: 1 });
-}
-
-
+  filterSociete() {
+    this.filteredSocieteList = this.originalSocieteList.filter(
+      (s) =>
+        s.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        s.adresse.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        s.contact.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+    this.pageChanged({ page: 1 });
+  }
 
   pageChanged(event: any) {
     this.currentPage = event.page;
@@ -160,7 +154,7 @@ this.loading$ = this.store.select(SocieteSelectors.selectSocieteLoading);
             this.store.dispatch(
               SocieteActions.updateSociete({ societe: updatedSociete })
             );
-            this.store.dispatch(SocieteActions.loadSocietes()); 
+            this.store.dispatch(SocieteActions.loadSocietes());
 
             Swal.fire({
               icon: "success",
@@ -179,5 +173,34 @@ this.loading$ = this.store.select(SocieteSelectors.selectSocieteLoading);
   openDetailsSociete(societe: any, template: TemplateRef<any>) {
     this.selectedSociete = societe;
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
+  }
+
+  loadNiveauxSante(societes: Societe[]) {
+    const now = new Date();
+    const debut = `${now.getFullYear()}-01-01`;
+    const fin = now.toISOString().split("T")[0];
+
+    societes.forEach((s) => {
+      if (s.societeId) {
+        this.store.dispatch(
+          loadScoreSante({ societeId: s.societeId, debut, fin })
+        );
+
+        this.store
+          .select(selectCaisseState)
+          .pipe(
+            map((state) => state.score),
+            filter((score) => !!score && score.nomSociete === s.nom),
+            take(1)
+          )
+          .subscribe((score) => {
+            if (score) {
+              s.niveauSante = score.niveau;
+              s["scoreTotal"] = score.scoreTotal;
+              this.filterSociete();
+            }
+          });
+      }
+    });
   }
 }

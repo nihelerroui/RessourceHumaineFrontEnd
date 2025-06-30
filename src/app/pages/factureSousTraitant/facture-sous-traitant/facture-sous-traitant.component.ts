@@ -49,17 +49,16 @@ export class FactureSousTraitantComponent implements OnInit {
     const currentUser = JSON.parse(
       sessionStorage.getItem("currentUser") || "{}"
     );
-    this.consultantId = 319;
+    this.consultantId = currentUser.consultantId;
     const token = environment.token;
     const month = 6;
     const year = 2025;
 
     this.store.dispatch(
       loadFacturesSousTraitant({
-        consultantId: this.consultantId,
+        consultantId: 319,
         month,
         year,
-        token,
       })
     );
 

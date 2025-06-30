@@ -1,0 +1,283 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Suivi Caisse"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Suivi Caisse</h5>
+          </div>
+        </div>
+        <div
+          class="card-body border-bottom"
+          *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 0"
+        >
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <select
+                class="form-select"
+                [ngModel]="selectedSocieteId"
+                (ngModelChange)="onSelectChange($event)"
+              >
+                <option *ngFor="let s of adminSocietes" [ngValue]="s.societeId">
+                  {{ s.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div *ngIf="loading$ | async" class="text-center text-primary mb-3">
+            <i class="mdi mdi-loading mdi-spin"></i> Chargement en cours...
+          </div>
+
+          <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
+            <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="mdi mdi-domain text-primary h1 me-2"></i>
+                    <h4 class="fw-bold mb-0">
+                      {{ (tresorie$ | async)?.societe?.nom }}
+                    </h4>
+                  </div>
+                  <p class="text-muted">
+                    <strong>Contact :</strong>
+                    {{ (tresorie$ | async)?.societe?.contact }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Adresse :</strong>
+                    {{ (tresorie$ | async)?.societe?.adresse }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Email :</strong>
+                    {{ (tresorie$ | async)?.societe?.email }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div
+                    class="d-inline-flex align-items-center px-3 py-2 rounded mb-4"
+                    [ngClass]="{
+                      'badge-soft-danger':
+                        (tresorie$ | async)?.soldeActuel <
+                        (tresorie$ | async)?.societe?.seuilTresorerie,
+                      'badge-soft-success':
+                        (tresorie$ | async)?.soldeActuel >=
+                        (tresorie$ | async)?.societe?.seuilTresorerie
+                    }"
+                    style="font-size: 1rem; font-weight: 600"
+                  >
+                    <i
+                      class="mdi me-2"
+                      [ngClass]="{
+                        'mdi-alert-circle':
+                          (tresorie$ | async)?.soldeActuel <
+                          (tresorie$ | async)?.societe?.seuilTresorerie,
+                        'mdi-check-circle':
+                          (tresorie$ | async)?.soldeActuel >=
+                          (tresorie$ | async)?.societe?.seuilTresorerie
+                      }"
+                    ></i>
+                    Caisse Critique :
+                    {{
+                      (tresorie$ | async)?.soldeActuel <
+                      (tresorie$ | async)?.societe?.seuilTresorerie
+                        ? " Solde sous le seuil !"
+                        : " Stable"
+                    }}
+                  </div>
+
+                  <h5 class="text-muted">
+                    Montant Initial :
+                    {{ (tresorie$ | async)?.soldeInitial | currency }}
+                  </h5>
+                  <h4 class="fw-bold">Solde Actuel</h4>
+                  <h3 class="text-primary">
+                    {{ (tresorie$ | async)?.soldeActuel | currency }}
+                  </h3>
+
+                  <div class="row">
+                    <div class="col-6">
+                      <p class="text-muted"><strong>Entrées :</strong></p>
+                      <h5 class="text-success">
+                        {{ (tresorie$ | async)?.entreesTotales | currency }}
+                      </h5>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-muted"><strong>Sorties :</strong></p>
+                      <h5 class="text-danger">
+                        {{ (tresorie$ | async)?.sortiesTotales | currency }}
+                      </h5>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <p class="text-muted">
+                    <strong>Date de Création :</strong>
+                    {{
+                      (tresorie$ | async)?.dateCreation | date : "dd/MM/yyyy"
+                    }}
+                  </p>
+                  <p class="text-muted">
+                    <strong>Dernière Modification :</strong>
+                    {{
+                      (tresorie$ | async)?.dateModification
+                        | date : "dd/MM/yyyy"
+                    }}
+                  </p>
+                  <div class="mt-4">
+                    <div class="text-end">
+                      <button
+                        class="btn btn-warning"
+                        *ngIf="
+                          (role === 'ADMINISTRATEUR' &&
+                            !(tresorie$ | async)?.soldeInitial) ||
+                          (tresorie$ | async)?.soldeInitial < 0
+                        "
+                        (click)="openModal(tresorieModal, 'initialiser')"
+                      >
+                        Initialiser
+                      </button>
+
+                      <button
+                        class="btn btn-primary"
+                        *ngIf="
+                          role === 'ADMINISTRATEUR' &&
+                          (tresorie$ | async)?.soldeActuel >= 0 &&
+                          (tresorie$ | async)?.soldeInitial &&
+                          (tresorie$ | async)?.soldeActuel <=
+                            (tresorie$ | async)?.societe?.seuilTresorerie
+                        "
+                        (click)="openModal(tresorieModal, 'augmenter')"
+                      >
+                        Augmenter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5 class="mb-3">
+            <i class="mdi mdi-format-list-bulleted text-info me-2"></i>
+            Historique des Transactions
+          </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Date</th>
+                      <th class="text-center"></th>
+                      <th>Motif</th>
+                      <th class="text-end">Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let tx of paginatedTransactions">
+                      <td>{{ tx.dateCreation | date : "dd/MM/yyyy" }}</td>
+                      <td class="text-center">
+                        <i
+                          class="mdi"
+                          [ngClass]="{
+                            'mdi-arrow-down-bold-circle text-success':
+                              tx.entree,
+                            'mdi-arrow-up-bold-circle text-danger': !tx.entree
+                          }"
+                          style="font-size: 1.5rem"
+                        ></i>
+                      </td>
+                      <td>{{ tx.motif }}</td>
+                      <td class="text-end fw-bold">
+                        {{ tx.montant | currency }}
+                      </td>
+                    </tr>
+                    <tr *ngIf="!transactions?.length">
+                      <td colspan="4" class="text-center text-muted py-3">
+                        <i class="mdi mdi-alert-circle-outline"></i>
+                        Aucune transaction trouvée pour la Caisse
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-auto mt-3">
+              <ul
+                class="pagination pagination-rounded justify-content-end mb-0"
+              >
+                <pagination
+                  [totalItems]="transactions.length"
+                  [(ngModel)]="currentPage"
+                  [itemsPerPage]="pageSize"
+                  (pageChanged)="onPageChanged($event)"
+                >
+                </pagination>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #tresorieModal let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{
+            modalAction === "initialiser"
+              ? "Initialiser le solde"
+              : "Augmenter le solde"
+          }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <label for="montantInput">
+          Montant à
+          {{ modalAction === "initialiser" ? "initialiser" : "ajouter" }} :
+        </label>
+        <input
+          type="number"
+          class="form-control mb-2"
+          [(ngModel)]="montantAjout"
+          min="1"
+        />
+
+        <div *ngIf="modalAction === 'augmenter'">
+          <label>Source</label>
+          <input type="text" class="form-control mb-2" [(ngModel)]="source" />
+
+          <label>Motif</label>
+          <input type="text" class="form-control" [(ngModel)]="motif" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="closeModal()">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-success" (click)="validerAction()">
+          {{ modalAction === "initialiser" ? "Initialiser" : "Confirmer" }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</div>
