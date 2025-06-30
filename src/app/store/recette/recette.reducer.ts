@@ -30,5 +30,22 @@ export const recetteReducer = createReducer(
     ...state,
     loading: false,
     error
+  })),
+  on(RecetteActions.loadRecettesBySociete, state => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(RecetteActions.loadRecettesBySocieteSuccess, (state, { recettes }) => ({
+    ...state,
+    recettes,
+    loading: false
+  })),
+
+  on(RecetteActions.loadRecettesBySocieteFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
   }))
 );

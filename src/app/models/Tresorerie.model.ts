@@ -1,12 +1,12 @@
 export interface Tresorerie {
-  tresorerieId: number;
+  tresorerieId?: number;
   soldeInitial: number;
-  soldeActuel: number;
-  dateCreation: string;
-  dateModification: string;
-  entreesTotales: number;
-  sortiesTotales: number;
-  devise: string;
-  motif: string;
+  soldeActuel?: number;
+  dateCreation?: Date;
+  dateModification?: Date;
+  entreesTotales?: number;
+  sortiesTotales?: number;
+  devise?: string;
+  motif?: string;
   societe: any;
 }

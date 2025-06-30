@@ -1,53 +1,70 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { forkJoin, Observable } from 'rxjs';
-import { DepenseService } from 'src/app/core/services/depense.service';
-import { RecetteService } from 'src/app/core/services/recette.service';
-import { TresorerieService } from 'src/app/core/services/tresorerie.service';
-import { AdminSociete } from 'src/app/models/adminSociete.model';
-import { Societe } from 'src/app/models/societe.model';
-import { SourceFinancement } from 'src/app/models/SourceFinancement.enum';
-import { Tresorerie } from 'src/app/models/Tresorerie.model';
-import { selectAllSocietes } from 'src/app/store/Authentication/authentication-selector';
+import { Component, OnInit, TemplateRef } from "@angular/core";
+import { Store } from "@ngrx/store";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { combineLatest, map, Observable } from "rxjs";
+import { AdminSociete } from "src/app/models/adminSociete.model";
+import { Societe } from "src/app/models/societe.model";
+import { SourceFinancement } from "src/app/models/SourceFinancement.enum";
+import { Tresorerie } from "src/app/models/Tresorerie.model";
+import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
-
+import * as TresorerieActions from "src/app/store/tresorerie/tresorerie.actions";
+import * as TresorerieSelectors from "src/app/store/tresorerie/tresorerie.selectors";
+import * as RecetteActions from "src/app/store/recette/recette.actions";
+import * as RecetteSelectors from "src/app/store/recette/recette.selectors";
+import * as DepenseActions from "src/app/store/Depense/depense.actions";
+import * as DepenseSelectors from "src/app/store/Depense/depense.selectors";
 
 @Component({
-  selector: 'app-tresorerie',
-  templateUrl: './tresorerie.component.html',
-  styleUrl: './tresorerie.component.scss'
+  selector: "app-tresorerie",
+  templateUrl: "./tresorerie.component.html",
+  styleUrl: "./tresorerie.component.scss",
 })
 export class TresorerieComponent implements OnInit {
-  breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
-  tresorerie$!: Observable<Tresorerie>;
- transactions: any[] = [];
+ breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
+
+  tresorerie$!: Observable<Tresorerie | null>;
+  loading$!: Observable<boolean>;
+  error$!: Observable<any>;
+
   adminSocietes: AdminSociete[] = [];
   selectedSocieteId!: number;
 
-  role: string = '';
+  role: string = "";
   montantAjout: number = 0;
-  modalAction: string = '';
+  modalAction: string = "";
 
   modalRef?: BsModalRef;
 
+  pageSize = 5;
+  currentPage = 1;
+  paginatedTransactions: any[] = [];
+  transactions: any[] = [];
+
+  transactions$!: Observable<any[]>;
+
+  transactionsCaisse$!: Observable<any[]>;
+
+
+
   constructor(
-    private tresorerieService: TresorerieService,
     private modalService: BsModalService,
-    private store: Store,
-     private recetteService: RecetteService,
-  private depenseService: DepenseService,
+    private store: Store
   ) {}
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: 'Trésorerie', path: '/' },
-      { label: 'Suivi Trésorerie Bancaire', active: true }
+      { label: "Trésorerie", path: "/" },
+      { label: "Suivi Trésorerie Bancaire", active: true },
     ];
 
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
     this.selectedSocieteId = currentUser?.societe?.societeId;
-    this.role = currentUser?.user?.role || '';
+    this.role = currentUser?.user?.role || "";
+
+    this.tresorerie$ = this.store.select(TresorerieSelectors.selectTresorerie);
+    this.loading$ = this.store.select(TresorerieSelectors.selectTresorerieLoading);
+    this.error$ = this.store.select(TresorerieSelectors.selectTresorerieError);
 
     this.store.dispatch(AuthActions.loadAdminSocietes());
     this.store.select(selectAllSocietes).subscribe((societes) => {
@@ -57,94 +74,119 @@ export class TresorerieComponent implements OnInit {
       }
       if (this.selectedSocieteId) {
         this.loadTresorerie();
-        this.loadTransactions();
+        this.loadRecettes();
+        this.loadDepenses();
+        this.observeTransactions();
       }
     });
   }
 
   loadTresorerie(): void {
     if (!this.selectedSocieteId) return;
-    this.tresorerie$ = this.tresorerieService.getTresorerieBySociete(this.selectedSocieteId);
+    this.store.dispatch(TresorerieActions.loadTresorerie({ societeId: this.selectedSocieteId }));
   }
 
-  loadTransactions() {
-  if (!this.selectedSocieteId) return;
+  loadRecettes(): void {
+    if (!this.selectedSocieteId) return;
+    this.store.dispatch(RecetteActions.loadRecettesBySociete({ societeId: this.selectedSocieteId }));
+  }
 
-  forkJoin([
-    this.recetteService.getRecettesBySociete(this.selectedSocieteId),
-    this.depenseService.getDepensesBySociete(this.selectedSocieteId)
-  ]).subscribe(([recettes, depenses]) => {
-    
-    const recettesTresorerie = recettes.filter(r => r.sourceFinancement === SourceFinancement.TRESORERIE);
-    const depensesTresorerie = depenses.filter(d => d.sourceFinancement === SourceFinancement.TRESORERIE);
+  loadDepenses(): void {
+    if (!this.selectedSocieteId) return;
+    this.store.dispatch(DepenseActions.loadDepenses({ societeId: this.selectedSocieteId }));
+  }
 
-    this.transactions = [
-      ...recettesTresorerie.map(r => ({
-        dateCreation: r.dateCreation,
-        motif: r.motif,
-        montant: r.montant,
-        entree: true
-      })),
-      ...depensesTresorerie.map(d => ({
-        dateCreation: d.dateCreation,
-        motif: d.motif,
-        montant: d.montant,
-        entree: false
-      }))
-    ].sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
-  });
-}
+  observeTransactions(): void {
+    combineLatest([
+      this.store.select(RecetteSelectors.selectAllRecettesBySociete),
+      this.store.select(DepenseSelectors.selectAllDepenses)
+    ])
+    .pipe(
+      map(([recettes, depenses]) => {
+        const recettesTresorerie = recettes
+          .filter(r => r.sourceFinancement === SourceFinancement.TRESORERIE)
+          .map(r => ({
+            dateCreation: r.dateCreation,
+            motif: r.motif,
+            montant: r.montant,
+            entree: true
+          }));
 
+        const depensesTresorerie = depenses
+          .filter(d => d.sourceFinancement === SourceFinancement.TRESORERIE)
+          .map(d => ({
+            dateCreation: d.dateCreation,
+            motif: d.motif,
+            montant: d.montant,
+            entree: false
+          }));
 
+        return [...recettesTresorerie, ...depensesTresorerie]
+          .sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
+      })
+    )
+    .subscribe(transactions => {
+      this.transactions = transactions;
+      this.currentPage = 1;
+      this.updatePaginatedTransactions();
+    });
+  }
 
   onSelectChange(newId: number): void {
     this.selectedSocieteId = newId;
     this.loadTresorerie();
-    this.loadTransactions();
+    this.loadRecettes();
+    this.loadDepenses();
   }
 
-  openModal(template: TemplateRef<any>, action: string) {
+  setPage(event: any) {
+    this.currentPage = event.page;
+    this.updatePaginatedTransactions();
+  }
+
+  onPageChanged(event: any) {
+    this.currentPage = event.page;
+    this.updatePaginatedTransactions();
+  }
+
+  updatePaginatedTransactions() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.paginatedTransactions = this.transactions.slice(start, end);
+  }
+
+  openModal(template: TemplateRef<any>, action: string): void {
     this.modalAction = action;
     this.montantAjout = 0;
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
 
-  closeModal() {
+  closeModal(): void {
     this.modalRef?.hide();
   }
 
-  validerAction() {
-    if (this.modalAction === 'initialiser') {
+  validerAction(): void {
+    if (this.modalAction === "initialiser") {
       this.initialiserTresorerie();
     }
   }
 
+  ouvrirModalInitialisation(template: TemplateRef<any>): void {
+    this.modalAction = "initialiser";
+    this.montantAjout = 0;
+    this.modalRef = this.modalService.show(template, { class: "modal-md" });
+  }
 
-  ouvrirModalInitialisation(template: TemplateRef<any>) {
-  this.modalAction = 'initialiser';
-  this.montantAjout = 0;
-  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-}
+  initialiserTresorerie(): void {
+    if (this.montantAjout <= 0 || !this.selectedSocieteId) return;
 
-initialiserTresorerie() {
-  if (this.montantAjout <= 0 || !this.selectedSocieteId) return;
+    const nouvelleTresorerie: Tresorerie = {
+      soldeInitial: this.montantAjout,
+      societe: { societeId: this.selectedSocieteId } as Societe,
+      devise: 'TND'
+    } as Tresorerie;
 
-  const nouvelleTresorerie: Partial<Tresorerie> = {
-    soldeInitial: this.montantAjout,
-    societe: { societeId: this.selectedSocieteId } as Societe
-  };
-
-  this.tresorerieService.createTresorerie(nouvelleTresorerie as Tresorerie)
-    .subscribe({
-      next: () => {
-        this.closeModal();
-        this.loadTresorerie();
-        this.loadTransactions();
-      },
-      error: (err) => {
-        console.error('Erreur création trésorerie :', err);
-      }
-    });
-}
-
+    this.store.dispatch(TresorerieActions.createTresorerie({ tresorerie: nouvelleTresorerie }));
+    this.closeModal();
+  }
 }

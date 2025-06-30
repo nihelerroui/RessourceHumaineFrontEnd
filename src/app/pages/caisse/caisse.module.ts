@@ -12,6 +12,10 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { UIModule } from 'src/app/shared/ui/ui.module';
 import { TresorieComponent } from './tresorie/tresorie.component';
 import { CaisseRoutingModule } from './caisse-routing.module';
+import { depenseReducer } from 'src/app/store/Depense/depense.reducer';
+import { recetteReducer } from 'src/app/store/recette/recette.reducer';
+import { DepenseEffects } from 'src/app/store/Depense/depense.effects';
+import { RecetteEffects } from 'src/app/store/recette/recette.effects';
 
 
 
@@ -31,6 +35,10 @@ import { CaisseRoutingModule } from './caisse-routing.module';
     BsDropdownModule.forRoot(),
     CollapseModule.forRoot(),
     UIModule,
+    StoreModule.forFeature('depense', depenseReducer),
+    StoreModule.forFeature('recettes', recetteReducer),
+    EffectsModule.forFeature([DepenseEffects]),
+    EffectsModule.forFeature([RecetteEffects]),
 
 
   ]

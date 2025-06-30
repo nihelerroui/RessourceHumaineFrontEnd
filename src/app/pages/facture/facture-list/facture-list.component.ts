@@ -46,7 +46,7 @@ export class FactureListComponent implements OnInit {
   selectedStatutPaiement: string = "";
   selectedTypeFacture: string = "";
   currentPage: number = 1;
-  itemsPerPage: number = 4;
+  itemsPerPage: number = 8;
 
   selectedFacture!: FactureAchat | null;
 

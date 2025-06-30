@@ -8,6 +8,14 @@ import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { UIModule } from "src/app/shared/ui/ui.module";
 import { TresorerieComponent } from "./tresorerie/tresorerie.component";
+import { StoreModule } from "@ngrx/store";
+import { tresorerieReducer } from "src/app/store/tresorerie/tresorerie.reducer";
+import { EffectsModule } from "@ngrx/effects";
+import { TresorerieEffects } from "src/app/store/tresorerie/tresorerie.effects";
+import { depenseReducer } from "src/app/store/Depense/depense.reducer";
+import { recetteReducer } from "src/app/store/recette/recette.reducer";
+import { DepenseEffects } from "src/app/store/Depense/depense.effects";
+import { RecetteEffects } from "src/app/store/recette/recette.effects";
 
 @NgModule({
   declarations: [
@@ -22,6 +30,15 @@ import { TresorerieComponent } from "./tresorerie/tresorerie.component";
     CollapseModule.forRoot(),
     UIModule,
     TresorerieRoutingModule,
+    StoreModule.forFeature('tresorerie', tresorerieReducer),
+    EffectsModule.forFeature([TresorerieEffects]),
+    StoreModule.forFeature('depense', depenseReducer),
+    StoreModule.forFeature('recettes', recetteReducer),
+    EffectsModule.forFeature([DepenseEffects]),
+    EffectsModule.forFeature([RecetteEffects]),
+
+    
+
   ],
 })
 export class TresorerieModule {}

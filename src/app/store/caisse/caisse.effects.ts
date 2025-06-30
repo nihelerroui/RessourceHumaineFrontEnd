@@ -4,7 +4,8 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { CaisseService } from 'src/app/core/services/caisse.service';
 import * as CaisseActions  from './caisse.actions';
-import { C } from '@fullcalendar/core/internal-common';
+import * as DepenseActions from "src/app/store/Depense/depense.actions";
+import * as RecetteActions from "src/app/store/recette/recette.actions";
 
 @Injectable()
 export class CaisseEffects {
@@ -60,7 +61,7 @@ export class CaisseEffects {
   
   
 
-augmenterSoldeActuel$ = createEffect(() =>
+/*augmenterSoldeActuel$ = createEffect(() =>
   this.actions$.pipe(
     ofType(CaisseActions.augmenterSoldeActuel),
     mergeMap(({ societeId, montant, source, motif }) =>
@@ -81,7 +82,28 @@ augmenterSoldeActuel$ = createEffect(() =>
       )
     )
   )
+);*/
+
+augmenterSoldeActuel$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(CaisseActions.augmenterSoldeActuel),
+    mergeMap(({ societeId, montant, source, motif }) =>
+  this.caisseService.augmenterSoldeActuel(societeId, montant, source, motif).pipe(
+    mergeMap((caisse) => [
+      CaisseActions.augmenterSoldeActuelSuccess({ caisse }),
+      RecetteActions.loadRecettesBySociete({ societeId }),
+      DepenseActions.loadDepenses({ societeId }),
+      CaisseActions.loadCaisse({ societeId })
+    ]),
+    catchError(error => of(CaisseActions.augmenterSoldeActuelFailure({ error })))
+  )
+)
+
+    
+  )
 );
+
+
 
 loadScoreSante$ = createEffect(() =>
     this.actions$.pipe(
