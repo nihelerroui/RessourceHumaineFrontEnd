@@ -82,5 +82,19 @@ augmenterSoldeActuel$ = createEffect(() =>
   )
 );
 
+loadScoreSante$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TresorieActions.loadScoreSante),
+      mergeMap(({ societeId, debut, fin }) =>
+        this.tresorieService.getScoreSante(societeId, debut, fin).pipe(
+          map((score) => TresorieActions.loadScoreSanteSuccess({ score })),
+          catchError((error) =>
+            of(TresorieActions.loadScoreSanteFailure({ error: error.message || 'Erreur inconnue' }))
+          )
+        )
+      )
+    )
+  );
+
 
 }

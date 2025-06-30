@@ -9,5 +9,8 @@ export interface Societe {
     telephone: string;
     seuilTresorerie?: number;
     responsable: string;
+
+    niveauSante?: 'STABLE' | 'À SURVEILLER' | 'EN RISQUE';
+    scoreTotal?: number;
   }
   

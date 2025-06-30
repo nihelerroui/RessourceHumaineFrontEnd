@@ -1,6 +1,8 @@
 <div class="container-fluid">
-  <app-page-title title="Liste des Sociétés"
-    [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  <app-page-title
+    title="Liste des Sociétés"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
 
   <div class="row">
     <div class="col-12">
@@ -13,27 +15,34 @@
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-lg-4">
-              <input type="search" class="form-control" id="searchInput"
+              <input
+                type="search"
+                class="form-control"
+                id="searchInput"
                 placeholder="Rechercher une societe..."
-                [(ngModel)]="searchTerm" (ngModelChange)="filterSociete()">
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="filterSociete()"
+              />
             </div>
           </div>
         </div>
 
         <div class="card-body">
-
           <div class="table-responsive">
             <div *ngIf="loading$ | async" class="text-center text-primary">
-              <p><i class="mdi mdi-loading mdi-spin"></i> Chargement en
-                cours...</p>
+              <p>
+                <i class="mdi mdi-loading mdi-spin"></i> Chargement en cours...
+              </p>
             </div>
 
             <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
               <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
             </div>
 
-            <table *ngIf="filteredSocieteList.length > 0"
-              class="table table-striped table-hover align-middle">
+            <table
+              *ngIf="filteredSocieteList.length > 0"
+              class="table table-striped table-hover align-middle"
+            >
               <thead>
                 <tr>
                   <th>Nom</th>
@@ -41,30 +50,61 @@
                   <th>Email</th>
                   <th>Responsable</th>
                   <th>Seuil Tresorerie</th>
+                  <th>Niveau Santé</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let societe of paginatedSocieteList; trackBy: trackBySocieteId">
+                <tr
+                  *ngFor="
+                    let societe of paginatedSocieteList;
+                    trackBy: trackBySocieteId
+                  "
+                >
                   <td>{{ societe.nom }}</td>
                   <td>{{ societe.contact }}</td>
                   <td>{{ societe.email }}</td>
                   <td>{{ societe.responsable }}</td>
                   <td>{{ societe.seuilTresorerie }}</td>
-                  
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-success': societe.niveauSante === 'STABLE',
+                        'badge-soft-warning':
+                          societe.niveauSante === 'À SURVEILLER',
+                        'badge-soft-danger': societe.niveauSante === 'EN RISQUE'
+                      }"
+                    >
+                      {{ societe.niveauSante || "..." }}
+                    </span>
+                  </td>
+
                   <td>
                     <ul class="list-unstyled hstack gap-1 mb-0">
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="View">
-                        <button class="btn btn-sm btn-soft-primary"
-                          (click)="openDetailsSociete(societe, detailsSocieteModal)">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="View"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="
+                            openDetailsSociete(societe, detailsSocieteModal)
+                          "
+                        >
                           <i class="mdi mdi-eye"></i>
                         </button>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Edit">
-                        <button class="btn btn-sm btn-soft-info"
-                        (click)="openModalEdit(societe, societeModal)">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-info"
+                          (click)="openModalEdit(societe, societeModal)"
+                        >
                           <i class="mdi mdi-pencil-outline"></i>
                         </button>
                       </li>
@@ -76,117 +116,171 @@
 
             <div
               *ngIf="paginatedSocieteList.length === 0 && !(loading$ | async)"
-              class="text-center text-muted">
+              class="text-center text-muted"
+            >
               <p>Aucune Societe trouvée.</p>
             </div>
-            
-            <div class="row justify-content-between align-items-center mt-3"
-              *ngIf="filteredSocieteList?.length > 0">
+
+            <div
+              class="row justify-content-between align-items-center mt-3"
+              *ngIf="filteredSocieteList?.length > 0"
+            >
               <div class="col-auto me-auto">
-                <p class="text-muted mb-0">Affichage de <b>{{
-                    paginatedSocieteList.length }}</b> sur <b>{{
-                    filteredSocieteList.length }}</b> societes</p>
+                <p class="text-muted mb-0">
+                  Affichage de <b>{{ paginatedSocieteList.length }}</b> sur
+                  <b>{{ filteredSocieteList.length }}</b> societes
+                </p>
               </div>
               <div class="col-auto">
                 <ul
-                  class="pagination pagination-rounded justify-content-end mb-2">
-                  <pagination [totalItems]="filteredSocieteList.length"
+                  class="pagination pagination-rounded justify-content-end mb-2"
+                >
+                  <pagination
+                    [totalItems]="filteredSocieteList.length"
                     [itemsPerPage]="itemsPerPage"
-                    (pageChanged)="pageChanged($event)"></pagination>
+                    (pageChanged)="pageChanged($event)"
+                  ></pagination>
                 </ul>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
 
-<ng-template #societeModal>
-  <div class="modal-header">
-      <h5 class="modal-title">Modifier une Société</h5>
-      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
-  </div>
-  <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
-      <div class="modal-body">
-          
-
+    <ng-template #societeModal>
+      <div class="modal-header">
+        <h5 class="modal-title">Modifier une Société</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="modalRef?.hide()"
+        ></button>
+      </div>
+      <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
+        <div class="modal-body">
           <div class="mb-3">
-              <label class="form-label">Seuil Tresorerie</label>
-              <input type="number" class="form-control" formControlName="seuilTresorerie" placeholder="Seuil Tresorerie">
-              <div *ngIf="societeForm.controls['seuilTresorerie'].invalid && societeForm.controls['seuilTresorerie'].touched" class="text-danger">
-                  Le seuil de la tresorerie coût doit être un nombre positif.
-              </div>
+            <label class="form-label">Seuil Tresorerie</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="seuilTresorerie"
+              placeholder="Seuil Tresorerie"
+            />
+            <div
+              *ngIf="
+                societeForm.controls['seuilTresorerie'].invalid &&
+                societeForm.controls['seuilTresorerie'].touched
+              "
+              class="text-danger"
+            >
+              Le seuil de la tresorerie coût doit être un nombre positif.
+            </div>
           </div>
+        </div>
 
-    
-      </div>
-
-      <div class="modal-footer">
-          <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Annuler</button>
-          <button type="submit" class="btn btn-success" [disabled]="societeForm.invalid">
-              Mettre à Jour 
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-light"
+            (click)="modalRef?.hide()"
+          >
+            Annuler
           </button>
-      </div>
-  </form>
-</ng-template>
-
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="societeForm.invalid"
+          >
+            Mettre à Jour
+          </button>
+        </div>
+      </form>
+    </ng-template>
 
     <ng-template #detailsSocieteModal>
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-buildings text-primary me-2"></i> Détails de la Société</h5>
-        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+        <h5 class="modal-title">
+          <i class="bi bi-buildings text-primary me-2"></i> Détails de la
+          Société
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="modalRef?.hide()"
+        ></button>
       </div>
-    
+
       <div class="modal-body">
         <div class="table-responsive">
           <table class="table">
             <tbody>
               <tr>
-                <th scope="row"><i class="bi bi-building text-primary"></i> Nom :</th>
+                <th scope="row">
+                  <i class="bi bi-building text-primary"></i> Nom :
+                </th>
                 <td>{{ selectedSociete?.nom }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-geo-alt text-danger"></i> Adresse :</th>
+                <th scope="row">
+                  <i class="bi bi-geo-alt text-danger"></i> Adresse :
+                </th>
                 <td>{{ selectedSociete?.adresse }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-person-circle text-info"></i> Contact :</th>
+                <th scope="row">
+                  <i class="bi bi-person-circle text-info"></i> Contact :
+                </th>
                 <td>{{ selectedSociete?.contact }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-envelope text-warning"></i> Email :</th>
+                <th scope="row">
+                  <i class="bi bi-envelope text-warning"></i> Email :
+                </th>
                 <td>{{ selectedSociete?.email }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-file-earmark-text text-success"></i> Numéro SIRET :</th>
+                <th scope="row">
+                  <i class="bi bi-file-earmark-text text-success"></i> Numéro
+                  SIRET :
+                </th>
                 <td>{{ selectedSociete?.numSiret }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-cash-stack text-dark"></i> Numéro TVA :</th>
+                <th scope="row">
+                  <i class="bi bi-cash-stack text-dark"></i> Numéro TVA :
+                </th>
                 <td>{{ selectedSociete?.numTva }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-telephone text-primary"></i> Téléphone :</th>
+                <th scope="row">
+                  <i class="bi bi-telephone text-primary"></i> Téléphone :
+                </th>
                 <td>{{ selectedSociete?.telephone }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-person-badge text-success"></i> Responsable :</th>
+                <th scope="row">
+                  <i class="bi bi-person-badge text-success"></i> Responsable :
+                </th>
                 <td>{{ selectedSociete?.responsable }}</td>
               </tr>
               <tr>
-                <th scope="row"><i class="bi bi-calendar-check text-secondary"></i> Seuil de la tresorerie :</th>
+                <th scope="row">
+                  <i class="bi bi-calendar-check text-secondary"></i> Seuil de
+                  la tresorerie :
+                </th>
                 <td>{{ selectedSociete?.seuilTresorerie }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+          Fermer
+        </button>
       </div>
     </ng-template>
-    
-
   </div>
+</div>

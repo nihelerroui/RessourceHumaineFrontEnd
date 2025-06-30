@@ -56,10 +56,9 @@ export class FactureSousTraitantComponent implements OnInit {
 
     this.store.dispatch(
       loadFacturesSousTraitant({
-        consultantId: this.consultantId,
+        consultantId: 319,
         month,
         year,
-        token,
       })
     );
 

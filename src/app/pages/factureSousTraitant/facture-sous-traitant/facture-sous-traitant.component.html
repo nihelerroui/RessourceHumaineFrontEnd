@@ -73,6 +73,7 @@
             <tr>
               <th>Mois</th>
               <th>Année</th>
+              <th>Montant TTC</th>
               <th>Date Upload</th>
               <th>Fichier</th>
               <th>Actions</th>
@@ -82,6 +83,7 @@
             <tr *ngFor="let facture of paginatedFactureList; let i = index">
               <td>{{ getMonthName(facture.monthId) }}</td>
               <td>{{ facture.yearId }}</td>
+              <td>{{ facture.montantTTC | number: '1.2-2'}}</td>
               <td>{{ facture.dateUpload | date : "dd/MM/yyyy" }}</td>
               <td>{{ getFileName(facture.filePath) }}</td>
               <td>
@@ -153,33 +155,52 @@
     </div>
   </div>
 
-  <ng-template #detailModal>
-    <div class="modal-header">
-      <h5 class="modal-title">Détail Facture</h5>
-      <button
-        type="button"
-        class="btn-close"
-        (click)="modalRef?.hide()"
-      ></button>
+ <ng-template #detailModal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="bi bi-file-earmark-text text-primary me-2"></i> Détail Facture Sous-Traitant
+    </h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="mb-2 d-flex align-items-center">
+      <i class="bi bi-calendar3 text-info me-2"></i>
+      <strong class="me-1">Mois :</strong>
+      <span>{{ selectedFacture?.monthId }}</span>
     </div>
-    <div class="modal-body">
-      <ul class="list-unstyled">
-        <li><strong>Mois:</strong> {{ selectedFacture?.monthId }}</li>
-        <li><strong>Année:</strong> {{ selectedFacture?.yearId }}</li>
-        <li>
-          <strong>Date Upload:</strong>
-          {{ selectedFacture?.dateUpload | date : "dd/MM/yyyy" }}
-        </li>
-        <li>
-          <strong>Fichier:</strong>
-          {{ getFileName(selectedFacture?.filePath || "") }}
-        </li>
-      </ul>
+
+    <div class="mb-2 d-flex align-items-center">
+      <i class="bi bi-calendar text-primary me-2"></i>
+      <strong class="me-1">Année :</strong>
+      <span>{{ selectedFacture?.yearId }}</span>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="modalRef?.hide()">
-        Fermer
-      </button>
+
+    <div class="mb-2 d-flex align-items-center">
+      <i class="bi bi-upload text-success me-2"></i>
+      <strong class="me-1">Date Upload :</strong>
+      <span>{{ selectedFacture?.dateUpload | date: 'dd/MM/yyyy' }}</span>
     </div>
-  </ng-template>
+
+    <div class="mb-2 d-flex align-items-center">
+      <i class="bi bi-file-text text-warning me-2"></i>
+      <strong class="me-1">Fichier :</strong>
+      <span class="text-truncate" style="max-width: 300px;">
+        {{ getFileName(selectedFacture?.filePath || '') }}
+      </span>
+    </div>
+
+    <div class="mb-2 d-flex align-items-center">
+      <i class="bi bi-cash-stack text-danger me-2"></i>
+      <strong class="me-1">Montant TTC :</strong>
+      <span>{{ selectedFacture?.montantTTC | number: '1.2-2' }} </span>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+  </div>
+</ng-template>
+
+
 </div>
