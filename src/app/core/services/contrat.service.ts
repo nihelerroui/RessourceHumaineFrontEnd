@@ -36,4 +36,11 @@ export class ContratService extends GenericService<ContratSousTraitant> {
     if (fichier) formData.append("fichier", fichier);
     return formData;
   } 
+  getNbContratsEnEcheance(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/NbContratsEnEcheance`);
+  }
+  getNbContratsEnEcheanceMoisPrecedent(): Observable<number> {
+  return this.http.get<number>(`${this.apiUrl}/NbContratsEnEcheanceMoisPrecedent`);
+}
+
 }

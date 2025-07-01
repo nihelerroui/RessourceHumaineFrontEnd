@@ -9,6 +9,8 @@ export interface FactureClientState {
   loading: boolean;
   error: string | null;
   factureSelected: any | null;
+  nbFacturesValider: number;
+  nbFacturesValiderMoisPrecedent: number;
 }
 
 export const initialState: FactureClientState = {
@@ -17,7 +19,9 @@ export const initialState: FactureClientState = {
   facturePreview: null,
   loading: false,
   error: null,
-  factureSelected: null
+  factureSelected: null,
+  nbFacturesValider: 0,
+  nbFacturesValiderMoisPrecedent: 0
 };
 
 export const factureClientReducer = createReducer(
@@ -163,5 +167,28 @@ on(FactureClientActions.loadFacturesBySocieteAdminFailure, (state, { error }) =>
   error,
   loading: false,
 })),
+on(FactureClientActions.loadNbFacturesValiderSuccess, (state, { count }) => ({
+  ...state,
+  nbFacturesValider: count,
+  loading: false
+})),
+
+on(FactureClientActions.loadNbFacturesValiderFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false
+})),
+on(FactureClientActions.loadNbFacturesValiderMoisPrecedentSuccess, (state, { count }) => ({
+  ...state,
+  nbFacturesValiderMoisPrecedent: count,
+  loading: false
+})),
+
+on(FactureClientActions.loadNbFacturesValiderMoisPrecedentFailure, (state, { error }) => ({
+  ...state,
+  error,
+  loading: false
+})),
+
 
 );

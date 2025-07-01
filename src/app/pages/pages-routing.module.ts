@@ -8,8 +8,12 @@ import { AuthGuard } from '../core/guards/auth.guard';
 
 
 const routes: Routes = [
-  { path: '', redirectTo: 'profile', pathMatch: 'full' },
-  { path: 'dashboard', component: DefaultComponent },
+  //{ path: '', redirectTo: 'dashboard' },
+  {
+    path: '',
+    component: DefaultComponent
+  },
+  { path: 'dashboards/default', component: DefaultComponent },
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
   { path: 'prestations', loadChildren: () => import('./prestations/prestations.module').then(m => m.PrestationsModule), canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },

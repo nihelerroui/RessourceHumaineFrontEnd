@@ -282,6 +282,35 @@ export class FactureClientEffects {
     )
   )
 );
+loadNbFacturesValider$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadNbFacturesValider),
+    switchMap(() =>
+      this.factureClientService.getNbFacturesValider().pipe(
+        map(count =>
+          FactureClientActions.loadNbFacturesValiderSuccess({ count })
+        ),
+        catchError(error =>
+          of(FactureClientActions.loadNbFacturesValiderFailure({ error: error.message || 'Erreur serveur' }))
+        )
+      )
+    )
+  )
+);
+loadNbFacturesValiderMoisPrecedent$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(FactureClientActions.loadNbFacturesValiderMoisPrecedent),
+    switchMap(() =>
+      this.factureClientService.getNbFacturesValiderMoisPrecedent().pipe(
+        map(count =>
+          FactureClientActions.loadNbFacturesValiderMoisPrecedentSuccess({ count })
+        ),
+        catchError(error =>
+          of(FactureClientActions.loadNbFacturesValiderMoisPrecedentFailure({ error: error.message }))
+        )
+      )
+    )
+  )
+);
 
-  
 }

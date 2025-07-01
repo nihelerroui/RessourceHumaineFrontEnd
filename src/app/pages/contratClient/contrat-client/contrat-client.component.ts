@@ -2,7 +2,7 @@ import { Component, TemplateRef, ViewChild, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { combineLatest, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import {
   ContratClient,
   StatutContrat,

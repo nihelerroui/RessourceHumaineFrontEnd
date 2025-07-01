@@ -15,6 +15,30 @@ export const MENU: MenuItem[] = [
       {
         id: 3,
         label: "MENUITEMS.DASHBOARDS.LIST.DEFAULT",
+        link: "dashboards/default",
+        parentId: 2,
+      },
+      {
+        id: 4,
+        label: "MENUITEMS.DASHBOARDS.LIST.SAAS",
+        link: "/",
+        parentId: 2,
+      },
+      {
+        id: 5,
+        label: "MENUITEMS.DASHBOARDS.LIST.CRYPTO",
+        link: "/",
+        parentId: 2,
+      },
+      {
+        id: 6,
+        label: "MENUITEMS.DASHBOARDS.LIST.BLOG",
+        link: "/",
+        parentId: 2,
+      },
+      {
+        id: 7,
+        label: "MENUITEMS.DASHBOARDS.LIST.JOBS",
         link: "/dashboard",
         parentId: 2,
       },

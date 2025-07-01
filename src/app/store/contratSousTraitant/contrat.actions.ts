@@ -71,3 +71,32 @@ export const updateContractFailure = createAction(
   "[Contrat] Update Contract Failure",
   props<{ error: string }>()
 );
+// Action pour charger le nombre de contrats en échéance
+export const loadNbContratsEcheance = createAction(
+  '[Contrat] Load Nb Contrats Echeance'
+);
+
+export const loadNbContratsEcheanceSuccess = createAction(
+  '[Contrat] Load Nb Contrats Echeance Success',
+  props<{ count: number }>()
+);
+
+export const loadNbContratsEcheanceFailure = createAction(
+  '[Contrat] Load Nb Contrats Echeance Failure',
+  props<{ error: string }>()
+);
+export const loadNbContratsEcheanceMoisPrecedent = createAction(
+  '[Contrat] Load Nb Contrats Echeance Mois Precedent'
+);
+
+export const loadNbContratsEcheanceMoisPrecedentSuccess = createAction(
+  '[Contrat] Load Nb Contrats Echeance Mois Precedent Success',
+  props<{ count: number }>()
+);
+
+export const loadNbContratsEcheanceMoisPrecedentFailure = createAction(
+  '[Contrat] Load Nb Contrats Echeance Mois Precedent Failure',
+  props<{ error: string }>()
+);
+
+

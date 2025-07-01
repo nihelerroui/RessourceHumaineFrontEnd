@@ -1,19 +1,22 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { Client } from 'src/app/models/client.model';
 import * as ClientActions from './client.actions';
+import { ClientMetrics } from 'src/app/models/ClientMetrics.model';
 
 
 export interface ClientState {
   clients: Client[];  
   loading: boolean;
   error: string | null;
+  metrics: ClientMetrics[];
 }
 
 
 export const initialState: ClientState = {
   clients: [],  
   loading: false,
-  error: null
+  error: null,
+  metrics: []
 };
 
 export const clientReducer = createReducer(
@@ -97,12 +100,22 @@ export const clientReducer = createReducer(
     error,
     loading: false
   })),
+  on(ClientActions.loadClientMetrics, (state) => ({
+  ...state,
+  loading: true,
+  error: null
+})),
+on(ClientActions.loadClientMetricsSuccess, (state, { metrics }) => ({
+  ...state,
+  loading: false,
+  metrics
+})),
+on(ClientActions.loadClientMetricsFailure, (state, { error }) => ({
+  ...state,
+  loading: false,
+  error
+})),
+
   
 );
-
-
-// 🔹 Exporter le reducer
-export function reducer(state: ClientState | undefined, action: Action) {
-  return clientReducer(state, action);
-}
 

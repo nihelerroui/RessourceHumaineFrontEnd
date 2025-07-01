@@ -185,7 +185,7 @@
                                             </li>
 
                                             <!-- Marquer comme Payée -->
-                                            <li *ngIf="facture.statutPaiement !== 'PAYÉE' && facture.statutFacture === 'Confirmation_Complet'"
+                                            <li *ngIf="facture.statutPaiement !== 'PAYÉE' && facture.statutFacture === 'Confirmé_Admin'"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="Marquer comme payée">
                                                 <button class="btn btn-sm btn-info"
@@ -311,6 +311,14 @@
               'badge-soft-danger': selectedFacture?.statutPaiement === 'NON_PAYÉE'
             }">{{ selectedFacture?.statutPaiement }}</span>
                         </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted">📆 Date de paiement</p>
+                            <h6 class="fw-semibold">
+                                {{ selectedFacture?.datePaiementEffectif ? (selectedFacture?.datePaiementEffectif |
+                                date:'dd/MM/yyyy') : 'Non payée' }}
+                            </h6>
+                        </div>
+
                     </div>
                 </div>
 

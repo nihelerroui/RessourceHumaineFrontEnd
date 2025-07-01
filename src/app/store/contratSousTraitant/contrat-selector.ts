@@ -9,3 +9,13 @@ export const selectAllContracts = createSelector(
   selectContratState,
   (state: ContratState) => state.contrats
 );
+export const selectNbContratsEcheance = createSelector(
+  selectContratState,
+  (state: ContratState) => state.nbContratsEcheance
+);
+export const selectNbContratsEcheanceMoisPrecedent = createSelector(
+  selectContratState,
+  (state: ContratState) => state.nbContratsEcheanceMoisPrecedent
+);
+
+

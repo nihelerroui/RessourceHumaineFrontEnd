@@ -22,8 +22,8 @@ export class FactureClientService extends GenericService<FactureClient> {
     return this.http.put<FactureClient>(`${this.apiUrl}/update`, facture);
   }
   updateFactureWithToken(facture: FactureClient, token: string): Observable<FactureClient> {
-  return this.http.put<FactureClient>(`${this.apiUrl}/client/update?token=${token}`, facture);
-}
+    return this.http.put<FactureClient>(`${this.apiUrl}/client/update?token=${token}`, facture);
+  }
 
   envoyerRappel(factureId: number): Observable<string> {
     return this.http.post(`${this.apiUrl}/envoyerRappel/${factureId}`, null, {
@@ -73,9 +73,24 @@ export class FactureClientService extends GenericService<FactureClient> {
     return this.http.get<FactureClient[]>(`${this.apiUrl}/admin/factures-societes`);
   }
   downloadFactureWithToken(factureId: number, token: string) {
-  return this.http.get(`${this.apiUrl}/client/download?factureId=${factureId}&token=${token}`, {
-    responseType: 'blob'
-  });
-}
-
+    return this.http.get(`${this.apiUrl}/client/download?factureId=${factureId}&token=${token}`, {
+      responseType: 'blob'
+    });
+  }
+  getNbFacturesValider(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/NbFacturesValider`);
+  }
+  getNbFacturesValiderMoisPrecedent(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/NbFacturesValiderMoisPrecedent`);
+  }
+  getTauxPaiementATemps(clientId: number): Observable<{ clientId: number; tauxPaiementATemps: number }> {
+    return this.http.get<{ clientId: number; tauxPaiementATemps: number }>(
+      `${this.apiUrl}/tauxPaiementATemps/${clientId}`
+    );
+  }
+  getDelaiMoyenPaiement(clientId: number): Observable<number> {
+    return this.http.get<number>(
+      `${this.apiUrl}/delaiMoyenPaiement?clientId=${clientId}`
+    );
+  }
 }

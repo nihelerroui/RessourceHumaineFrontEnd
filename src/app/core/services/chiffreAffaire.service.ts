@@ -22,5 +22,14 @@ export class ChiffreAffaireService extends GenericService<HistoriqueChiffreAffai
     map(res => res.montantTotalPayees ?? 0)
   );
 }
-
+ getChiffreAffaireDeuxDernieresAnnees(): Observable<{ caAnneePrecedente: number, caDeuxAnsAvant: number }> {
+  return this.http.get<{ caAnneePrecedente: number, caDeuxAnsAvant: number }>(
+    `${this.apiUrl}/ChiffreAffaireDeuxDernieresAnnees`
+  );
+}
+getChiffreAffaireParClient(clientId: number): Observable<number> {
+  return this.http.get<any>(`${this.apiUrl}/chiffreAffaireHistoriqueClient/${clientId}`).pipe(
+    map(res => res.montant ?? 0)
+  );
+}
 }
