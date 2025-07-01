@@ -31,4 +31,10 @@ export const selectClientMetrics = createSelector(
   selectClientState,
   (state: ClientState) => state.metrics
 );
+export const selectRentabilites = createSelector(
+  selectClientState,
+  (state: ClientState) => state.rentabilites
+);
+
+
 

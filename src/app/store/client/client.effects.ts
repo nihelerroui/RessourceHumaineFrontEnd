@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, mergeMap, map } from 'rxjs/operators';
+import { catchError, mergeMap, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { ClientService } from 'src/app/core/services/client.service';
@@ -88,7 +88,17 @@ loadClientMetrics$ = createEffect(() =>
     )
   )
 );
-
+loadRentabilites$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ClientActions.loadRentabilites),
+    switchMap(action =>
+      this.clientService.getRentabilitesForYear(action.year).pipe(
+        map(rentabilites => ClientActions.loadRentabilitesSuccess({ rentabilites })),
+        catchError(error => of(ClientActions.loadRentabilitesFailure({ error: error.message })))
+      )
+    )
+  )
+);
 
 
   constructor(

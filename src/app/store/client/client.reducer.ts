@@ -2,6 +2,7 @@ import { Action, createReducer, on } from '@ngrx/store';
 import { Client } from 'src/app/models/client.model';
 import * as ClientActions from './client.actions';
 import { ClientMetrics } from 'src/app/models/ClientMetrics.model';
+import { Rentabilite } from 'src/app/models/Rentabilite.model';
 
 
 export interface ClientState {
@@ -9,6 +10,7 @@ export interface ClientState {
   loading: boolean;
   error: string | null;
   metrics: ClientMetrics[];
+  rentabilites: Rentabilite[];
 }
 
 
@@ -16,7 +18,8 @@ export const initialState: ClientState = {
   clients: [],  
   loading: false,
   error: null,
-  metrics: []
+  metrics: [],
+  rentabilites: []
 };
 
 export const clientReducer = createReducer(
@@ -115,6 +118,21 @@ on(ClientActions.loadClientMetricsFailure, (state, { error }) => ({
   loading: false,
   error
 })),
+on(ClientActions.loadRentabilites, (state) => ({
+  ...state,
+  loading: true,
+  error: null
+})),
+on(ClientActions.loadRentabilitesSuccess, (state, { rentabilites }) => ({
+  ...state,
+  rentabilites,
+  loading: false
+})),
+on(ClientActions.loadRentabilitesFailure, (state, { error }) => ({
+  ...state,
+  loading: false,
+  error
+}))
 
   
 );
