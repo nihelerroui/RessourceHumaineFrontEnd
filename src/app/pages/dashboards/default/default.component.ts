@@ -39,6 +39,7 @@ export class DefaultComponent implements OnInit {
   adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
   currentUserEmail: string = '';
   adminSocietes: any[] = [];
+  top5ClientsRentables: Rentabilite[] = [];
 
   isActive: string;
   caAnneePrecedente$!: Observable<number>;
@@ -93,6 +94,13 @@ export class DefaultComponent implements OnInit {
     this.store.dispatch(loadClientMetrics());
 
     this.rentabilites$ = this.store.select(selectRentabilites);
+    this.rentabilites$.subscribe(rents => {
+  this.top5ClientsRentables = rents
+    .slice() 
+    .sort((a, b) => b.rentabilite - a.rentabilite)
+    .slice(0, 5);
+});
+
     this.clientMetrics$ = this.store.select(selectClientMetrics);
     this.clients$ = this.store.select(selectClientList);
     this.caAnneePrecedente$ = this.store.select(selectCaAnneePrecedente);

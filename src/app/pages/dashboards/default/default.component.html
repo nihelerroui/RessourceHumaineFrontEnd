@@ -168,82 +168,25 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex">
-                        <div>
-                            <h4 class="card-title mb-3">Invite your friends to Skote</h4>
-                            <p class="text-muted">Nor again is there anyone who loves or pursues or desires to obtain
-                                pain of itself, because it is pain, but because occasionally.</p>
-                            <div>
-                                <a href="javascript:void(0);" class="btn btn-primary btn-sm"><i
-                                        class='bx bx-user-plus align-middle'></i> Invite Friends</a>
-                            </div>
-                        </div>
-                        <div>
-                            <img src="assets/images/jobs.png" alt="" height="130">
-                        </div>
+                    <h4 class="card-title mb-3">Top 5 des Clients les plus Rentables</h4>
+                    <p class="text-muted">Clients générant la meilleure rentabilité pour l'année sélectionnée.</p>
+
+                    <ul class="list-group list-group-flush">
+                        <li *ngFor="let client of top5ClientsRentables"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ client.nom }}</span>
+                            <span class="badge badge-soft-success me-2">{{ client.rentabilite }}%</span>
+                        </li>
+                    </ul>
+
+                    <div *ngIf="!top5ClientsRentables || top5ClientsRentables.length === 0"
+                        class="text-muted text-center mt-3">
+                        Pas de données disponibles
                     </div>
                 </div>
-            </div><!--end card-->
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Popular Candidate</h4>
-                    <carousel>
-                        <slide>
-                            <div class="bg-light p-3 d-flex mb-3 rounded">
-                                <img src="assets/images/users/avatar-4.jpg" alt="" class="avatar-sm rounded me-3">
-                                <div class="flex-grow-1">
-                                    <h5 class="font-size-15 mb-2"><a routerLink="/jobs/candidate-overview"
-                                            class="text-body">Stephen Hadley</a> <span
-                                            class="badge badge-soft-info">Freelance</span></h5>
-                                    <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Germany
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="dropdown" dropdown>
-                                        <button class="btn btn-soft-primary" type="button" id="*dropdownMenuButton11"
-                                            data-bs-toggle="dropdown" aria-expanded="false" dropdownToggle>
-                                            <i class='bx bx-dots-vertical-rounded'></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end"
-                                            aria-labelledby="*dropdownMenuButton11" *dropdownMenu>
-                                            <li><a class="dropdown-item" routerLink="/jobs/candidate-overview">View
-                                                    Details</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);">Download CV</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-light p-3 d-flex">
-                                <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-sm rounded me-3">
-                                <div class="flex-grow-1">
-                                    <h5 class="font-size-15 mb-2"><a routerLink="/jobs/candidate-overview"
-                                            class="text-body">Charles Brown</a> <span
-                                            class="badge badge-soft-success">Full Time</span></h5>
-                                    <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Cambodia
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="dropdown" dropdown>
-                                        <button class="btn btn-soft-primary" type="button" id="*dropdownMenuButton12"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                            dropdownToggle>
-                                            <i class='bx bx-dots-vertical-rounded'></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="*dropdownMenuButton12" *dropdownMenu>
-                                            <li role="menuitem"><a class="dropdown-item"
-                                                    routerLink="/jobs/candidate-overview">View
-                                                    Details</a></li>
-                                            <li role="menuitem"><a class="dropdown-item"
-                                                    href="javascript:void(0);">Download CV</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </slide>
-                    </carousel>
-                </div>
-            </div><!--end card-->
+            </div>
         </div>
+
 
         <div class="row">
             <div class="col-xl-4">
