@@ -106,7 +106,6 @@ export class DefaultComponent implements OnInit {
     this.selectedYear$.next(currentYear - 1);
     this.availableYears = [currentYear - 3, currentYear - 2, currentYear - 1];
 
-
     this.clientMetricsFiltres$ = combineLatest([
       this.clientMetrics$,
       this.clients$,
@@ -176,8 +175,6 @@ export class DefaultComponent implements OnInit {
       this.store.dispatch(loadRentabilites({ year }));
     });
 
-
-
     combineLatest([
       this.caAnneePrecedente$,
       this.caDeuxAnsAvant$
@@ -195,7 +192,6 @@ export class DefaultComponent implements OnInit {
       }
     });
 
-
     combineLatest([this.nbContratsEcheance$, this.nbContratsEcheanceMoisPrecedent$])
       .subscribe(([actuel, precedent]) => {
         if (precedent && precedent !== 0) {
@@ -212,24 +208,6 @@ export class DefaultComponent implements OnInit {
         this.evolutionFacturesPourcent = null;
       }
     });
-
-
-    /**
-     * horizontal-vertical layput set
-     */
-    const attribute = document.body.getAttribute('data-layout');
-
-    this.isVisible = attribute;
-    const vertical = document.getElementById('layout-vertical');
-    if (vertical != null) {
-      vertical.setAttribute('checked', 'true');
-    }
-    if (attribute == 'horizontal') {
-      const horizontal = document.getElementById('layout-horizontal');
-      if (horizontal != null) {
-        horizontal.setAttribute('checked', 'true');
-      }
-    }
 
     this.clientMetricsFiltres$.subscribe(metrics => {
       this.allMetrics = metrics;
