@@ -64,14 +64,20 @@ export class SocieteListComponent implements OnInit {
     combineLatest([
       this.store.select(SocieteSelectors.selectSocieteList), // Toutes les sociétés de la BD
       this.store.select(selectAdminSocietes), // Celles de l'API externe
+      
     ]).subscribe(([allSocietes, adminSocietes]) => {
+      console.log("=== ALL societes from DB ===", allSocietes);
+console.log("=== ADMIN societes from API ===", adminSocietes);
+
       const existingNames = allSocietes.map((s) => s.nom.trim().toLowerCase());
 
       const societesToAdd = adminSocietes.filter(
         (s) => !existingNames.includes(s.name.trim().toLowerCase())
       );
 
+
       societesToAdd.forEach((apiSociete) => {
+        console.log("==> Adding new societe to store:", apiSociete.name);
         const newSociete: Societe = {
           nom: apiSociete.name,
           adresse: apiSociete.adresse || "",
@@ -83,8 +89,17 @@ export class SocieteListComponent implements OnInit {
           responsable: apiSociete.contact || "",
         };
 
+        const existingNames = allSocietes.map((s) => s.nom.trim().toLowerCase());
+console.log("=== Existing names normalized ===", existingNames);
+
+const adminNames = adminSocietes.map((s) => s.name.trim().toLowerCase());
+console.log("=== Admin names normalized ===", adminNames);
+
+
         this.store.dispatch(SocieteActions.addSociete({ societe: newSociete }));
       });
+
+      
 
       const adminSocieteNames = adminSocietes.map((s) =>
         s.name.trim().toLowerCase()

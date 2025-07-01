@@ -6,7 +6,7 @@ import { catchError, map, mergeMap, of, tap } from 'rxjs';
 
 @Injectable()
 export class SocieteEffects {
-  constructor(private actions$: Actions, private societeService: SocieteService) {}
+  constructor(private actions$: Actions, private societeService: SocieteService) { }
 
   loadSocietes$ = createEffect(() =>
     this.actions$.pipe(
@@ -20,14 +20,12 @@ export class SocieteEffects {
     )
   );
 
-addSocieteSuccess$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(SocieteActions.addSocieteSuccess),
-    map(() => SocieteActions.loadSocietes())
-  )
-);
-
-
+  addSocieteSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SocieteActions.addSocieteSuccess),
+      map(() => SocieteActions.loadSocietes())
+    )
+  );
 
   updateSociete$ = createEffect(() =>
     this.actions$.pipe(
@@ -41,5 +39,5 @@ addSocieteSuccess$ = createEffect(() =>
     )
   );
 
-  
+
 }
