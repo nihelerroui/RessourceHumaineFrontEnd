@@ -120,7 +120,6 @@ export class DefaultComponent implements OnInit {
         });
       })
     );
-    this.rentabilites$ = this.store.select(selectRentabilites);
 
     combineLatest([
       this.clientMetricsFiltres$,
