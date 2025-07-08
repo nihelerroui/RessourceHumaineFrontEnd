@@ -16,7 +16,7 @@ import { ModalModule } from "ngx-bootstrap/modal";
 
 import { SimplebarAngularModule } from "simplebar-angular";
 
-import { DefaultComponent } from "./default/default.component";
+import { DashboardComponent } from "./dashboard/dashboard.component";
 import { StoreModule } from "@ngrx/store";
 import { factureClientReducer } from "src/app/store/FactureClient/factureclient.reducer";
 import { EffectsModule } from "@ngrx/effects";
@@ -30,7 +30,7 @@ import { tresorerieReducer } from "src/app/store/tresorerie/tresorerie.reducer";
 import { TresorerieEffects } from "src/app/store/tresorerie/tresorerie.effects";
 
 @NgModule({
-  declarations: [DefaultComponent],
+  declarations: [DashboardComponent],
   imports: [
     CommonModule,
     FormsModule,
