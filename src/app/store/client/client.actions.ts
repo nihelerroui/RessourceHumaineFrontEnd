@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { Client } from 'src/app/models/client.model';
 import { ClientMetrics } from 'src/app/models/ClientMetrics.model';
+import { Rentabilite } from 'src/app/models/Rentabilite.model';
 
 // 🔹 Charger la liste des clients
 export const loadClients = createAction('[Client] Load Clients');
@@ -80,5 +81,20 @@ export const loadClientMetricsSuccess = createAction(
 
 export const loadClientMetricsFailure = createAction(
   '[Client] Load Client Metrics Failure',
+  props<{ error: string }>()
+);
+// Charger la rentabilité d'un client
+export const loadRentabilites = createAction(
+  '[Client] Load Rentabilites',
+  props<{ year: number }>()
+);
+
+export const loadRentabilitesSuccess = createAction(
+  '[Client] Load Rentabilites Success',
+  props<{ rentabilites: Rentabilite[] }>()
+);
+
+export const loadRentabilitesFailure = createAction(
+  '[Client] Load Rentabilites Failure',
   props<{ error: string }>()
 );

@@ -7,7 +7,7 @@ import {
 import { EventService } from "../../../core/services/event.service";
 
 import { ConfigService } from "../../../core/services/config.service";
-import { combineLatest, map, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, map, Observable } from "rxjs";
 import { Store } from "@ngrx/store";
 import { selectAllSocietes, selectUserImage } from "src/app/store/Authentication/authentication-selector";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
@@ -24,10 +24,12 @@ import * as FactureClientActions from "src/app/store/FactureClient/factureclient
 import {
   loadClientMetrics,
   loadClients,
+  loadRentabilites,
 } from "src/app/store/client/client.actions";
 import {
   selectClientList,
   selectClientMetrics,
+  selectRentabilites,
 } from "src/app/store/client/client.selectors";
 import { Client } from "src/app/models/client.model";
 import { ClientMetrics } from "src/app/models/ClientMetrics.model";
@@ -46,6 +48,9 @@ import * as TresorerieActions from "src/app/store/tresorerie/tresorerie.actions"
 import { selectMainOeuvreData } from "src/app/store/mainOeuvre/mainOeuvre.selectors";
 import { loadHistoriqueMainOeuvre } from "src/app/store/historique-mainOeuvre/historiqueMainOeuvre.actions";
 import { selectHistoriqueMainOeuvreData } from "src/app/store/historique-mainOeuvre/historiqueMainOeuvre.selectors";
+import { ClientService } from 'src/app/core/services/client.service';
+import { Rentabilite } from 'src/app/models/Rentabilite.model';
+
 
 @Component({
   selector: "app-default",
@@ -56,8 +61,6 @@ export class DefaultComponent implements OnInit {
   modalRef?: BsModalRef;
   isVisible: string;
   rentabiliteChart: any;
-  transactions: any;
-  statData: any;
   config: any = {
     backdrop: true,
     ignoreBackdropClick: true,
@@ -67,6 +70,7 @@ export class DefaultComponent implements OnInit {
   adminSocietes$: Observable<any[]> = this.store.select(selectAllSocietes);
   currentUserEmail: string = "";
   adminSocietes: any[] = [];
+  top5ClientsRentables: Rentabilite[] = [];
 
   isActive: string;
   caAnneePrecedente$!: Observable<number>;
@@ -82,6 +86,8 @@ export class DefaultComponent implements OnInit {
   montantTotalChiffreAffaire$!: Observable<number>;
   clientMetrics$!: Observable<ClientMetrics[]>;
   clientMetricsFiltres$!: Observable<ClientMetrics[]>;
+
+  rentabilites$!: Observable<Rentabilite[]>;
 
   pourcentageEvolutionCA: number | null = null;
   pourcentageNMoins1vsActuel: number | null = null;
@@ -131,12 +137,14 @@ currentUserSociete = '';
 
   @ViewChild("content") content;
   @ViewChild("center", { static: false }) center?: ModalDirective;
-  constructor(
-    private modalService: BsModalService,
-    private configService: ConfigService,
-    private eventService: EventService,
-    private store: Store
-  ) {}
+   constructor(private modalService: BsModalService, private configService: ConfigService, private eventService: EventService,
+    private store: Store, private clientService: ClientService) {
+  }
+
+  selectedYear$ = new BehaviorSubject<number>(new Date().getFullYear() - 1);
+  availableYears: number[] = [];
+
+
 
   ngOnInit() {
     const currentUser = JSON.parse(
@@ -226,6 +234,14 @@ this.mainOeuvre$.subscribe(data => {
 
 
 
+
+    this.rentabilites$ = this.store.select(selectRentabilites);
+    this.rentabilites$.subscribe(rents => {
+  this.top5ClientsRentables = rents
+    .slice() 
+    .sort((a, b) => b.rentabilite - a.rentabilite)
+    .slice(0, 5);
+});
 
     this.clientMetrics$ = this.store.select(selectClientMetrics);
     this.clients$ = this.store.select(selectClientList);
@@ -406,6 +422,12 @@ this.mainOeuvre$.subscribe(data => {
         };
       }
     );
+    this.nbContratsEcheanceMoisPrecedent$ = this.store.select(selectNbContratsEcheanceMoisPrecedent);
+    this.nbFacturesValiderMoisPrecedent$ = this.store.select(selectNbFacturesValiderMoisPrecedent);
+
+    const currentYearr = new Date().getFullYear();
+    this.selectedYear$.next(currentYearr - 1);
+    this.availableYears = [currentYearr - 3, currentYearr - 2, currentYearr - 1];
 
     this.clientMetricsFiltres$ = combineLatest([
       this.clientMetrics$,
@@ -423,14 +445,71 @@ this.mainOeuvre$.subscribe(data => {
       })
     );
 
-    combineLatest([this.caAnneePrecedente$, this.caDeuxAnsAvant$]).subscribe(
-      ([caAnneePrecedente, caDeuxAnsAvant]) => {
-        if (caDeuxAnsAvant && caDeuxAnsAvant !== 0) {
-          this.pourcentageEvolutionCA =
-            ((caAnneePrecedente - caDeuxAnsAvant) / caDeuxAnsAvant) * 100;
-        } else {
-          this.pourcentageEvolutionCA = null;
-        }
+
+    combineLatest([
+      this.clientMetricsFiltres$,
+      this.rentabilites$
+    ]).subscribe(([metrics, rentabilites]) => {
+      this.allMetrics = metrics;
+      this.totalItems = metrics.length;
+      this.updatePagination();
+
+      if (metrics.length > 0 && rentabilites.length > 0) {
+        const categories = metrics.map(m => m.nom);
+        const data = metrics.map(m => {
+          const r = rentabilites.find(r => r.clientId === m.clientId);
+          return r ? r.rentabilite : 0;
+        });
+
+        this.rentabiliteChart = {
+          series: [{
+            name: 'Rentabilité (%)',
+            data: data
+          }],
+          chart: {
+            type: 'bar',
+            height: 350
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              columnWidth: '55%',
+              endingShape: 'rounded'
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            formatter: (val: number) => `${val}%`
+          },
+          colors: ['#1980e6'],
+          xaxis: {
+            categories: categories
+          },
+          yaxis: {
+            title: {
+              text: 'Rentabilité (%)'
+            },
+            min: 0,
+            max: 100
+          }
+        };
+      } else {
+        this.rentabiliteChart = null;
+      }
+    });
+    this.selectedYear$.subscribe(year => {
+      this.store.dispatch(loadRentabilites({ year }));
+    });
+
+    combineLatest([
+      this.caAnneePrecedente$,
+      this.caDeuxAnsAvant$
+    ]).subscribe(([caAnneePrecedente, caDeuxAnsAvant]) => {
+      if (caDeuxAnsAvant && caDeuxAnsAvant !== 0) {
+        this.pourcentageEvolutionCA = ((caAnneePrecedente - caDeuxAnsAvant) / caDeuxAnsAvant) * 100;
+      } else {
+        this.pourcentageEvolutionCA = null;
+      }
 
         if (caAnneePrecedente && caAnneePrecedente !== 0) {
           this.pourcentageNMoins1vsActuel =
@@ -453,10 +532,8 @@ this.mainOeuvre$.subscribe(data => {
       }
     });
 
-    combineLatest([
-      this.nbFacturesValider$,
-      this.nbFacturesValiderMoisPrecedent$,
-    ]).subscribe(([actuel, precedent]) => {
+
+    combineLatest([this.nbFacturesValider$, this.nbFacturesValiderMoisPrecedent$]).subscribe(([actuel, precedent]) => {
       if (precedent && precedent !== 0) {
         this.evolutionFacturesPourcent =
           ((actuel - precedent) / precedent) * 100;
@@ -464,6 +541,7 @@ this.mainOeuvre$.subscribe(data => {
         this.evolutionFacturesPourcent = null;
       }
     });
+
 
     combineLatest([this.clients$, this.adminSocietes$]).subscribe(
       ([clients, adminSocietes]) => {
@@ -481,68 +559,20 @@ this.mainOeuvre$.subscribe(data => {
         const categories = filteredClients.map((client) => client.nom);
         // const data = filteredClients.map(_ => Math.floor(Math.random() * 100));
 
-        this.rentabiliteChart = {
-          series: [
-            {
-              name: "Rentabilité (%)",
-              data: [40, 90, 30, 60, 15, 80],
-            },
-          ],
-          chart: {
-            type: "bar",
-            height: 350,
-          },
-          plotOptions: {
-            bar: {
-              horizontal: false,
-              columnWidth: "55%",
-              endingShape: "rounded",
-            },
-          },
-          dataLabels: {
-            enabled: true,
-            formatter: function (val: number) {
-              return val + "%";
-            },
-          },
-          colors: ["#1980e6"],
-          xaxis: {
-            categories: categories,
-          },
-          yaxis: {
-            title: {
-              text: "Rentabilité (%)",
-            },
-            min: 0,
-            max: 100,
-          },
-        };
+        
       }
     );
 
-    /**
-     * horizontal-vertical layput set
-     */
-    const attribute = document.body.getAttribute("data-layout");
 
-    this.isVisible = attribute;
-    const vertical = document.getElementById("layout-vertical");
-    if (vertical != null) {
-      vertical.setAttribute("checked", "true");
-    }
-    if (attribute == "horizontal") {
-      const horizontal = document.getElementById("layout-horizontal");
-      if (horizontal != null) {
-        horizontal.setAttribute("checked", "true");
-      }
-    }
+   
+    this.clientMetricsFiltres$.subscribe(metrics => {
 
-    this.clientMetricsFiltres$.subscribe((metrics) => {
       this.allMetrics = metrics;
       this.totalItems = metrics.length;
       this.updatePagination();
     });
   }
+  
   getBadgeClass(value: number, type: "score" | "paiement"): string {
     if (type === "score") {
       if (value >= 80) return "badge badge-soft-success";
@@ -556,18 +586,20 @@ this.mainOeuvre$.subscribe(data => {
     }
     return "badge badge-secondary";
   }
+  
   updatePagination(): void {
     const start = (this.page - 1) * this.metricsParPage;
-    this.paginatedMetrics = this.allMetrics.slice(
-      start,
-      start + this.metricsParPage
-    );
+    this.paginatedMetrics = this.allMetrics.slice(start,start + this.metricsParPage);
   }
 
   pageChanged(event: any): void {
     this.page = event.page;
     this.updatePagination();
   }
+  onYearChange(year: number) {
+    this.selectedYear$.next(year);
+  }
+
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -575,43 +607,10 @@ this.mainOeuvre$.subscribe(data => {
     }, 2000);
   }
 
-  /**
-   * Fetches the data
-   */
-
   opencenterModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);
   }
-  weeklyreport() {
-    this.isActive = "week";
-    //this.emailSentBarChart.series =
-    [
-      {
-        name: "Series A",
-        data: [44, 55, 41, 67, 22, 43, 36, 52, 24, 18, 36, 48],
-      },
-      {
-        name: "Series B",
-        data: [11, 17, 15, 15, 21, 14, 11, 18, 17, 12, 20, 18],
-      },
-      {
-        name: "Series C",
-        data: [13, 23, 20, 8, 13, 27, 18, 22, 10, 16, 24, 22],
-      },
-    ];
-  }
-
-  monthlyreport() {}
-
-  yearlyreport() {}
-
-  /**
-   * Change the layout onclick
-   * @param layout Change the layout
-   */
-  changeLayout(layout: string) {
-    this.eventService.broadcast("changeLayout", layout);
-  }
+  
 
   calculateVariation(recettes: number, depenses: number): number {
     if (depenses === 0) return 0;
@@ -632,6 +631,7 @@ this.mainOeuvre$.subscribe(data => {
     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
   ];
   return months[monthNumber - 1] || "Inconnu";
+
 }
 
 }
