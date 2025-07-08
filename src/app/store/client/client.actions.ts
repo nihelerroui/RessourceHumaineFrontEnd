@@ -86,7 +86,7 @@ export const loadClientMetricsFailure = createAction(
 // Charger la rentabilité d'un client
 export const loadRentabilites = createAction(
   '[Client] Load Rentabilites',
-  props<{ year: number }>()
+  props<{ year: number, societeId: number | "" }>()
 );
 
 export const loadRentabilitesSuccess = createAction(

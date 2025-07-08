@@ -88,18 +88,23 @@ loadClientMetrics$ = createEffect(() =>
     )
   )
 );
+// Dans votre effet ou service
 loadRentabilites$ = createEffect(() =>
   this.actions$.pipe(
     ofType(ClientActions.loadRentabilites),
-    switchMap(action =>
-      this.clientService.getRentabilitesForYear(action.year).pipe(
-        map(rentabilites => ClientActions.loadRentabilitesSuccess({ rentabilites })),
-        catchError(error => of(ClientActions.loadRentabilitesFailure({ error: error.message })))
-      )
-    )
+    switchMap(({ year, societeId }) => {
+      if (typeof societeId === 'number' && societeId !== 0) {
+        return this.clientService.getRentabilites(year, societeId).pipe(
+          map(rentabilites => ClientActions.loadRentabilitesSuccess({ rentabilites })),
+          catchError(error => of(ClientActions.loadRentabilitesFailure({ error })))
+        );
+      } else {
+        // Gérez le cas où societeId n'est pas valide
+        return of(ClientActions.loadRentabilitesFailure({ error: 'Société invalide' }));
+      }
+    })
   )
 );
-
 
   constructor(
     private actions$: Actions,

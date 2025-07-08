@@ -4,6 +4,7 @@ import { Client } from 'src/app/models/client.model';
 import { GenericService } from './generic.service';
 import { ClientMetrics } from 'src/app/models/ClientMetrics.model';
 import { Observable } from 'rxjs';
+import { Rentabilite } from 'src/app/models/Rentabilite.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +20,7 @@ export class ClientService extends GenericService<Client> {
    getAllClientMetrics(): Observable<ClientMetrics[]> {
     return this.http.get<ClientMetrics[]>(`${this.apiUrl}/metrics`);
   }
-  getRentabilitesForYear(year: number): Observable<any[]> {
-    const params = new HttpParams().set('year', year);
-    return this.http.get<any[]>(`${this.apiUrl}/rentabilites`, { params });
-  }
+  getRentabilites(year: number, societeId: number): Observable<Rentabilite[]> {
+  return this.http.get<Rentabilite[]>(`${this.apiUrl}/rentabilites?year=${year}&societeId=${societeId}`);
+}
 }

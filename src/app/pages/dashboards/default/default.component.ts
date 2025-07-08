@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import {
   BsModalService,
   BsModalRef,
@@ -7,7 +7,7 @@ import {
 import { EventService } from "../../../core/services/event.service";
 
 import { ConfigService } from "../../../core/services/config.service";
-import { BehaviorSubject, combineLatest, map, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, filter, map, Observable } from "rxjs";
 import { Store } from "@ngrx/store";
 import { selectAllSocietes, selectUserImage } from "src/app/store/Authentication/authentication-selector";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
@@ -88,6 +88,7 @@ export class DefaultComponent implements OnInit {
   clientMetricsFiltres$!: Observable<ClientMetrics[]>;
 
   rentabilites$!: Observable<Rentabilite[]>;
+  rentabiliteChart$ = new BehaviorSubject<any>(null);
 
   pourcentageEvolutionCA: number | null = null;
   pourcentageNMoins1vsActuel: number | null = null;
@@ -117,28 +118,28 @@ export class DefaultComponent implements OnInit {
   soldeActuel = 0;
   nombreTransactions = 0;
 
-coutAnnuelTotal = 0;
-moyenneMensuelle = 0;
-moisMax = '';
-coutMax = 0;
-moisMin = '';
-coutMin = 0;
+  coutAnnuelTotal = 0;
+  moyenneMensuelle = 0;
+  moisMax = '';
+  coutMax = 0;
+  moisMin = '';
+  coutMin = 0;
 
-mainOeuvre$!: Observable<any[]>;
+  mainOeuvre$!: Observable<any[]>;
 
-chartSeries: any[] = [];
-historiqueCategories: string[] = [];
+  chartSeries: any[] = [];
+  historiqueCategories: string[] = [];
 
-currentUserNom = '';
-currentUserPhoto = '';
-currentUserSociete = ''; 
+  currentUserNom = '';
+  currentUserPhoto = '';
+  currentUserSociete = '';
 
 
 
   @ViewChild("content") content;
   @ViewChild("center", { static: false }) center?: ModalDirective;
-   constructor(private modalService: BsModalService, private configService: ConfigService, private eventService: EventService,
-    private store: Store, private clientService: ClientService) {
+  constructor(private modalService: BsModalService, private configService: ConfigService, private eventService: EventService,
+    private store: Store, private clientService: ClientService, private cdr: ChangeDetectorRef) {
   }
 
   selectedYear$ = new BehaviorSubject<number>(new Date().getFullYear() - 1);
@@ -151,17 +152,17 @@ currentUserSociete = '';
       sessionStorage.getItem("currentUser") || "{}"
     );
     if (currentUser && currentUser.user) {
-  this.currentUserNom = currentUser.fullName || 'Utilisateur';
-    this.currentUserSociete = currentUser.societe?.nom || 'societe';
-  this.currentUserEmail = currentUser.user.email || '';
-  this.currentUserPhoto = currentUser.personalDetails?.photoUrl || '';
-}
-this.store.dispatch(AuthActions.loadUserImage());
-this.store.select(selectUserImage).subscribe((img) => {
-  if (img) {
-    this.currentUserPhoto = img;
-  }
-});
+      this.currentUserNom = currentUser.fullName || 'Utilisateur';
+      this.currentUserSociete = currentUser.societe?.nom || 'societe';
+      this.currentUserEmail = currentUser.user.email || '';
+      this.currentUserPhoto = currentUser.personalDetails?.photoUrl || '';
+    }
+    this.store.dispatch(AuthActions.loadUserImage());
+    this.store.select(selectUserImage).subscribe((img) => {
+      if (img) {
+        this.currentUserPhoto = img;
+      }
+    });
 
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
@@ -178,10 +179,10 @@ this.store.select(selectUserImage).subscribe((img) => {
     this.store.dispatch(loadClients());
     this.store.dispatch(loadClientMetrics());
     const currentYear = new Date().getFullYear();
-this.store.dispatch(loadHistoriqueMainOeuvre({
-  consultantId: this.consultantSocieteId,
-  year: currentYear
-}));
+    this.store.dispatch(loadHistoriqueMainOeuvre({
+      consultantId: this.consultantSocieteId,
+      year: currentYear
+    }));
 
 
     this.mainOeuvre$ = this.store.select(selectHistoriqueMainOeuvreData);
@@ -189,59 +190,59 @@ this.store.dispatch(loadHistoriqueMainOeuvre({
 
 
     this.store.select(TresorerieSelectors.selectTresorerie).subscribe(treso => {
-  if (treso) {
-    this.soldeInitial = treso.soldeInitial;
-    this.soldeActuel = treso.soldeActuel;
-  }
-});
+      if (treso) {
+        this.soldeInitial = treso.soldeInitial;
+        this.soldeActuel = treso.soldeActuel;
+      }
+    });
 
-this.mainOeuvre$.subscribe(data => {
-  this.chartSeries = [{
-    name: 'Coût Main d’œuvre',
-    data: data.map(e => e.montant)
-  }];
+    this.mainOeuvre$.subscribe(data => {
+      this.chartSeries = [{
+        name: 'Coût Main d’œuvre',
+        data: data.map(e => e.montant)
+      }];
 
-  this.historiqueCategories = data.map(e =>
-    this.getMonthName(new Date(e.date).getMonth() + 1)
-  );
+      this.historiqueCategories = data.map(e =>
+        this.getMonthName(new Date(e.date).getMonth() + 1)
+      );
 
-  if (!data || data.length === 0) {
-    this.coutAnnuelTotal = 0;
-    this.moyenneMensuelle = 0;
-    this.moisMax = 'N/A';
-    this.coutMax = 0;
-    this.moisMin = 'N/A';
-    this.coutMin = 0;
-    return;
-  }
+      if (!data || data.length === 0) {
+        this.coutAnnuelTotal = 0;
+        this.moyenneMensuelle = 0;
+        this.moisMax = 'N/A';
+        this.coutMax = 0;
+        this.moisMin = 'N/A';
+        this.coutMin = 0;
+        return;
+      }
 
-  // coût annuel
-  this.coutAnnuelTotal = data.reduce((sum, item) => sum + item.montantTotal, 0);
+      // coût annuel
+      this.coutAnnuelTotal = data.reduce((sum, item) => sum + item.montantTotal, 0);
 
-  // moyenne mensuelle
-  this.moyenneMensuelle = this.coutAnnuelTotal / 12;
+      // moyenne mensuelle
+      this.moyenneMensuelle = this.coutAnnuelTotal / 12;
 
-  // mois le plus coûteux
-  const max = data.reduce((prev, curr) => prev.montantTotal > curr.montantTotal ? prev : curr);
-  this.moisMax = this.getMonthName(max.mois);
-  this.coutMax = max.montantTotal;
+      // mois le plus coûteux
+      const max = data.reduce((prev, curr) => prev.montantTotal > curr.montantTotal ? prev : curr);
+      this.moisMax = this.getMonthName(max.mois);
+      this.coutMax = max.montantTotal;
 
-  // mois le moins coûteux
-  const min = data.reduce((prev, curr) => prev.montantTotal < curr.montantTotal ? prev : curr);
-  this.moisMin = this.getMonthName(min.mois);
-  this.coutMin = min.montantTotal;
-});
+      // mois le moins coûteux
+      const min = data.reduce((prev, curr) => prev.montantTotal < curr.montantTotal ? prev : curr);
+      this.moisMin = this.getMonthName(min.mois);
+      this.coutMin = min.montantTotal;
+    });
 
 
 
 
     this.rentabilites$ = this.store.select(selectRentabilites);
     this.rentabilites$.subscribe(rents => {
-  this.top5ClientsRentables = rents
-    .slice() 
-    .sort((a, b) => b.rentabilite - a.rentabilite)
-    .slice(0, 5);
-});
+      this.top5ClientsRentables = rents
+        .slice()
+        .sort((a, b) => b.rentabilite - a.rentabilite)
+        .slice(0, 5);
+    });
 
     this.clientMetrics$ = this.store.select(selectClientMetrics);
     this.clients$ = this.store.select(selectClientList);
@@ -445,60 +446,19 @@ this.mainOeuvre$.subscribe(data => {
       })
     );
 
-
-    combineLatest([
-      this.clientMetricsFiltres$,
-      this.rentabilites$
-    ]).subscribe(([metrics, rentabilites]) => {
-      this.allMetrics = metrics;
-      this.totalItems = metrics.length;
-      this.updatePagination();
-
-      if (metrics.length > 0 && rentabilites.length > 0) {
-        const categories = metrics.map(m => m.nom);
-        const data = metrics.map(m => {
-          const r = rentabilites.find(r => r.clientId === m.clientId);
-          return r ? r.rentabilite : 0;
-        });
-
-        this.rentabiliteChart = {
-          series: [{
-            name: 'Rentabilité (%)',
-            data: data
-          }],
-          chart: {
-            type: 'bar',
-            height: 350
-          },
-          plotOptions: {
-            bar: {
-              horizontal: false,
-              columnWidth: '55%',
-              endingShape: 'rounded'
-            }
-          },
-          dataLabels: {
-            enabled: true,
-            formatter: (val: number) => `${val}%`
-          },
-          colors: ['#1980e6'],
-          xaxis: {
-            categories: categories
-          },
-          yaxis: {
-            title: {
-              text: 'Rentabilité (%)'
-            },
-            min: 0,
-            max: 100
-          }
-        };
-      } else {
-        this.rentabiliteChart = null;
-      }
+    this.rentabilites$.pipe(
+      filter(rentabilites => rentabilites.length > 0),
+      map(rentabilites => {
+        const categories = rentabilites.map(r => r.nom);
+        const data = rentabilites.map(r => r.rentabilite);
+        return { categories, data };
+      })
+    ).subscribe(({ categories, data }) => {
+      this.updateRentabiliteChart(categories, data);
     });
+
     this.selectedYear$.subscribe(year => {
-      this.store.dispatch(loadRentabilites({ year }));
+      this.store.dispatch(loadRentabilites({ year, societeId: this.selectedSocieteId }));
     });
 
     combineLatest([
@@ -511,13 +471,13 @@ this.mainOeuvre$.subscribe(data => {
         this.pourcentageEvolutionCA = null;
       }
 
-        if (caAnneePrecedente && caAnneePrecedente !== 0) {
-          this.pourcentageNMoins1vsActuel =
-            ((caDeuxAnsAvant - caAnneePrecedente) / caAnneePrecedente) * 100;
-        } else {
-          this.pourcentageNMoins1vsActuel = null;
-        }
+      if (caAnneePrecedente && caAnneePrecedente !== 0) {
+        this.pourcentageNMoins1vsActuel =
+          ((caDeuxAnsAvant - caAnneePrecedente) / caAnneePrecedente) * 100;
+      } else {
+        this.pourcentageNMoins1vsActuel = null;
       }
+    }
     );
 
     combineLatest([
@@ -559,12 +519,12 @@ this.mainOeuvre$.subscribe(data => {
         const categories = filteredClients.map((client) => client.nom);
         // const data = filteredClients.map(_ => Math.floor(Math.random() * 100));
 
-        
+
       }
     );
 
 
-   
+
     this.clientMetricsFiltres$.subscribe(metrics => {
 
       this.allMetrics = metrics;
@@ -572,7 +532,43 @@ this.mainOeuvre$.subscribe(data => {
       this.updatePagination();
     });
   }
-  
+  updateRentabiliteChart(categories: string[], data: number[]) {
+    const chartConfig = {
+      series: [{
+        name: 'Rentabilité (%)',
+        data: data
+      }],
+      chart: {
+        type: 'bar',
+        height: 350
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%',
+          endingShape: 'rounded'
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => `${val}%`
+      },
+      colors: ['#1980e6'],
+      xaxis: {
+        categories: categories
+      },
+      yaxis: {
+        title: {
+          text: 'Rentabilité (%)'
+        },
+        min: 0,
+        max: 100
+      }
+    };
+    this.rentabiliteChart$.next(chartConfig);
+  }
+
+
   getBadgeClass(value: number, type: "score" | "paiement"): string {
     if (type === "score") {
       if (value >= 80) return "badge badge-soft-success";
@@ -586,10 +582,10 @@ this.mainOeuvre$.subscribe(data => {
     }
     return "badge badge-secondary";
   }
-  
+
   updatePagination(): void {
     const start = (this.page - 1) * this.metricsParPage;
-    this.paginatedMetrics = this.allMetrics.slice(start,start + this.metricsParPage);
+    this.paginatedMetrics = this.allMetrics.slice(start, start + this.metricsParPage);
   }
 
   pageChanged(event: any): void {
@@ -610,7 +606,7 @@ this.mainOeuvre$.subscribe(data => {
   opencenterModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);
   }
-  
+
 
   calculateVariation(recettes: number, depenses: number): number {
     if (depenses === 0) return 0;
@@ -626,12 +622,12 @@ this.mainOeuvre$.subscribe(data => {
     );
   }
   getMonthName(monthNumber: number): string {
-  const months = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-  ];
-  return months[monthNumber - 1] || "Inconnu";
+    const months = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+    ];
+    return months[monthNumber - 1] || "Inconnu";
 
-}
+  }
 
 }
