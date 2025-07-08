@@ -54,10 +54,9 @@ import { Rentabilite } from 'src/app/models/Rentabilite.model';
 
 @Component({
   selector: "app-default",
-  templateUrl: "./default.component.html",
-  styleUrls: ["./default.component.scss"],
+  templateUrl: "./dashboard.component.html",
 })
-export class DefaultComponent implements OnInit {
+export class DashboardComponent implements OnInit {
   modalRef?: BsModalRef;
   isVisible: string;
   rentabiliteChart: any;

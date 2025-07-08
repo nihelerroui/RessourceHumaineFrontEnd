@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { DefaultComponent } from './dashboards/default/default.component';
+import { DashboardComponent } from './dashboards/dashboard/dashboard.component';
 import { ProfileEditComponent } from './users/profile/userprofileedit/profileedit.component';
 import { AuthGuard } from '../core/guards/auth.guard';
 
@@ -11,9 +11,9 @@ const routes: Routes = [
   //{ path: '', redirectTo: 'dashboard' },
   {
     path: '',
-    component: DefaultComponent
+    component: DashboardComponent
   },
-  { path: 'dashboards/default', component: DefaultComponent },
+  { path: 'dashboards/default', component: DashboardComponent },
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
   { path: 'prestations', loadChildren: () => import('./prestations/prestations.module').then(m => m.PrestationsModule), canActivate: [AuthGuard],
   data: { roles: ['ADMINISTRATEUR', 'RESPONSABLE_FINANCIER'] } },
