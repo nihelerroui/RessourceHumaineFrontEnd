@@ -4,7 +4,7 @@ export const environment = {
   apiUrl: 'http://localhost:8089/spring',
   defaultauth: 'realbackend',
   baseUrl: 'https://featway-serveur.fr:8181/portail-backend-dev/api',
-  token:'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NTEyODE0MzgsImV4cCI6MTc1MTU0MDYzOH0.Lc0lfngB-YBh6a1sg4kchGEEJyWh_5kE59pOTIKWBJ4',
+  token:'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNPTlNVTFRBTlQsQURNSU4sU1VQRVJfQURNSU4iLCJzdWIiOiJwb3J0YWlsQHRlc3QuZnIiLCJpYXQiOjE3NTE4OTQzNDksImV4cCI6MTc1MjE1MzU0OX0.P51gyXOuAhe8TQO-oBbHsJBsukxaDnICWJy-4kXu49I',
   firebaseConfig: {
     apiKey: '',
     authDomain: '',
