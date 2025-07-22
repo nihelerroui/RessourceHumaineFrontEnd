@@ -3,6 +3,7 @@ import { Component, OnInit, TemplateRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable } from "rxjs";
+import { FactureSousTraitantService } from "src/app/core/services/factureSousTraitant.service";
 import { FactureSousTraitant } from "src/app/models/FactureSousTraitant.model";
 import { loadFacturesSousTraitant } from "src/app/store/factureSousTraitant/factureSousTraitant.actions";
 import * as FactureSousTraitantSelectors from "src/app/store/factureSousTraitant/factureSousTraitant.selectors";
@@ -34,15 +35,21 @@ export class FactureSousTraitantComponent implements OnInit {
 
   allFactures: FactureSousTraitant[] = [];
 
-
   constructor(
     private store: Store,
     private modalService: BsModalService,
-    private http: HttpClient
+    private http: HttpClient,
+    private factureService: FactureSousTraitantService
   ) {
-    this.factureList$ = this.store.select(FactureSousTraitantSelectors.selectAllFactures);
-    this.loading$ = this.store.select(FactureSousTraitantSelectors.selectFacturesLoading);
-    this.error$ = this.store.select(FactureSousTraitantSelectors.selectFacturesError);
+    this.factureList$ = this.store.select(
+      FactureSousTraitantSelectors.selectAllFactures
+    );
+    this.loading$ = this.store.select(
+      FactureSousTraitantSelectors.selectFacturesLoading
+    );
+    this.error$ = this.store.select(
+      FactureSousTraitantSelectors.selectFacturesError
+    );
   }
 
   ngOnInit(): void {
@@ -50,9 +57,18 @@ export class FactureSousTraitantComponent implements OnInit {
       sessionStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
-    const token = environment.token;
-    const month = 6;
-    const year = 2025;
+
+    this.loadFactures();
+
+    this.factureList$.subscribe((factures) => {
+      this.allFactures = factures;
+      this.filterFactures();
+    });
+  }
+
+  loadFactures(): void {
+    const month = this.selectedMonth || 6;
+    const year = this.selectedYear || 2025;
 
     this.store.dispatch(
       loadFacturesSousTraitant({
@@ -61,25 +77,20 @@ export class FactureSousTraitantComponent implements OnInit {
         year,
       })
     );
-
-    this.factureList$.subscribe((factures) => {
-      this.allFactures = factures;
-      this.filterFactures();
-    });
   }
 
- filterFactures(): void {
-  const search = this.searchTerm.toLowerCase();
+  filterFactures(): void {
+    const search = this.searchTerm.toLowerCase();
 
-  this.filteredFactureList = this.allFactures.filter(f =>
-    (!this.selectedMonth || f.monthId === this.selectedMonth) &&
-    (!this.selectedYear || f.yearId === this.selectedYear) &&
-    f.filePath.toLowerCase().includes(search)
-  );
+    this.filteredFactureList = this.allFactures.filter(
+      (f) =>
+        (!this.selectedMonth || f.monthId === this.selectedMonth) &&
+        (!this.selectedYear || f.yearId === this.selectedYear) &&
+        f.filePath.toLowerCase().includes(search)
+    );
 
-  this.pageChanged({ page: 1 });
-}
-
+    this.pageChanged({ page: 1 });
+  }
 
   pageChanged(event: any) {
     this.currentPage = event.page;
@@ -144,20 +155,57 @@ export class FactureSousTraitantComponent implements OnInit {
   }
 
   getMonthName(monthNumber: number): string {
-  const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-  ];
-  return monthNames[monthNumber - 1] || '';
-}
+    const monthNames = [
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre",
+    ];
+    return monthNames[monthNumber - 1] || "";
+  }
 
-get availableMonths(): number[] {
-  return Array.from({ length: 12 }, (_, i) => i + 1);
-}
+  get availableMonths(): number[] {
+    return Array.from({ length: 12 }, (_, i) => i + 1);
+  }
 
-get availableYears(): number[] {
-  const currentYear = new Date().getFullYear();
-  return [currentYear - 1, currentYear, currentYear + 1];
-}
+  get availableYears(): number[] {
+    const currentYear = new Date().getFullYear();
+    return [currentYear - 1, currentYear, currentYear + 1];
+  }
 
+  validerPaiement(idFacture: number) {
+    Swal.fire({
+      title: "Confirmer",
+      text: "Voulez-vous valider le paiement de cette facture ?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Oui, valider",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.factureService.validerPaiement(idFacture).subscribe({
+          next: (res) => {
+            Swal.fire("Succès", "Paiement validé avec succès.", "success");
+            this.loadFactures();
+          },
+          error: (err) => {
+            Swal.fire(
+              "Erreur",
+              "Erreur lors de la validation du paiement.",
+              "error"
+            );
+            console.error(err);
+          },
+        });
+      }
+    });
+  }
 }

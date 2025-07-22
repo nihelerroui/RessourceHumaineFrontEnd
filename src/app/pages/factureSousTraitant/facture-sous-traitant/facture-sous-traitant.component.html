@@ -75,7 +75,7 @@
               <th>Année</th>
               <th>Montant TTC</th>
               <th>Date Upload</th>
-              <th>Fichier</th>
+              <th>statutPaiement</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -83,9 +83,20 @@
             <tr *ngFor="let facture of paginatedFactureList; let i = index">
               <td>{{ getMonthName(facture.monthId) }}</td>
               <td>{{ facture.yearId }}</td>
-              <td>{{ facture.montantTTC | number: '1.2-2'}}</td>
+              <td>{{ facture.montantTTC | number : "1.2-2" }}</td>
               <td>{{ facture.dateUpload | date : "dd/MM/yyyy" }}</td>
-              <td>{{ getFileName(facture.filePath) }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'badge-soft-success': facture.statutPaiement === 'PAYÉE',
+                    'badge-soft-danger': facture.statutPaiement === 'NON_PAYÉE'
+                  }"
+                >
+                  {{ facture.statutPaiement }}
+                </span>
+              </td>
+
               <td>
                 <ul class="list-unstyled hstack gap-1 mb-0">
                   <li
@@ -118,10 +129,24 @@
                     title="Download"
                   >
                     <button
-                      class="btn btn-sm btn-soft-success"
+                      class="btn btn-sm btn-soft-info"
                       (click)="downloadFacture(facture.filePath)"
                     >
                       <i class="bx bx-download"></i>
+                    </button>
+                  </li>
+                  <li
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Validate"
+                  >
+                    <button
+                      *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
+                      class="btn btn-sm btn-soft-success"
+                      (click)="validerPaiement(facture.idFactureIndep)"
+                      [disabled]="facture.statutPaiement === 'PAYÉE'"
+                    >
+                      <i class="mdi mdi-check-circle-outline"></i>
                     </button>
                   </li>
                 </ul>
@@ -158,49 +183,80 @@
  <ng-template #detailModal>
   <div class="modal-header">
     <h5 class="modal-title">
-      <i class="bi bi-file-earmark-text text-primary me-2"></i> Détail Facture Sous-Traitant
+      <i class="bi bi-file-earmark-text text-primary"></i> Détail Facture Sous-Traitant
     </h5>
     <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
   </div>
 
   <div class="modal-body">
-    <div class="mb-2 d-flex align-items-center">
-      <i class="bi bi-calendar3 text-info me-2"></i>
-      <strong class="me-1">Mois :</strong>
-      <span>{{ selectedFacture?.monthId }}</span>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center">
-      <i class="bi bi-calendar text-primary me-2"></i>
-      <strong class="me-1">Année :</strong>
-      <span>{{ selectedFacture?.yearId }}</span>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center">
-      <i class="bi bi-upload text-success me-2"></i>
-      <strong class="me-1">Date Upload :</strong>
-      <span>{{ selectedFacture?.dateUpload | date: 'dd/MM/yyyy' }}</span>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center">
-      <i class="bi bi-file-text text-warning me-2"></i>
-      <strong class="me-1">Fichier :</strong>
-      <span class="text-truncate" style="max-width: 300px;">
-        {{ getFileName(selectedFacture?.filePath || '') }}
-      </span>
-    </div>
-
-    <div class="mb-2 d-flex align-items-center">
-      <i class="bi bi-cash-stack text-danger me-2"></i>
-      <strong class="me-1">Montant TTC :</strong>
-      <span>{{ selectedFacture?.montantTTC | number: '1.2-2' }} </span>
+    <div class="table-responsive">
+      <table class="table">
+        <tbody>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-calendar3 text-info"></i> Mois :
+            </th>
+            <td>{{ selectedFacture?.monthId }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-calendar text-primary"></i> Année :
+            </th>
+            <td>{{ selectedFacture?.yearId }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-upload text-success"></i> Date Upload :
+            </th>
+            <td>{{ selectedFacture?.dateUpload | date: 'dd MMMM yyyy' }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <i class="bi bi-cash-stack text-danger"></i> Montant TTC :
+            </th>
+            <td>{{ selectedFacture?.montantTTC | currency : 'EUR' }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+                <i class="bi bi-check-circle text-success"></i> Statut Paiement
+                :
+              </th>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'badge-soft-success':
+                      selectedFacture?.statutPaiement === 'PAYÉE',
+                    'badge-soft-danger':
+                      selectedFacture?.statutPaiement === 'NON_PAYÉE'
+                  }"
+                >
+                  {{ selectedFacture?.statutPaiement }}
+                </span>
+              </td>
+          </tr>
+           <tr>
+            <th scope="row">
+              <i class="bi bi-file-earmark-pdf text-warning"></i> Fichier :
+            </th>
+            <td>
+              <button
+                type="button"
+                class="btn btn-link p-0"
+                (click)="openFacture(selectedFacture.filePath)"
+              >
+                📄 Voir la facture
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <div class="modal-footer">
-    <button class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+    <button class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
   </div>
 </ng-template>
-
 
 </div>
