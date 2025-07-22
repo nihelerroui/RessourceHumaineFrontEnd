@@ -1,3 +1,5 @@
+import { StatutPaiement } from "./statut-paiement.enum";
+
 export interface FactureSousTraitant {
   idFactureIndep: number;
   filePath: string;
@@ -7,4 +9,5 @@ export interface FactureSousTraitant {
   owner: number;
   consultantId: number;
   montantTTC: number;
+  statutPaiement: StatutPaiement; 
 }
