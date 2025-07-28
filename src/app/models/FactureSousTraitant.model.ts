@@ -10,4 +10,6 @@ export interface FactureSousTraitant {
   consultantId: number;
   montantTTC: number;
   statutPaiement: StatutPaiement; 
+  dateEmission: string;
+  dateEcheance: string;
 }
