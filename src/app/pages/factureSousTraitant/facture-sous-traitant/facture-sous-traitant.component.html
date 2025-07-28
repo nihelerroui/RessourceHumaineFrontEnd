@@ -74,7 +74,7 @@
               <th>Mois</th>
               <th>Année</th>
               <th>Montant TTC</th>
-              <th>Date Upload</th>
+              <th>Date Echeance</th>
               <th>statutPaiement</th>
               <th>Actions</th>
             </tr>
@@ -84,7 +84,7 @@
               <td>{{ getMonthName(facture.monthId) }}</td>
               <td>{{ facture.yearId }}</td>
               <td>{{ facture.montantTTC | number : "1.2-2" }}</td>
-              <td>{{ facture.dateUpload | date : "dd/MM/yyyy" }}</td>
+              <td>{{ facture.dateEcheance | date : "dd/MM/yyyy" }}</td>
               <td>
                 <span
                   class="badge"
@@ -206,9 +206,9 @@
           </tr>
           <tr>
             <th scope="row">
-              <i class="bi bi-upload text-success"></i> Date Upload :
+              <i class="bi bi-upload text-success"></i> Date Echeance :
             </th>
-            <td>{{ selectedFacture?.dateUpload | date: 'dd MMMM yyyy' }}</td>
+            <td>{{ selectedFacture?.dateEcheance | date: 'dd MMMM yyyy' }}</td>
           </tr>
           <tr>
             <th scope="row">
