@@ -127,8 +127,10 @@ export class AuthenticationEffects {
         this.AuthenticationService.login({ email, password }).pipe(
           tap((response) => {
             const token = response.accessToken;
-            const consultant = response.consultant;
-
+            const consultant = {
+              ...response.consultant,
+              token 
+            };
             this.tokenStorage.saveToken(token);
             this.tokenStorage.saveUser(consultant);
 
