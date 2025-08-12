@@ -14,12 +14,11 @@ export class FactureSousTraitantService {
 
   getFacturesAvecMontantTTC(
     consultantId: number,
-    month: number,
-    year: number
   ): Observable<FactureSousTraitant[]> {
-    const url = `${environment.apiUrl}/factureSousTraitant/consultant?consultantId=${consultantId}&month=${month}&year=${year}`;
+    const url = `${environment.apiUrl}/factureSousTraitant/consultant?consultantId=${consultantId}`;
     return this.http.get<FactureSousTraitant[]>(url);
   }
+
   validerPaiement(factureId: number): Observable<any> {
     return this.http.put<any>(
       `${environment.apiUrl}/factureSousTraitant/valider-paiement/${factureId}`,

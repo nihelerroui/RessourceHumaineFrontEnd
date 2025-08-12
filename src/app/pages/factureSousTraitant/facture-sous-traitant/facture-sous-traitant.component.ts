@@ -34,6 +34,8 @@ export class FactureSousTraitantComponent implements OnInit {
   selectedYear: number | null = null;
 
   allFactures: FactureSousTraitant[] = [];
+  isValidatingPayment = false;
+
 
   constructor(
     private store: Store,
@@ -67,14 +69,9 @@ export class FactureSousTraitantComponent implements OnInit {
   }
 
   loadFactures(): void {
-    const month = this.selectedMonth || 6;
-    const year = this.selectedYear || 2025;
-
     this.store.dispatch(
       loadFacturesSousTraitant({
-        consultantId: 319,
-        month,
-        year,
+        consultantId: 319
       })
     );
   }
@@ -181,31 +178,36 @@ export class FactureSousTraitantComponent implements OnInit {
     return [currentYear - 1, currentYear, currentYear + 1];
   }
 
-  validerPaiement(idFacture: number) {
-    Swal.fire({
-      title: "Confirmer",
-      text: "Voulez-vous valider le paiement de cette facture ?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Oui, valider",
-      cancelButtonText: "Annuler",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.factureService.validerPaiement(idFacture).subscribe({
-          next: (res) => {
-            Swal.fire("Succès", "Paiement validé avec succès.", "success");
-            this.loadFactures();
-          },
-          error: (err) => {
-            Swal.fire(
-              "Erreur",
-              "Erreur lors de la validation du paiement.",
-              "error"
-            );
-            console.error(err);
-          },
-        });
-      }
-    });
-  }
+validerPaiement(idFacture: number) {
+  Swal.fire({
+    title: "Confirmer",
+    text: "Voulez-vous valider le paiement de cette facture ?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Oui, valider",
+    cancelButtonText: "Annuler",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.isValidatingPayment = true;
+
+      this.factureService.validerPaiement(idFacture).subscribe({
+        next: (res) => {
+          this.isValidatingPayment = false;
+          Swal.fire("Succès", "Paiement validé avec succès.", "success");
+          this.loadFactures();
+        },
+        error: (err) => {
+          this.isValidatingPayment = false;
+          Swal.fire(
+            "Erreur",
+            "Erreur lors de la validation du paiement.",
+            "error"
+          );
+          console.error(err);
+        },
+      });
+    }
+  });
+}
+
 }
