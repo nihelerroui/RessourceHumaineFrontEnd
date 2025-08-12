@@ -50,6 +50,7 @@ import { loadHistoriqueMainOeuvre } from "src/app/store/historique-mainOeuvre/hi
 import { selectHistoriqueMainOeuvreData } from "src/app/store/historique-mainOeuvre/historiqueMainOeuvre.selectors";
 import { ClientService } from 'src/app/core/services/client.service';
 import { Rentabilite } from 'src/app/models/Rentabilite.model';
+import { co } from "@fullcalendar/core/internal-common";
 
 
 @Component({
@@ -70,6 +71,7 @@ export class DashboardComponent implements OnInit {
   currentUserEmail: string = "";
   adminSocietes: any[] = [];
   top5ClientsRentables: Rentabilite[] = [];
+  clientsRetardataires: Client[] = [];
 
   isActive: string;
   caAnneePrecedente$!: Observable<number>;
@@ -162,6 +164,17 @@ export class DashboardComponent implements OnInit {
         this.currentUserPhoto = img;
       }
     });
+
+    this.clientService.getClientsRetardataires().subscribe(
+  data => {
+    this.clientsRetardataires = data;
+    console.log("Liste des clients retardataires reçue:", this.clientsRetardataires);
+  },
+  error => {
+    console.error('Erreur lors de la récupération des clients retardataires', error);
+  }
+);
+
 
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;

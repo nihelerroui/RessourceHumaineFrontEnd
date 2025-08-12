@@ -7,4 +7,7 @@ export interface MenuItem {
     subItems?: any;
     parentId?: number;
     isUiElement?: boolean;
+    isLayout?: boolean;
+    isTitle?: boolean;
+    roles?: string[];
 }
