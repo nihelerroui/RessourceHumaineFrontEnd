@@ -45,11 +45,15 @@ import * as DepenseActions from "src/app/store/Depense/depense.actions";
 import { SourceFinancement } from "src/app/models/SourceFinancement.enum";
 import * as TresorerieSelectors from "src/app/store/tresorerie/tresorerie.selectors";
 import * as TresorerieActions from "src/app/store/tresorerie/tresorerie.actions";
-import { selectMainOeuvreData } from "src/app/store/mainOeuvre/mainOeuvre.selectors";
 import { loadHistoriqueMainOeuvre } from "src/app/store/historique-mainOeuvre/historiqueMainOeuvre.actions";
 import { selectHistoriqueMainOeuvreData } from "src/app/store/historique-mainOeuvre/historiqueMainOeuvre.selectors";
 import { ClientService } from 'src/app/core/services/client.service';
 import { Rentabilite } from 'src/app/models/Rentabilite.model';
+import { MoisOpportunite } from "src/app/core/services/investment-analysis.service";
+import { selectBestInvestmentMoment, selectInvestmentAnalysis, selectInvestmentAnalysisLoading, selectInvestmentRecommendations } from "src/app/store/investment-analysis/investment-analysis.selectors";
+import * as InvestmentActions from "src/app/store/investment-analysis/investment-analysis.actions";
+import { selectCriticalMonthData, selectCriticalMonthLoading } from "src/app/store/mois-plus-critique/mois-critique.selectors";
+import { loadCriticalMonth } from "src/app/store/mois-plus-critique/mois-critique.actions";
 
 
 @Component({
@@ -88,6 +92,7 @@ export class DashboardComponent implements OnInit {
 
   rentabilites$!: Observable<Rentabilite[]>;
   rentabiliteChart$ = new BehaviorSubject<any>(null);
+  moisCritique$ = this.store.select(selectCriticalMonthData);
 
   pourcentageEvolutionCA: number | null = null;
   pourcentageNMoins1vsActuel: number | null = null;
@@ -133,7 +138,14 @@ export class DashboardComponent implements OnInit {
   currentUserPhoto = '';
   currentUserSociete = '';
 
-
+  // Nouvelles propriétés pour l'analyse d'investissement
+  investmentAmount: number = 10000;
+  seuilSecurite: number = 500;
+  investmentAnalysis$: Observable<any>;
+  investmentLoading$: Observable<boolean>;
+  bestInvestmentMoment$: Observable<MoisOpportunite>;
+  investmentRecommendations$: Observable<any[]>;
+  showInvestmentAnalysis: boolean = false;
 
   @ViewChild("content") content;
   @ViewChild("center", { static: false }) center?: ModalDirective;
@@ -183,10 +195,7 @@ export class DashboardComponent implements OnInit {
       year: currentYear
     }));
 
-
     this.mainOeuvre$ = this.store.select(selectHistoriqueMainOeuvreData);
-
-
 
     this.store.select(TresorerieSelectors.selectTresorerie).subscribe(treso => {
       if (treso) {
@@ -491,7 +500,6 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-
     combineLatest([this.nbFacturesValider$, this.nbFacturesValiderMoisPrecedent$]).subscribe(([actuel, precedent]) => {
       if (precedent && precedent !== 0) {
         this.evolutionFacturesPourcent =
@@ -500,7 +508,6 @@ export class DashboardComponent implements OnInit {
         this.evolutionFacturesPourcent = null;
       }
     });
-
 
     combineLatest([this.clients$, this.adminSocietes$]).subscribe(
       ([clients, adminSocietes]) => {
@@ -522,14 +529,18 @@ export class DashboardComponent implements OnInit {
       }
     );
 
-
-
     this.clientMetricsFiltres$.subscribe(metrics => {
 
       this.allMetrics = metrics;
       this.totalItems = metrics.length;
       this.updatePagination();
     });
+
+    // Initialiser les observables pour l'analyse d'investissement
+    this.investmentAnalysis$ = this.store.select(selectInvestmentAnalysis);
+    this.investmentLoading$ = this.store.select(selectInvestmentAnalysisLoading);
+    this.bestInvestmentMoment$ = this.store.select(selectBestInvestmentMoment);
+    this.investmentRecommendations$ = this.store.select(selectInvestmentRecommendations);
   }
   updateRentabiliteChart(categories: string[], data: number[]) {
     const chartConfig = {
@@ -627,6 +638,47 @@ export class DashboardComponent implements OnInit {
     ];
     return months[monthNumber - 1] || "Inconnu";
 
+  }
+  // Nouvelle méthode pour analyser l'investissement
+  analyzeInvestment(): void {
+    if (this.investmentAmount && this.investmentAmount > 0) {
+      this.store.dispatch(InvestmentActions.analyzeInvestment({
+        request: {
+          montantInvestissement: this.investmentAmount,
+          seuilSecurite: this.seuilSecurite,
+          societeId: this.selectedSocieteId as number,
+          dateFin: '2025-12-30'
+        }
+      }));
+      this.showInvestmentAnalysis = true;
+    }
+  }
+
+  // Méthode pour réinitialiser l'analyse
+  clearInvestmentAnalysis(): void {
+    this.store.dispatch(InvestmentActions.clearInvestmentAnalysis());
+    this.showInvestmentAnalysis = false;
+  }
+
+  // Méthode pour obtenir la classe CSS selon le niveau de risque
+  getRiskBadgeClass(risque: string): string {
+    switch (risque?.toLowerCase()) {
+      case 'faible': return 'badge-soft-success';
+      case 'modéré': return 'badge-soft-warning';
+      case 'élevé': return 'badge-soft-danger';
+      default: return 'badge-soft-secondary';
+    }
+  }
+
+  // Méthode pour obtenir la classe CSS selon le type de recommandation
+  getRecommendationClass(type: string): string {
+    switch (type?.toLowerCase()) {
+      case 'alerte': return 'alert-danger';
+      case 'attention': return 'alert-warning';
+      case 'recommandation': return 'alert-success';
+      case 'info': return 'alert-info';
+      default: return 'alert-secondary';
+    }
   }
 
 }

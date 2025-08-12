@@ -28,6 +28,10 @@ import { DepenseEffects } from "src/app/store/Depense/depense.effects";
 import { RecetteEffects } from "src/app/store/recette/recette.effects";
 import { tresorerieReducer } from "src/app/store/tresorerie/tresorerie.reducer";
 import { TresorerieEffects } from "src/app/store/tresorerie/tresorerie.effects";
+import { investmentAnalysisReducer } from "src/app/store/investment-analysis/nvestment-analysis.reducer";
+import { InvestmentAnalysisEffects } from "src/app/store/investment-analysis/investment-analysis.effects";
+import { moisCritiqueReducer } from "src/app/store/mois-plus-critique/mois-critique.reducer";
+import { MoisCritiqueEffects } from "src/app/store/mois-plus-critique/mois-critique.effects";
 
 @NgModule({
   declarations: [DashboardComponent],
@@ -54,6 +58,10 @@ import { TresorerieEffects } from "src/app/store/tresorerie/tresorerie.effects";
     EffectsModule.forFeature([RecetteEffects]),
     StoreModule.forFeature("tresorerie", tresorerieReducer),
     EffectsModule.forFeature([TresorerieEffects]),
+    StoreModule.forFeature("investmentAnalysis", investmentAnalysisReducer),
+    EffectsModule.forFeature([InvestmentAnalysisEffects]),
+    StoreModule.forFeature("moisCritique", moisCritiqueReducer),
+    EffectsModule.forFeature([MoisCritiqueEffects]),
   ],
   providers: [BsDropdownConfig],
 })
