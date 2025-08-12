@@ -54,6 +54,7 @@ import { selectBestInvestmentMoment, selectInvestmentAnalysis, selectInvestmentA
 import * as InvestmentActions from "src/app/store/investment-analysis/investment-analysis.actions";
 import { selectCriticalMonthData, selectCriticalMonthLoading } from "src/app/store/mois-plus-critique/mois-critique.selectors";
 import { loadCriticalMonth } from "src/app/store/mois-plus-critique/mois-critique.actions";
+import { co } from "@fullcalendar/core/internal-common";
 
 
 @Component({
@@ -74,6 +75,7 @@ export class DashboardComponent implements OnInit {
   currentUserEmail: string = "";
   adminSocietes: any[] = [];
   top5ClientsRentables: Rentabilite[] = [];
+  clientsRetardataires: Client[] = [];
 
   isActive: string;
   caAnneePrecedente$!: Observable<number>;
@@ -174,6 +176,17 @@ export class DashboardComponent implements OnInit {
         this.currentUserPhoto = img;
       }
     });
+
+    this.clientService.getClientsRetardataires().subscribe(
+  data => {
+    this.clientsRetardataires = data;
+    console.log("Liste des clients retardataires reçue:", this.clientsRetardataires);
+  },
+  error => {
+    console.error('Erreur lors de la récupération des clients retardataires', error);
+  }
+);
+
 
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;

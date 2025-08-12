@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface MoisCritiqueRequest {
     societeId: number;
@@ -23,9 +24,11 @@ export interface MoisCritiqueResponse {
     providedIn: 'root'
 })
 export class MoisCritiqueService {
-    private readonly API_URL = 'http://localhost:5000';
+    protected pythonUrl: string;
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        this.pythonUrl = `${environment.baseUrl}`;
+     }
     getCriticalMonth(dateFin?: string): Observable<MoisCritiqueResponse> {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
         const token = currentUser.token;
@@ -42,7 +45,7 @@ export class MoisCritiqueService {
 
 
         return this.http.get<MoisCritiqueResponse>(
-            `${this.API_URL}/mois-critique?${params}`,
+            `${this.pythonUrl}/mois-critique?${params}`,
             { headers }
         );
     }

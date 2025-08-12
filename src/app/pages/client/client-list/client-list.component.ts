@@ -131,6 +131,7 @@ export class ClientListComponent implements OnInit {
 
   initClientForm(): void {
     this.clientForm = this.formBuilder.group({
+      clientId: [null],
       nom: [
         "",
         [

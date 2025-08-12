@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface InvestmentAnalysisRequest {
   montantInvestissement: number;
@@ -39,9 +40,11 @@ export interface InvestmentAnalysisResponse {
   providedIn: 'root'
 })
 export class InvestmentAnalysisService {
-  private readonly API_URL = 'http://localhost:5000';
+  protected pythonUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.pythonUrl = `${environment.baseUrl}`;
+  }
 
   analyzeInvestment(request: InvestmentAnalysisRequest): Observable<InvestmentAnalysisResponse> {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
@@ -64,7 +67,7 @@ export class InvestmentAnalysisService {
     };
 
     return this.http.post<InvestmentAnalysisResponse>(
-      `${this.API_URL}/analyser-investissement?${params}`,
+      `${this.pythonUrl}/analyser-investissement?${params}`,
       body,
       { headers }
     );

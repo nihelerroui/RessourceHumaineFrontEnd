@@ -81,8 +81,8 @@
     "PRESTATIONS": {
       "TEXT": "PRESTATIONS"
     },
-    "FACTURE_CLIENT_ADMIN": {
-      "TEXT": "Facture Client Admin"
+    "FACTURE_CLIENT": {
+      "TEXT": "Facture Client "
     },
     "PAYS": {
       "TEXT": "PAYS"
@@ -108,6 +108,15 @@
     "TRESORERIE": {
       "TEXT": "TRESORERIE"
     },
+    "GEOLOCALISATION": {
+    "TEXT": "Geolocation"
+  },
+  "GESTION_FINANCIERE": {
+    "TEXT": "Financial Management"
+  },
+  "CONTRATS": {
+    "TEXT": "Contracts"
+  },
     "CAISSE": {
       "TEXT": "CAISSE"
     },
@@ -120,8 +129,8 @@
     "UTILISATEURS": {
       "TEXT": "UTILISATEURS"
     },
-    "DASHBOARDS": {
-      "TEXT": "Dashboards",
+    "DASHBOARD": {
+      "TEXT": "Dashboard",
       "BADGE": "04",
       "LIST": {
         "DEFAULT": "Default",

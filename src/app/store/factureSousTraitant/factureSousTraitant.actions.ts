@@ -3,7 +3,7 @@ import { FactureSousTraitant } from 'src/app/models/FactureSousTraitant.model';
 
 export const loadFacturesSousTraitant = createAction(
   '[FactureSousTraitant] Load FacturesSousTraitant',
-  props<{ consultantId: number; month: number; year: number}>()
+  props<{ consultantId: number}>()
 );
 
 export const loadFacturesSousTraitantSuccess = createAction(
