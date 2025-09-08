@@ -18,7 +18,6 @@ import { StoreModule } from "@ngrx/store";
 import { StoreDevtoolsModule } from "@ngrx/store-devtools";
 import { EffectsModule } from "@ngrx/effects";
 // Page Route
-import { ExtrapagesModule } from "./extrapages/extrapages.module";
 import { LayoutsModule } from "./layouts/layouts.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -81,8 +80,6 @@ export function createTranslateLoader(http: HttpClient): any {
     AppRoutingModule,
     StoreModule.forFeature('societe', societeReducer),
 EffectsModule.forFeature([SocieteEffects]),
-
-    ExtrapagesModule,
     AccordionModule.forRoot(),
     TabsModule.forRoot(),
     TooltipModule.forRoot(),

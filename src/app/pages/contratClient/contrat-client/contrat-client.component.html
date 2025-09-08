@@ -1,5 +1,5 @@
 <div class="container-fluid">
-<app-page-title title="Listes des contrats clients" [breadcrumbItems]="[
+  <app-page-title title="Listes des contrats clients" [breadcrumbItems]="[
       { label: 'Dashboard', path: '/' },
       { label: 'contrat client', active: true }
     ]"></app-page-title>
@@ -11,15 +11,15 @@
     <div class="col-12">
       <div ngClass="card">
         <div class="card-body border-bottom">
-                    <div class="d-flex align-items-center">
-                        <h5 class="mb-0 card-title flex-grow-1">Liste des contrats clients</h5>
-                        <div class="flex-shrink-0 d-flex gap-1">
-                            <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
-                                <i class="mdi mdi-refresh"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des contrats clients</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()">
+                <i class="mdi mdi-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </div>
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
@@ -40,7 +40,7 @@
               </div>
             </div>
             <!-- Filtrer par société -->
-            <div class="col-lg-3"  *ngIf="role === 'ADMINISTRATEUR'">
+            <div class="col-lg-3" *ngIf="role === 'ADMINISTRATEUR'">
               <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterContrats()">
                 <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
                   {{ s.name }}
@@ -90,18 +90,19 @@
                       </li>
 
                       <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE' && role =='ADMINISTRATEUR'" data-bs-toggle="tooltip" title="Valider">
-                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="
-                            modifierStatutContrat(contrat, 'CONFIRME_ADMIN')
-                          ">
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE' && role =='ADMINISTRATEUR'"
+                        data-bs-toggle="tooltip" title="Valider">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                          (click)="demanderConfirmation(contrat, StatutContrat.CONFIRME_ADMIN)">
                           <i class="mdi mdi-check-circle-outline"></i>
                         </a>
                       </li>
 
-                      <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE'&& role =='ADMINISTRATEUR'" data-bs-toggle="tooltip" title="Rejeter">
+                      <!-- Rejeter (ouvre la confirmation) -->
+                      <li *ngIf="contrat.statutContrat === 'EN_ATTENTE' && role =='ADMINISTRATEUR'"
+                        data-bs-toggle="tooltip" title="Rejeter">
                         <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
-                          (click)="modifierStatutContrat(contrat, 'REJETE')">
+                          (click)="demanderConfirmation(contrat, StatutContrat.REJETE)">
                           <i class="mdi mdi-close-circle-outline"></i>
                         </a>
                       </li>
@@ -141,7 +142,35 @@
       </div>
     </div>
   </div>
+  <!-- ========== Modal de confirmation de changement de statut ========== -->
+  <ng-template #confirmModal>
+    <div class="modal-header">
+      <h5 class="modal-title">Confirmer l'action</h5>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
 
+    <div class="modal-body">
+      <p class="mb-2">
+        Êtes-vous sûr de vouloir changer le statut du contrat
+        <b>"{{ contratEnCours?.designation }}"</b>
+        en <b>{{ getStatutLabel(nouveauStatutEnCours || '') }}</b> ?
+      </p>
+
+      <div class="alert alert-warning"
+        *ngIf="contratEnCours?.statutContrat === 'CONFIRME_ADMIN' && nouveauStatutEnCours === StatutContrat.REJETE">
+        Ce contrat est déjà confirmé par l'admin. Le rejeter annulera la confirmation.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()" [disabled]="isUpdating">
+        Annuler
+      </button>
+      <button type="button" class="btn btn-primary" (click)="confirmerChangementStatut()" [disabled]="isUpdating">
+        Confirmer
+      </button>
+    </div>
+  </ng-template>
   <!-- Modal pour visualiser le contrat -->
   <ng-template #contratModal let-modal>
     <div class="modal-header">

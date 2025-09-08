@@ -114,15 +114,14 @@ export class PrestationListComponent implements OnInit {
     });
 
   }
-
   initForms() {
     this.form = this.fb.group({
-      prestationId: [""],
-      titre: ["", Validators.required],
-      description: ["", Validators.required],
-      contratId: [""],
-      externalConsultantId: [""],
-      monthYear: ["", Validators.required],
+      prestationId: [''],
+      titre: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      contratId: ['', Validators.required],
+      externalConsultantId: [''],
+      monthYear: ['', Validators.required],
     });
   }
   filterPrestation() {

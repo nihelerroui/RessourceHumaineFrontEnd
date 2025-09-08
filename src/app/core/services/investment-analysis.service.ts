@@ -43,7 +43,7 @@ export class InvestmentAnalysisService {
   protected pythonUrl: string;
 
   constructor(private http: HttpClient) {
-    this.pythonUrl = `${environment.baseUrl}`;
+    this.pythonUrl = `${environment.pythonUrl}`;
   }
 
   analyzeInvestment(request: InvestmentAnalysisRequest): Observable<InvestmentAnalysisResponse> {

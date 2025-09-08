@@ -3,20 +3,10 @@ import { FormGroup } from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { map, Observable } from "rxjs";
-import {
-  ContratClient,
-  StatutContrat,
-} from "src/app/models/contratClient.models";
-import {
-  selectAllContratsClient,
-  selectContratsClientLoading,
-} from "../../../store/contratClient/contratClient-selector";
-import {
-  loadContratsClient,
-  updateContratClient,
-} from "src/app/store/contratClient/contratClient.actions";
+import { ContratClient, StatutContrat } from "src/app/models/contratClient.models";
+import { selectAllContratsClient, selectContratsClientLoading } from "../../../store/contratClient/contratClient-selector";
+import { loadContratsClient, updateContratClient } from "src/app/store/contratClient/contratClient.actions";
 import { SafeResourceUrl } from "@angular/platform-browser";
-//import { CommentContratClientComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { environment } from "src/environments/environment";
 import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
@@ -56,6 +46,12 @@ export class ContratClientAdminComponent implements OnInit {
   role : string ="";
 
   @ViewChild("contratModal") contratModal!: TemplateRef<any>;
+
+  // ===== AJOUTS pour la confirmation =====
+  @ViewChild("confirmModal") confirmModal!: TemplateRef<any>;
+  contratEnCours: ContratClient | null = null;
+  nouveauStatutEnCours: StatutContrat | null = null;
+  isUpdating = false;
 
   statutContratValues = Object.values(StatutContrat);
 
@@ -114,7 +110,32 @@ export class ContratClientAdminComponent implements OnInit {
     this.page = 1;
     this.store.dispatch(loadContratsClient());
   }
+  demanderConfirmation(contrat: ContratClient, nouveauStatut: StatutContrat): void {
+    // si le statut demandé est identique, pas d'action
+    if (contrat.statutContrat === nouveauStatut) {
+      return;
+    }
+    this.contratEnCours = contrat;
+    this.nouveauStatutEnCours = nouveauStatut;
+    this.modalRef = this.modalService.show(this.confirmModal, { class: 'modal-sm' });
+  }
 
+  confirmerChangementStatut(): void {
+    if (!this.contratEnCours || !this.nouveauStatutEnCours) return;
+
+    this.isUpdating = true;
+
+    // délégué à la méthode existante
+    this.modifierStatutContrat(this.contratEnCours, this.nouveauStatutEnCours);
+
+    // on ferme tout de suite (si tu veux attendre la réussite NgRx, branche-toi sur l'effet de succès)
+    this.isUpdating = false;
+    this.modalRef?.hide();
+
+    // nettoyage
+    this.contratEnCours = null;
+    this.nouveauStatutEnCours = null;
+  }
   modifierStatutContrat(
     contrat: ContratClient,
     nouveauStatut: StatutContrat

@@ -32,15 +32,8 @@
                 name="datepicker" />
             </div>
             <div class="col-lg-3" *ngIf="role === 'ADMINISTRATEUR'">
-              <select
-                class="form-select"
-                [(ngModel)]="selectedSocieteId"
-                 (change)="filterPrestation()"
-              >
-                <option
-                  *ngFor="let s of adminSocietes$ | async"
-                  [ngValue]="s.societeId"
-                >
+              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterPrestation()">
+                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
                   {{ s.name }}
                 </option>
               </select>
@@ -216,27 +209,45 @@
       </h5>
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
     </div>
-    <form (ngSubmit)="editMode ? updatePrestation() : savePrestation()" [formGroup]="form">
+    <form [formGroup]="form" (ngSubmit)="editMode ? updatePrestation() : savePrestation()">
       <div class="modal-body">
+
+        <!-- Titre -->
         <div class="mb-3">
           <label class="form-label">Titre</label>
-          <input type="text" formControlName="titre" class="form-control" required />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <input type="text" formControlName="description" class="form-control" required />
+          <input type="text" formControlName="titre" class="form-control"
+            [ngClass]="{'is-invalid': form.get('titre')?.invalid && form.get('titre')?.touched}" />
+          <div *ngIf="form.get('titre')?.invalid && form.get('titre')?.touched" class="invalid-feedback">
+            Le titre est obligatoire et doit contenir au moins 3 caractères.
+          </div>
         </div>
 
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <input type="text" formControlName="description" class="form-control"
+            [ngClass]="{'is-invalid': form.get('description')?.invalid && form.get('description')?.touched}" />
+          <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="invalid-feedback">
+            La description est obligatoire et doit contenir au moins 5 caractères.
+          </div>
+        </div>
+
+        <!-- Contrat -->
         <div class="mb-3">
           <label class="form-label">Contrat</label>
           <select formControlName="contratId" class="form-select" (change)="onContratChange($event.target.value)"
-            required>
+            [ngClass]="{'is-invalid': form.get('contratId')?.invalid && form.get('contratId')?.touched}">
             <option value="">-- Sélectionner un contrat --</option>
             <option *ngFor="let contract of contracts" [value]="contract.contratClientId">
               {{ contract.designation }}
             </option>
           </select>
+          <div *ngIf="form.get('contratId')?.invalid && form.get('contratId')?.touched" class="invalid-feedback">
+            Veuillez sélectionner un contrat.
+          </div>
         </div>
+
+        <!-- Consultant -->
         <div class="mb-3">
           <label class="form-label">Consultant</label>
           <select formControlName="externalConsultantId" class="form-select">
@@ -247,20 +258,25 @@
           </select>
         </div>
 
+        <!-- Mois et Année -->
         <div class="mb-3">
           <label class="form-label">Mois et Année</label>
-          <input type="month" class="form-control" formControlName="monthYear" required />
+          <input type="month" class="form-control" formControlName="monthYear"
+            [ngClass]="{'is-invalid': form.get('monthYear')?.invalid && form.get('monthYear')?.touched}" />
+          <div *ngIf="form.get('monthYear')?.invalid && form.get('monthYear')?.touched" class="invalid-feedback">
+            Veuillez sélectionner un mois et une année valides.
+          </div>
         </div>
 
         <input type="hidden" formControlName="prestationId" />
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
-          Fermer
-        </button>
-        <button type="submit" class="btn btn-success">
+        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
           {{ editMode ? "Modifier" : "Ajouter" }}
         </button>
       </div>
     </form>
+
   </ng-template>

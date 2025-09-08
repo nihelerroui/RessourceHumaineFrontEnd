@@ -75,8 +75,11 @@ export class FactureclientAdminComponent implements OnInit {
   }
 
   openCreateModal(): void {
-    this.modalRef = this.modalService.show(FactureClientCreateComponent, { class: "modal-lg" });
-  }
+  this.modalRef = this.modalService.show(FactureClientCreateComponent, { class: "modal-lg" });
+  this.modalRef.content.factureCreated.subscribe(() => {
+    this.store.dispatch(FactureClientActions.loadFacturesBySocieteAdmin());
+  });
+}
   openEditModal(factureClientId: number): void {
     this.modalRef = this.modalService.show(FactureClientCreateComponent, {
       class: "modal-lg",
@@ -154,16 +157,29 @@ export class FactureclientAdminComponent implements OnInit {
   }
 
   filterFactures() {
-    const termLower = this.term.toLowerCase().trim();
-    this.filteredFactures = this.allFactures.filter(f =>
-      (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
-      (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
-      (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
-      (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter) &&
-      (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
-    );
-    this.pageChanged({ page: 1 });
-  }
+  const termLower = this.term.toLowerCase().trim();
+  this.filteredFactures = this.allFactures.filter(f =>
+    (!termLower || f.refFacture?.toLowerCase().includes(termLower)) &&
+    (!this.statutFactureFilter || f.statutFacture === this.statutFactureFilter) &&
+    (!this.statutPaiementFilter || f.statutPaiement === this.statutPaiementFilter) &&
+    (!this.typePaiementFilter || f.typePaiement === this.typePaiementFilter) &&
+    (!this.selectedSocieteId || f.contratClient.client.societe.societeId === +this.selectedSocieteId)
+  );
+
+  // 🔹 Tri par année puis par numéro
+  this.filteredFactures.sort((a, b) => {
+    const [aYear, aNum] = a.refFacture.replace("F", "").split(":").map(x => parseInt(x, 10));
+    const [bYear, bNum] = b.refFacture.replace("F", "").split(":").map(x => parseInt(x, 10));
+
+    if (aYear !== bYear) {
+      return aYear - bYear; // année ascendante
+    }
+    return aNum - bNum; // numéro ascendant
+  });
+
+  this.pageChanged({ page: 1 });
+}
+
 
   pageChanged(event: any) {
     this.page = event.page;

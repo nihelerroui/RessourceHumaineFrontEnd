@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Store } from "@ngrx/store";
 import * as ContratActions from "../../../store/contratClient/contratClient.actions";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -20,21 +20,25 @@ export class ImportContratComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder,
     private store: Store,
     private tokenUtil: TokenUtilService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.paramMap.get("token") || '';
     console.log("📦 Token reçu depuis l'URL :", this.token);
     const clientId = this.tokenUtil.extractClientId(this.token);
-  if (clientId) {
+    if (!clientId || this.tokenUtil.isTokenExpired(this.token)) {
+      console.warn("⚠️ Token invalide ou expiré, rechargement de la page 404");
+      window.location.href = '/404';
+    }
+
+
     localStorage.setItem('clientId', clientId.toString());
     localStorage.setItem('clientToken', this.token);
-  } else {
-    console.warn("⚠️ Token invalide ou clientId introuvable");
-  }
+
     this.initForm();
   }
   // Initialisation du formulaire
@@ -67,10 +71,10 @@ export class ImportContratComponent implements OnInit {
   }
   importerContrat() {
     const clientId = localStorage.getItem('clientId');
-  
+
     if (this.contratForm.valid && this.selectedFile && clientId) {
       const { designation, tjm } = this.contratForm.value;
-  
+
       this.store.dispatch(
         ContratActions.importerContratClient({
           file: this.selectedFile,
@@ -79,7 +83,7 @@ export class ImportContratComponent implements OnInit {
           tjm
         })
       );
-  
+
       Swal.fire({
         icon: "success",
         title: "Contrat importé avec succès !",
@@ -89,10 +93,10 @@ export class ImportContratComponent implements OnInit {
         console.log("✅ Redirection vers les contrats du clientId :", clientId);
         window.location.href = `/contrats-client/${clientId}`;
       });
-  
+
     } else {
       console.error("❌ Formulaire invalide ou clientId manquant");
     }
   }
-           
+
 }
