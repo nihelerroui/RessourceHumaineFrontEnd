@@ -1,31 +1,50 @@
-import { HTTP_INTERCEPTORS, HttpEvent } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpEvent } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import {
+  HttpInterceptor,
+  HttpHandler,
+  HttpRequest,
+} from "@angular/common/http";
 
-import { TokenStorageService } from '../../core/services/token-storage.service';
-import { Observable } from 'rxjs';
+import { TokenStorageService } from "../../core/services/token-storage.service";
+import { Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 
-// const TOKEN_HEADER_KEY = 'Authorization';       // for Spring Boot back-end
-const TOKEN_HEADER_KEY = 'x-access-token';   // for Node.js Express back-end
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private token: TokenStorageService) { }
+  constructor(private token: TokenStorageService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let authReq = req;
-    const token = this.token.getToken();
-    if (token != null) {
-      // for Spring Boot back-end
-      // authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, 'Bearer ' + token) });
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    const excludedRoutes = [
+      "/contratsClient/",
+      "/contrats-client/",
+      "/import-contrat/",
+      "facture/client/view",
+      "/reset-password"
+    ];
+    const isExcludedRoute = excludedRoutes.some((path) =>
+      req.url.includes(path)
+    );
+    const isSecuredApi = req.url.startsWith(`${environment.apiUrl}`);
+    const token = this.token.getToken(isExcludedRoute);
 
-      // for Node.js Express back-end
-      authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, token) });
+    if (isSecuredApi && token && token !== "null") {
+      const cloned = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return next.handle(cloned);
     }
-    return next.handle(authReq);
+
+    return next.handle(req);
   }
 }
 
 export const authInterceptorProviders = [
-  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 ];

@@ -1,0 +1,282 @@
+<div class="container-fluid">
+  <app-page-title title="Prestations" [breadcrumbItems]="[
+      { label: 'Dashboard', path: '/' },
+      { label: 'prestations', active: true }
+    ]"></app-page-title>
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des prestations</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-primary"
+                (click)="openCreateModal(prestationFormModal)">Ajouter une nouvelle Prestation</a>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshPrestations()"><i
+                  class="mdi mdi-refresh"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3 align-items-center">
+            <!-- Search Input -->
+            <div class="col">
+              <input type="search" class="form-control" id="searchInput" placeholder="Recherche" [(ngModel)]="term"
+                (ngModelChange)="filterPrestation()" />
+            </div>
+
+            <!-- Date Picker -->
+            <div class="col-lg-3">
+              <input type="text" class="form-control" placeholder="Filtrer par date" id="datePicker" bsDatepicker
+                [(ngModel)]="selectedDate" (ngModelChange)="filterPrestation()" [bsConfig]="bsConfig"
+                name="datepicker" />
+            </div>
+            <div class="col-lg-3" *ngIf="role === 'ADMINISTRATEUR'">
+              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterPrestation()">
+                <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
+                  {{ s.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading state -->
+          <div class="table-responsive" *ngIf="paginatedPrestations.length > 0">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="prestation-list">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Description</th>
+                  <th>Client</th>
+                  <th>Prix Unitaire</th>
+                  <th>Quantité</th>
+                  <th>Montant HT</th>
+                  <th>Crée le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let prestation of paginatedPrestations">
+                  <td>{{ prestation.titre }}</td>
+                  <td>
+                    {{ prestation.description?.split(" ").slice(0, 3).join(" ")
+                    }}{{
+                    prestation.description?.split(" ").length > 3 ? "..." : ""
+                    }}
+                  </td>
+                  <td>
+                    <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill" style="
+                        background-color: rgba(13, 110, 253, 0.08);
+                        color: #2974e6;
+                        font-weight: 500;
+                        font-size: 0.85rem;
+                        cursor: pointer;
+                        transition: 0.2s;
+                      " (click)="
+                        viewClientDetails(
+                          prestation.contratClient?.client?.clientId,
+                          ClientDetailsModal
+                        )
+                      " [title]="prestation.contratClient?.client?.nom">
+                      <i class="bi bi-person" style="font-size: 0.85rem"></i>
+                      {{
+                      prestation.contratClient?.client?.nom ||
+                      "Client inconnu"
+                      }}
+                    </span>
+                  </td>
+                  <td>{{ prestation.prixUnitaire }}</td>
+                  <td>{{ prestation.quantite }}</td>
+                  <td>{{ prestation.montantHt }}</td>
+                  <td>
+                    {{ prestation.createdAt | date : "dd/MM/yyyy" || "N/A" }}
+                  </td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                        <button class="btn btn-sm btn-soft-primary" (click)="
+                            openDetailsModal(prestation, detailsPrestationModal)
+                          ">
+                          <i class="mdi mdi-eye-outline"></i>
+                        </button>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info" (click)="
+                            editDataGet(
+                              prestation.prestationId,
+                              prestationFormModal
+                            )
+                          "><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
+                          (click)="delete($event, prestation.prestationId)"><i class="mdi mdi-delete-outline"></i></a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div *ngIf="loading$ | async" class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <!-- Pagination -->
+          <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredPrestations.length > 0">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">Affichage de <b>{{ paginatedPrestations.length }}
+                </b> sur <b>
+                  {{ filteredPrestations.length }}</b> factures</p>
+            </div>
+            <div class="col-auto">
+              <ul class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination [totalItems]="filteredPrestations.length" [itemsPerPage]="prestationsParPage"
+                  (pageChanged)="pageChanged($event)"></pagination>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ✅ Modal Détails Prestation -->
+  <ng-template #detailsPrestationModal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="bi bi-clipboard-check text-primary"></i> Détails de la
+        Prestation
+      </h5>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tbody>
+            <tr>
+              <th><i class="bi bi-card-text"></i> Description :</th>
+              <td>{{ selectedPrestation?.description }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-people"></i> Client :</th>
+              <td>
+                {{ selectedPrestation?.contratClient?.client?.nom || "N/A" }}
+              </td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-cash"></i> Prix Unitaire :</th>
+              <td>{{ selectedPrestation?.prixUnitaire }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-123"></i> Quantité :</th>
+              <td>{{ selectedPrestation?.quantite }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-calculator"></i> Montant HT :</th>
+              <td>{{ selectedPrestation?.montantHt }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-calendar-event"></i> Date de création :</th>
+              <td>{{ selectedPrestation?.createdAt | date : "dd MMMM yyyy" }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-calendar-event"></i> Mois:</th>
+              <td>{{ selectedPrestation?.month }}</td>
+            </tr>
+            <tr>
+              <th><i class="bi bi-calendar-event"></i> Year:</th>
+              <td>{{ selectedPrestation?.year }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Fermer
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template #prestationFormModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{ editMode ? "Modifier Prestation" : "Ajouter Prestation" }}
+      </h5>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="editMode ? updatePrestation() : savePrestation()">
+      <div class="modal-body">
+
+        <!-- Titre -->
+        <div class="mb-3">
+          <label class="form-label">Titre</label>
+          <input type="text" formControlName="titre" class="form-control"
+            [ngClass]="{'is-invalid': form.get('titre')?.invalid && form.get('titre')?.touched}" />
+          <div *ngIf="form.get('titre')?.invalid && form.get('titre')?.touched" class="invalid-feedback">
+            Le titre est obligatoire et doit contenir au moins 3 caractères.
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <input type="text" formControlName="description" class="form-control"
+            [ngClass]="{'is-invalid': form.get('description')?.invalid && form.get('description')?.touched}" />
+          <div *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="invalid-feedback">
+            La description est obligatoire et doit contenir au moins 5 caractères.
+          </div>
+        </div>
+
+        <!-- Contrat -->
+        <div class="mb-3">
+          <label class="form-label">Contrat</label>
+          <select formControlName="contratId" class="form-select" (change)="onContratChange($event.target.value)"
+            [ngClass]="{'is-invalid': form.get('contratId')?.invalid && form.get('contratId')?.touched}">
+            <option value="">-- Sélectionner un contrat --</option>
+            <option *ngFor="let contract of contracts" [value]="contract.contratClientId">
+              {{ contract.designation }}
+            </option>
+          </select>
+          <div *ngIf="form.get('contratId')?.invalid && form.get('contratId')?.touched" class="invalid-feedback">
+            Veuillez sélectionner un contrat.
+          </div>
+        </div>
+
+        <!-- Consultant -->
+        <div class="mb-3">
+          <label class="form-label">Consultant</label>
+          <select formControlName="externalConsultantId" class="form-select">
+            <option value="">-- Sélectionner un consultant --</option>
+            <option *ngFor="let consultant of consultants$ | async" [value]="consultant.consultantId">
+              {{ consultant.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Mois et Année -->
+        <div class="mb-3">
+          <label class="form-label">Mois et Année</label>
+          <input type="month" class="form-control" formControlName="monthYear"
+            [ngClass]="{'is-invalid': form.get('monthYear')?.invalid && form.get('monthYear')?.touched}" />
+          <div *ngIf="form.get('monthYear')?.invalid && form.get('monthYear')?.touched" class="invalid-feedback">
+            Veuillez sélectionner un mois et une année valides.
+          </div>
+        </div>
+
+        <input type="hidden" formControlName="prestationId" />
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">Fermer</button>
+        <button type="submit" class="btn btn-success" [disabled]="form.invalid">
+          {{ editMode ? "Modifier" : "Ajouter" }}
+        </button>
+      </div>
+    </form>
+
+  </ng-template>

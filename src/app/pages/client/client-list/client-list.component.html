@@ -1,0 +1,520 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Liste des Clients"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des Clients</h5>
+            <div class="flex-shrink-0 d-flex gap-2">
+              <a
+                href="javascript:void(0);"
+                class="btn btn-primary"
+                (click)="openModalAdd(clientModal)"
+              >
+                Ajouter un Client</a
+              >
+              <a
+                href="javascript:void(0);"
+                class="btn btn-light"
+                (click)="refreshList()"
+                ><i class="mdi mdi-refresh"></i
+              ></a>
+             
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <input
+                type="search"
+                class="form-control"
+                placeholder="Rechercher un client..."
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="filterClients()"
+              />
+            </div>
+            <div class="col-lg-2">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedTypeClient"
+                (change)="filterClients()"
+              >
+                <option value>Sélectionner un Type Client</option>
+                <option *ngFor="let type of typeClientOptions" [value]="type">
+                  {{ type }}
+                </option>
+              </select>
+            </div>
+            <div class="col-lg-2">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedPays"
+                (change)="filterClients()"
+              >
+                <option value>Sélectionner un Pays</option>
+                <option
+                  *ngFor="let pays of paysList$ | async"
+                  [value]="pays.paysId"
+                >
+                  {{ pays.nomFrFr }}
+                </option>
+              </select>
+            </div>
+            <div class="col-lg-2" *ngIf="role === 'ADMINISTRATEUR'">
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSocieteId"
+               (ngModelChange)="filterClients()"
+              >
+                <option
+                  *ngFor="let societe of adminSocietes"
+                 [ngValue]="societe.societeId"
+                >
+                  {{ societe.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <button type="button" class="btn btn-soft-secondary w-100">
+                <i class="mdi mdi-filter-outline align-middle"></i> Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <div *ngIf="loading$ | async" class="text-center text-primary">
+              <p>
+                <i class="mdi mdi-loading mdi-spin"></i> Chargement en cours...
+              </p>
+            </div>
+
+            <div *ngIf="error$ | async as errorMsg" class="alert alert-danger">
+              <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+            </div>
+
+            <table
+              *ngIf="paginatedClientList.length > 0"
+              class="table table-striped table-hover align-middle"
+            >
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Type Client</th>
+                  <th>Téléphone</th>
+                  <th>Numéro SIRET</th>
+                  <th>Adresse</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let client of paginatedClientList; trackBy: trackById"
+                >
+                  <td>{{ client.nom }}</td>
+                  <td>{{ client.email }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-primary': client.typeClient === 'NONEDF',
+                        'badge-soft-success': client.typeClient === 'EDF'
+                      }"
+                    >
+                      {{ client.typeClient }}
+                    </span>
+                  </td>
+                  <td>{{ client.telephone }}</td>
+                  <td>{{ client.numeroSiret }}</td>
+                  <td>{{ client.adresse }}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="View"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="openDetailsModal(client, detailsClientModal)"
+                        >
+                          <i class="mdi mdi-eye-outline"></i>
+                        </button>
+                      </li>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-info"
+                          (click)="openModalEdit(client, clientModal)"
+                        >
+                          <i class="mdi mdi-pencil-outline"></i>
+                        </button>
+                      </li>
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Delete"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-danger"
+                          (click)="onDeleteClient(client.clientId)"
+                        >
+                          <i class="mdi mdi-delete-outline"></i>
+                        </button>
+                      </li>
+
+                      <li
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Envoyer email d'import"
+                      >
+                        <button
+                          class="btn btn-sm btn-soft-warning"
+                          (click)="envoyerEmailImport(client.clientId)"
+                        >
+                          <i class="mdi mdi-email-send-outline"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div
+              *ngIf="paginatedClientList.length === 0 && !(loading$ | async)"
+              class="text-center text-muted"
+            >
+              <p>Aucun client trouvé.</p>
+            </div>
+          </div>
+
+          <div
+            class="row justify-content-between align-items-center mt-3"
+            *ngIf="filteredClientList.length > 0"
+          >
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">
+                Affichage de <b>{{ paginatedClientList.length }}</b> sur
+                <b>{{ filteredClientList.length }}</b> clients
+              </p>
+            </div>
+            <div class="col-auto">
+              <ul
+                class="pagination pagination-rounded justify-content-end mb-2"
+              >
+                <pagination
+                  [totalItems]="filteredClientList.length"
+                  [itemsPerPage]="itemsPerPage"
+                  (pageChanged)="pageChanged($event)"
+                ></pagination>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #clientModal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{
+          clientForm.value.clientId ? "Modifier un Client" : "Ajouter un Client"
+        }}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="modalRef?.hide()"
+      ></button>
+    </div>
+    <form (ngSubmit)="saveClient()" [formGroup]="clientForm">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="nom"
+            placeholder="Nom"
+          />
+          <div
+            *ngIf="
+              clientForm.controls['nom'].invalid &&
+              clientForm.controls['nom'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['nom'].errors?.['required']"
+              >Le nom est obligatoire.</span
+            >
+            <span *ngIf="clientForm.controls['nom'].errors?.['minlength']"
+              >Le nom doit avoir au moins 2 caractères.</span
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            placeholder="Entrer l'email"
+            formControlName="email"
+          />
+          <div
+            *ngIf="
+              clientForm.controls['email'].invalid &&
+              clientForm.controls['email'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['email'].errors?.['required']"
+              >L'email est requis.</span
+            >
+            <span *ngIf="clientForm.controls['email'].errors?.['email']"
+              >L'email n'est pas valide.</span
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Téléphone</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Numéro de téléphone"
+            formControlName="telephone"
+          />
+          <div
+            *ngIf="
+              clientForm.controls['telephone'].invalid &&
+              clientForm.controls['telephone'].touched
+            "
+            class="text-danger"
+          >
+            <span *ngIf="clientForm.controls['telephone'].errors?.['required']"
+              >Le téléphone est requis.</span
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Adresse</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Adresse"
+            formControlName="adresse"
+          />
+          <div
+            *ngIf="
+              clientForm.controls['adresse'].invalid &&
+              clientForm.controls['adresse'].touched
+            "
+            class="text-danger"
+          >
+            L'adresse est requise.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Numéro SIRET</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="numeroSiret"
+            placeholder="SIRET"
+          />
+          <div
+            *ngIf="
+              clientForm.controls['numeroSiret'].invalid &&
+              clientForm.controls['numeroSiret'].touched
+            "
+            class="text-danger"
+          >
+            <span
+              *ngIf="clientForm.controls['numeroSiret'].errors?.['required']"
+              >Le numéro SIRET est requis.</span
+            >
+            <span *ngIf="clientForm.controls['numeroSiret'].errors?.['pattern']"
+              >Le numéro SIRET doit contenir exactement 14 chiffres.</span
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Type de Client</label>
+          <select class="form-control" formControlName="typeClient">
+            <option *ngFor="let type of typeClientOptions" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+          <div
+            *ngIf="
+              clientForm.controls['typeClient'].invalid &&
+              clientForm.controls['typeClient'].touched
+            "
+            class="text-danger"
+          >
+            Le type de client est requis.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Pays</label>
+          <select class="form-control" formControlName="paysId">
+            <option
+              *ngFor="let pays of paysList$ | async"
+              [value]="pays.paysId"
+            >
+              {{ pays.nomFrFr }}
+            </option>
+          </select>
+          <div
+            *ngIf="
+              clientForm.controls['paysId'].invalid &&
+              clientForm.controls['paysId'].touched
+            "
+            class="text-danger"
+          >
+            Le pays est requis.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Société</label>
+          <select class="form-control" formControlName="societeId">
+            <option
+              *ngFor="let societe of adminSocietes$ | async"
+              [value]="societe.societeId"
+            >
+              {{ societe.name }}
+            </option>
+          </select>
+          <div
+            *ngIf="
+              clientForm.controls['societeId'].invalid &&
+              clientForm.controls['societeId'].touched
+            "
+            class="text-danger"
+          >
+            La société est requise.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="clientForm.invalid"
+        >
+          {{ clientForm.value.clientId ? "Mettre à Jour" : "Ajouter" }}
+        </button>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #detailsClientModal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="bi bi-person-badge text-primary me-2"></i>Détails du Client
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="modalRef?.hide()"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-person-circle text-primary"></i> Nom :
+              </th>
+              <td>{{ selectedClient?.nom || "Non défini" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-envelope text-danger"></i> Email :
+              </th>
+              <td>{{ selectedClient?.email || "Non défini" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-telephone text-success"></i> Téléphone :
+              </th>
+              <td>{{ selectedClient?.telephone || "Non défini" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-geo-alt text-warning"></i> Adresse :
+              </th>
+              <td>{{ selectedClient?.adresse || "Non défini" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-hash text-secondary"></i> Numéro SIRET :
+              </th>
+              <td>{{ selectedClient?.numeroSiret || "Non défini" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-tags text-info"></i> Type de Client :
+              </th>
+              <td>
+                <span class="badge badge-soft-primary">
+                  {{ selectedClient?.typeClient || "Non défini" }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-globe text-primary"></i> Pays :
+              </th>
+              <td>
+                <span class="badge badge-soft-success">
+                  {{ selectedClient?.pays?.nomFrFr || "Non défini" }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <i class="bi bi-buildings text-primary me-2"></i> Société :
+              </th>
+              <td>
+                <span class="badge badge-soft-info">
+                  {{ selectedClient?.societe?.nom || "Non définie" }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+        Fermer
+      </button>
+    </div>
+  </ng-template>
+</div>

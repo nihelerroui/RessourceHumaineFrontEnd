@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
-const TOKEN_KEY = 'auth-token';
-const USER_KEY = 'currentUser';
+const TOKEN_KEY = "auth-token";
+const USER_KEY = "currentUser";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class TokenStorageService {
-  constructor() { }
+  constructor() {}
 
   signOut(): void {
     window.sessionStorage.clear();
@@ -18,8 +18,21 @@ export class TokenStorageService {
     window.sessionStorage.setItem(TOKEN_KEY, token);
   }
 
-  public getToken(): string | null {
-    return localStorage.getItem('token');
+  public getToken(isExcludedRoute: boolean): string | null {
+    const clientToken = localStorage.getItem("clientToken");
+    const authToken = sessionStorage.getItem("auth-token");
+
+    if (isExcludedRoute) {
+      if (clientToken && clientToken !== "null") {
+        return clientToken;
+      }
+    } else {
+      if (authToken && authToken !== "null") {
+        return authToken;
+      }
+    }
+
+    return null;
   }
 
   public saveUser(user: any): void {
@@ -28,11 +41,17 @@ export class TokenStorageService {
   }
 
   public getUser(): any {
-    const user = window.localStorage.getItem(USER_KEY);
+    const user = window.sessionStorage.getItem(USER_KEY);
+
     if (user) {
       return JSON.parse(user);
     }
 
     return {};
+  }
+
+  getRole(): string | null {
+    const user = this.getUser();
+    return user?.user?.role || null;
   }
 }

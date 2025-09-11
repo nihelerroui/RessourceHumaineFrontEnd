@@ -1,9 +1,11 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import * as AuthSelectors from 'src/app/store/Authentication/authentication-selector'
+import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 
-import { AuthenticationService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-passwordreset',
@@ -16,47 +18,47 @@ import { environment } from '../../../../environments/environment';
  */
 export class PasswordresetComponent implements OnInit, AfterViewInit {
 
-  resetForm: UntypedFormGroup;
-  submitted: any = false;
-  error: any = '';
-  success: any = '';
-  loading: any = false;
+   resetForm: UntypedFormGroup;
+  submitted = false;
 
-  // set the currenr year
+  loading$: Observable<boolean>;
+  success$: Observable<boolean>;
+  error$: Observable<string | null>;
+
   year: number = new Date().getFullYear();
 
-  // tslint:disable-next-line: max-line-length
-  constructor(private formBuilder: UntypedFormBuilder, private route: ActivatedRoute, private router: Router, private authenticationService: AuthenticationService) { }
+  successMessage$: Observable<string | null>;
 
-  ngOnInit() {
+  constructor(
+    private fb: UntypedFormBuilder,
+    private store: Store
+  ) {
+    this.loading$ = this.store.select(AuthSelectors.selectConfirmResetLoading);
+    this.success$ = this.store.select(AuthSelectors.selectConfirmResetSuccess);
+    this.error$ = this.store.select(AuthSelectors.selectConfirmResetError);
+  }
 
-    this.resetForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+  ngOnInit(): void {
+    this.resetForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
+
+    this.successMessage$ = this.store.select(AuthSelectors.selectResetPasswordSuccessMessage);
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {}
+
+  get f() {
+    return this.resetForm.controls;
   }
 
-  // convenience getter for easy access to form fields
-  get f() { return this.resetForm.controls; }
-
-  /**
-   * On submit form
-   */
-  onSubmit() {
-    this.success = '';
+  onSubmit(): void {
     this.submitted = true;
 
-    // stop here if form is invalid
-    if (this.resetForm.invalid) {
-      return;
-    }
-    if (environment.defaultauth === 'firebase') {
-      this.authenticationService.resetPassword(this.f.email.value)
-        .catch(error => {
-          this.error = error ? error : '';
-        });
-    }
+    if (this.resetForm.invalid) return;
+
+    const email = this.resetForm.value.email;
+
+    this.store.dispatch(AuthActions.forgotPassword({ email }));
   }
 }

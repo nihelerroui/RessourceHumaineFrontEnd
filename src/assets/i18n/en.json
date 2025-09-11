@@ -69,8 +69,68 @@
     "MENU": {
       "TEXT": "Menu"
     },
-    "DASHBOARDS": {
-      "TEXT": "Dashboards",
+    "CONTRATSOUSTRAITANT": {
+      "TEXT": "ContratSousTraitant"
+    },
+    "CONTRATCLIENTADMIN": {
+      "TEXT": "ContratClient"
+    },
+    "HISTORIQUECHIFFREAFFAIRE": {
+      "TEXT": "Historique Chiffre Affaire"
+    },
+    "PRESTATIONS": {
+      "TEXT": "PRESTATIONS"
+    },
+    "FACTURE_CLIENT": {
+      "TEXT": "Facture Client "
+    },
+    "PAYS": {
+      "TEXT": "PAYS"
+    },
+    "DEPENSES": {
+      "TEXT": "DEPENSES"
+    },
+    "RECETTES": {
+      "TEXT": "RECETTES"
+    },
+    "SOCIETES": {
+      "TEXT": "SOCIETES"
+    },
+    "CLIENTS": {
+      "TEXT": "CLIENTS"
+    },
+    "FACTURES_ACHATS": {
+      "TEXT": "FACTURES ACHATS"
+    },
+    "FACTURES_SOUS_TRAITANT": {
+      "TEXT": "FACTURES SOUS-TRAITANT"
+    },
+    "TRESORERIE": {
+      "TEXT": "TRESORERIE"
+    },
+    "GEOLOCALISATION": {
+    "TEXT": "Geolocation"
+  },
+  "GESTION_FINANCIERE": {
+    "TEXT": "Financial Management"
+  },
+  "CONTRATS": {
+    "TEXT": "Contracts"
+  },
+    "CAISSE": {
+      "TEXT": "CAISSE"
+    },
+    "MAINOEUVRE": {
+      "TEXT": "MAINOEUVRE"
+    },
+    "HISTORIQUEMAINOEUVRE": {
+      "TEXT": "HISTORIQUEMAINOEUVRE"
+    },
+    "UTILISATEURS": {
+      "TEXT": "UTILISATEURS"
+    },
+    "DASHBOARD": {
+      "TEXT": "Dashboard",
       "BADGE": "04",
       "LIST": {
         "DEFAULT": "Default",

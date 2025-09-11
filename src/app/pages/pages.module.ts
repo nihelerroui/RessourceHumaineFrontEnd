@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { TabsModule } from 'ngx-bootstrap/tabs';
@@ -23,12 +23,50 @@ import { PagesRoutingModule } from './pages-routing.module';
 
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { HttpClientModule } from '@angular/common/http';
+import { PaysModule } from './pays/pays.module';
+import { SocieteModule } from './societe/societe.module';
+import { FactureModule } from './facture/facture.module';
+import { PrestationsModule } from './prestations/prestations.module';
+import { CommentModalComponent } from './factureclientcomment-modal/factureclientcomment-modal-view/comment-modal.component';
+import { FactureclientAdminModule } from './factureclient-admin/factureclient-admin.module';
+
+import { MainOeuvreModule } from './mainOeuvre/main-oeuvre.module';
+import { HistoriqueMainOeuvreModule } from './historique-main-oeuvre/historique-main-oeuvre.module';
+import { ImporterContratModule } from './ImportationContrat/importerContrat.module';
+import { ContratSousTraitantModule } from './contratSousTraitant/contrat-sous-traitant.module';
+import { ContratClient_ClientModule } from './contratClient_Client/contrat-client_Client.module';
+import { ContratClientModule } from './contratClient/contrat-client.module';
+import { CommentaireContratModule } from './comment-contratClient/comment-contrat.module';
+import { CommentaireContratSousTraitantModule } from './comment-contratSousTraitant/comment-contratST.module';
+import { UtilisateurregisterviewComponent } from './users/utilisateurregisterview/utilisateurregisterview.component';
+import { RecettesModule } from './recettes/recettes.module';
+import { FactureSousTraitantModule } from './factureSousTraitant/facture-sous-traitant.module';
+import { CommentModalModule } from './factureclientcomment-modal/comment-modal.module';
+import { HistoriqueChiffreAffaireModule } from './historiqueChiffreAffaire/historiqueChiffreAffaire.module';
+import { CaisseModule } from './caisse/caisse.module';
+import { TresorerieModule } from './tresorerie/tresorerie.module';
+
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    CommentModalComponent,
+    UtilisateurregisterviewComponent
+  ],
   imports: [
     CommonModule,
+    PaysModule,
+    FactureSousTraitantModule,
+    SocieteModule,
+    FactureModule,
+    CaisseModule,
+    TresorerieModule,
+    FactureclientAdminModule,
+    HistoriqueMainOeuvreModule,
+    PrestationsModule,
+    MainOeuvreModule,
     FormsModule,
+    RecettesModule,
+    CommentModalModule,
     BsDropdownModule.forRoot(),
     ModalModule.forRoot(),
     PagesRoutingModule,
@@ -45,7 +83,16 @@ import { HttpClientModule } from '@angular/common/http';
     AlertModule.forRoot(),
     SimplebarAngularModule,
     LightboxModule,
-    PickerModule
+    PickerModule,
+    ImporterContratModule,
+    ContratSousTraitantModule,
+    ContratClient_ClientModule,
+    ContratClientModule,
+    CommentaireContratModule,
+    CommentaireContratSousTraitantModule,
+    HistoriqueChiffreAffaireModule
+
   ],
+  providers: [DatePipe],
 })
 export class PagesModule { }

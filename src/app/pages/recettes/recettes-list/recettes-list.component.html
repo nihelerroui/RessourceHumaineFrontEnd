@@ -1,0 +1,203 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Liste des Recettes"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Liste des recettes</h5>
+          </div>
+        </div>
+
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-xxl-4 col-lg-6">
+              <input
+                type="search"
+                class="form-control"
+                placeholder="Rechercher une recette ..."
+                [(ngModel)]="term"
+                (ngModelChange)="filtrerRecettes()"
+              />
+            </div>
+            <div class="col-xxl-3 col-lg-3">
+              <select
+                class="form-select"
+                [(ngModel)]="sourceFinancementSelectionne"
+                (ngModelChange)="filtrerRecettes()"
+              >
+                <option value="">Sélectionner un source</option>
+                <option
+                  *ngFor="let option of sourceFinancementOptions"
+                  [value]="option"
+                >
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <div
+              class="col-xxl-3 col-lg-3"
+              *ngIf="role === 'ADMINISTRATEUR' && adminSocietes.length > 1"
+            >
+              <select
+                class="form-select"
+                [(ngModel)]="selectedSocieteId"
+                (ngModelChange)="filtrerRecettes()"
+              >
+                <option *ngFor="let s of adminSocietes" [ngValue]="s.societeId">
+                  {{ s.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-xxl-2 col-lg-3">
+              <button
+                type="button"
+                class="btn btn-soft-secondary w-100"
+                (click)="filtrerRecettes()"
+              >
+                <i class="mdi mdi-filter-outline align-middle"></i> Filtrer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div
+            *ngIf="error$ | async as error"
+            class="alert alert-danger"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+
+          <div class="table-responsive" *ngIf="recettesFiltrees?.length">
+            <table
+              class="table table-striped table-hover align-middle"
+              id="recette-list"
+            >
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Motif</th>
+                  <th>Date de création</th>
+                  <th>Montant</th>
+                  <th>SourceFiancement</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of lists">
+                  <td>{{ data.source }}</td>
+                  <td>{{ data.motif }}</td>
+                  <td>{{ data.dateCreation | date : "dd/MM/yyyy" }}</td>
+                  <td>{{ data.montant }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'badge-soft-warning':
+                          data.sourceFinancement === 'CAISSE',
+                        'badge-soft-info':
+                          data.sourceFinancement === 'TRESORERIE'
+                      }"
+                    >
+                      {{ data.sourceFinancement }}
+                    </span>
+                  </td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li>
+                        <a
+                          class="btn btn-sm btn-soft-primary"
+                          (click)="openDetailsModal(data, detailsRecetteModal)"
+                        >
+                          <i class="mdi mdi-eye-outline"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            *ngIf="!lists?.length && !(loading$ | async)"
+            class="text-center p-5"
+          >
+            Aucune recette trouvée
+          </div>
+
+          <div
+            class="row justify-content-between align-items-center"
+            *ngIf="recettesFiltrees.length > 0"
+          >
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">
+                Affichage de <b>{{ lists.length }}</b> sur
+                <b>{{ recettesFiltrees.length }}</b> recettes
+              </p>
+            </div>
+            <div class="col-auto">
+              <ul
+                class="pagination pagination-rounded justify-content-end mb-2"
+              >
+                <pagination
+                  [totalItems]="recettesFiltrees.length"
+                  [itemsPerPage]="itemsPerPage"
+                  (pageChanged)="pageChanged($event)"
+                >
+                </pagination>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #detailsRecetteModal>
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="bi bi-wallet2 text-primary"></i> Détails de la Recette
+    </h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="table-responsive">
+      <table class="table">
+        <tbody>
+          <tr>
+            <th><i class="bi bi-cash-coin text-secondary"></i> Source :</th>
+            <td>{{ selectedRecette?.source }}</td>
+          </tr>
+          <tr>
+            <th><i class="bi bi-calendar text-primary"></i> Date :</th>
+            <td>{{ selectedRecette?.dateCreation | date : "dd/MM/yyyy" }}</td>
+          </tr>
+          <tr>
+            <th><i class="bi bi-currency-euro text-success"></i> Montant :</th>
+            <td>{{ selectedRecette?.montant }}</td>
+          </tr>
+          <tr>
+            <th><i class="bi bi-chat-left-dots text-info"></i> Motif :</th>
+            <td>{{ selectedRecette?.motif }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modalRef?.hide()">
+      Fermer
+    </button>
+  </div>
+</ng-template>

@@ -2,39 +2,46 @@ import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
 // Auth Services
-import { AuthenticationService } from '../services/auth.service';
-import { AuthfakeauthenticationService } from '../services/authfake.service';
-import { environment } from '../../../environments/environment';
+import { TokenStorageService } from '../services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
     constructor(
         private router: Router,
-        private authenticationService: AuthenticationService,
-        private authFackservice: AuthfakeauthenticationService
+        private tokenStorage: TokenStorageService
     ) { }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    /*canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        
+    const excludedRoutes = ['/contratsClient/', '/contrats-client/', '/import-contrat/','facture/client/view','/reset-password'];
 
-        if (environment.defaultauth === 'firebase') {
-            const currentUser = this.authenticationService.currentUser();
-            if (currentUser) {
-                // logged in so return true
-                return true;
-            }
-        } else {
-            const currentUser = this.authFackservice.currentUserValue;
-            if (currentUser) {
-                // logged in so return true
-                return true;
-            }
-            // check if user data is in storage is logged in via API.
-            if (localStorage.getItem('currentUser')) {
-                return true;
-            }
-        }
-        // not logged in so redirect to login page with the return url
-        this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
-        return false;
+    const isExcluded = excludedRoutes.some(path => state.url.includes(path));
+    const token = this.tokenStorage.getToken(isExcluded);
+    if (token || isExcluded) {
+      return true; 
     }
+
+    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }*/
+ canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+  const excludedRoutes = ['/contratsClient/', '/contrats-client/', '/import-contrat/', 'facture/client/view', '/reset-password'];
+  const isExcluded = excludedRoutes.some(path => state.url.includes(path));
+  const token = this.tokenStorage.getToken(isExcluded);
+
+  if (isExcluded || !token) {
+    return isExcluded;
+  }
+
+  const expectedRoles = route.data['roles'] as Array<string>; 
+  const userRole = this.tokenStorage.getRole();
+
+  if (!expectedRoles || expectedRoles.includes(userRole)) {
+    return true;
+  }
+
+  this.router.navigate(['/unauthorized']);
+  return false;
+}
+
 }

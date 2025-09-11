@@ -1,0 +1,230 @@
+<div class="container-fluid">
+  <app-page-title title="Liste des Contrats" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+  <div class="row">
+    <div class="col-12">
+      <div ngClass="card">
+        <div class="card-body border-bottom">
+          <div class="d-flex align-items-center">
+            <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
+            <div class="flex-shrink-0 d-flex gap-1">
+              <a href="javascript:void(0);" class="btn btn-primary" *ngIf="userRole === 'SOUS_TRAITANT'"
+                (click)="openModal(content)">Add New Contrat</a>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()"><i
+                  class="mdi mdi-refresh"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body border-bottom">
+          <div class="row g-3">
+            <div class="col-xxl-2 col-lg-6">
+              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats()">
+                <option value>Tous les statuts</option>
+                <option *ngFor="let statut of statutContrats" [value]="statut">
+                  {{ getStatutLabel(statut) }}
+                </option>
+              </select>
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <input type="date" class="form-control" [(ngModel)]="dateDebut" (ngModelChange)="filterContrats()" />
+            </div>
+            <div class="col-xxl-2 col-lg-4">
+              <input type="date" class="form-control" [(ngModel)]="dateFin" (ngModelChange)="filterContrats()" />
+            </div>
+            <div class="col-xxl-3 col-lg-4">
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm"
+                  (ngModelChange)="filterContrats()" />
+                <span class="input-group-text">-</span>
+                <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm"
+                  (ngModelChange)="filterContrats()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
+              <thead>
+                <tr>
+                  <th *ngIf="userRole === 'ADMINISTRATEUR'">Nom de consultant</th>
+                  <th scope="col">Tarif Journalier Moyen (TJM)</th>
+                  <th scope="col">Date de Début</th>
+                  <th scope="col">Date de Fin</th>
+                  <th scope="col">Statut</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let contrat of paginatedContrats">
+                  <td *ngIf="userRole === 'ADMINISTRATEUR'">{{ contrat.consultant?.prenom || "N/A" }}</td>
+                  <td>{{ contrat.tjm | currency : "EUR" }}</td>
+                  <td>{{ contrat.dateDebut | date : "dd/MM/yyyy" }}</td>
+                  <td>{{ contrat.dateFin | date : "dd/MM/yyyy" }}</td>
+                  <td>
+                    <!-- Affichage du statut -->
+                    <span *ngIf="contrat.statutContrat === 'EN_ATTENTE'" class="badge badge-soft-warning me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'CONFIRME_ADMIN'" class="badge badge-soft-success me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                    <span *ngIf="contrat.statutContrat === 'REJETE'" class="badge badge-soft-danger me-1">
+                      {{ contrat.statutContrat }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                          (click)="downloadContrat(contrat.contratId)">
+                          <i class="mdi mdi-download"></i>
+                        </a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+                        *ngIf="userRole === 'SOUS_TRAITANT' && contrat.statutContrat !== 'CONFIRME_ADMIN'">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-info"
+                          (click)="editContrat(contrat, content)"><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"
+                        *ngIf="userRole === 'SOUS_TRAITANT' && contrat.statutContrat !== 'CONFIRME_ADMIN'">
+                        <a href="javascript:void(0);" data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"
+                          (click)="deleteContrat(contrat.contratId)"><i class="mdi mdi-delete-outline"></i></a>
+                      </li>
+                      <li data-bs-toggle="tooltip" title="Ajouter un commentaire">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-warning"
+                          (click)="ouvrirCommentaireContrat(contrat)">
+                          <i class="mdi mdi-comment-text-multiple-outline"></i>
+                        </a>
+                      </li>
+                      <!-- Valider (ouvre la confirmation) -->
+                      <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'"
+                        data-bs-toggle="tooltip" title="Valider">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                          (click)="demanderConfirmation(contrat, 'CONFIRME_ADMIN')">
+                          <i class="mdi mdi-check-circle-outline"></i>
+                        </a>
+                      </li>
+
+                      <!-- Rejeter (ouvre la confirmation) -->
+                      <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'"
+                        data-bs-toggle="tooltip" title="Rejeter">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
+                          (click)="demanderConfirmation(contrat, 'REJETE')">
+                          <i class="mdi mdi-close-circle-outline"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row justify-content-between align-items-center mt-3" *ngIf="filteredContrats.length > 0">
+            <div class="col-auto me-auto">
+              <p class="text-muted mb-0">Affichage de <b>{{ paginatedContrats.length }}
+                </b> sur <b>
+                  {{ filteredContrats.length }}</b> contrats </p>
+            </div>
+            <div class="col-auto">
+              <ul class="pagination pagination-rounded justify-content-end mb-2">
+                <pagination [totalItems]="filteredContrats.length" [itemsPerPage]="contratsParPage"
+                  (pageChanged)="pageChanged($event)"></pagination>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #confirmModal>
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmer l'action</h5>
+        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">
+          Êtes-vous sûr de vouloir changer le statut de ce contrat
+          (TJM: <b>{{ contratEnCours?.tjm | currency:'EUR' }}</b>,
+          du <b>{{ contratEnCours?.dateDebut | date:'dd/MM/yyyy' }}</b>
+          au <b>{{ contratEnCours?.dateFin | date:'dd/MM/yyyy' }}</b>)
+          en <b>{{ getStatutLabel(nouveauStatutEnCours || '') }}</b> ?
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()" [disabled]="isUpdating">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="confirmerChangementStatut()" [disabled]="isUpdating">
+          Confirmer
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Modal Ajout Contrat -->
+    <ng-template #content let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter un Contrat</h5>
+        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      </div>
+      <form [formGroup]="contratForm" (ngSubmit)="saveContrat()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tarif Journalier Moyen (TJM) *</label>
+            <input type="number" formControlName="tjm" class="form-control" required />
+            <small class="text-danger" *ngIf="form.tjm.invalid && form.tjm.touched">
+              Le TJM est obligatoire et doit être un nombre positif.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date de Début *</label>
+            <input type="date" formControlName="dateDebut" class="form-control" required />
+            <small class="text-danger" *ngIf="form.dateDebut.invalid && form.dateDebut.touched">
+              La date de début est obligatoire.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date de Fin *</label>
+            <input type="date" formControlName="dateFin" class="form-control" required />
+            <small class="text-danger" *ngIf="contratForm.errors?.invalidDateRange">
+              La date de fin doit être postérieure à la date de début.
+            </small>
+            <small class="text-danger" *ngIf="form.dateFin.invalid && form.dateFin.touched">
+              La date de fin est obligatoire.
+            </small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Importer un fichier *</label>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName"
+                readonly />
+              <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+              <button type="button" class="btn btn-primary" (click)="fileInput.click()">
+                Importer un fichier
+              </button>
+            </div>
+            <small class="text-danger" *ngIf="!fileSelected">
+              Le fichier est obligatoire.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary"
+            [disabled]="contratForm.invalid || (!fileSelected && !selectedContratId)">
+            {{ selectedContratId ? "Modifier" : "Ajouter" }}
+          </button>
+
+        </div>
+      </form>
+    </ng-template>
+
+    <!--End Modal -->
+  </div>
+</div>

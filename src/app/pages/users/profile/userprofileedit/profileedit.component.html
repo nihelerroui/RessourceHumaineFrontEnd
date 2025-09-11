@@ -1,0 +1,285 @@
+<div class="container-fluid">
+  <app-page-title
+    title="Modifier le profil"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title mb-4">Modification du profil</h4>
+
+      <ng-stepper #stepper [linear]="true" class="wizard">
+        <cdk-step [stepControl]="userForm">
+          <ng-template cdkStepLabel>
+            <span class="number">1.</span> Compte & Consultant
+          </ng-template>
+
+          <form [formGroup]="userForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <input
+                  formControlName="email"
+                  type="email"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Nom</label>
+                <input
+                  formControlName="name"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Prénom</label>
+                <input
+                  formControlName="prenom"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Nom complet</label>
+                <input
+                  formControlName="fullName"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Téléphone</label>
+                <input
+                  formControlName="telephone"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-end">
+            <button
+              class="btn btn-primary"
+              cdkStepperNext
+              [disabled]="userForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </cdk-step>
+
+        <cdk-step [stepControl]="personalDetailsForm">
+          <ng-template cdkStepLabel>
+            <span class="number">2.</span> Adresse
+          </ng-template>
+
+          <form [formGroup]="personalDetailsForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label>Rue</label>
+                <input
+                  formControlName="nomRue"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Numéro</label>
+                <input
+                  formControlName="numRue"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Code postal</label>
+                <input
+                  formControlName="codePostal"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Ville</label>
+                <input
+                  formControlName="ville"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Bis/Ter</label
+                ><input
+                  formControlName="bisTer"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Complément d'adresse</label>
+                <input
+                  formControlName="complementAdr"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Numéro MSS</label>
+                <input
+                  formControlName="nummss"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>IBAN</label>
+                <input
+                  formControlName="iban"
+                  type="text"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>BIC</label>
+                <input formControlName="bic" type="text" class="form-control" />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label>Date début CNI</label>
+                <input
+                  formControlName="dateDebCni"
+                  type="date"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Date fin CNI</label>
+                <input
+                  formControlName="dateFinCni"
+                  type="date"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-primary" cdkStepperNext>Suivant</button>
+          </div>
+        </cdk-step>
+        <cdk-step [stepControl]="personalDetailsForm">
+          <ng-template cdkStepLabel>
+            <span class="number">3.</span> Documents
+          </ng-template>
+
+          <form [formGroup]="personalDetailsForm">
+            <div class="row">
+              <ng-container
+                *ngFor="
+                  let doc of [
+                    { label: 'CNI', field: 'cniFile', path: cniPath },
+                    {
+                      label: 'Carte Grise',
+                      field: 'carteGriseFile',
+                      path: carteGrisePath
+                    },
+                    { label: 'RIB', field: 'ribFile', path: ribPath },
+                    { label: 'KBIS', field: 'kbisFile', path: kbisPath },
+                    { label: 'NAVIGO', field: 'navigoFile', path: navigoPath },
+                    {
+                      label: 'Contrat',
+                      field: 'contratFile',
+                      path: contratPath
+                    },
+                    { label: 'URSSAF', field: 'urssafFile', path: urssafPath },
+                    { label: 'Photo', field: 'photoFile', path: photoPath }
+                  ]
+                "
+              >
+                <div class="col-md-6 mb-3">
+                  <label>{{ doc.label }}</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    (change)="onFileChange($event, doc.field)"
+                  />
+                  <div
+                    class="mt-2 text-success"
+                    *ngIf="getFileByField(doc.field)"
+                  >
+                    Fichier sélectionné : {{ getFileByField(doc.field)?.name }}
+                  </div>
+
+                  <div
+                    class="mt-2 text-info"
+                    *ngIf="!getFileByField(doc.field) && doc.path"
+                  >
+                    Fichier existant : {{ extractFileName(doc.path) }}
+                  </div>
+                </div>
+              </ng-container>
+              <div class="col-md-12 mb-3">
+                <label>Attestations (multiple)</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  multiple
+                  (change)="onFileChange($event, 'attestationsFiles')"
+                />
+                <div
+                  class="mt-2 text-success"
+                  *ngIf="attestationsFiles?.length"
+                >
+                  {{ attestationsFiles.length }} fichier(s) sélectionné(s)
+                </div>
+                <div
+                  class="mt-2 text-info"
+                  *ngIf="!attestationsFiles?.length && attestationsPath"
+                >
+                  Fichier(s) existant(s) :
+                  {{ extractFileName(attestationsPath) }}
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-primary" cdkStepperNext>Suivant</button>
+          </div>
+        </cdk-step>
+
+        <cdk-step>
+          <ng-template cdkStepLabel>
+            <span class="number">4.</span> Confirmation
+          </ng-template>
+
+          <div class="text-center p-4">
+            <i class="mdi mdi-check-circle-outline text-success display-4"></i>
+            <h4 class="mt-3">Confirmez les modifications</h4>
+            <p>Appuyez sur le bouton ci-dessous pour sauvegarder</p>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" cdkStepperPrevious>
+              Précédent
+            </button>
+            <button class="btn btn-success" (click)="submit()">
+              Enregistrer
+            </button>
+          </div>
+        </cdk-step>
+      </ng-stepper>
+    </div>
+  </div>
+</div>
