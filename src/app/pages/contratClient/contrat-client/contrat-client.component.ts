@@ -43,7 +43,7 @@ export class ContratClientAdminComponent implements OnInit {
 
   currentUserEmail: string = '';
 
-  role : string ="";
+  role: string = "";
 
   @ViewChild("contratModal") contratModal!: TemplateRef<any>;
 
@@ -60,6 +60,10 @@ export class ContratClientAdminComponent implements OnInit {
     this.contratsClients$ = this.store.select(selectAllContratsClient);
     this.loading$ = this.store.select(selectContratsClientLoading);
   }
+  trackByContratId(index: number, c: ContratClient) {
+    return c.contratClientId;
+  }
+
 
   ngOnInit(): void {
     const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
@@ -67,7 +71,7 @@ export class ContratClientAdminComponent implements OnInit {
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
     this.role = currentUser.user?.role;
-    
+
 
     this.store.dispatch(loadContratsClient());
     this.store.dispatch(AuthActions.loadAdminSocietes());
@@ -81,12 +85,12 @@ export class ContratClientAdminComponent implements OnInit {
           : contract.client?.societe?.societeId === this.consultantSocieteId
       );
       this.allContrats = filtered;
-      this.filterContrats();
+      this.filterContrats(false);
     });
   }
 
   //pagination
-  filterContrats() {
+  filterContrats(resetPage: boolean = false) {
     const termLower = this.searchTerm.toLowerCase().trim();
     this.filteredContrats = this.allContrats.filter(c =>
       (!this.searchTerm || c.designation.toLowerCase().includes(termLower)) &&
@@ -95,10 +99,23 @@ export class ContratClientAdminComponent implements OnInit {
       (!this.maxTjm || c.tjm <= this.maxTjm) &&
       (!this.selectedSocieteId || c.client.societe.societeId === +this.selectedSocieteId)
     );
-    this.pageChanged({ page: 1 });
+    const totalPages = Math.max(1, Math.ceil(this.filteredContrats.length / this.contratsParPage));
+
+    if (resetPage) {
+      this.page = 1; // reset demandé (changement de filtres par l’utilisateur)
+    } else if (this.page > totalPages) {
+      // si la liste raccourcit (ex : l’élément sort du filtre), on “clamp” la page courante
+      this.page = totalPages;
+    }
+
+    this.applyPaginationSlice();
   }
+
   pageChanged(event: any) {
     this.page = event.page;
+    this.applyPaginationSlice();
+  }
+  private applyPaginationSlice() {
     const start = (this.page - 1) * this.contratsParPage;
     this.paginatedContrats = this.filteredContrats.slice(start, start + this.contratsParPage);
   }
@@ -107,8 +124,11 @@ export class ContratClientAdminComponent implements OnInit {
     this.minTjm = 0;
     this.maxTjm = 0;
     this.selectedSocieteId = this.consultantSocieteId;
+
+    // On reset explicitement car l’utilisateur demande un refresh global
     this.page = 1;
     this.store.dispatch(loadContratsClient());
+    this.filterContrats(true);
   }
   demanderConfirmation(contrat: ContratClient, nouveauStatut: StatutContrat): void {
     // si le statut demandé est identique, pas d'action

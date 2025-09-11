@@ -23,7 +23,7 @@
         <div class="card-body border-bottom">
           <div class="row g-3">
             <div class="col-xxl-2 col-lg-6">
-              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats()">
+              <select class="form-select" [(ngModel)]="selectedStatut" (ngModelChange)="filterContrats(true)">
                 <option value>Tous les statuts</option>
                 <option *ngFor="let statut of statutContratValues" [value]="statut">
                   {{ getStatutLabel(statut) }}
@@ -33,21 +33,22 @@
             <div class="col-xxl-3 col-lg-4">
               <div class="input-group">
                 <input type="number" class="form-control" placeholder="Min TJM" [(ngModel)]="minTjm"
-                  (ngModelChange)="filterContrats()" />
+                  (ngModelChange)="filterContrats(true)" />
                 <span class="input-group-text">-</span>
                 <input type="number" class="form-control" placeholder="Max TJM" [(ngModel)]="maxTjm"
-                  (ngModelChange)="filterContrats()" />
+                  (ngModelChange)="filterContrats(true)" />
               </div>
             </div>
             <!-- Filtrer par société -->
             <div class="col-lg-3" *ngIf="role === 'ADMINISTRATEUR'">
-              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterContrats()">
+              <select class="form-select" [(ngModel)]="selectedSocieteId" (change)="filterContrats(true)">
                 <option *ngFor="let s of adminSocietes$ | async" [ngValue]="s.societeId">
                   {{ s.name }}
                 </option>
               </select>
             </div>
           </div>
+          <tr *ngFor="let contrat of paginatedContrats; trackBy: trackByContratId"></tr>
         </div>
         <div class="card-body">
           <div class="table-responsive">
