@@ -151,7 +151,10 @@ export class ContratSousTraitantComponent implements OnInit {
 
   //Ouvrir la modale d'ajout
   openModal(template: any) {
-    this.submitted = false;
+    this.submitted = false;        // <- reset à l’ouverture
+    this.fileSelected = false;       // <- reset à l’ouverture
+    this.fileName = "Aucun fichier sélectionné";
+    this.selectedContratId = null; 
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
   //Récupérer les valeurs du formulaire
@@ -254,8 +257,6 @@ export class ContratSousTraitantComponent implements OnInit {
       text: "Une fois supprimé, ce contrat ne pourra pas être récupéré.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Oui, supprimer",
       cancelButtonText: "Annuler",
     }).then((result) => {

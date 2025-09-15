@@ -198,19 +198,24 @@
             </small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Importer un fichier *</label>
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName"
-                readonly />
-              <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
-              <button type="button" class="btn btn-primary" (click)="fileInput.click()">
-                Importer un fichier
-              </button>
-            </div>
-            <small class="text-danger" *ngIf="!fileSelected">
-              Le fichier est obligatoire.
-            </small>
+          <label class="form-label fw-bold">Importer un fichier *</label>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName || 'Sélectionnez un fichier...'" readonly />
+            <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+            <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()">
+              <i class="mdi mdi-file-upload"></i> Choisir un fichier
+            </button>
           </div>
+          <!-- Message d'erreur si le fichier n'est pas valide -->
+          <div *ngIf="fileError" class="text-danger small mt-2">
+            ⚠ Format de fichier non valide ! Formats acceptés : PDF, DOC, DOCX, XLS, XLSX.
+          </div>
+          <!-- Aperçu du fichier -->
+          <div *ngIf="fileSelected" class="mt-2 small text-success">
+            ✅ Fichier sélectionné : <strong>{{ fileName }}</strong>
+          </div>
+        </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">

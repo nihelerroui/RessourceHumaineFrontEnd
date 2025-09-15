@@ -104,10 +104,7 @@ export class FactureSousTraitantComponent implements OnInit {
   }
 
   openFacture(filePath: string): void {
-    const headers = new HttpHeaders().set(
-      "Authorization",
-      `Bearer ${environment.token}`
-    );
+    const headers = new HttpHeaders();
 
     this.http.get(filePath, { headers, responseType: "blob" }).subscribe(
       (blob) => {
@@ -122,10 +119,7 @@ export class FactureSousTraitantComponent implements OnInit {
   }
 
   downloadFacture(filePath: string): void {
-    const headers = new HttpHeaders().set(
-      "Authorization",
-      `Bearer ${environment.token}`
-    );
+    const headers = new HttpHeaders();
 
     this.http.get(filePath, { headers, responseType: "blob" }).subscribe(
       (blob) => {
