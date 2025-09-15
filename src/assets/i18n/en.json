@@ -109,25 +109,25 @@
       "TEXT": "TRESORERIE"
     },
     "GEOLOCALISATION": {
-    "TEXT": "Geolocation"
+    "TEXT": "GEOLOCALISATION"
   },
   "GESTION_FINANCIERE": {
-    "TEXT": "Financial Management"
+    "TEXT": "GESTION FINANCIERE"
   },
   "CONTRATS": {
-    "TEXT": "Contracts"
+    "TEXT": "CONTRATS"
   },
     "CAISSE": {
       "TEXT": "CAISSE"
     },
-    "MAINOEUVRE": {
-      "TEXT": "MAINOEUVRE"
+    "MAINŒUVRE": {
+      "TEXT": "MAINŒUVRE"
     },
-    "HISTORIQUEMAINOEUVRE": {
-      "TEXT": "HISTORIQUEMAINOEUVRE"
+    "HISTORIQUEMAINŒUVRE": {
+      "TEXT": "HISTORIQUEMAINŒUVRE"
     },
-    "UTILISATEURS": {
-      "TEXT": "UTILISATEURS"
+    "CONSULTANTS": {
+      "TEXT": "CONSULTANTS"
     },
     "DASHBOARD": {
       "TEXT": "Dashboard",

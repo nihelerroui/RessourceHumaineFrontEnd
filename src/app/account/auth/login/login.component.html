@@ -7,12 +7,12 @@
             <div class="row">
               <div class="col-7">
                 <div class="text-primary p-4">
-                  <h5 class="text-primary">Welcome Back !</h5>
+                  <h5 class="text-primary">Bienvenue !</h5>
                   <p>Sign in to continue to Skote.</p>
                 </div>
               </div>
               <div class="col-5 align-self-end">
-                <img src="assets/images/profile-img.png" alt="" class="img-fluid">
+                <img src="assets/images/profile-img.png" alt class="img-fluid">
               </div>
             </div>
           </div>
@@ -21,68 +21,82 @@
               <a routerLink="/">
                 <div class="avatar-md profile-user-wid mb-4">
                   <span class="avatar-title rounded-circle bg-light">
-                    <img src="assets/images/logo.svg" alt="" class="rounded-circle" height="34">
+                    <img src="assets/images/logo.svg" alt class="rounded-circle"
+                      height="34">
                   </span>
                 </div>
               </a>
             </div>
             <div class="p-2">
-              <form class="form-horizontal" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
+              <form class="form-horizontal" [formGroup]="loginForm"
+                (ngSubmit)="onSubmit()">
                 @if(error){
                 <alert type="danger" [dismissible]="false">{{ error }}</alert>
                 }
 
                 <div class="mb-3">
                   <label for="email">Email</label>
-                  <input type="email" formControlName="email" class="form-control" id="email" placeholder="Email" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
+                  <input type="email" formControlName="email"
+                    class="form-control" id="email" placeholder="Email"
+                    [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
                   @if(submitted && f.email.errors){
                   <div class="invalid-feedback">
                     @if(f.email.errors.required){
-                    <div>Email is required</div>
+                    <div>L'email est requis</div>
                     }@if(f.email.errors.email){
-                    <div>Email must be a valid email address</div>
+                    <div>Email invalide</div>
                     }
                   </div>
                   }
                 </div>
 
                 <div class="mb-3">
-                  <label for="password">Password</label>
+                  <label for="password">Mot de passe</label>
                   <div class="input-group auth-pass-inputgroup">
-                    <input [type]="fieldTextType ? 'text' : 'password'" class="form-control" formControlName="password" placeholder="Enter password" [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
+                    <input [type]="fieldTextType ? 'text' : 'password'"
+                      class="form-control" formControlName="password"
+                      placeholder="Mot de passe"
+                      [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
 
-                    <button class="btn btn-light ms-0" type="button" id="password-addon">
-                      <i class="mdi mdi-eye-outline" [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}" (click)="toggleFieldTextType()"></i></button>
+                    <button class="btn btn-light ms-0" type="button"
+                      id="password-addon">
+                      <i class="mdi mdi-eye-outline"
+                        [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}"
+                        (click)="toggleFieldTextType()"></i></button>
                     @if(submitted && f.password.errors){
                     <div class="invalid-feedback">
                       @if(f.password.errors.required){
-                      <span>Password is required</span>
+                      <span>Le mot de passe est requis</span>
                       }
                     </div>}
                   </div>
                 </div>
 
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="remember-check">
+                  <input class="form-check-input" type="checkbox"
+                    id="remember-check">
                   <label class="form-check-label" for="remember-check">
                     Remember me
                   </label>
                 </div>
 
                 <div id="elmLoader" class="text-center d-none">
-                  <div class="spinner-border text-primary avatar-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                  <div class="spinner-border text-primary avatar-sm"
+                    role="status">
+                    <span class="visually-hidden">Chargement...</span>
                   </div>
                 </div>
 
                 <div class="mt-3 d-grid">
-                  <button class="btn btn-primary" type="submit">Log In</button>
+                  <button class="btn btn-primary" type="submit">Se connecter</button>
                 </div>
-                
+
                 <div class="mt-4 text-center">
-                  <a routerLink="/auth/reset-password" class="text-muted"><i class="mdi mdi-lock mr-1"></i> Forgot
-                    your
-                    password?</a>
+                  <a routerLink="/auth/reset-password" class="text-muted"><i
+                      class="mdi mdi-lock mr-1"></i> Mot de passe oublié?</a>
                 </div>
               </form>
             </div>
@@ -90,7 +104,8 @@
           </div>
         </div>
         <div class="mt-5 text-center">
-          <p>© {{year}} Skote. Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesbrand</p>
+          <p>© {{year}} Skote. Crafted with <i
+              class="mdi mdi-heart text-danger"></i> by Themesbrand</p>
         </div>
 
       </div>

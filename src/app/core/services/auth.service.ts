@@ -123,10 +123,9 @@ export class AuthenticationService extends GenericService<User> {
 
   getAdminSocietes(): Observable<any[]> {
     
-    const url = `${environment.baseUrl}/adminsociete/admin/141`;
+    const url = `${environment.baseUrl}/adminsociete/adminPFE/141`;
   
     const headers = new HttpHeaders()
-      .set("Authorization", `Bearer ${environment.token}`)
       .set("Content-Type", "application/json");
 
     return this.http.get<any[]>(url, { headers });

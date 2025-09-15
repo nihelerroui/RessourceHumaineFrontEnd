@@ -44,7 +44,6 @@ export class FactureListComponent implements OnInit {
   paginatedFactureList: FactureAchat[] = [];
   searchTerm: string = "";
   selectedStatutPaiement: string = "";
-  selectedTypeFacture: string = "";
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
@@ -74,7 +73,7 @@ export class FactureListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Liste des Factures Achats", active: true },
     ];
 
@@ -208,7 +207,14 @@ export class FactureListComponent implements OnInit {
   }
 
   refreshList() {
-    this.store.dispatch(FactureActions.loadFacturesAchat());
+     this.selectedStatutPaiement = "";
+      this.selectedSocieteId = this.consultantSocieteId;
+      this.searchTerm = '';
+    
+     this.store.dispatch(FactureActions.loadFacturesAchat());
+    
+      this.pageChanged({ page: 1 });
+    
   }
 
   openModalAdd(template: TemplateRef<any>) {
@@ -318,7 +324,7 @@ export class FactureListComponent implements OnInit {
   openFacture(filePath: string): void {
     const fileName = this.getFileName(filePath);
     const token = sessionStorage.getItem("accessToken"); 
-    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=inline`;
+    const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=inline`;
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
 
@@ -354,7 +360,7 @@ export class FactureListComponent implements OnInit {
     }
 
     const fileName = this.getFileName(filePath);
-    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=attachment`;
+    const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=attachment`;
     const token = sessionStorage.getItem("accessToken");
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);

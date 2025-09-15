@@ -310,6 +310,7 @@ export class UtilisateurregisterviewComponent implements OnInit {
     userId: this.userIdCreated,
     personalDetailsId: this.personalDetailsIdCreated,
     societeId: this.consultantForm.value.societeId,
+    dateSortie: this.consultantForm.value.dateSortie || null
   };
 
   if (this.mode === 'edit') {
