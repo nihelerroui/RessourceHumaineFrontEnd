@@ -51,7 +51,7 @@ export class RecettesListComponent {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Recettes", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Liste des Recettes", active: true },
     ];
 

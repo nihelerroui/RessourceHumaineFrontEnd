@@ -25,8 +25,8 @@ export class MainOeuvreListComponent implements OnInit {
   mainOeuvreList$: Observable<MainOeuvre[]>;
   loading$: Observable<boolean>;
 
-  mois: number = new Date().getMonth();
-  annee: number = new Date().getFullYear();
+  mois: number = 3;
+  annee: number = 2025;
   montantTotal: number = 0;
 
   searchTerm: string = "";

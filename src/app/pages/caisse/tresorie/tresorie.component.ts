@@ -55,7 +55,7 @@ export class TresorieComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Caisse", active: true },
     ];
 

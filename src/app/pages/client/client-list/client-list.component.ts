@@ -60,7 +60,7 @@ export class ClientListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "Geolocalisation", path: "/" },
       { label: "Liste des Clients", active: true },
     ];
 
@@ -160,7 +160,14 @@ export class ClientListComponent implements OnInit {
   }
 
   refreshList() {
+    this.selectedPays = "";
+    this.selectedTypeClient = "";
+    this.selectedSocieteId = this.consultantSocieteId;
+    this.searchTerm = "";
+
     this.store.dispatch(ClientActions.loadClients());
+
+    this.pageChanged({ page: 1 });
   }
 
   openModalAdd(template: TemplateRef<any>) {

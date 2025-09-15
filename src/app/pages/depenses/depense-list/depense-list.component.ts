@@ -67,7 +67,7 @@ export class DepenseListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dépenses", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Liste des Dépenses", active: true },
     ];
 

@@ -46,10 +46,7 @@
               <thead>
                 <tr>
                   <th>Nom</th>
-                  <th>contact</th>
-                  <th>Email</th>
-                  <th>Responsable</th>
-                  <th>Seuil Tresorerie</th>
+                  <th>Seuil Caisse</th>
                   <th>Niveau Santé</th>
                   <th>Actions</th>
                 </tr>
@@ -62,9 +59,6 @@
                   "
                 >
                   <td>{{ societe.nom }}</td>
-                  <td>{{ societe.contact }}</td>
-                  <td>{{ societe.email }}</td>
-                  <td>{{ societe.responsable }}</td>
                   <td>{{ societe.seuilTresorerie }}</td>
                   <td>
                     <span
@@ -160,7 +154,7 @@
       <form (ngSubmit)="saveSociete()" [formGroup]="societeForm">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Seuil Tresorerie</label>
+            <label class="form-label">Seuil Caisse</label>
             <input
               type="number"
               class="form-control"
@@ -267,7 +261,7 @@
               <tr>
                 <th scope="row">
                   <i class="bi bi-calendar-check text-secondary"></i> Seuil de
-                  la tresorerie :
+                  la caisse :
                 </th>
                 <td>{{ selectedSociete?.seuilTresorerie }}</td>
               </tr>

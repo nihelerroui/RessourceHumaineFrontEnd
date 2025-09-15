@@ -44,7 +44,6 @@ export class FactureListComponent implements OnInit {
   paginatedFactureList: FactureAchat[] = [];
   searchTerm: string = "";
   selectedStatutPaiement: string = "";
-  selectedTypeFacture: string = "";
   currentPage: number = 1;
   itemsPerPage: number = 8;
 
@@ -74,7 +73,7 @@ export class FactureListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Liste des Factures Achats", active: true },
     ];
 
@@ -208,7 +207,14 @@ export class FactureListComponent implements OnInit {
   }
 
   refreshList() {
-    this.store.dispatch(FactureActions.loadFacturesAchat());
+     this.selectedStatutPaiement = "";
+      this.selectedSocieteId = this.consultantSocieteId;
+      this.searchTerm = '';
+    
+     this.store.dispatch(FactureActions.loadFacturesAchat());
+    
+      this.pageChanged({ page: 1 });
+    
   }
 
   openModalAdd(template: TemplateRef<any>) {

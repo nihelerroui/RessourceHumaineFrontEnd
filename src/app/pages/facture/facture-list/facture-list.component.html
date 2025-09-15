@@ -97,7 +97,7 @@
                   <th>Référence</th>
                   <th>Désignation</th>
                   <th>Montant TTC</th>
-                  <th>Date Emission</th>
+                  <th>Date Echeance</th>
                   <th>Type Paiement</th>
                   <th>Statut Paiement</th>
                   <th>Actions</th>
@@ -113,7 +113,7 @@
                   <td>{{ facture.refFacture }}</td>
                   <td>{{ facture.designation }}</td>
                   <td>{{ facture.montantTtc }}</td>
-                  <td>{{ facture.dateEmmission | date : "dd/MM/yyyy" }}</td>
+                  <td>{{ facture.dateEcheance | date : "dd/MM/yyyy" }}</td>
                   <td>
                     <span
                       class="badge"
