@@ -54,7 +54,7 @@ export class TresorerieComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Trésorerie", path: "/" },
+      { label: "GESTION FINANCIERE", path: "/" },
       { label: "Suivi Trésorerie Bancaire", active: true },
     ];
 
@@ -183,7 +183,8 @@ export class TresorerieComponent implements OnInit {
     const nouvelleTresorerie: Tresorerie = {
       soldeInitial: this.montantAjout,
       societe: { societeId: this.selectedSocieteId } as Societe,
-      devise: 'TND'
+      devise: 'TND',
+      entreesTotales : this.montantAjout,
     } as Tresorerie;
 
     this.store.dispatch(TresorerieActions.createTresorerie({ tresorerie: nouvelleTresorerie }));

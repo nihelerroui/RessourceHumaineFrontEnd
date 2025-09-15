@@ -33,7 +33,7 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard" },
+      { label: "Main Œuvre" },
       { label: "Historique Main d'œuvre", active: true },
     ];
 
@@ -41,49 +41,47 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
       sessionStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
-    
+
     this.earningLineChart = {
       chart: {
         height: 288,
-        type: 'line',
+        type: "line",
         toolbar: {
-          show: false
+          show: false,
         },
         dropShadow: {
           enabled: true,
-          color: '#000',
+          color: "#000",
           top: 18,
           left: 7,
           blur: 8,
-          opacity: 0.2
-        }
+          opacity: 0.2,
+        },
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
       },
-      colors: ['#556ee6'],
+      colors: ["#556ee6"],
       stroke: {
-        curve: 'smooth',
-        width: 3
+        curve: "smooth",
+        width: 3,
       },
       xaxis: {
-        categories: [] 
-      }
+        categories: [],
+      },
     };
-    
 
     const now = new Date();
     this.selectedYear = now.getFullYear();
-    this.years = Array.from({ length: 5 }, (_, i) => this.selectedYear - i);
+    this.years = Array.from({ length: 3 }, (_, i) => this.selectedYear - i);
 
     this.loadHistorique(this.consultantId, this.selectedYear);
 
-    this.store.select(selectHistoriqueMainOeuvreData).subscribe(data => {
+    this.store.select(selectHistoriqueMainOeuvreData).subscribe((data) => {
       this.historiqueData = data;
       this.prepareChartData();
       this.paginerHistorique();
     });
-    
   }
 
   selectYear(event: any) {
@@ -97,9 +95,9 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
 
   prepareChartData() {
     const sorted = [...this.historiqueData].sort((a, b) => a.mois - b.mois);
-    const currentMonth = new Date().getMonth();
-    const thisMonth = sorted.find((h) => h.mois === currentMonth + 1);
-    const lastMonth = sorted.find((h) => h.mois === currentMonth);
+    const lastIndex = sorted.length - 1;
+    const thisMonth = sorted[lastIndex];
+    const lastMonth = sorted[lastIndex - 1];
 
     this.totalThisMonth = thisMonth?.montantTotal || 0;
     this.totalLastMonth = lastMonth?.montantTotal || 0;
@@ -117,8 +115,8 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
     ];
 
     this.earningLineChart.xaxis = {
-      categories: sorted.map((h) => this.getMonthName(h.mois))
-    };    
+      categories: sorted.map((h) => this.getMonthName(h.mois)),
+    };
   }
 
   getMonthName(monthNumber: number): string {
@@ -142,7 +140,9 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
   paginerHistorique(): void {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-    this.paginatedHistorique = [...this.historiqueData].sort((a, b) => a.mois - b.mois).slice(start, end);
+    this.paginatedHistorique = [...this.historiqueData]
+      .sort((a, b) => a.mois - b.mois)
+      .slice(start, end);
   }
 
   onPageChanged(event: any) {
@@ -152,37 +152,40 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
 
   getMoyenneAnnuelle(): number {
     if (!this.historiqueData.length) return 0;
-    const total = this.historiqueData.reduce((acc, h) => acc + h.montantTotal, 0);
+    const total = this.historiqueData.reduce(
+      (acc, h) => acc + h.montantTotal,
+      0
+    );
     return total / this.historiqueData.length;
   }
-  
+
   getMoisPlusCouteux(): HistoriqueMainOeuvre | null {
     if (!this.historiqueData.length) return null;
-    return this.historiqueData.reduce((prev, curr) => prev.montantTotal > curr.montantTotal ? prev : curr);
+    return this.historiqueData.reduce((prev, curr) =>
+      prev.montantTotal > curr.montantTotal ? prev : curr
+    );
   }
   getMoisPlusCouteuxLabel(): string {
     const moisObj = this.getMoisPlusCouteux();
-    return moisObj ? `${this.getMonthName(moisObj.mois)} - ${moisObj.montantTotal.toFixed(2)} €` : 'N/A';
+    return moisObj
+      ? `${this.getMonthName(moisObj.mois)} - ${moisObj.montantTotal.toFixed(
+          2
+        )} €`
+      : "N/A";
   }
 
   getMoisMoinsCouteuxLabel(): string {
-    if (!this.historiqueData.length) return 'N/A';
+    if (!this.historiqueData.length) return "N/A";
     const min = this.historiqueData.reduce((prev, curr) =>
       prev.montantTotal < curr.montantTotal ? prev : curr
     );
     return `${this.getMonthName(min.mois)} - ${min.montantTotal.toFixed(2)} €`;
   }
-  
-  
 
   getMontantAnnuel(): number {
-    return this.historiqueData.reduce((acc, item) => acc + item.montantTotal, 0);
+    return this.historiqueData.reduce(
+      (acc, item) => acc + item.montantTotal,
+      0
+    );
   }
-  
-  
-  
-
-  
-  
-  
 }

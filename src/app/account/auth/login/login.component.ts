@@ -29,6 +29,8 @@ export class LoginComponent implements OnInit {
   // set the currenr year
   year: number = new Date().getFullYear();
 
+  errorMessage: string | null = null;
+
   // tslint:disable-next-line: max-line-length
   constructor(
     private formBuilder: UntypedFormBuilder,
@@ -41,6 +43,9 @@ export class LoginComponent implements OnInit {
     if (localStorage.getItem("currentUser")) {
       this.router.navigate(["/"]);
     }
+    this.route.queryParams.subscribe(params => {
+      this.errorMessage = params['error'] || null;
+    });
     // 🔁 récupère le returnUrl depuis les paramètres
     this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
 

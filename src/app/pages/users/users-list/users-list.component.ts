@@ -61,7 +61,7 @@ export class UsersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "Consultants", path: "/" },
       { label: "Liste des Consultants", active: true },
     ];
 
@@ -96,23 +96,36 @@ export class UsersListComponent implements OnInit {
     });
   }
 
-  applyUserFilters(consultants: Consultant[]) {
-    this.filteredUserList = consultants.filter((consultant) => {
-      const roleMatch =
-        !this.selectedRole || consultant.user?.role === this.selectedRole;
-      const statusMatch =
-        !this.selectedStatus ||
-        (this.selectedStatus === "Activé" && consultant.user?.enabled) ||
-        (this.selectedStatus === "Désactivé" && !consultant.user?.enabled);
-      const societeMatch =
-        !this.selectedSocieteId ||
-        consultant.societe?.societeId === this.selectedSocieteId;
+applyUserFilters(consultants: Consultant[]) {
+  this.filteredUserList = consultants.filter((consultant) => {
+    const roleMatch =
+      !this.selectedRole || consultant.user?.role === this.selectedRole;
 
-      return roleMatch && statusMatch && societeMatch;
-    });
+    const statusMatch =
+      !this.selectedStatus ||
+      (this.selectedStatus === "Activé" && consultant.user?.enabled) ||
+      (this.selectedStatus === "Désactivé" && !consultant.user?.enabled);
 
-    this.pageChanged({ page: 1 });
-  }
+    const societeMatch =
+      !this.selectedSocieteId ||
+      consultant.societe?.societeId === this.selectedSocieteId;
+
+    const nameMatch =
+      !this.searchTerm ||
+      consultant.fullName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      consultant.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      consultant.prenom?.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+    const emailMatch =
+      !this.searchTerm ||
+      consultant.user?.email?.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+    return roleMatch && statusMatch && societeMatch && nameMatch && emailMatch;
+  });
+
+  this.pageChanged({ page: 1 });
+}
+
 
   pageChanged(event: any) {
     this.currentPage = event?.page || 1;
@@ -127,9 +140,17 @@ export class UsersListComponent implements OnInit {
     return consultant.consultantId;
   }
 
-  refreshList() {
-    this.store.dispatch(loadConsultants());
-  }
+ refreshList() {
+  this.selectedRole = "";
+  this.selectedStatus = "";
+  this.selectedSocieteId = this.consultantSocieteId;
+  this.searchTerm = '';
+
+  this.store.dispatch(loadConsultants());
+
+  this.pageChanged({ page: 1 });
+}
+
 
   openModalAdd() {
     this.modalRef = this.modalService.show(UtilisateurregisterviewComponent, {

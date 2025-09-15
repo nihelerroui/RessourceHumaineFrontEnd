@@ -35,6 +35,7 @@ export class FactureSousTraitantComponent implements OnInit {
 
   allFactures: FactureSousTraitant[] = [];
   isValidatingPayment = false;
+  role : string ="";
 
 
   constructor(
@@ -59,6 +60,7 @@ export class FactureSousTraitantComponent implements OnInit {
       sessionStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
+    this.role = currentUser.user?.role || "";
 
     this.loadFactures();
 

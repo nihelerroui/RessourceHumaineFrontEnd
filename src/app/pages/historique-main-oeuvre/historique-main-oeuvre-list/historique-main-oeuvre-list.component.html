@@ -1,8 +1,7 @@
 <div class="container-fluid">
   <app-page-title
     title="Historique Main d’œuvre"
-    [breadcrumbItems]="breadCrumbItems"
-  >
+    [breadcrumbItems]="breadCrumbItems">
   </app-page-title>
 
   <!-- ✅ Ligne Graphique + Total Mensuel -->
@@ -18,13 +17,11 @@
                 <select
                   id="yearSelect"
                   class="form-select form-select-sm"
-                  (change)="selectYear($event)"
-                >
+                  (change)="selectYear($event)">
                   <option
                     *ngFor="let year of years"
                     [value]="year"
-                    [selected]="year === selectedYear"
-                  >
+                    [selected]="year === selectedYear">
                     {{ year }}
                   </option>
                 </select>
@@ -35,7 +32,7 @@
           <div class="row align-items-center">
             <div class="col-md-3">
               <div class="text-muted">
-                <p class="mb-2">Ce mois-ci</p>
+                <p class="mb-2">Dernier mois disponible</p>
                 <h4>{{ totalThisMonth | currency : 'EUR' }}</h4>
                 <div>
                   <span
@@ -43,15 +40,15 @@
                     [ngClass]="{
                       'badge-soft-success': variationPourcentage >= 0,
                       'badge-soft-danger': variationPourcentage < 0
-                    }"
-                  >
-                    {{ variationPourcentage > 0 ? '+' : '' }}{{ variationPourcentage | number: '1.1-1' }}%
+                    }">
+                    {{ variationPourcentage > 0 ? '+' : '' }}{{
+                    variationPourcentage | number: '1.1-1' }}%
                   </span>
                   par rapport au mois dernier
                 </div>
 
                 <div class="mt-4">
-                  <p class="mb-2">Mois dernier</p>
+                  <p class="mb-2">Mois précédent</p>
                   <h5>{{ totalLastMonth | currency : 'EUR' }}</h5>
                 </div>
               </div>
@@ -66,8 +63,7 @@
                 [colors]="earningLineChart.colors"
                 [stroke]="earningLineChart.stroke"
                 [dataLabels]="earningLineChart.dataLabels"
-                [xaxis]="earningLineChart.xaxis"
-              >
+                [xaxis]="earningLineChart.xaxis">
               </apx-chart>
             </div>
           </div>
@@ -82,7 +78,7 @@
       <div class="card flex-fill">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title mb-3">Détail par mois</h5>
-  
+
           <div class="table-wrapper flex-grow-1">
             <div class="table-responsive table-balanced">
               <table class="table table-bordered mb-0">
@@ -106,7 +102,7 @@
               </table>
             </div>
           </div>
-  
+
           <div class="row justify-content-between align-items-center mt-3">
             <div class="col-auto me-auto">
               <p class="text-muted mb-0">
@@ -115,13 +111,13 @@
               </p>
             </div>
             <div class="col-auto">
-              <ul class="pagination pagination-rounded justify-content-end mb-2">
+              <ul
+                class="pagination pagination-rounded justify-content-end mb-2">
                 <pagination
                   [totalItems]="historiqueData.length"
                   [itemsPerPage]="itemsPerPage"
                   [(ngModel)]="currentPage"
-                  (pageChanged)="onPageChanged($event)"
-                >
+                  (pageChanged)="onPageChanged($event)">
                 </pagination>
               </ul>
             </div>
@@ -129,7 +125,7 @@
         </div>
       </div>
     </div>
-  
+
     <!-- 📊 Cartes à droite -->
     <div class="col-lg-6 d-flex">
       <div class="card flex-fill">
@@ -138,23 +134,26 @@
             <div class="col-md-6">
               <div class="card mini-stats-wid text-center">
                 <div class="card-body">
-                  <i class="mdi mdi-currency-eur text-primary mb-2 mdi-24px"></i>
+                  <i
+                    class="mdi mdi-currency-eur text-primary mb-2 mdi-24px"></i>
                   <p class="text-muted fw-medium mb-2">Revenu Annuel</p>
-                  <h4 class="mb-0">{{ getMontantAnnuel() | currency: 'EUR' }}</h4>
+                  <h4 class="mb-0">{{ getMontantAnnuel() | currency: 'EUR'
+                    }}</h4>
                 </div>
               </div>
             </div>
-  
+
             <div class="col-md-6">
               <div class="card mini-stats-wid text-center">
                 <div class="card-body">
                   <i class="mdi mdi-chart-line text-success mb-2 mdi-24px"></i>
                   <p class="text-muted fw-medium mb-2">Moyenne annuelle</p>
-                  <h4 class="mb-0">{{ getMoyenneAnnuelle() | number: '1.2-2' }}</h4>
+                  <h4 class="mb-0">{{ getMoyenneAnnuelle() | number: '1.2-2'
+                    }}</h4>
                 </div>
               </div>
             </div>
-  
+
             <div class="col-md-6">
               <div class="card mini-stats-wid text-center">
                 <div class="card-body">
@@ -164,11 +163,12 @@
                 </div>
               </div>
             </div>
-  
+
             <div class="col-md-6">
               <div class="card mini-stats-wid text-center">
                 <div class="card-body">
-                  <i class="mdi mdi-calendar-remove-outline text-danger mb-2 mdi-24px"></i>
+                  <i
+                    class="mdi mdi-calendar-remove-outline text-danger mb-2 mdi-24px"></i>
                   <p class="text-muted fw-medium mb-2">Mois le moins coûteux</p>
                   <h4 class="mb-0">{{ getMoisMoinsCouteuxLabel() }}</h4>
                 </div>
@@ -178,6 +178,5 @@
         </div>
       </div>
     </div>
-  
+
   </div>
-  

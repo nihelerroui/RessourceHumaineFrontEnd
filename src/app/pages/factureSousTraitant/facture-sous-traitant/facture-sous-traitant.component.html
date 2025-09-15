@@ -2,7 +2,7 @@
   <app-page-title
     title="Factures Sous-Traitant"
     [breadcrumbItems]="[
-      { label: 'Dashboard', path: '/' },
+      { label: 'GESTION FINANCIERE', path: '/' },
       { label: ' Liste des Factures Sous-Traitant', active: true }
     ]"
   ></app-page-title>
@@ -141,7 +141,7 @@
                     title="Validate"
                   >
                     <button
-                      *ngIf="facture.statutPaiement === 'NON_PAYÉE'"
+                      *ngIf="role === 'SOUS_TRAITANT' && facture.statutPaiement === 'NON_PAYÉE'"
                       class="btn btn-sm btn-soft-success"
                       (click)="validerPaiement(facture.idFactureIndep)"
                       [disabled]="facture.statutPaiement === 'PAYÉE'"

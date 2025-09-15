@@ -50,7 +50,7 @@ export class SocieteListComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "Geolocalisation", path: "/" },
       { label: "Liste des Sociétes", active: true },
     ];
     this.store.dispatch(SocieteActions.loadSocietes());

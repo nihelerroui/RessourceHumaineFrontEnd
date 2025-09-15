@@ -59,30 +59,6 @@ export class CaisseEffects {
   );
   
   
-  
-
-/*augmenterSoldeActuel$ = createEffect(() =>
-  this.actions$.pipe(
-    ofType(CaisseActions.augmenterSoldeActuel),
-    mergeMap(({ societeId, montant, source, motif }) =>
-      this.caisseService.augmenterSoldeActuel(societeId, montant, source, motif).pipe(
-        mergeMap((response: any) =>
-          this.caisseService.getCaisse(societeId).pipe(
-            map((caisse) =>
-              CaisseActions.augmenterSoldeActuelSuccess({ caisse })
-            ),
-            catchError((error) =>
-              of(CaisseActions.augmenterSoldeActuelFailure({ error: error.message }))
-            )
-          )
-        ),
-        catchError((error) =>
-          of(CaisseActions.augmenterSoldeActuelFailure({ error: error.message }))
-        )
-      )
-    )
-  )
-);*/
 
 augmenterSoldeActuel$ = createEffect(() =>
   this.actions$.pipe(

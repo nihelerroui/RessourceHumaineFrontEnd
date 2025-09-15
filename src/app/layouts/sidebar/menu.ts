@@ -24,7 +24,7 @@ export const MENU: MenuItem[] = [
   // Utilisateurs
   {
     id: 10,
-    label: "MENUITEMS.UTILISATEURS.TEXT",
+    label: "MENUITEMS.CONSULTANTS.TEXT",
     icon: "bx bx-user",
     link: "/users/list",
     roles: ["ADMINISTRATEUR"],
@@ -139,12 +139,12 @@ export const MENU: MenuItem[] = [
   // Main d'œuvre
   {
     id: 40,
-    label: "MENUITEMS.MAINOEUVRE.TEXT",
+    label: "MENUITEMS.MAINŒUVRE.TEXT",
     icon: "bx bx-group",
     subItems: [
       {
         id: 41,
-        label: "MENUITEMS.MAINOEUVRE.TEXT",
+        label: "MENUITEMS.MAINŒUVRE.TEXT",
         icon: "bx bx-user-voice",
         link: "/mainOeuvre/list",
         roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
@@ -152,7 +152,7 @@ export const MENU: MenuItem[] = [
       },
       {
         id: 42,
-        label: "MENUITEMS.HISTORIQUEMAINOEUVRE.TEXT",
+        label: "MENUITEMS.HISTORIQUEMAINŒUVRE.TEXT",
         icon: "bx bx-history",
         link: "/historique-mainoeuvre/list",
         roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],

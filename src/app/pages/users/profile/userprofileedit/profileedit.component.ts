@@ -53,7 +53,7 @@ export class ProfileEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.breadCrumbItems = [
-      { label: "Dashboard", path: "/" },
+      { label: "Gestion de compte", path: "/" },
       { label: "Modifier Profile", active: true },
     ];
 
