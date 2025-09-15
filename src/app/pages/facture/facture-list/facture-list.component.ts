@@ -324,7 +324,7 @@ export class FactureListComponent implements OnInit {
   openFacture(filePath: string): void {
     const fileName = this.getFileName(filePath);
     const token = sessionStorage.getItem("accessToken"); 
-    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=inline`;
+    const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=inline`;
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
 
@@ -360,7 +360,7 @@ export class FactureListComponent implements OnInit {
     }
 
     const fileName = this.getFileName(filePath);
-    const fileUrl = `${environment.apiUrl}/factures/files/${fileName}?disposition=attachment`;
+    const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=attachment`;
     const token = sessionStorage.getItem("accessToken");
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
