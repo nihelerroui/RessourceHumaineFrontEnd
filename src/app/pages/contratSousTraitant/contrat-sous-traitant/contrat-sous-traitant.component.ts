@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { map, Observable } from "rxjs";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -53,6 +53,11 @@ export class ContratSousTraitantComponent implements OnInit {
   userRole: string = '';
   connectedUser: any;
   connectedConsultantId: number = 0;
+  // ==== Confirmation (AJOUTS) ====
+  @ViewChild('confirmModal') confirmModal!: TemplateRef<any>;
+  contratEnCours: ContratSousTraitant | null = null;
+  nouveauStatutEnCours: StatutContrat | null = null;
+  isUpdating = false;
 
   constructor(
     private modalService: BsModalService,
@@ -91,14 +96,14 @@ export class ContratSousTraitantComponent implements OnInit {
 
   //Charger la liste des contrats
   loadContrats() {
-  if (this.userRole === 'ADMINISTRATEUR' || 'RESPONSABLE_FINANCIER') {
-    this.store.dispatch(ContratActions.loadContracts());
-  } else if (this.userRole === 'SOUS_TRAITANT' && this.connectedConsultantId) {
-    this.store.dispatch(
-      ContratActions.loadContractsByConsultant({ consultantId: this.connectedConsultantId })
-    );
+    if (this.userRole === 'ADMINISTRATEUR' || 'RESPONSABLE_FINANCIER') {
+      this.store.dispatch(ContratActions.loadContracts());
+    } else if (this.userRole === 'SOUS_TRAITANT' && this.connectedConsultantId) {
+      this.store.dispatch(
+        ContratActions.loadContractsByConsultant({ consultantId: this.connectedConsultantId })
+      );
+    }
   }
-}
 
   checkFormValidity() {
     console.log("Formulaire valide :", this.contratForm.valid, "Fichier sélectionné :", this.fileSelected);
@@ -146,7 +151,10 @@ export class ContratSousTraitantComponent implements OnInit {
 
   //Ouvrir la modale d'ajout
   openModal(template: any) {
-    this.submitted = false;
+    this.submitted = false;        // <- reset à l’ouverture
+    this.fileSelected = false;       // <- reset à l’ouverture
+    this.fileName = "Aucun fichier sélectionné";
+    this.selectedContratId = null; 
     this.modalRef = this.modalService.show(template, { class: "modal-md" });
   }
   //Récupérer les valeurs du formulaire
@@ -249,8 +257,6 @@ export class ContratSousTraitantComponent implements OnInit {
       text: "Une fois supprimé, ce contrat ne pourra pas être récupéré.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Oui, supprimer",
       cancelButtonText: "Annuler",
     }).then((result) => {
@@ -303,18 +309,34 @@ export class ContratSousTraitantComponent implements OnInit {
   }
 
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
-  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
-  const emailSousTraitant = currentUser?.user?.email || 'consultant@featway.com';
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const emailSousTraitant = currentUser?.user?.email || 'consultant@featway.com';
 
-  this.modalRef = this.modalService.show(CommentContratSTComponent, {
-    initialState: {
-      contratId: contrat.contratId,
-      contrat: contrat,
-      currentUserEmail: emailSousTraitant
-    },
-    class: "modal-lg",
-  });
-}
+    this.modalRef = this.modalService.show(CommentContratSTComponent, {
+      initialState: {
+        contratId: contrat.contratId,
+        contrat: contrat,
+        currentUserEmail: emailSousTraitant
+      },
+      class: "modal-lg",
+    });
+  }
+  demanderConfirmation(contrat: ContratSousTraitant, nouveauStatut: StatutContrat) {
+    if (contrat.statutContrat === nouveauStatut) return; // rien à faire
+    this.contratEnCours = contrat;
+    this.nouveauStatutEnCours = nouveauStatut;
+    this.modalRef = this.modalService.show(this.confirmModal, { class: 'modal-sm' });
+  }
+
+  confirmerChangementStatut() {
+    if (!this.contratEnCours || !this.nouveauStatutEnCours) return;
+    this.isUpdating = true;
+    this.modifierStatutContrat(this.contratEnCours, this.nouveauStatutEnCours);
+    this.isUpdating = false;
+    this.modalRef?.hide();
+    this.contratEnCours = null;
+    this.nouveauStatutEnCours = null;
+  }
 
   modifierStatutContrat(
     contrat: ContratSousTraitant,
@@ -327,24 +349,19 @@ export class ContratSousTraitantComponent implements OnInit {
         consultantId: contrat.consultant?.consultantId!,
       },
     };
+
     this.contratService.update(contratModifie).subscribe({
       next: () => {
-        Swal.fire(
-          "Succès",
-          "Le statut du contrat a été mis à jour.",
-          "success"
-        );
-        this.loadContrats();
+        Swal.fire("Succès", "Le statut du contrat a été mis à jour.", "success");
+        this.loadContrats(); 
       },
       error: () => {
-        Swal.fire(
-          "Erreur",
-          "Erreur lors de la mise à jour du contrat.",
-          "error"
-        );
+        Swal.fire("Erreur", "Erreur lors de la mise à jour du contrat.", "error");
       },
+      complete: () => {
+        this.isUpdating = false; 
+      }
     });
-
   }
 
 }

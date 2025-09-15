@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, Input } from "@angular/core";
-import { FormBuilder, FormGroup, FormArray, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidationErrors } from "@angular/forms";
 import { BsDatepickerConfig } from "ngx-bootstrap/datepicker";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
@@ -150,18 +150,33 @@ export class FactureClientCreateComponent implements OnInit {
   }
 
   initForm() {
-    this.factureForm = this.fb.group({
-      contratId: [null, Validators.required],
-      dateEmmission: [new Date(), Validators.required],
-      dateEcheance: [new Date(), Validators.required],
-      pourcentageTva: [20],
-      pourcentageRemise: [0],
-      objet: ["", Validators.required],
-      numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
-      typePaiement: ["", Validators.required],
-      prestationIds: this.fb.array([]),
-    });
+  this.factureForm = this.fb.group({
+    contratId: [null, Validators.required],
+    dateEmmission: [new Date(), Validators.required],
+    dateEcheance: [new Date(), Validators.required],
+    pourcentageTva: [20],
+    pourcentageRemise: [0, [Validators.min(0), Validators.max(100)]],
+    objet: ["", Validators.required],
+    numBonCommande: ["", Validators.pattern("^[a-zA-Z0-9-_/]+$")],
+    typePaiement: ["", Validators.required],
+    prestationIds: this.fb.array([]),
+  }, {
+    validators: [this.dateEcheanceValidator] // ← Validator personnalisé
+  });
+}
+dateEcheanceValidator(group: AbstractControl): ValidationErrors | null {
+  const dateEmmission = group.get('dateEmmission')?.value;
+  const dateEcheance = group.get('dateEcheance')?.value;
+
+  if (dateEmmission && dateEcheance) {
+    const emmissionDate = new Date(dateEmmission);
+    const echeanceDate = new Date(dateEcheance);
+    if (echeanceDate < emmissionDate) {
+      return { dateEcheanceInvalide: true };
+    }
   }
+  return null;
+}
 
   patchFactureForm(facture: any): void {
     this.selectedContrat = this.contratsClient.find(c => c.contratClientId === facture.contratId);

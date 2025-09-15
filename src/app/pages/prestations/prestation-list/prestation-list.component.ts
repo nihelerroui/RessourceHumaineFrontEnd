@@ -114,15 +114,14 @@ export class PrestationListComponent implements OnInit {
     });
 
   }
-
   initForms() {
     this.form = this.fb.group({
-      prestationId: [""],
-      titre: ["", Validators.required],
-      description: ["", Validators.required],
-      contratId: [""],
-      externalConsultantId: [""],
-      monthYear: ["", Validators.required],
+      prestationId: [''],
+      titre: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      contratId: ['', Validators.required],
+      externalConsultantId: [''],
+      monthYear: ['', Validators.required],
     });
   }
   filterPrestation() {
@@ -261,8 +260,6 @@ export class PrestationListComponent implements OnInit {
       text: "Cette action est irréversible !",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Oui, supprimer !",
       cancelButtonText: "Annuler",
     }).then((result) => {

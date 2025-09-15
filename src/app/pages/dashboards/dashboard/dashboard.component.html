@@ -2,8 +2,7 @@
     <div class="row mb-4">
         <div class="col-lg-12">
             <div class="d-flex align-items-center">
-                <img [src]="currentUserPhoto" alt="Avatar"
-                    class="avatar-sm rounded" />
+                <img [src]="currentUserPhoto" alt="Avatar" class="avatar-sm rounded" />
                 <div class="ms-3 flex-grow-1">
                     <h5 class="mb-2 card-title">Bonjour, {{ currentUserNom
                         }}</h5>
@@ -148,37 +147,29 @@
                 </div>
             </div>
         </div><!--end col-->
-        
+
     </div><!--end row-->
     <div class="row">
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <div
-                        class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                         <h4 class="card-title mb-0">Rentabilité par Client (en
                             %)</h4>
                         <div class="d-flex align-items-center mt-2 mt-sm-0">
                             <label class="me-2 mb-0 text-muted">Année :</label>
-                            <select class="form-select form-select-sm w-auto"
-                                [ngModel]="selectedYear$ | async"
+                            <select class="form-select form-select-sm w-auto" [ngModel]="selectedYear$ | async"
                                 (ngModelChange)="onYearChange($event)">
-                                <option *ngFor="let year of availableYears"
-                                    [value]="year">{{ year }}</option>
+                                <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
                             </select>
                         </div>
                     </div>
 
                     <div *ngIf="rentabiliteChart$ | async as rentabiliteChart">
-                        <apx-chart
-                            *ngIf="rentabiliteChart.series && rentabiliteChart.xaxis"
-                            class="apex-charts"
-                            [series]="rentabiliteChart.series"
-                            [chart]="rentabiliteChart.chart"
-                            [xaxis]="rentabiliteChart.xaxis"
-                            [colors]="rentabiliteChart.colors"
-                            [dataLabels]="rentabiliteChart.dataLabels"
-                            [plotOptions]="rentabiliteChart.plotOptions"
+                        <apx-chart *ngIf="rentabiliteChart.series && rentabiliteChart.xaxis" class="apex-charts"
+                            [series]="rentabiliteChart.series" [chart]="rentabiliteChart.chart"
+                            [xaxis]="rentabiliteChart.xaxis" [colors]="rentabiliteChart.colors"
+                            [dataLabels]="rentabiliteChart.dataLabels" [plotOptions]="rentabiliteChart.plotOptions"
                             [yaxis]="rentabiliteChart.yaxis">
                         </apx-chart>
                     </div>
@@ -190,41 +181,45 @@
                 </div>
             </div>
         </div>
-       <div class="col-lg-4">
-    <div class="card" style="height: 450px;">
-        <div class="card-body d-flex flex-column">
-            <h4 class="card-title mb-3">Clients Retardataires</h4>
-            <p class="text-muted mb-3">Liste des clients qui ont des retards de paiement.</p>
+        <div class="col-lg-4">
+            <div class="card" style="height: 450px;">
+                <div class="card-body d-flex flex-column">
+                    <h4 class="card-title mb-3">Clients Retardataires</h4>
+                    <p class="text-muted mb-3">Liste des clients qui ont des
+                        retards de paiement.</p>
 
-            <div class="flex-grow-1 overflow-auto">
-                <div *ngFor="let client of clientsRetardataires; let i = index"
-                    class="bg-light p-3 d-flex mb-3 rounded">
+                    <div class="flex-grow-1 overflow-auto">
+                        <div *ngFor="let client of clientsRetardataires; let i = index"
+                            class="bg-light p-3 d-flex mb-3 rounded">
 
-                    <div class="flex-grow-1">
-                        <h5 class="font-size-15 mb-2">
-                            <a href="javascript:void(0);" class="text-body">{{ client.nom }}</a>
-                            <!-- Par exemple, afficher un badge "Retard" -->
-                            <span class="badge badge-soft-danger ms-2">Retard</span>
-                        </h5>
-                        <p class="mb-0 text-muted">
-                            <i class="bx bx-envelope text-body align-middle me-1"></i> {{ client.email || 'Email non renseigné' }}
-                        </p>
-                        <p class="mb-0 text-muted">
-                            <i class="bx bx-phone text-body align-middle me-1"></i> {{ client.telephone || 'Téléphone non renseigné' }}
-                        </p>
+                            <div class="flex-grow-1">
+                                <h5 class="font-size-15 mb-2">
+                                    <a href="javascript:void(0);" class="text-body">{{ client.nom }}</a>
+                                    <!-- Par exemple, afficher un badge "Retard" -->
+                                    <span class="badge badge-soft-danger ms-2">Retard</span>
+                                </h5>
+                                <p class="mb-0 text-muted">
+                                    <i class="bx bx-envelope text-body align-middle me-1"></i>
+                                    {{ client.email || 'Email
+                                    non renseigné' }}
+                                </p>
+                                <p class="mb-0 text-muted">
+                                    <i class="bx bx-phone text-body align-middle me-1"></i>
+                                    {{ client.telephone ||
+                                    'Téléphone non renseigné' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!clientsRetardataires || clientsRetardataires.length === 0"
+                        class="text-muted text-center mt-3">
+                        <i class="bx bx-info-circle font-size-18 mb-2 d-block"></i>
+                        Pas de clients retardataires disponibles
                     </div>
                 </div>
             </div>
-
-            <div *ngIf="!clientsRetardataires || clientsRetardataires.length === 0"
-                class="text-muted text-center mt-3">
-                <i class="bx bx-info-circle font-size-18 mb-2 d-block"></i>
-                Pas de clients retardataires disponibles
-            </div>
         </div>
-    </div>
-</div>
-
 
         <div class="col-lg-8">
             <div class="row mb-1">
@@ -239,8 +234,7 @@
                                     </h5>
                                 </div>
                                 <div class="avatar-sm ms-auto">
-                                    <div
-                                        class="avatar-title bg-light rounded-circle text-primary font-size-20">
+                                    <div class="avatar-title bg-light rounded-circle text-primary font-size-20">
                                         <i class="bx bx-wallet"></i>
                                     </div>
                                 </div>
@@ -260,8 +254,7 @@
                                     </h5>
                                 </div>
                                 <div class="avatar-sm ms-auto">
-                                    <div
-                                        class="avatar-title bg-light rounded-circle text-success font-size-20">
+                                    <div class="avatar-title bg-light rounded-circle text-success font-size-20">
                                         <i class="bx bx-dollar-circle"></i>
                                     </div>
                                 </div>
@@ -280,8 +273,7 @@
                                         nombreTransactions }}</h5>
                                 </div>
                                 <div class="avatar-sm ms-auto">
-                                    <div
-                                        class="avatar-title bg-light rounded-circle text-warning font-size-20">
+                                    <div class="avatar-title bg-light rounded-circle text-warning font-size-20">
                                         <i class="bx bx-transfer"></i>
                                     </div>
                                 </div>
@@ -342,16 +334,11 @@
                             </div>
                         </div>
                     </div>
-                    <apx-chart class="apex-charts"
-                        [series]="margeMensuelleChart.series"
-                        [chart]="margeMensuelleChart.chart"
-                        [xaxis]="margeMensuelleChart.xaxis"
-                        [colors]="margeMensuelleChart.colors"
-                        [dataLabels]="margeMensuelleChart.dataLabels"
-                        [stroke]="margeMensuelleChart.stroke"
-                        [fill]="margeMensuelleChart.fill"
-                        [legend]="margeMensuelleChart.legend"
-                        [yaxis]="margeMensuelleChart.yaxis"></apx-chart>
+                    <apx-chart class="apex-charts" [series]="margeMensuelleChart.series"
+                        [chart]="margeMensuelleChart.chart" [xaxis]="margeMensuelleChart.xaxis"
+                        [colors]="margeMensuelleChart.colors" [dataLabels]="margeMensuelleChart.dataLabels"
+                        [stroke]="margeMensuelleChart.stroke" [fill]="margeMensuelleChart.fill"
+                        [legend]="margeMensuelleChart.legend" [yaxis]="margeMensuelleChart.yaxis"></apx-chart>
                 </div>
             </div>
         </div>
@@ -364,23 +351,19 @@
                     <div class="row g-3">
                         <!-- Coût Annuel Total -->
                         <div class="col-md-6">
-                            <div
-                                class="card mini-stats-wid h-100 shadow-sm border-0">
-                                <div
-                                    class="card-body d-flex align-items-center justify-content-between">
+                            <div class="card mini-stats-wid h-100 shadow-sm border-0">
+                                <div class="card-body d-flex align-items-center justify-content-between">
                                     <div>
                                         <p class="text-muted mb-1">Coût Annuel
                                             Total</p>
                                         <h5 class="text-primary mb-0">
                                             {{ coutAnnuelTotal | currency :
                                             "EUR" }}
-                                            <span
-                                                class="badge bg-light text-primary ms-2">+3.5%</span>
+                                            <span class="badge bg-light text-primary ms-2">+3.5%</span>
                                         </h5>
                                     </div>
                                     <div class="avatar-sm">
-                                        <div
-                                            class="avatar-title bg-primary-subtle rounded-circle text-primary fs-4">
+                                        <div class="avatar-title bg-primary-subtle rounded-circle text-primary fs-4">
                                             <i class="bx bx-euro"></i>
                                         </div>
                                     </div>
@@ -390,23 +373,19 @@
 
                         <!-- Moyenne Mensuelle -->
                         <div class="col-md-6">
-                            <div
-                                class="card mini-stats-wid h-100 shadow-sm border-0">
-                                <div
-                                    class="card-body d-flex align-items-center justify-content-between">
+                            <div class="card mini-stats-wid h-100 shadow-sm border-0">
+                                <div class="card-body d-flex align-items-center justify-content-between">
                                     <div>
                                         <p class="text-muted mb-1">Moyenne
                                             Mensuelle</p>
                                         <h5 class="text-success mb-0">
                                             {{ moyenneMensuelle | number :
                                             "1.2-2" }}
-                                            <span
-                                                class="badge bg-light text-success ms-2">+1.8%</span>
+                                            <span class="badge bg-light text-success ms-2">+1.8%</span>
                                         </h5>
                                     </div>
                                     <div class="avatar-sm">
-                                        <div
-                                            class="avatar-title bg-success-subtle rounded-circle text-success fs-4">
+                                        <div class="avatar-title bg-success-subtle rounded-circle text-success fs-4">
                                             <i class="bx bx-line-chart"></i>
                                         </div>
                                     </div>
@@ -416,10 +395,8 @@
 
                         <!-- Mois le plus coûteux -->
                         <div class="col-md-6">
-                            <div
-                                class="card mini-stats-wid h-100 shadow-sm border-0">
-                                <div
-                                    class="card-body d-flex align-items-center justify-content-between">
+                            <div class="card mini-stats-wid h-100 shadow-sm border-0">
+                                <div class="card-body d-flex align-items-center justify-content-between">
                                     <div>
                                         <p class="text-muted mb-1">Mois le plus
                                             coûteux</p>
@@ -429,8 +406,7 @@
                                         </h5>
                                     </div>
                                     <div class="avatar-sm">
-                                        <div
-                                            class="avatar-title bg-warning-subtle rounded-circle text-warning fs-4">
+                                        <div class="avatar-title bg-warning-subtle rounded-circle text-warning fs-4">
                                             <i class="bx bx-trophy"></i>
                                         </div>
                                     </div>
@@ -440,10 +416,8 @@
 
                         <!-- Mois le moins coûteux -->
                         <div class="col-md-6">
-                            <div
-                                class="card mini-stats-wid h-100 shadow-sm border-0">
-                                <div
-                                    class="card-body d-flex align-items-center justify-content-between">
+                            <div class="card mini-stats-wid h-100 shadow-sm border-0">
+                                <div class="card-body d-flex align-items-center justify-content-between">
                                     <div>
                                         <p class="text-muted mb-1">Mois le moins
                                             coûteux</p>
@@ -453,8 +427,7 @@
                                         </h5>
                                     </div>
                                     <div class="avatar-sm">
-                                        <div
-                                            class="avatar-title bg-danger-subtle rounded-circle text-danger fs-4">
+                                        <div class="avatar-title bg-danger-subtle rounded-circle text-danger fs-4">
                                             <i class="bx bx-calendar"></i>
                                         </div>
                                     </div>
@@ -469,22 +442,18 @@
             <!-- card -->
         </div>
 
-        <!-- Section Analyse d'Investissement -->
+        <!-- Section Analyse d Investissement -->
         <div class="row mt-4">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div
-                            class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4 class="card-title mb-0">
-                                <i
-                                    class="mdi mdi-trending-up me-2 text-primary"></i>
-                                Analyse d'Investissement
+                                <i class="mdi mdi-trending-up me-2 text-primary"></i>
+                                Analyse d Investissement
                             </h4>
-                            <button
-                                class="btn btn-light btn-sm border d-flex align-items-center"
-                                (click)="clearInvestmentAnalysis()"
-                                *ngIf="showInvestmentAnalysis">
+                            <button class="btn btn-light btn-sm border d-flex align-items-center"
+                                (click)="clearInvestmentAnalysis()" *ngIf="showInvestmentAnalysis">
                                 <i class="mdi mdi-undo me-1"></i> Réinitialiser
                             </button>
 
@@ -494,64 +463,79 @@
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <label class="form-label">Montant
-                                    d'investissement (€)</label>
+                                    d investissement (€)</label>
                                 <div class="input-group">
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        [(ngModel)]="investmentAmount"
-                                        placeholder="Ex: 50000"
-                                        min="1000"
-                                        step="1000">
+                                    <input type="number" class="form-control" name="investmentAmount"
+                                        [(ngModel)]="investmentAmount" [ngModelOptions]="{standalone: true}" required
+                                        min="1000" step="1000" inputmode="numeric"
+                                        (keydown)="preventInvalidKeys($event)"
+                                        (blur)="normalizeNumber('investmentAmount')" #investmentAmountModel="ngModel"
+                                        [attr.aria-invalid]="investmentAmountModel.invalid && (investmentAmountModel.dirty || investmentAmountModel.touched)"
+                                        [ngClass]="{'is-invalid': investmentAmountModel.invalid && (investmentAmountModel.dirty || investmentAmountModel.touched)}"
+                                        placeholder="Ex: 50000">
                                     <span class="input-group-text">€</span>
                                 </div>
+
+                                <!-- Erreurs Montant -->
+                                <div *ngIf="investmentAmountModel.invalid && (investmentAmountModel.dirty || investmentAmountModel.touched)"
+                                    class="invalid-feedback d-block" aria-live="polite">
+                                    <div *ngIf="investmentAmountModel.errors?.['required']">Le
+                                        montant est requis.</div>
+                                    <div *ngIf="investmentAmountModel.errors?.['min']">Le
+                                        montant doit être ≥ 1 000 €.
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Seuil de sécurité
                                     (€)</label>
                                 <div class="input-group">
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        [(ngModel)]="seuilSecurite"
-                                        placeholder="Ex: 5000"
-                                        min="1000"
-                                        step="1000">
+                                    <input type="number" class="form-control" name="seuilSecurite"
+                                        [(ngModel)]="seuilSecurite" [ngModelOptions]="{standalone: true}" required
+                                        min="0" step="1000" inputmode="numeric" (keydown)="preventInvalidKeys($event)"
+                                        (blur)="normalizeNumber('seuilSecurite')" #seuilModel="ngModel"
+                                        [attr.aria-invalid]="seuilModel.invalid && (seuilModel.dirty || seuilModel.touched)"
+                                        [ngClass]="{'is-invalid': seuilModel.invalid && (seuilModel.dirty || seuilModel.touched)}"
+                                        placeholder="Ex: 5000">
                                     <span class="input-group-text">€</span>
                                 </div>
+
+                                <!-- Erreurs Seuil -->
+                                <div *ngIf="seuilModel.invalid && (seuilModel.dirty || seuilModel.touched)"
+                                    class="invalid-feedback d-block" aria-live="polite">
+                                    <div *ngIf="seuilModel.errors?.['required']">Le
+                                        seuil est requis.</div>
+                                    <div *ngIf="seuilModel.errors?.['min']">Le
+                                        seuil doit être ≥ 0 €.</div>
+                                </div>
+
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
-                                <button
-                                    class="btn btn-primary w-100"
-                                    (click)="analyzeInvestment()"
-                                    [disabled]="(investmentLoading$ | async) || !investmentAmount">
+                                <button class="btn btn-primary w-100" (click)="analyzeInvestment()"
+                                    [disabled]="(investmentLoading$ | async) || investmentAmountModel.invalid || seuilModel.invalid">
                                     <span *ngIf="investmentLoading$ | async"
                                         class="spinner-border spinner-border-sm me-2"></span>
-                                    <i class="mdi mdi-magnify me-1"
-                                        *ngIf="!(investmentLoading$ | async)"></i>
+                                    <i class="mdi mdi-magnify me-1" *ngIf="!(investmentLoading$ | async)"></i>
                                     {{ (investmentLoading$ | async) ?
                                     'Analyse en cours...' : 'Analyser' }}
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Résultats de l'analyse -->
-                        <div
-                            *ngIf="showInvestmentAnalysis && (investmentAnalysis$ | async) as analysis"
+                        <!-- Résultats de analyse -->
+                        <div *ngIf="showInvestmentAnalysis && (investmentAnalysis$ | async) as analysis"
                             class="mt-3 px-2">
 
                             <!-- Meilleur moment -->
-                            <div
-                                *ngIf="bestInvestmentMoment$ | async as bestMoment"
-                                class="row mb-3">
+                            <div *ngIf="bestInvestmentMoment$ | async as bestMoment" class="row mb-3">
                                 <div class="col-lg-8">
                                     <div class="card border-primary">
                                         <div class="card-header py-2 px-3"
                                             style="background-color: transparent; border-bottom: 1px solid #dee2e6;">
                                             <h5 class="mb-1"
                                                 style="font-size: 1.1rem; color: #495057; font-weight: 600;">
-                                                <i
-                                                    class="mdi mdi-calendar-check me-2"
+                                                <i class="mdi mdi-calendar-check me-2"
                                                     style="color: #6c757d; font-size: 1.2rem;"></i>
                                                 Meilleur Moment pour Investir
                                             </h5>
@@ -559,24 +543,18 @@
 
                                         <div class="card-body px-3 py-3">
                                             <div class="row">
-                                                <div
-                                                    class="col-md-6 d-flex flex-column justify-content-center px-2">
-                                                    <h4
-                                                        class="text-primary mb-0"
-                                                        style="font-size:1.0rem;">{{
+                                                <div class="col-md-6 d-flex flex-column justify-content-center px-2">
+                                                    <h4 class="text-primary mb-0" style="font-size:1.0rem;">{{
                                                         bestMoment.nom_mois
                                                         }}</h4>
                                                 </div>
                                                 <div class="col-md-6 px-2">
                                                     <div class="row g-2">
                                                         <div class="col-6">
-                                                            <p
-                                                                class="text-muted mb-0 small">Solde
+                                                            <p class="text-muted mb-0 small">Solde
                                                                 après
                                                                 investissement</p>
-                                                            <h6
-                                                                class="text-primary mb-1"
-                                                                style="font-size:1rem;">
+                                                            <h6 class="text-primary mb-1" style="font-size:1rem;">
                                                                 {{
                                                                 bestMoment.solde_apres_investissement
                                                                 | currency:'EUR'
@@ -584,22 +562,17 @@
                                                             </h6>
                                                         </div>
                                                         <div class="col-6">
-                                                            <p
-                                                                class="text-muted mb-0 small">Marge
+                                                            <p class="text-muted mb-0 small">Marge
                                                                 de sécurité</p>
-                                                            <h6
-                                                                class="text-info mb-1"
-                                                                style="font-size:1rem;">
+                                                            <h6 class="text-info mb-1" style="font-size:1rem;">
                                                                 {{
                                                                 bestMoment.marge_securite
                                                                 | currency:'EUR'
                                                                 }}
                                                             </h6>
                                                         </div>
-                                                        <div
-                                                            class="col-12 mt-2">
-                                                            <span
-                                                                class="badge"
+                                                        <div class="col-12 mt-2">
+                                                            <span class="badge"
                                                                 [ngClass]="getRiskBadgeClass(bestMoment.risque_niveau)">
                                                                 Risque {{
                                                                 bestMoment.risque_niveau
@@ -616,23 +589,18 @@
                                 <!-- Alternatives -->
                                 <div class="col-lg-4">
                                     <div class="card shadow-sm border-0">
-                                        <div
-                                            class="card-header bg-light py-1 px-2">
-                                            <h6 class="mb-1 fw-semibold"
-                                                style="font-size:1rem;">Alternatives</h6>
+                                        <div class="card-header bg-light py-1 px-2">
+                                            <h6 class="mb-1 fw-semibold" style="font-size:1rem;">Alternatives</h6>
                                         </div>
                                         <div class="card-body p-2">
-                                            <div
-                                                *ngFor="let alt of analysis.analyse.alternatives; let i = index"
+                                            <div *ngFor="let alt of analysis.analyse.alternatives; let i = index"
                                                 class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded shadow-sm"
                                                 style="font-size:0.9rem;">
                                                 <div>
-                                                    <small
-                                                        class="fw-semibold">{{
+                                                    <small class="fw-semibold">{{
                                                         alt.nom_mois
                                                         }}</small><br>
-                                                    <small
-                                                        class="text-muted">Score:
+                                                    <small class="text-muted">Score:
                                                         {{ alt.score_opportunite
                                                         }}/100</small>
                                                 </div>
@@ -642,12 +610,9 @@
                                                 </span>
                                             </div>
 
-                                            <div
-                                                *ngIf="analysis.analyse.alternatives.length === 0"
-                                                class="text-muted text-center py-3"
-                                                style="font-size:0.9rem;">
-                                                <i
-                                                    class="mdi mdi-information-outline fs-4"></i>
+                                            <div *ngIf="analysis.analyse.alternatives.length === 0"
+                                                class="text-muted text-center py-3" style="font-size:0.9rem;">
+                                                <i class="mdi mdi-information-outline fs-4"></i>
                                                 <p class="mb-0 mt-2">Aucune
                                                     alternative disponible</p>
                                             </div>
@@ -657,14 +622,10 @@
                             </div>
 
                             <!-- Recommandations -->
-                            <div
-                                *ngIf="investmentRecommendations$ | async as recommendations"
-                                class="row mb-3">
+                            <div *ngIf="investmentRecommendations$ | async as recommendations" class="row mb-3">
                                 <div class="col-lg-12">
-                                    <h6 class="mb-2 d-flex align-items-center"
-                                        style="font-size:1rem;">
-                                        <i
-                                            class="mdi mdi-lightbulb-on-outline me-2"></i>
+                                    <h6 class="mb-2 d-flex align-items-center" style="font-size:1rem;">
+                                        <i class="mdi mdi-lightbulb-on-outline me-2"></i>
                                         Recommandations
                                     </h6>
                                     <div class="d-flex flex-column gap-2">
@@ -675,12 +636,8 @@
            'recommendation-attention': rec.type === 'ATTENTION',
            'recommendation-recommandation': rec.type === 'RECOMMANDATION',
            'recommendation-info': rec.type === 'INFO'
-         }"
-                                            tabindex="0" role="alert"
-                                            aria-live="polite"
-                                            style="font-size:0.9rem;">
-                                            <i class="mdi me-3 mt-0 fs-5"
-                                                [ngClass]="{
+         }" tabindex="0" role="alert" aria-live="polite" style="font-size:0.9rem;">
+                                            <i class="mdi me-3 mt-0 fs-5" [ngClass]="{
              'mdi-alert-circle-outline': rec.type === 'ALERTE',
              'mdi-information-outline': rec.type === 'ATTENTION' || rec.type === 'INFO',
              'mdi-check-circle-outline': rec.type === 'RECOMMANDATION'
@@ -696,33 +653,24 @@
                             </div>
 
                             <!-- Mois impossibles -->
-                            <div
-                                *ngIf="analysis.analyse.mois_impossibles && analysis.analyse.mois_impossibles.length > 0"
+                            <div *ngIf="analysis.analyse.mois_impossibles && analysis.analyse.mois_impossibles.length > 0"
                                 class="row mt-3">
                                 <div class="col-lg-12">
-                                    <div
-                                        class="p-3 rounded shadow-sm"
-                                        style="
+                                    <div class="p-3 rounded shadow-sm" style="
         background-color: #f8f9fa;  /* gris très clair */
         border: 1px solid #dee2e6;  /* bordure grise douce */
         color: #495057;  /* texte gris foncé */
         font-size: 0.9rem;
       ">
-                                        <h6
-                                            class="mb-2 d-flex align-items-center"
+                                        <h6 class="mb-2 d-flex align-items-center"
                                             style="font-size: 1rem; font-weight: 600; color: #343a40;">
-                                            <i
-                                                class="mdi mdi-calendar-remove me-2 fs-5"
-                                                style="color: #6c757d;"></i>
+                                            <i class="mdi mdi-calendar-remove me-2 fs-5" style="color: #6c757d;"></i>
                                             Mois Impossibles
                                         </h6>
                                         <div class="row g-3">
-                                            <div
-                                                *ngFor="let mois of analysis.analyse.mois_impossibles"
+                                            <div *ngFor="let mois of analysis.analyse.mois_impossibles"
                                                 class="col-md-4">
-                                                <div
-                                                    class="p-2 rounded"
-                                                    style="
+                                                <div class="p-2 rounded" style="
               background-color: #ffffff;  /* blanc */
               border: 1px solid #dee2e6;  /* bordure claire */
               box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
@@ -732,8 +680,7 @@
                                                     <strong>{{ mois.mois
                                                         }}</strong>
                                                     <br />
-                                                    <small class="text-muted"
-                                                        style="color: #6c757d;">
+                                                    <small class="text-muted" style="color: #6c757d;">
                                                         Déficit: {{ mois.deficit
                                                         | currency:'EUR' }}
                                                     </small>
@@ -747,8 +694,7 @@
                         </div>
 
                         <!-- Message si aucune analyse -->
-                        <div *ngIf="!showInvestmentAnalysis"
-                            class="text-center text-muted py-4">
+                        <div *ngIf="!showInvestmentAnalysis" class="text-center text-muted py-4">
                             <i class="mdi mdi-trending-up display-4 mb-3"></i>
                             <h6>Analysez le meilleur moment pour votre
                                 investissement</h6>
@@ -772,8 +718,7 @@
                         Vue synthétique des indicateurs de performance client
                     </p>
                     <div class="row mb-3">
-                        <div
-                            class="col-md-auto d-flex align-items-center gap-3 flex-wrap">
+                        <div class="col-md-auto d-flex align-items-center gap-3 flex-wrap">
                             <div class="d-flex align-items-center">
                                 <span class="badge badge-soft-success me-2">
                                     <i class="bx bxs-check-circle me-1"></i> Bon
@@ -810,14 +755,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr
-                                    *ngFor="let client of paginatedMetrics; let i = index">
+                                <tr *ngFor="let client of paginatedMetrics; let i = index">
                                     <td>{{ client.nom }}</td>
 
                                     <!-- Paiement à temps avec badge + icône + valeur -->
                                     <td>
-                                        <span
-                                            [ngClass]="getBadgeClass(client.tauxPaiementTemps, 'paiement')"
+                                        <span [ngClass]="getBadgeClass(client.tauxPaiementTemps, 'paiement')"
                                             class="ms-2 px-2 py-1">
                                             <i class="me-1 bx" [ngClass]="{
                 'bxs-check-circle': client.tauxPaiementTemps >= 80,
@@ -840,8 +783,7 @@
 
                                     <!-- Score global avec badge + icône + valeur -->
                                     <td>
-                                        <span
-                                            [ngClass]="getBadgeClass(client.scoreGlobal, 'score')"
+                                        <span [ngClass]="getBadgeClass(client.scoreGlobal, 'score')"
                                             class="ms-2 px-2 py-1">
                                             <i class="me-1 bx" [ngClass]="{
                 'bxs-shield': client.scoreGlobal >= 80,
@@ -854,18 +796,14 @@
                                     </td>
                                 </tr>
 
-                                <tr
-                                    *ngIf="(clientMetricsFiltres$ | async)?.length === 0">
-                                    <td colspan="8"
-                                        class="text-center text-muted">Aucun
+                                <tr *ngIf="(clientMetricsFiltres$ | async)?.length === 0">
+                                    <td colspan="8" class="text-center text-muted">Aucun
                                         client trouvé</td>
                                 </tr>
                             </tbody>
                         </table>
                         <!-- Pagination -->
-                        <div
-                            class="row justify-content-between align-items-center mt-3"
-                            *ngIf="totalItems > 0">
+                        <div class="row justify-content-between align-items-center mt-3" *ngIf="totalItems > 0">
                             <div class="col-auto me-auto">
                                 <p class="text-muted mb-0">
                                     Affichage de <b>{{ paginatedMetrics.length
@@ -874,13 +812,9 @@
                                 </p>
                             </div>
                             <div class="col-auto">
-                                <ul
-                                    class="pagination pagination-rounded justify-content-end mb-2">
-                                    <pagination [totalItems]="totalItems"
-                                        [itemsPerPage]="metricsParPage"
-                                        [maxSize]="5"
-                                        [(ngModel)]="page"
-                                        (pageChanged)="pageChanged($event)">
+                                <ul class="pagination pagination-rounded justify-content-end mb-2">
+                                    <pagination [totalItems]="totalItems" [itemsPerPage]="metricsParPage" [maxSize]="5"
+                                        [(ngModel)]="page" (pageChanged)="pageChanged($event)">
                                     </pagination>
                                 </ul>
                             </div>
@@ -891,4 +825,3 @@
             </div>
         </div>
     </div>
-    

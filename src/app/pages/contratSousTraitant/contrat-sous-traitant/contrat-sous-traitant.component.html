@@ -8,8 +8,10 @@
           <div class="d-flex align-items-center">
             <h5 class="mb-0 card-title flex-grow-1">Contrats Lists</h5>
             <div class="flex-shrink-0 d-flex gap-1">
-              <a href="javascript:void(0);" class="btn btn-primary" *ngIf="userRole === 'SOUS_TRAITANT'" (click)="openModal(content)">Add New Contrat</a>
-              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()"><i class="mdi mdi-refresh"></i></a>
+              <a href="javascript:void(0);" class="btn btn-primary" *ngIf="userRole === 'SOUS_TRAITANT'"
+                (click)="openModal(content)">Add New Contrat</a>
+              <a href="javascript:void(0);" class="btn btn-light" (click)="refreshList()"><i
+                  class="mdi mdi-refresh"></i></a>
             </div>
           </div>
         </div>
@@ -46,7 +48,7 @@
             <table class="table align-middle dt-responsive nowrap w-100 table-check" id="job-list">
               <thead>
                 <tr>
-                  <th  *ngIf="userRole === 'ADMINISTRATEUR'">Nom de consultant</th>
+                  <th *ngIf="userRole === 'ADMINISTRATEUR'">Nom de consultant</th>
                   <th scope="col">Tarif Journalier Moyen (TJM)</th>
                   <th scope="col">Date de Début</th>
                   <th scope="col">Date de Fin</th>
@@ -87,7 +89,7 @@
                           (click)="editContrat(contrat, content)"><i class="mdi mdi-pencil-outline"></i></a>
                       </li>
                       <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"
-                      *ngIf="userRole === 'SOUS_TRAITANT' && contrat.statutContrat !== 'CONFIRME_ADMIN'">
+                        *ngIf="userRole === 'SOUS_TRAITANT' && contrat.statutContrat !== 'CONFIRME_ADMIN'">
                         <a href="javascript:void(0);" data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"
                           (click)="deleteContrat(contrat.contratId)"><i class="mdi mdi-delete-outline"></i></a>
                       </li>
@@ -97,22 +99,23 @@
                           <i class="mdi mdi-comment-text-multiple-outline"></i>
                         </a>
                       </li>
-                      <!-- Valider le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                        <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Valider">
-                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-success" (click)="
-                              modifierStatutContrat(contrat, 'CONFIRME_ADMIN')
-                            ">
-                            <i class="mdi mdi-check-circle-outline"></i>
-                          </a>
-                        </li>
+                      <!-- Valider (ouvre la confirmation) -->
+                      <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'"
+                        data-bs-toggle="tooltip" title="Valider">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-success"
+                          (click)="demanderConfirmation(contrat, 'CONFIRME_ADMIN')">
+                          <i class="mdi mdi-check-circle-outline"></i>
+                        </a>
+                      </li>
 
-                        <!-- Rejeter le contrat (affiché uniquement si le statut est "EN_ATTENTE") -->
-                        <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'" data-bs-toggle="tooltip" title="Rejeter">
-                          <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
-                            (click)="modifierStatutContrat(contrat, 'REJETE')">
-                            <i class="mdi mdi-close-circle-outline"></i>
-                          </a>
-                        </li>
+                      <!-- Rejeter (ouvre la confirmation) -->
+                      <li *ngIf="userRole === 'ADMINISTRATEUR' && contrat.statutContrat === 'EN_ATTENTE'"
+                        data-bs-toggle="tooltip" title="Rejeter">
+                        <a href="javascript:void(0);" class="btn btn-sm btn-soft-danger"
+                          (click)="demanderConfirmation(contrat, 'REJETE')">
+                          <i class="mdi mdi-close-circle-outline"></i>
+                        </a>
+                      </li>
                     </ul>
                   </td>
                 </tr>
@@ -136,6 +139,31 @@
         </div>
       </div>
     </div>
+    <ng-template #confirmModal>
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmer l'action</h5>
+        <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">
+          Êtes-vous sûr de vouloir changer le statut de ce contrat
+          (TJM: <b>{{ contratEnCours?.tjm | currency:'EUR' }}</b>,
+          du <b>{{ contratEnCours?.dateDebut | date:'dd/MM/yyyy' }}</b>
+          au <b>{{ contratEnCours?.dateFin | date:'dd/MM/yyyy' }}</b>)
+          en <b>{{ getStatutLabel(nouveauStatutEnCours || '') }}</b> ?
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()" [disabled]="isUpdating">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="confirmerChangementStatut()" [disabled]="isUpdating">
+          Confirmer
+        </button>
+      </div>
+    </ng-template>
 
     <!-- Modal Ajout Contrat -->
     <ng-template #content let-modal>
@@ -170,19 +198,24 @@
             </small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Importer un fichier *</label>
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName"
-                readonly />
-              <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
-              <button type="button" class="btn btn-primary" (click)="fileInput.click()">
-                Importer un fichier
-              </button>
-            </div>
-            <small class="text-danger" *ngIf="!fileSelected">
-              Le fichier est obligatoire.
-            </small>
+          <label class="form-label fw-bold">Importer un fichier *</label>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Aucun fichier sélectionné" [value]="fileName || 'Sélectionnez un fichier...'" readonly />
+            <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" />
+            <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()">
+              <i class="mdi mdi-file-upload"></i> Choisir un fichier
+            </button>
           </div>
+          <!-- Message d'erreur si le fichier n'est pas valide -->
+          <div *ngIf="fileError" class="text-danger small mt-2">
+            ⚠ Format de fichier non valide ! Formats acceptés : PDF, DOC, DOCX, XLS, XLSX.
+          </div>
+          <!-- Aperçu du fichier -->
+          <div *ngIf="fileSelected" class="mt-2 small text-success">
+            ✅ Fichier sélectionné : <strong>{{ fileName }}</strong>
+          </div>
+        </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">

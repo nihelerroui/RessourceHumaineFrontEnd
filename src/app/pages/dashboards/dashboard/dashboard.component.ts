@@ -55,6 +55,7 @@ import * as InvestmentActions from "src/app/store/investment-analysis/investment
 import { selectCriticalMonthData, selectCriticalMonthLoading } from "src/app/store/mois-plus-critique/mois-critique.selectors";
 import { loadCriticalMonth } from "src/app/store/mois-plus-critique/mois-critique.actions";
 import { co } from "@fullcalendar/core/internal-common";
+import { NgForm } from "@angular/forms";
 
 
 @Component({
@@ -652,22 +653,22 @@ export class DashboardComponent implements OnInit {
     return months[monthNumber - 1] || "Inconnu";
 
   }
-  // Nouvelle méthode pour analyser l'investissement
+  
   analyzeInvestment(): void {
-    if (this.investmentAmount && this.investmentAmount > 0) {
-      this.store.dispatch(InvestmentActions.analyzeInvestment({
-        request: {
-          montantInvestissement: this.investmentAmount,
-          seuilSecurite: this.seuilSecurite,
-          societeId: this.selectedSocieteId as number,
-          dateFin: '2025-12-30'
-        }
-      }));
-      this.showInvestmentAnalysis = true;
-    }
-  }
+  if (this.investmentAmount && this.investmentAmount > 0) {
+    const dateFin = `${new Date().getFullYear()}-12-31`; 
 
-  // Méthode pour réinitialiser l'analyse
+    this.store.dispatch(InvestmentActions.analyzeInvestment({
+      request: {
+        montantInvestissement: this.investmentAmount,
+        seuilSecurite: this.seuilSecurite,
+        societeId: this.selectedSocieteId as number,
+        dateFin
+      }
+    }));
+    this.showInvestmentAnalysis = true;
+  }
+}
   clearInvestmentAnalysis(): void {
     this.store.dispatch(InvestmentActions.clearInvestmentAnalysis());
     this.showInvestmentAnalysis = false;
@@ -694,4 +695,24 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+// Empêche e/E/+/− dans les champs numériques (type="number" les autorise sinon)
+preventInvalidKeys(event: KeyboardEvent): void {
+  const invalid = ['e', 'E', '+', '-'];
+  if (invalid.includes(event.key)) {
+    event.preventDefault();
+  }
+}
+
+// Normalise à la sortie du champ (blur) pour éviter les valeurs < min
+normalizeNumber(field: 'investmentAmount' | 'seuilSecurite'): void {
+  const val = Number(this[field]);
+  if (Number.isNaN(val)) return;
+
+  if (field === 'investmentAmount' && val < 1000) {
+    this.investmentAmount = 1000;
+  }
+  if (field === 'seuilSecurite' && val < 0) {
+    this.seuilSecurite = 0;
+  }
+}
 }

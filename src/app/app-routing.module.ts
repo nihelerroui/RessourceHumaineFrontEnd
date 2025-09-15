@@ -33,6 +33,7 @@ const routes: Routes = [
   },
   { path: 'tresorerie', loadChildren: () => import('./pages/tresorerie/tresorerie.module').then(m => m.TresorerieModule) },
   { path: 'tresorerie', loadChildren: () => import('./pages/tresorerie/tresorerie.module').then(m => m.TresorerieModule) },
+  { path: 'token-expire', component: Page404Component },
   { path: "**", component: Page404Component },
 
 ];
