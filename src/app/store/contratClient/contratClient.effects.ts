@@ -81,4 +81,17 @@ export class ContratClientEffects {
     )
   )
 );
+deleteContratClient$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ContratClientActions.deleteContratClient),
+    mergeMap(({ id }) =>
+      this.contratClientService.delete(id).pipe(
+        map(() => ContratClientActions.deleteContratClientSuccess({ id })),
+        catchError((error) =>
+          of(ContratClientActions.deleteContratClientFailure({ error: error?.message || 'Delete failed' }))
+        )
+      )
+    )
+  )
+);
 }

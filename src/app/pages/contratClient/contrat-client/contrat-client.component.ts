@@ -6,11 +6,12 @@ import { map, Observable } from "rxjs";
 import { ContratClient, StatutContrat } from "src/app/models/contratClient.models";
 import { selectAllContratsClient, selectContratsClientLoading } from "../../../store/contratClient/contratClient-selector";
 import { loadContratsClient, updateContratClient } from "src/app/store/contratClient/contratClient.actions";
-import { SafeResourceUrl } from "@angular/platform-browser";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { environment } from "src/environments/environment";
 import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 @Component({
   selector: "app-contrat-client-admin",
@@ -56,7 +57,8 @@ export class ContratClientAdminComponent implements OnInit {
   statutContratValues = Object.values(StatutContrat);
 
 
-  constructor(private modalService: BsModalService, private store: Store) {
+
+  constructor(private modalService: BsModalService, private store: Store, private http: HttpClient,private sanitizer: DomSanitizer) {
     this.contratsClients$ = this.store.select(selectAllContratsClient);
     this.loading$ = this.store.select(selectContratsClientLoading);
   }
@@ -174,19 +176,34 @@ export class ContratClientAdminComponent implements OnInit {
 
     this.store.dispatch(updateContratClient({ contrat: contratModifie }));
   }
+  private openContratPdf(filePath: string, token?: string) {
+  if (!filePath) { console.error('Aucun fichier'); return; }
+
+  // ne garder que le nom du fichier (compat Windows/Linux)
+  const fileName = filePath.split(/[/\\]/).pop()!;
+  const url = `${environment.apiUrl}/contratsClient/fichier/${encodeURIComponent(fileName)}`;
+
+  const headers = token
+    ? new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    : new HttpHeaders();
+
+  this.http.get(url, { headers, responseType: 'blob' }).subscribe({
+    next: (blob) => {
+      const objectUrl = URL.createObjectURL(blob);
+      // Ouvrir dans un nouvel onglet :
+      window.open(objectUrl, '_blank');
+    },
+    error: (err) => console.error('Erreur de lecture du contrat', err)
+  });
+}
 
   visualiserContrat(contrat: ContratClient): void {
-    if (!contrat.filePath) {
-      console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
-      return;
-    }
-
-    const fileName = contrat.filePath.split("\\").pop();
-    const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
-
-    console.log("Ouverture du fichier :", fileUrl);
-    window.open(fileUrl, "_blank");
-  }
+  // récupère ton token applicatif (ex: sessionStorage.currentUser.token)
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  const token = currentUser?.token || currentUser?.accessToken || undefined;
+  this.openContratPdf(contrat.filePath!, token);
+}
+  
 
   ouvrirCommentaireContrat(contrat: ContratClient): void {
     this.modalRef = this.modalService.show(CommentContratComponent, {

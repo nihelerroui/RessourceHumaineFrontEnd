@@ -48,6 +48,21 @@ export const updateContratClientFailure = createAction(
   props<{ error: string }>()
 );
 
+export const deleteContratClient = createAction(
+  '[ContratClient] Delete Contrat',
+  props<{ id: number }>()
+);
+
+export const deleteContratClientSuccess = createAction(
+  '[ContratClient] Delete Contrat Success',
+  props<{ id: number }>()
+);
+
+export const deleteContratClientFailure = createAction(
+  '[ContratClient] Delete Contrat Failure',
+  props<{ error: string }>()
+);
+
 export const loadContratsClientByClientId = createAction(
   "[ContratClient] Load Contrats By Client ID",
   props<{ clientId: number }>()

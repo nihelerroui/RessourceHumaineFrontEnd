@@ -551,14 +551,20 @@
                                                 <div class="col-md-6 px-2">
                                                     <div class="row g-2">
                                                         <div class="col-6">
-                                                            <p class="text-muted mb-0 small">Solde
-                                                                après
-                                                                investissement</p>
+                                                            <p class="text-muted mb-0 small">Solde avant investissement
+                                                            </p>
+                                                            <h6 class="text-secondary mb-1" style="font-size:1rem;">
+                                                                {{ bestMoment.solde_avant_investissement |
+                                                                currency:'EUR' }}
+                                                            </h6>
+                                                        </div>
+
+                                                        <div class="col-6">
+                                                            <p class="text-muted mb-0 small">Solde après investissement
+                                                            </p>
                                                             <h6 class="text-primary mb-1" style="font-size:1rem;">
-                                                                {{
-                                                                bestMoment.solde_apres_investissement
-                                                                | currency:'EUR'
-                                                                }}
+                                                                {{ bestMoment.solde_apres_investissement |
+                                                                currency:'EUR' }}
                                                             </h6>
                                                         </div>
                                                         <div class="col-6">

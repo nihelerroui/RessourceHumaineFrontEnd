@@ -97,5 +97,16 @@ on(ContratClientActions.loadContratsBySocieteAdminFailure, (state, { error }) =>
   ...state,
   loading: false,
   error
-}))
+})),
+on(ContratClientActions.deleteContratClient, (state) => ({ ...state, loading: true })),
+  on(ContratClientActions.deleteContratClientSuccess, (state, { id }) => ({
+    ...state,
+    loading: false,
+    contrats: state.contrats.filter(c => c.contratClientId !== id),
+  })),
+  on(ContratClientActions.deleteContratClientFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  }))
 );

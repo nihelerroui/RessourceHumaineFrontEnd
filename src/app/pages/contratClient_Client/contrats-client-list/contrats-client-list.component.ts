@@ -8,6 +8,8 @@ import { ContratClient, StatutContrat } from "src/app/models/contratClient.model
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { environment } from "src/environments/environment";
 import { CommentContratComponent } from "../../comment-contratClient/comment-contrat-list/comment-contrat.component";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { DomSanitizer } from "@angular/platform-browser";
 
 @Component({
   selector: "app-contrats-client-list",
@@ -42,7 +44,10 @@ export class ContratsClientListComponent implements OnInit {
   // Enum to array
   statutContratValues = Object.values(StatutContrat);
 
-  constructor(private route: ActivatedRoute, private store: Store, private modalService: BsModalService) { }
+  @ViewChild('confirmDeleteModal') confirmDeleteModal!: TemplateRef<any>;
+contratASupprimer: ContratClient | null = null;
+isDeleting = false;
+  constructor(private route: ActivatedRoute, private store: Store, private modalService: BsModalService, private http: HttpClient,private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.initSession();
@@ -92,17 +97,30 @@ export class ContratsClientListComponent implements OnInit {
     this.page = 1;
     this.loadContrats();
   }
-
-  visualiserContrat(contrat: ContratClient): void {
-    if (!contrat.filePath) {
-      console.error("❌ Erreur : Aucun fichier associé à ce contrat !");
-      return;
-    }
-
-    const fileName = contrat.filePath.split("\\").pop();
-    const fileUrl = `${environment.apiUrl}/contratsClient/fichier/${fileName}`;
-    window.open(fileUrl, "_blank");
+  private openContratPdf(filePath: string, token?: string) {
+    if (!filePath) { console.error('Aucun fichier'); return; }
+  
+    // ne garder que le nom du fichier (compat Windows/Linux)
+    const fileName = filePath.split(/[/\\]/).pop()!;
+    const url = `${environment.apiUrl}/contratsClient/fichier/${encodeURIComponent(fileName)}`;
+  
+    const headers = token
+      ? new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      : new HttpHeaders();
+  
+    this.http.get(url, { headers, responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        // Ouvrir dans un nouvel onglet :
+        window.open(objectUrl, '_blank');
+      },
+      error: (err) => console.error('Erreur de lecture du contrat', err)
+    });
   }
+  visualiserContrat(contrat: ContratClient): void {
+  const token = localStorage.getItem('clientToken') || undefined;
+  this.openContratPdf(contrat.filePath!, token);
+}
   ouvrirCommentairesClient(contrat: ContratClient): void {
     const emailClient = contrat.client?.email || 'client@featway.com';
 
@@ -140,5 +158,18 @@ export class ContratsClientListComponent implements OnInit {
     };
     return statutClasses[statut] || "badge bg-secondary";
   }
+  demanderSuppression(contrat: ContratClient) {
+  this.contratASupprimer = contrat;
+  this.modalRef = this.modalService.show(this.confirmDeleteModal, { class: 'modal-sm' });
+}
+
+confirmerSuppression() {
+  if (!this.contratASupprimer?.contratClientId) return;
+  this.isDeleting = true;
+  this.store.dispatch(ContratActions.deleteContratClient({ id: this.contratASupprimer.contratClientId }));
+  this.isDeleting = false;
+  this.modalRef?.hide();
+  this.contratASupprimer = null;
+}
 
 }

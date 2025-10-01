@@ -52,10 +52,8 @@ import { Rentabilite } from 'src/app/models/Rentabilite.model';
 import { MoisOpportunite } from "src/app/core/services/investment-analysis.service";
 import { selectBestInvestmentMoment, selectInvestmentAnalysis, selectInvestmentAnalysisLoading, selectInvestmentRecommendations } from "src/app/store/investment-analysis/investment-analysis.selectors";
 import * as InvestmentActions from "src/app/store/investment-analysis/investment-analysis.actions";
-import { selectCriticalMonthData, selectCriticalMonthLoading } from "src/app/store/mois-plus-critique/mois-critique.selectors";
-import { loadCriticalMonth } from "src/app/store/mois-plus-critique/mois-critique.actions";
-import { co } from "@fullcalendar/core/internal-common";
-import { NgForm } from "@angular/forms";
+import { selectCriticalMonthData } from "src/app/store/mois-plus-critique/mois-critique.selectors";
+
 
 
 @Component({

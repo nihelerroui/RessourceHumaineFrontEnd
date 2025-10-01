@@ -89,11 +89,26 @@
                           <i class="mdi mdi-eye"></i>
                         </a>
                       </li>
-                      <li data-bs-toggle="tooltip" data-bs-placement="top" title="Supprimer le contrat">
-                        <button class="btn btn-sm btn-soft-danger">
+                      <li data-bs-toggle="tooltip" title="Supprimer le contrat">
+                        <button class="btn btn-sm btn-soft-danger" (click)="demanderSuppression(contrat)">
                           <i class="mdi mdi-delete-outline"></i>
                         </button>
                       </li>
+                      <!-- Modal de suppression -->
+                      <ng-template #confirmDeleteModal>
+                        <div class="modal-header">
+                          <h5 class="modal-title">Confirmer la suppression</h5>
+                          <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Supprimer définitivement le contrat <b>{{ contratASupprimer?.designation }}</b> ?</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-sm btn-soft-secondary" (click)="modalRef?.hide()">Annuler</button>
+                          <button class="btn btn-sm btn-soft-danger" (click)="confirmerSuppression()"
+                            [disabled]="isDeleting">Supprimer</button>
+                        </div>
+                      </ng-template>
                       <li data-bs-toggle="tooltip" data-bs-placement="top" title="Éditer le contrat">
                         <button class="btn btn-sm btn-soft-info">
                           <i class="mdi mdi-pencil-outline"></i>

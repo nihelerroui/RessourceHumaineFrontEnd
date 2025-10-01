@@ -107,8 +107,9 @@ export class FactureSousTraitantComponent implements OnInit {
 
   openFacture(filePath: string): void {
     const headers = new HttpHeaders();
+    const newUrl = filePath.replace("/files/", "/files/FilesPFE/");
 
-    this.http.get(filePath, { headers, responseType: "blob" }).subscribe(
+    this.http.get(newUrl, { headers, responseType: "blob" }).subscribe(
       (blob) => {
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl, "_blank");
@@ -122,8 +123,9 @@ export class FactureSousTraitantComponent implements OnInit {
 
   downloadFacture(filePath: string): void {
     const headers = new HttpHeaders();
+    const newUrl = filePath.replace("/files/", "/files/FilesPFE/");
 
-    this.http.get(filePath, { headers, responseType: "blob" }).subscribe(
+    this.http.get(newUrl, { headers, responseType: "blob" }).subscribe(
       (blob) => {
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");

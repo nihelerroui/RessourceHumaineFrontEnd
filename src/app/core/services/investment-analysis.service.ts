@@ -56,21 +56,18 @@ export class InvestmentAnalysisService {
       'Content-Type': 'application/json'
     });
 
-    const params = new URLSearchParams({
-      societeId: societeId?.toString() || '',
-      dateFin: request.dateFin || '2025-12-30'
-    });
-
+    // ✅ Tout dans le body
     const body = {
       montantInvestissement: request.montantInvestissement,
-      seuilSecurite: request.seuilSecurite || 5000
+      seuilSecurite: request.seuilSecurite || 5000,
+      societeId: societeId,
+      dateFin: request.dateFin || '2025-12-30'
     };
 
     return this.http.post<InvestmentAnalysisResponse>(
-      `${this.pythonUrl}/analyser-investissement?${params}`,
+      `${this.pythonUrl}/analyser-investissement`,
       body,
       { headers }
     );
   }
-
 }

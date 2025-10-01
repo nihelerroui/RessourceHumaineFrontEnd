@@ -12,6 +12,7 @@ import { EffectsModule } from "@ngrx/effects";
 import { contratClientReducer } from "src/app/store/contratClient/contratClient.reducer";
 import { ContratClientEffects } from "src/app/store/contratClient/contratClient.effects";
 import { ContratsClientListComponent } from "./contrats-client-list/contrats-client-list.component";
+import { HttpClientModule } from "@angular/common/http";
 
 const routes: Routes = [
   {
@@ -26,6 +27,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     FormsModule,
+    HttpClientModule,
     UIModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
