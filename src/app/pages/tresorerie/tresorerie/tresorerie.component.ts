@@ -58,7 +58,7 @@ export class TresorerieComponent implements OnInit {
       { label: "Suivi Trésorerie Bancaire", active: true },
     ];
 
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     this.selectedSocieteId = currentUser?.societe?.societeId;
     this.role = currentUser?.user?.role || "";
 

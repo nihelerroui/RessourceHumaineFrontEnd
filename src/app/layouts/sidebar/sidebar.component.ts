@@ -48,7 +48,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-  const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
   this.userRole = user?.user?.role;
 
   // filtre les menus selon le rôle

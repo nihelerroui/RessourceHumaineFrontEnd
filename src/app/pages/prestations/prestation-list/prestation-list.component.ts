@@ -76,7 +76,7 @@ export class PrestationListComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.connectedConsultantId = currentUser.consultantId;
     this.consultantSocieteId = currentUser.societe?.societeId;

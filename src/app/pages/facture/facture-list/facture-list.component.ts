@@ -78,7 +78,7 @@ export class FactureListComponent implements OnInit {
     ];
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
     
@@ -323,7 +323,7 @@ export class FactureListComponent implements OnInit {
 
   openFacture(filePath: string): void {
     const fileName = this.getFileName(filePath);
-    const token = sessionStorage.getItem("accessToken"); 
+    const token = localStorage.getItem("accessToken"); 
     const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=inline`;
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
@@ -361,7 +361,7 @@ export class FactureListComponent implements OnInit {
 
     const fileName = this.getFileName(filePath);
     const fileUrl = `${environment.apiUrl}/facturesAchats/files/${fileName}?disposition=attachment`;
-    const token = sessionStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken");
 
     const headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
 

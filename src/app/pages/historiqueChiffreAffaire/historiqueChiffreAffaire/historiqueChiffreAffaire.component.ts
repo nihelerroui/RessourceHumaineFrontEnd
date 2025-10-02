@@ -42,7 +42,7 @@ export class HistoriqueChiffreAffaireComponent implements OnInit {
   constructor(private store: Store) { }
 
   ngOnInit(): void {
-    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     this.consultantSocieteId = user?.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
     this.role = user?.role;

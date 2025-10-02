@@ -163,7 +163,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     if (currentUser && currentUser.user) {
       this.currentUserNom = currentUser.fullName || 'Utilisateur';

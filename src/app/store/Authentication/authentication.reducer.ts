@@ -5,6 +5,7 @@ import { Consultant } from "src/app/models/consultant.models";
 import { PersonalDetails } from "src/app/models/PersonalDetails.model";
 import { Societe } from "src/app/models/societe.model";
 import { AdminSociete } from "src/app/models/adminSociete.model";
+import * as consultantActions from "src/app/store/consultant/consultant.actions";
 
 export interface AuthenticationState {
   consultants: Consultant[];
@@ -113,6 +114,8 @@ export const authenticationReducer = createReducer(
     loading: false,
   })),
 
+  on(AuthActions.login, (state) => ({ ...state, error: null })),
+  on(AuthActions.loginSuccess, (state, { user }) => ({ ...state, isLoggedIn: true, user, error: null, })),
   on(AuthActions.loginFailure, (state, { error }) => ({ ...state, error })),
   on(AuthActions.logout, (state) => ({ ...state, user: null })),
 
@@ -200,6 +203,17 @@ on(AuthActions.updatePersonalDetailsWithFilesSuccess, (state, { personalDetails 
   })),
 
   on(AuthActions.loadUserImageFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false
+  })),
+  on(consultantActions.loadConsultantByMail, state => ({ ...state, loading: true })),
+  on(consultantActions.loadConsultantByMailSuccess, (state, { consultant }) => ({
+    ...state,
+    consultant,
+    loading: false
+  })),
+  on(consultantActions.loadConsultantByMailFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false

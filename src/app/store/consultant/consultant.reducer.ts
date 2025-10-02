@@ -28,5 +28,16 @@ export const consultantReducer = createReducer(
     ...state,
     error,
     loading: false
+  })),
+  on(ConsultantActions.loadConsultantByMail, state => ({ ...state, loading: true })),
+  on(ConsultantActions.loadConsultantByMailSuccess, (state, { consultant }) => ({
+    ...state,
+    consultant,
+    loading: false
+  })),
+  on(ConsultantActions.loadConsultantByMailFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false
   }))
 );

@@ -47,7 +47,7 @@ export class InvestmentAnalysisService {
   }
 
   analyzeInvestment(request: InvestmentAnalysisRequest): Observable<InvestmentAnalysisResponse> {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const token = currentUser.token;
     const societeId = currentUser.societe?.societeId;
 

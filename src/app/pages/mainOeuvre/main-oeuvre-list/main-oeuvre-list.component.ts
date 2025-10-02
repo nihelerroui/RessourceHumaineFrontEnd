@@ -54,7 +54,7 @@ export class MainOeuvreListComponent implements OnInit {
     this.store.dispatch(AuthActions.loadAdminSocietes());
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
     this.societeId = currentUser.societe?.societeId;

@@ -83,18 +83,11 @@ export const updateConsultantFailure = createAction(
 
 
 
-export const login = createAction(
-  '[Authentication] Login', 
-  props<{ email: string, password: string }>()
-);
-export const loginSuccess = createAction(
-  '[Authentication] Login Success', 
-  props<{ user: any }>()
-);
-export const loginFailure = createAction(
-  '[Authentication] Login Failure', 
-  props<{ error: any }>()
-);
+// login action
+export const login = createAction('[Authentication] Login', props<{ email: string, password: string }>());
+export const loginSuccess = createAction('[Authentication] Login Success', props<{ user: any,email:string }>());
+export const loginFailure = createAction('[Authentication] Login Failure', props<{ error: any }>());
+
 
 export const logout = createAction(
   '[Authentication] Logout');

@@ -38,7 +38,7 @@ export class HistoriqueMainOeuvreListComponent implements OnInit {
     ];
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
 

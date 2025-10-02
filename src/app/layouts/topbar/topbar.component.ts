@@ -117,7 +117,7 @@ export class TopbarComponent implements OnInit {
 
   loadUserData() {
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     if (currentUser && currentUser.fullName) {
       this.userName = currentUser.fullName;

@@ -48,15 +48,6 @@ import { SocieteEffects } from "./store/societe/societe.effects";
 import { societeReducer } from "./store/societe/societe.reducer";
 
 
-
-
-if (environment.defaultauth === "firebase") {
-  initFirebaseBackend(environment.firebaseConfig);
-} else {
-  // tslint:disable-next-line: no-unused-expression
-  FakeBackendInterceptor;
-}
-
 export function createTranslateLoader(http: HttpClient): any {
   return new TranslateHttpLoader(http, "assets/i18n/", ".json");
 }
@@ -100,9 +91,9 @@ EffectsModule.forFeature([SocieteEffects]),
   ],
   bootstrap: [AppComponent],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    //{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    //{ provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
 })
 export class AppModule {}

@@ -60,7 +60,7 @@ export class TresorieComponent implements OnInit {
     ];
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.role = currentUser?.user?.role || "";

@@ -10,18 +10,18 @@ export class TokenStorageService {
   constructor() {}
 
   signOut(): void {
-    window.sessionStorage.clear();
+    window.localStorage.clear();
   }
 
   public saveToken(token: string): void {
-    window.sessionStorage.removeItem(TOKEN_KEY);
-    window.sessionStorage.setItem(TOKEN_KEY, token);
+    window.localStorage.removeItem(TOKEN_KEY);
+    window.localStorage.setItem(TOKEN_KEY, token);
   }
 
   public getToken(isExcludedRoute: boolean): string | null {
     const clientToken = localStorage.getItem("clientToken");
-    const authToken = sessionStorage.getItem("auth-token");
-
+    const authToken = localStorage.getItem("token");
+console.log('authToken dans token storage', authToken); 
     if (isExcludedRoute) {
       if (clientToken && clientToken !== "null") {
         return clientToken;
@@ -36,12 +36,12 @@ export class TokenStorageService {
   }
 
   public saveUser(user: any): void {
-    window.sessionStorage.removeItem(USER_KEY);
-    window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    window.localStorage.removeItem(USER_KEY);
+    window.localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   public getUser(): any {
-    const user = window.sessionStorage.getItem(USER_KEY);
+    const user = window.localStorage.getItem(USER_KEY);
 
     if (user) {
       return JSON.parse(user);

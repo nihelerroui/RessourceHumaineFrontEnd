@@ -65,7 +65,7 @@ export class ClientListComponent implements OnInit {
     ];
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = Number(this.consultantSocieteId);

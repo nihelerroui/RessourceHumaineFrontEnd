@@ -76,7 +76,7 @@ export class UtilisateurdetailviewComponent implements OnInit {
   viewFile(folder: string, filename: string): void {
   if (!folder || !filename) return;
 
-  const token = sessionStorage.getItem('auth-token');
+  const token = localStorage.getItem('token');
   const url = `${environment.apiUrl}/auth/files/${folder}/${encodeURIComponent(filename)}`;
 
   fetch(url, {

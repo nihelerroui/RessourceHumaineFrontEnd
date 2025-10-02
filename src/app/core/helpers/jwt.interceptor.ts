@@ -20,10 +20,10 @@ export class JwtInterceptor implements HttpInterceptor {
         let token = null;
 
         if (environment.defaultauth === 'firebase') {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             token = currentUser?.token;
         } else {
-            token = sessionStorage.getItem('auth-token');
+            token = localStorage.getItem('token');
         }
 
         if (token) {

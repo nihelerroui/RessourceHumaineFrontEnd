@@ -50,11 +50,11 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
     this.comments$ = this.store.select(selectCommentairesByFactureId(this.factureId));
 
     if (!this.isClientMode) {
-      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
       this.currentUserEmail = currentUser?.user?.email || 'Admin inconnu';
       this.role=currentUser.user?.role;
     }
-    const user = JSON.parse(sessionStorage.getItem("currentUser") || '{}');
+    const user = JSON.parse(localStorage.getItem("currentUser") || '{}');
   this.readOnlyMode = user?.user?.role === 'RESPONSABLE_FINANCIER';
 
   }
@@ -84,7 +84,7 @@ export class CommentModalComponent implements OnInit, AfterViewInit {
       commentaire.auteurCommentaire = this.currentUserEmail || 'Client inconnu';
       this.store.dispatch(FactureActions.addCommentClient({ commentaire, token: this.token }));
     } else {
-      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
       commentaire.auteurCommentaire = currentUser?.user?.email || 'Admin inconnu';
       this.store.dispatch(FactureActions.addCommentaireFactureClient({ commentaire }));
     }

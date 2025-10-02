@@ -57,7 +57,7 @@ export class FactureSousTraitantComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.consultantId = currentUser.consultantId;
     this.role = currentUser.user?.role || "";

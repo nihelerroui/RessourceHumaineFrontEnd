@@ -68,7 +68,7 @@ export class ContratSousTraitantComponent implements OnInit {
     this.contrats$ = this.store.select(selectAllContracts);
   }
   ngOnInit(): void {
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     this.userRole = currentUser.user.role;
     this.connectedConsultantId = currentUser.consultantId || 0;
 
@@ -309,7 +309,7 @@ export class ContratSousTraitantComponent implements OnInit {
   }
 
   ouvrirCommentaireContrat(contrat: ContratSousTraitant): void {
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     const emailSousTraitant = currentUser?.user?.email || 'consultant@featway.com';
 
     this.modalRef = this.modalService.show(CommentContratSTComponent, {

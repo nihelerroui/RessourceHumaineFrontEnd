@@ -1,41 +1,74 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';  
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { Observable, throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
+import { environment } from "src/environments/environment";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class GenericService<T> {
-
-    protected apiUrl: string;
+  protected apiUrl: string;
 
   constructor(protected http: HttpClient, protected endpoint: string) {
-    this.apiUrl = `${environment.apiUrl}/${endpoint}`;
+    this.apiUrl = `${environment.baseUrl}/${endpoint}`;
   }
 
-  // Generic method to get all data from an endpoint
   getAll(): Observable<T[]> {
-    return this.http.get<T[]>(this.apiUrl);
+    console.error(this.apiUrl);
+    return this.http.get<any[]>(this.apiUrl).pipe(catchError(this.handleError));
   }
 
-  // Generic method to get a single record by ID
-  getById(id: number): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${id}`);
+  getOne(id: number): Observable<T> {
+    return this.http
+      .get<T>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
-  // Generic method to create a new record
-  create(data: T): Observable<T> {
-    return this.http.post<T>(this.apiUrl, data);
+  create(item: T): Observable<T> {
+    return this.http
+      .post<T>(this.apiUrl, item)
+      .pipe(catchError(this.handleError));
   }
 
-  // Generic method to update a record by ID
-  update(data: T): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}`, data);
+  update(item: T): Observable<T> {
+    return this.http
+      .put<T>(`${this.apiUrl}`, item)
+      .pipe(catchError(this.handleError));
   }
 
-  // Generic method to delete a record by ID
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: number): Observable<string> {
+    return this.http
+      .delete(`${this.apiUrl}/${id}`, {responseType: 'text'})
+      .pipe(catchError(this.handleError));
+  }
+
+  getBySocieteByConsultant(adminId: number, isCommercial?:boolean): Observable<T[]> {
+    if (isCommercial === true) { 
+      return this.http
+      .get<T[]>(`${this.apiUrl}/commercial/${adminId}`)
+      .pipe(catchError(this.handleError));
+    } else {
+      return this.http
+      .get<T[]>(`${this.apiUrl}/getbysocietebyconsultant/${adminId}`)
+      .pipe(catchError(this.handleError));  
+    }
+    
+  }
+
+  getByAdminId(adminId: number): Observable<T[]> {
+    return this.http
+      .get<T[]>(`${this.apiUrl}/admin/${adminId}`)
+      .pipe(catchError(this.handleError));
+  }
+  protected handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error("An error occurred:", error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, body was: ${error.error}`
+      );
+    }
+    return throwError("Something bad happened; please try again later.");
   }
 }

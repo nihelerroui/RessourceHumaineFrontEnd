@@ -18,8 +18,9 @@ import { TokenStorageService } from "src/app/core/services/token-storage.service
 import { Consultant } from "src/app/models/consultant.models";
 import { selectSocieteList } from "../societe/societe.selectors";
 import { Store } from "@ngrx/store";
-import { AdminSociete } from "src/app/models/adminSociete.model";
-import { Societe } from "src/app/models/societe.model";
+import * as ConsultantActions from "../consultant/consultant.actions";
+import {LoginRequest } from "src/app/models/loginRequest.model";
+import { ConsultantService } from "src/app/core/services/consultant.service";
 
 @Injectable()
 export class AuthenticationEffects {
@@ -28,7 +29,8 @@ export class AuthenticationEffects {
     private AuthenticationService: AuthenticationService,
     private tokenStorage: TokenStorageService,
     private router: Router,
-    private store: Store
+    private store: Store,
+    private consultantService:ConsultantService
   ) {}
 
   createUser$ = createEffect(() =>
@@ -120,39 +122,70 @@ export class AuthenticationEffects {
     )
   );
 
+
+ 
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
-      exhaustMap(({ email, password }) =>
-        this.AuthenticationService.login({ email, password }).pipe(
-          tap((response) => {
-            const token = response.accessToken;
-            const consultant = {
-              ...response.consultant,
-              token 
-            };
-            this.tokenStorage.saveToken(token);
-            this.tokenStorage.saveUser(consultant);
+      exhaustMap(({ email, password }) => {
+        const signinRequest = new LoginRequest({
+          email,
+          password,
+        });
+        return this.AuthenticationService.signin(signinRequest).pipe(
+          map((user) => {
+            if (user) {
+              localStorage.setItem("currentUser", JSON.stringify(user));
+              localStorage.setItem("token", user.token);
+            }
 
-            const returnUrl = sessionStorage.getItem("returnUrl") || "/";
-            this.router.navigateByUrl(returnUrl);
-            sessionStorage.removeItem("returnUrl");
+            return AuthActions.loginSuccess({ user, email });
           }),
-          map((response) =>
-            AuthActions.loginSuccess({ user: response.consultant.user })
-          ),
-          catchError((error) =>
-            of(
-              AuthActions.loginFailure({
-                error: error.message || "Erreur lors de la connexion",
-              })
-            )
+          catchError(
+            (error) => of(AuthActions.loginFailure({ error })) // Closing parenthesis added here
           )
-        )
-      )
+        );
+      })
     )
   );
 
+  loginSuccess$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loginSuccess),
+      tap((action) => console.log("test", JSON.stringify(action))),
+      switchMap((action) => [
+        ConsultantActions.loadConsultantByMail({ email: action.email }),
+      ])
+    )
+  );
+  loadConsultantByMail$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(ConsultantActions.loadConsultantByMail),
+    mergeMap((action) =>
+      this.consultantService.getConsultantByMail(action.email).pipe(
+        map((consultant) =>
+          ConsultantActions.loadConsultantByMailSuccess({ consultant })
+        ),
+        catchError((error) =>
+          of(ConsultantActions.loadConsultantByMailFailure({ error }))
+        )
+      )
+    )
+  )
+);
+redirectAfterLoadConsultant$ = createEffect(
+  () =>
+    this.actions$.pipe(
+      ofType(ConsultantActions.loadConsultantByMailSuccess),
+      tap(() => 
+      {const returnUrl = sessionStorage.getItem("returnUrl") || "/";
+      this.router.navigateByUrl(returnUrl);
+      sessionStorage.removeItem("returnUrl");}
+      
+      )
+    ),
+  { dispatch: false }
+);
   logout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logout),

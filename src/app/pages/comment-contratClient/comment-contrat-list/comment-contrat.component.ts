@@ -44,7 +44,7 @@ export class CommentContratComponent implements OnInit, AfterViewInit {
     this.isLoading$ = this.store.select(selectLoadingCommentairesContratClient);
     this.comments$ = this.store.select(selectCommentairesByContratClientId(this.contratClientId));
     this.loadCommentaires();
-    const user = JSON.parse(sessionStorage.getItem("currentUser") || '{}');
+    const user = JSON.parse(localStorage.getItem("currentUser") || '{}');
   this.readOnlyMode = user?.user?.role === 'RESPONSABLE_FINANCIER';
   }
   

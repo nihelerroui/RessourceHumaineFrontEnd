@@ -56,7 +56,7 @@ export class FactureClientCreateComponent implements OnInit {
   this.isEditMode = !!this.factureClientId;
 
   // Récupération de l'utilisateur connecté
-  const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
   this.consultantId = currentUser.consultantId;
   this.consultantSocieteId = currentUser.societe?.societeId;
   this.selectedSocieteId = this.consultantSocieteId;

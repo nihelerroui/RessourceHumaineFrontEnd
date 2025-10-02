@@ -29,7 +29,7 @@ export class ProfileViewComponent implements OnInit {
       { label: "Profile", active: true },
     ];
 
-    const stored = sessionStorage.getItem("currentUser");
+    const stored = localStorage.getItem("currentUser");
     if (stored) {
       this.consultant = JSON.parse(stored);
 
@@ -138,7 +138,7 @@ export class ProfileViewComponent implements OnInit {
   viewFile(folder: string, filename: string): void {
     if (!folder || !filename) return;
 
-    const token = sessionStorage.getItem("auth-token");
+    const token = localStorage.getItem("token");
     const url = `${
       environment.apiUrl
     }/auth/files/${folder}/${encodeURIComponent(filename)}`;

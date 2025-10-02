@@ -1,25 +1,36 @@
 import { Injectable } from "@angular/core";
 import { ProfileUpdateRequest, User } from "src/app/models/auth.models";
-import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
+import { BehaviorSubject, catchError, map, Observable, of, throwError } from "rxjs";
 import { environment } from "src/environments/environment";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { GenericService } from "./generic.service";
 import { LoginRequest } from "src/app/models/loginRequest.model";
 import { Consultant } from "src/app/models/consultant.models";
 import { PersonalDetails } from "src/app/models/PersonalDetails.model";
+import { JwtResponse } from "src/app/models/jwt-authentication-response";
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService extends GenericService<User> {
   private authUrl = `${environment.apiUrl}/auth`;
   private baseUrl = `${environment.apiUrl}`;
+  private baseUrlDev = `${environment.baseUrl}`;
 
   constructor(protected http: HttpClient) {
     super(http, "");
   }
 
-  login(credentials: LoginRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/auth/login`, credentials);
+  signup(request: LoginRequest): Observable<JwtResponse> {
+    return this.http
+      .post<JwtResponse>(`${this.apiUrl}/v1/auth/signup`, request)
+      .pipe(catchError(this.handleError));
   }
+
+  signin(request: LoginRequest): Observable<JwtResponse> {
+    return this.http
+      .post<JwtResponse>(`${this.baseUrlDev}/v1/auth/signin`, request)
+      .pipe(catchError(this.handleError));
+  }
+
 
   createUser(userDTO: any): Observable<User> {
     return this.http.post<User>(`${this.authUrl}/createUser`, userDTO);
@@ -101,13 +112,13 @@ export class AuthenticationService extends GenericService<User> {
   }
 
   logout() {
-    sessionStorage.removeItem("auth-token");
-    sessionStorage.removeItem("currentUser");
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
     window.location.href = "/auth/login";
   }
 
   getUser(): Observable<any> {
-    const token = sessionStorage.getItem("currentUserToken");
+    const token = localStorage.getItem("currentUserToken");
     const headers = token
       ? new HttpHeaders({ Authorization: `Bearer ${token}` })
       : undefined;
@@ -141,7 +152,6 @@ export class AuthenticationService extends GenericService<User> {
     );
   }
 
-
    forgotPassword(email: string): Observable<any> {
     return this.http.post(`${this.authUrl}/forgot-password`, { email });
   }
@@ -154,13 +164,13 @@ export class AuthenticationService extends GenericService<User> {
   }
 
    getUserImage(): Promise<string | null> {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const filename = currentUser?.personalDetails?.photo;
     if (!filename) return Promise.resolve(null);
 
     const cleanFilename = filename.split('/').pop();
     const url = `${this.authUrl}/files/photo/${encodeURIComponent(cleanFilename)}`;
-    const token = sessionStorage.getItem('auth-token');
+    const token = localStorage.getItem('token');
 
     return fetch(url, {
       headers: { Authorization: `Bearer ${token}` }

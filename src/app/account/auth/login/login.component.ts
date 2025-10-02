@@ -66,13 +66,13 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    const email = this.f["email"].value; // Get the username from the form
-    const password = this.f["password"].value; // Get the password from the form
+    const email = this.f['email'].value; // Get the username from the form
+    const password = this.f['password'].value; // Get the password from the form
 
     this.returnUrl = this.route.snapshot.queryParams["returnUrl"] || "/";
     sessionStorage.setItem("returnUrl", this.returnUrl);
 
-    this.store.dispatch(login({ email, password }));
+    this.store.dispatch(login({ email: email, password: password }));
   }
 
   /**

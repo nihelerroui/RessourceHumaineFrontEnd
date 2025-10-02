@@ -53,7 +53,7 @@ export class PaysListComponent implements OnInit {
     ];
 
     const currentUser = JSON.parse(
-      sessionStorage.getItem("currentUser") || "{}"
+      localStorage.getItem("currentUser") || "{}"
     );
     this.role = currentUser?.user?.role || "";
 

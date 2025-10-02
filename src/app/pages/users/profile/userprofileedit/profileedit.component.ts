@@ -57,7 +57,7 @@ export class ProfileEditComponent implements OnInit {
       { label: "Modifier Profile", active: true },
     ];
 
-    const data = sessionStorage.getItem("currentUser");
+    const data = localStorage.getItem("currentUser");
     if (!data) {
       this.router.navigate(["/login"]);
       return;
@@ -175,7 +175,7 @@ export class ProfileEditComponent implements OnInit {
           personalDetails: updatedDetails,
         };
 
-        sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
         this.loading = false;
         this.router.navigate(["/profile"]);

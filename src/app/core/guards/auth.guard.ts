@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 // Auth Services
 import { TokenStorageService } from '../services/token-storage.service';
@@ -16,25 +17,23 @@ export class AuthGuard implements CanActivate {
   const isExcluded = excludedRoutes.some(path => state.url.includes(path));
   const token = this.tokenStorage.getToken(isExcluded);
 
-  const user = this.tokenStorage.getUser();
+  if (environment.defaultauth === 'firebase') {
+    const url: string = state.url;  
+        if (url.includes('/cra/ValidCras')||url.includes('/skote/cra/ValidCras'))
+         {       return true; 
+         }
 
-  if (isExcluded || !token) {
-    return isExcluded;
-  }
-   if (user && user.user.enabled === false) {
-  this.router.navigate(['/auth/login'], { queryParams: { error: 'Votre compte est désactivé. Veuillez contacter l’administrateur.' } });
-  return false;
+} else {
+        if (isExcluded)
+         {       return true; 
+         }
+    if (localStorage.getItem('currentUser')) {
+        return true;
+    }
+}
+this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+return false;
+}
+  
 }
 
-  const expectedRoles = route.data['roles'] as Array<string>; 
-  const userRole = this.tokenStorage.getRole();
-
-  if (!expectedRoles || expectedRoles.includes(userRole)) {
-    return true;
-  }
-
-  this.router.navigate(['/unauthorized']);
-  return false;
-}
-
-}

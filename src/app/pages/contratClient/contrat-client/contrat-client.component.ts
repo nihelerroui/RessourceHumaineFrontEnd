@@ -66,7 +66,7 @@ export class ContratClientAdminComponent implements OnInit {
 
 
   ngOnInit(): void {
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser") || "{}");
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     this.currentUserEmail = currentUser.user.email || '';
     this.consultantSocieteId = currentUser.societe?.societeId;
     this.selectedSocieteId = this.consultantSocieteId;
