@@ -30,6 +30,19 @@ export class AuthenticationService extends GenericService<User> {
       .post<JwtResponse>(`${this.baseUrlDev}/v1/auth/signin`, request)
       .pipe(catchError(this.handleError));
   }
+  getConnectedConsultant(): Consultant | null {
+    const consultantJson = localStorage.getItem('consultant');
+    if (consultantJson) {
+      try {
+        const consultant: Consultant = JSON.parse(consultantJson);
+        return consultant;
+      } catch (e) {
+        console.error('Failed to parse consultant from localStorage', e);
+        return null;
+      }
+    }
+    return null;
+  }
 
 
   createUser(userDTO: any): Observable<User> {

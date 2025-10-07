@@ -16,10 +16,7 @@ export class ConsultantService extends GenericServiceExternalAPIService<Consulta
   constructor(protected override http: HttpClient) {
     super(http, "consultant"); }
 
-  getBySocieteByConsultant(id: number): Observable<any[]> {
-    const headers = new HttpHeaders();
-    return this.http.get<any[]>(`${environment.baseUrl}/consultant/getbysocietebyconsultantPFE/141`, { headers });
-  }
+ 
   getConsultantByMail(email: string): Observable<Consultant> {
     return this.http
       .get<Consultant>(`${this.apiUrl}/email?email=${email}`)

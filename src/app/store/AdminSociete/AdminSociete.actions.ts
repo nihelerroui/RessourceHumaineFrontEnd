@@ -1,7 +1,5 @@
 import { createAction, props } from '@ngrx/store';
 import { Societe } from 'src/app/models/societe.model';
-import { Consultant } from 'src/app/models/consultant.model';
-import { AdminSociete } from 'src/app/models/adminSociete.model';
 
 
 export const loadSocietesByAdmin = createAction(

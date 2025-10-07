@@ -6,12 +6,11 @@ import {
   Validators,
   AbstractControl,
 } from "@angular/forms";
-import { User } from "src/app/models/auth.models";
+import { Users } from "src/app/models/Users.model";
 import { Store } from "@ngrx/store";
 import * as AuthActions from "src/app/store/Authentication/authentication.actions";
 import { Actions, ofType } from "@ngrx/effects";
 import Swal from "sweetalert2";
-import { UserRole } from "src/app/models/userRole.enum";
 import { AuthenticationService } from "src/app/core/services/auth.service";
 import { Consultant } from "src/app/models/consultant.models";
 import { selectAllSocietes } from "src/app/store/Authentication/authentication-selector";
@@ -29,7 +28,7 @@ export class UtilisateurregisterviewComponent implements OnInit {
   userForm: FormGroup;
   consultantForm: FormGroup;
   personalDetailsForm: FormGroup;
-  roles = Object.values(UserRole);
+  //roles = Object.values(UserRole);
   passwordStrength = 0;
   isSubmitting = false;
 
@@ -46,20 +45,20 @@ export class UtilisateurregisterviewComponent implements OnInit {
   photoFile: File | null = null;
   ribFile: File | null = null;
 
-  roleDescriptions = {
-    [UserRole.ADMINISTRATEUR]:
-      "Accès complet au système avec tous les privilèges administratifs",
-    [UserRole.RESPONSABLE_FINANCIER]:
-      "Gestion des aspects financiers et comptables",
-    [UserRole.SOUS_TRAITANT]:
-      "Accès limité aux fonctionnalités spécifiques aux sous-traitants",
-  };
+  // roleDescriptions = {
+  //   [UserRole.ADMINISTRATEUR]:
+  //     "Accès complet au système avec tous les privilèges administratifs",
+  //   [UserRole.RESPONSABLE_FINANCIER]:
+  //     "Gestion des aspects financiers et comptables",
+  //   [UserRole.SOUS_TRAITANT]:
+  //     "Accès limité aux fonctionnalités spécifiques aux sous-traitants",
+  // };
 
-  roleIcons = {
-    [UserRole.ADMINISTRATEUR]: "fa-user-shield",
-    [UserRole.RESPONSABLE_FINANCIER]: "fa-chart-line",
-    [UserRole.SOUS_TRAITANT]: "fa-user-cog",
-  };
+  // roleIcons = {
+  //   [UserRole.ADMINISTRATEUR]: "fa-user-shield",
+  //   [UserRole.RESPONSABLE_FINANCIER]: "fa-chart-line",
+  //   [UserRole.SOUS_TRAITANT]: "fa-user-cog",
+  // };
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -80,10 +79,10 @@ export class UtilisateurregisterviewComponent implements OnInit {
 
     if (this.mode === "edit" && this.consultant) {
       this.totalSteps = 3;
-      this.patchFormWithUser(this.consultant.user);
+      this.patchFormWithUser(this.consultant.users);
       this.patchFormWithConsultant(this.consultant);
       this.personalDetailsForm.patchValue(this.consultant.personalDetails);
-      this.userIdCreated = this.consultant.user.userId;
+      this.userIdCreated = this.consultant.users.usersId;
       this.personalDetailsIdCreated =
         this.consultant.personalDetails?.personalDetailsId;
     }
@@ -163,19 +162,19 @@ export class UtilisateurregisterviewComponent implements OnInit {
     });
   }
 
-  patchFormWithUser(user: User): void {
+  patchFormWithUser(user: Users): void {
     this.userForm.patchValue({
-      email: user.email,
+      email: user.mail,
       password: "********",
       confirmPassword: "********",
-      role: user.role,
+      role: user.roles,
     });
   }
 
   patchFormWithConsultant(consultant: Consultant): void {
     this.consultantForm.patchValue({
       fullName: consultant.fullName,
-      name: consultant.name,
+      name: consultant.nom,
       prenom: consultant.prenom,
       telephone: consultant.telephone,
       typeLibelle: consultant.typeLibelle,
@@ -249,7 +248,7 @@ export class UtilisateurregisterviewComponent implements OnInit {
       };
 
       if (this.mode === "edit" && this.consultant) {
-        const userId = this.consultant.user.userId;
+        const userId = this.consultant.users.usersId;
         this.store.dispatch(
           AuthActions.updateUser({ userId, request: userRequest })
         );
@@ -316,7 +315,7 @@ export class UtilisateurregisterviewComponent implements OnInit {
   if (this.mode === 'edit') {
     this.store.dispatch(
       AuthActions.updateUser({
-        userId: this.consultant.user.userId,
+        userId: this.consultant.users.usersId,
         request: userRequest,
       })
     );

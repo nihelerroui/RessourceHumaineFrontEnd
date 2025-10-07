@@ -12,10 +12,14 @@ export class ConsultantEffects {
   loadConsultantsBySociete$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConsultantActions.loadConsultantsBySociete),
-      mergeMap(action =>
-        this.consultantService.getBySocieteByConsultant(action.consultantId).pipe(
-          map(consultants => ConsultantActions.loadConsultantsBySocieteSuccess({ consultants })),
-          catchError(error => of(ConsultantActions.loadConsultantsBySocieteFailure({ error })))
+      mergeMap((action) =>
+        this.consultantService.getBySocieteByConsultant(action.adminId).pipe(
+          map((consultants) =>
+            ConsultantActions.loadConsultantsBySocieteSuccess({ consultants })
+          ),
+          catchError((error) =>
+            of(ConsultantActions.loadConsultantsBySocieteFailure({ error }))
+          )
         )
       )
     )

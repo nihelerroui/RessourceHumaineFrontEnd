@@ -87,7 +87,7 @@ export class PrestationListComponent implements OnInit {
 
     if (this.connectedConsultantId) {
       this.store.dispatch(
-        loadConsultantsBySociete({ consultantId: this.connectedConsultantId })
+        loadConsultantsBySociete({ adminId: this.connectedConsultantId })
       );
     }
     this.store.dispatch(PrestationActions.loadPrestations());

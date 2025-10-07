@@ -3,12 +3,12 @@ import { Consultant } from 'src/app/models/consultant.models';
 
 export const loadConsultantsBySociete = createAction(
   '[Consultant] Load Consultants By Societe',
-  props<{ consultantId: number }>()
+  props<{ adminId: number }>()
 );
 
 export const loadConsultantsBySocieteSuccess = createAction(
   '[Consultant] Load Consultants By Societe Success',
-  props<{ consultants: any[] }>()
+  props<{ consultants: Consultant[] }>()
 );
 
 export const loadConsultantsBySocieteFailure = createAction(

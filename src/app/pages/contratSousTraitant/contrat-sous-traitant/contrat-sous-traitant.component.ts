@@ -345,9 +345,7 @@ export class ContratSousTraitantComponent implements OnInit {
     const contratModifie: ContratSousTraitant = {
       ...contrat,
       statutContrat: nouveauStatut,
-      consultant: {
-        consultantId: contrat.consultant?.consultantId!,
-      },
+      consultant:contrat.consultant,
     };
 
     this.contratService.update(contratModifie).subscribe({

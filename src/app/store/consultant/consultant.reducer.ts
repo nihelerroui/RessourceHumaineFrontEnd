@@ -15,13 +15,10 @@ export const initialState: ConsultantState = {
 
 export const consultantReducer = createReducer(
   initialState,
-  on(ConsultantActions.loadConsultantsBySociete, state => ({
-    ...state,
-    loading: true
-  })),
+  on(ConsultantActions.loadConsultantsBySociete, state => ({ ...state, loading: true })),
   on(ConsultantActions.loadConsultantsBySocieteSuccess, (state, { consultants }) => ({
     ...state,
-    consultants,
+    consultants: consultants ? consultants.sort((a, b) => a?.prenom.localeCompare(b?.prenom)) : [],
     loading: false
   })),
   on(ConsultantActions.loadConsultantsBySocieteFailure, (state, { error }) => ({

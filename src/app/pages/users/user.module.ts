@@ -14,6 +14,8 @@ import { UsersListComponent } from './users-list/users-list.component';
 import { UtilisateurregisterviewComponent } from './utilisateurregisterview/utilisateurregisterview.component';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { UtilisateurdetailviewComponent } from './utilisateurdetailview/utilisateurdetailview.component';
+import { consultantReducer } from 'src/app/store/consultant/consultant.reducer';
+import { ConsultantEffects } from 'src/app/store/consultant/consultant.effects';
 
 
 @NgModule({
@@ -28,6 +30,9 @@ import { UtilisateurdetailviewComponent } from './utilisateurdetailview/utilisat
     PaginationModule.forRoot(),
     StoreModule.forFeature('users', userReducer),
     EffectsModule.forFeature([UserEffects]) ,
+    StoreModule.forFeature('consultant', consultantReducer),
+    EffectsModule.forFeature([ConsultantEffects]) ,
+
     BsDropdownModule.forRoot(),
     CollapseModule.forRoot(),
     UIModule,

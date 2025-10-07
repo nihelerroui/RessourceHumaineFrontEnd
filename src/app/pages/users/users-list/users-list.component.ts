@@ -8,11 +8,11 @@ import {
   toggleUserStatusSuccess,
 } from "src/app/store/user/user.actions";
 import Swal from "sweetalert2";
-import * as AuthActions from "src/app/store/Authentication/authentication.actions";
+import * as adminsocieteActions from "src/app/store/AdminSociete/AdminSociete.actions";
 import { UtilisateurregisterviewComponent } from "../utilisateurregisterview/utilisateurregisterview.component";
 import { UtilisateurdetailviewComponent } from "../utilisateurdetailview/utilisateurdetailview.component";
 import { UserRole } from "src/app/models/userRole.enum";
-import { loadConsultants } from "src/app/store/Authentication/authentication.actions";
+import { loadConsultantsBySociete } from "src/app/store/consultant/consultant.actions";
 import {
   selectAllConsultants,
   selectAllSocietes,
@@ -21,7 +21,10 @@ import {
 } from "src/app/store/Authentication/authentication-selector";
 import { Consultant } from "src/app/models/consultant.models";
 import { Actions, ofType } from "@ngrx/effects";
-
+import * as consultantActions from "src/app/store/consultant/consultant.actions";
+import * as fromConsultant from "src/app/store/consultant/consultant-selector";
+// import * as userActions from "src/app/store/users/users.actions";
+import { AuthenticationService } from "src/app/core/services/auth.service";
 @Component({
   selector: "app-users-list",
   templateUrl: "./users-list.component.html",
@@ -29,11 +32,17 @@ import { Actions, ofType } from "@ngrx/effects";
 })
 export class UsersListComponent implements OnInit {
   breadCrumbItems!: Array<{ label: string; path?: string; active?: boolean }>;
-  userList$: Observable<Consultant[]>;
-  loading$: Observable<boolean> = of(false);
-  error$: Observable<string | null>;
+  // userList$: Observable<Consultant[]>;
+  // loading$: Observable<boolean> = of(false);
+  // error$: Observable<string | null>;
+  consultants: Consultant[] = [];
+  listconsultantfiltred: Consultant[];
+  returnedArray: any[];
+  consultants$: Observable<Consultant[]>;
+  error$: Observable<any>;
+  loading$: Observable<any>;
 
-  filteredUserList: Consultant[] = [];
+  //filteredUserList: Consultant[] = [];
   paginatedUserList: Consultant[] = [];
   searchTerm: string = "";
   currentPage: number = 1;
@@ -46,34 +55,44 @@ export class UsersListComponent implements OnInit {
 
   selectedStatus: string = "";
 
-  roles: string[] = Object.values(UserRole);
+  // roles: string[] = Object.values(UserRole);
   statuses: string[] = ["Activé", "Désactivé"];
 
   selectedSocieteId: number | null = null;
   adminSocietes: any[] = [];
   consultantSocieteId: number | null = null;
+  consultantId: number | null = null;
+  currentUser: Consultant; 
+  term: any;
 
   constructor(
     private store: Store,
     private modalService: BsModalService,
-    private actions$: Actions
-  ) {}
+    private actions$: Actions,
+    private authenticationService: AuthenticationService
+  ) {this.consultants$ = this.store.select(fromConsultant.selectAllConsultants);
+    this.loading$ = this.store.select(fromConsultant.selectLoading);
+    this.error$ = this.store.select(fromConsultant.selectError);
+    this.currentUser = this.authenticationService.getConnectedConsultant();}
 
   ngOnInit(): void {
     this.breadCrumbItems = [
       { label: "Consultants", path: "/" },
       { label: "Liste des Consultants", active: true },
     ];
-
-    const currentUser = JSON.parse(
-      localStorage.getItem("currentUser") || "{}"
+    this.store.dispatch(
+      consultantActions.loadConsultantsBySociete({
+        adminId: this.currentUser.consultantId,
+      })
     );
-    this.consultantSocieteId = currentUser?.societe?.societeId || null;
-    this.selectedSocieteId = this.consultantSocieteId;
-
-    this.store.dispatch(loadConsultants());
-
-    this.store.dispatch(AuthActions.loadAdminSocietes());
+    this.consultants$.subscribe((cons) => {
+      console.log('consultants geted', cons);
+      this.consultants = cons;
+      this.listconsultantfiltred = this.consultants;
+      this.returnedArray = this.listconsultantfiltred;
+      console.log('listconsultantfiltred', this.listconsultantfiltred)
+    });
+    this.store.dispatch(adminsocieteActions.loadSocietesByAdmin({ adminId: this.consultantId }));
     this.store.select(selectAllSocietes).subscribe((societes) => {
       this.adminSocietes = societes;
     });
@@ -82,45 +101,37 @@ export class UsersListComponent implements OnInit {
       this.applyUserFilters(consultants);
     });
 
-    this.loading$ = this.store.select(selectConsultantsLoading);
-    this.error$ = this.store.select(selectConsultantsError);
+    // this.loading$ = this.store.select(selectConsultantsLoading);
+    // this.error$ = this.store.select(selectConsultantsError);
 
-    this.actions$.pipe(ofType(toggleUserStatusSuccess)).subscribe(() => {
-      this.store.dispatch(loadConsultants());
-    });
+    // this.actions$.pipe(ofType(toggleUserStatusSuccess)).subscribe(() => {
+    //   this.store.dispatch(loadConsultants());
+    // });
   }
 
   filterUsers() {
-    this.store.select(selectAllConsultants).subscribe((consultants) => {
-      this.applyUserFilters(consultants);
-    });
+      this.applyUserFilters(this.returnedArray);
+  
   }
 
 applyUserFilters(consultants: Consultant[]) {
-  this.filteredUserList = consultants.filter((consultant) => {
-    const roleMatch =
-      !this.selectedRole || consultant.user?.role === this.selectedRole;
+  console.log('dans filtre ', consultants)
+  this.listconsultantfiltred = consultants.filter((consultant) => {
 
     const statusMatch =
       !this.selectedStatus ||
-      (this.selectedStatus === "Activé" && consultant.user?.enabled) ||
-      (this.selectedStatus === "Désactivé" && !consultant.user?.enabled);
-
-    const societeMatch =
-      !this.selectedSocieteId ||
-      consultant.societe?.societeId === this.selectedSocieteId;
-
+      (this.selectedStatus === "Activé" && consultant.users?.enabled) ||
+      (this.selectedStatus === "Désactivé" && !consultant.users?.enabled);
     const nameMatch =
       !this.searchTerm ||
       consultant.fullName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      consultant.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      consultant.nom?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       consultant.prenom?.toLowerCase().includes(this.searchTerm.toLowerCase());
-
     const emailMatch =
       !this.searchTerm ||
-      consultant.user?.email?.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-    return roleMatch && statusMatch && societeMatch && nameMatch && emailMatch;
+      consultant.users?.mail.toLowerCase().includes(this.searchTerm.toLowerCase());
+console.log('statusMatch && nameMatch && emailMatch',statusMatch || nameMatch || emailMatch)
+    return statusMatch && nameMatch && emailMatch;
   });
 
   this.pageChanged({ page: 1 });
@@ -130,12 +141,11 @@ applyUserFilters(consultants: Consultant[]) {
   pageChanged(event: any) {
     this.currentPage = event?.page || 1;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    this.paginatedUserList = this.filteredUserList.slice(
+    this.paginatedUserList = this.listconsultantfiltred.slice(
       startIndex,
       startIndex + this.itemsPerPage
     );
   }
-
   trackByUserId(index: number, consultant: Consultant): number {
     return consultant.consultantId;
   }
@@ -146,7 +156,7 @@ applyUserFilters(consultants: Consultant[]) {
   this.selectedSocieteId = this.consultantSocieteId;
   this.searchTerm = '';
 
-  this.store.dispatch(loadConsultants());
+  // this.store.dispatch(loadConsultants());
 
   this.pageChanged({ page: 1 });
 }
@@ -183,7 +193,7 @@ applyUserFilters(consultants: Consultant[]) {
   }
 
   toggleStatus(consultant: Consultant): void {
-    const user = consultant.user;
+    const user = consultant.users;
     const action = user.enabled ? "désactiver" : "activer";
 
     Swal.fire({
@@ -194,7 +204,7 @@ applyUserFilters(consultants: Consultant[]) {
       cancelButtonText: "Annuler",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.store.dispatch(toggleUserStatus({ userId: user.userId }));
+        this.store.dispatch(toggleUserStatus({ userId: user.usersId }));
         Swal.fire({
           icon: "success",
           title: "Succès",
