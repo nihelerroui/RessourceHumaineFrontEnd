@@ -21,7 +21,6 @@ export class TokenStorageService {
   public getToken(isExcludedRoute: boolean): string | null {
     const clientToken = localStorage.getItem("clientToken");
     const authToken = localStorage.getItem("token");
-console.log('authToken dans token storage', authToken); 
     if (isExcludedRoute) {
       if (clientToken && clientToken !== "null") {
         return clientToken;

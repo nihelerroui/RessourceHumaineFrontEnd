@@ -5,14 +5,14 @@ import { catchError } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root'
 })
-export class GenericService<T> {
- 
- protected apiUrl: string;
+export class GenericServiceExternalAPIService<T> {
+
+  protected apiUrl: string;
 
   constructor(protected http: HttpClient, protected endpoint: string) {
-    this.apiUrl = `${environment.apiUrl}/${endpoint}`;
+    this.apiUrl = `${environment.baseUrl}/${endpoint}`;
   }
 
   getAll(): Observable<T[]> {
@@ -20,6 +20,7 @@ export class GenericService<T> {
     return this.http.get<any[]>(this.apiUrl).pipe(catchError(this.handleError));
   }
 
+  
   getOne(id: number): Observable<T> {
     return this.http
       .get<T>(`${this.apiUrl}/${id}`)

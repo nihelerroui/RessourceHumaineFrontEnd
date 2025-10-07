@@ -15,7 +15,6 @@ export class AuthGuard implements CanActivate {
  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
   const excludedRoutes = ['/contratsClient/', '/contrats-client/', '/import-contrat/', 'facture/client/view', '/reset-password'];
   const isExcluded = excludedRoutes.some(path => state.url.includes(path));
-  const token = this.tokenStorage.getToken(isExcluded);
 
   if (environment.defaultauth === 'firebase') {
     const url: string = state.url;  

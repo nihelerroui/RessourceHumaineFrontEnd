@@ -1,5 +1,5 @@
-import { User } from "../store/Authentication/auth.models";
 import { PersonalDetails } from "./PersonalDetails.model";
+import { User } from "./auth.models";
 import { Societe } from "./societe.model";
 
 export interface Consultant {

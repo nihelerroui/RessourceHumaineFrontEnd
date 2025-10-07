@@ -4,11 +4,12 @@ import { Observable, catchError, throwError } from 'rxjs';
 import { Consultant } from 'src/app/models/consultant.models';
 import { environment } from 'src/environments/environment';
 import { GenericService } from './generic.service';
+import { GenericServiceExternalAPIService } from './generic-service-external-api.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConsultantService extends GenericService<Consultant> {
+export class ConsultantService extends GenericServiceExternalAPIService<Consultant> {
 
   protected baseUrl: string;
 

@@ -13,7 +13,7 @@ export const MENU: MenuItem[] = [
   label: "MENUITEMS.DASHBOARD.TEXT",
   icon: "bx bx-home-circle",
   link: "dashboards/default",
-   roles: ["ADMINISTRATEUR"],
+  //  roles: ["ADMIN"],
 },
 
   {
@@ -27,7 +27,7 @@ export const MENU: MenuItem[] = [
     label: "MENUITEMS.UTILISATEURS.TEXT",
     icon: "bx bx-user",
     link: "/users/list",
-    roles: ["ADMINISTRATEUR"],
+    // roles: ["ADMIN"],
   },
 
   {
@@ -35,7 +35,7 @@ export const MENU: MenuItem[] = [
     label: "MENUITEMS.PRESTATIONS.TEXT",
     icon: "bx bx-briefcase",
     link: "/prestations",
-    roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+    // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
   },
 
   // Géolocalisation
@@ -49,7 +49,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.PAYS.TEXT",
         icon: "bx bx-globe",
         link: "/pays/list",
-        roles: ["ADMINISTRATEUR"],
+        // roles: ["ADMIN"],
         parentId: 20,
       },
       {
@@ -57,7 +57,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.SOCIETES.TEXT",
         icon: "bx bx-building",
         link: "/societe/list",
-        roles: ["ADMINISTRATEUR"],
+        // roles: ["ADMIN"],
         parentId: 20,
       },
       {
@@ -65,7 +65,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.CLIENTS.TEXT",
         icon: "bx bx-group",
         link: "/client/list",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 20,
       },
     ],
@@ -82,7 +82,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.FACTURE_CLIENT.TEXT",
         icon: "bx bx-receipt",
         link: "/factureclientadmin",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
       {
@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.FACTURES_SOUS_TRAITANT.TEXT",
         icon: "bx bx-receipt",
         link: "/factureSousTraitant/list",
-        roles: ["ADMINISTRATEUR","SOUS_TRAITANT"],
+        // roles: ["ADMIN","SOUS_TRAITANT"],
         parentId: 30,
       },
       {
@@ -98,7 +98,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.FACTURES_ACHATS.TEXT",
         icon: "bx bx-receipt",
         link: "/facture/list",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
       {
@@ -106,7 +106,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.DEPENSES.TEXT",
         icon: "bx bx-coin-stack",
         link: "/depenses",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
       {
@@ -114,7 +114,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.RECETTES.TEXT",
         icon: "bx bx-dollar",
         link: "/recettes/list",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
       {
@@ -122,7 +122,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.CAISSE.TEXT",
         icon: "bx bx-cash",
         link: "/caisse",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
       {
@@ -130,7 +130,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.TRESORERIE.TEXT",
         icon: "bx bx-line-chart",
         link: "/tresorerie",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 30,
       },
     ],
@@ -147,7 +147,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.MAINOEUVRE.TEXT",
         icon: "bx bx-user-voice",
         link: "/mainOeuvre/list",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 40,
       },
       {
@@ -155,7 +155,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.HISTORIQUEMAINOEUVRE.TEXT",
         icon: "bx bx-history",
         link: "/historique-mainoeuvre/list",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 40,
       },
     ],
@@ -172,7 +172,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.CONTRATSOUSTRAITANT.TEXT",
         icon: "bx bx-message-alt-dots",
         link: "/contratsoustraitant",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER", "SOUS_TRAITANT"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER", "SOUS_TRAITANT"],
         parentId: 50,
       },
       {
@@ -180,7 +180,7 @@ export const MENU: MenuItem[] = [
         label: "MENUITEMS.CONTRATCLIENTADMIN.TEXT",
         icon: "bx bx-message-alt-dots",
         link: "/contratclientadmin",
-        roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+        // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
         parentId: 50,
       },
     ],
@@ -192,6 +192,6 @@ export const MENU: MenuItem[] = [
     label: "MENUITEMS.HISTORIQUECHIFFREAFFAIRE.TEXT",
     icon: "bx bx-bar-chart-alt-2",
     link: "/historique-chiffreAffaire",
-    roles: ["ADMINISTRATEUR", "RESPONSABLE_FINANCIER"],
+    // roles: ["ADMIN", "RESPONSABLE_FINANCIER"],
   },
 ];
