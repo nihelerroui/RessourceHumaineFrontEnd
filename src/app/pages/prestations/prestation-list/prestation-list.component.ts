@@ -105,12 +105,16 @@ export class PrestationListComponent implements OnInit {
           : p.consultant?.societe?.societeId === this.consultantSocieteId
       );
     });
+    console.log("constrats",this.contracts$); 
+
     this.contracts$.subscribe((contracts) => {
+      console.log('contrats dans subscribe', contracts)
       this.contracts = contracts.filter(c =>
         this.selectedSocieteId
           ? c.client?.societe?.societeId === +this.selectedSocieteId
           : c.client?.societe?.societeId === this.consultantSocieteId
       );
+      console.log('contrats apres filtre' ,this.contracts)
     });
 
   }

@@ -11,11 +11,9 @@ import { GenericServiceExternalAPIService } from './generic-service-external-api
 })
 export class ConsultantService extends GenericServiceExternalAPIService<Consultant> {
 
-  protected baseUrl: string;
 
   constructor(protected override http: HttpClient) {
     super(http, "consultant"); }
-
  
   getConsultantByMail(email: string): Observable<Consultant> {
     return this.http

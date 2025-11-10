@@ -173,6 +173,17 @@ export class AuthenticationEffects {
     )
   )
 );
+saveConsultantToLocalStorage$ = createEffect(
+  () =>
+    this.actions$.pipe(
+      ofType(ConsultantActions.loadConsultantByMailSuccess),
+      tap((action) => {
+        localStorage.setItem('consultant', JSON.stringify(action.consultant));
+        this.router.navigate(['/']);
+      })
+    ),
+  { dispatch: false }
+);
 redirectAfterLoadConsultant$ = createEffect(
   () =>
     this.actions$.pipe(

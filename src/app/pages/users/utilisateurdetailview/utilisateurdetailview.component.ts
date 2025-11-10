@@ -22,10 +22,11 @@ export class UtilisateurdetailviewComponent implements OnInit {
 
   photoUrl: string = 'assets/images/users/avatar-1.jpg';
 
-
   constructor(private cdr: ChangeDetectorRef , private store : Store) {}
 
  ngOnInit(): void {
+  console.log('this.consultant',this.consultant)
+
   if (!this.consultant) return;
 
   this.store.dispatch(loadUserImage());

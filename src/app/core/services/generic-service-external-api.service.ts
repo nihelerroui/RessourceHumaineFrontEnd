@@ -46,6 +46,7 @@ export class GenericServiceExternalAPIService<T> {
   }
 
   getBySocieteByConsultant(adminId: number, isCommercial?:boolean): Observable<T[]> {
+    console.log('dans service getBySocieteByConsultant ', adminId )
     if (isCommercial === true) { 
       return this.http
       .get<T[]>(`${this.apiUrl}/commercial/${adminId}`)
