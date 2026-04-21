@@ -1,4 +1,6 @@
 # HR & Finance Management System
+# Vidéo demo 
+https://drive.google.com/drive/folders/1CFYDGqrCK4NTNqRnWK1BpMFe8_wsPiXT?usp=sharing
 
 ## Description du projet
 
